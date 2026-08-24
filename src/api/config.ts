@@ -1,10 +1,13 @@
 import axios from "axios";
 
-const Url = "https://enrgy-be-development.up.railway.app/api/";
-// const Url = "http://localhost:3000/api/";
+const apiUrl = import.meta.env.VITE_API_URL;
+
+if (!apiUrl) {
+  throw new Error("VITE_API_URL is not set. Define it in your .env file.");
+}
 
 const axiosInstance = axios.create({
-  baseURL: Url,
+  baseURL: apiUrl,
 });
 
 axiosInstance.interceptors.request.use((config) => {
@@ -80,7 +83,7 @@ axiosInstance.interceptors.response.use(
 
     try {
       const { data } = await axios.post<{ success?: boolean; data?: { accessToken?: string; refreshToken?: string } }>(
-        `${Url}auth/refresh`,
+        `${apiUrl}auth/refresh`,
         { refreshToken },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -109,4 +112,4 @@ axiosInstance.interceptors.response.use(
 axios.defaults.withCredentials = true;
 
 export default axiosInstance;
-export const apiUrl = Url;
+export { apiUrl };
