@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -47,6 +48,7 @@ export default function EditUserDialog({
   onOpenChange,
   user,
 }: EditUserDialogProps) {
+  const { t } = useTranslation("users");
   const updateMutation = useUpdateUser();
   const { data: allRoles = [], isLoading: rolesLoading } = useGetRoles();
 
@@ -120,7 +122,7 @@ export default function EditUserDialog({
     if (newRoleId !== currentRoleId) body.roleId = newRoleId;
 
     if (Object.keys(body).length === 0) {
-      toast.info("No changes to save.");
+      toast.info(t("editDialog.noChanges"));
       return;
     }
 
@@ -128,11 +130,11 @@ export default function EditUserDialog({
       { id: user.id, body },
       {
         onSuccess: () => {
-          toast.success("User updated successfully.");
+          toast.success(t("editDialog.success"));
           onOpenChange(false);
         },
         onError: (e) =>
-          toast.error((e as Error)?.message ?? "Failed to update user."),
+          toast.error((e as Error)?.message ?? t("editDialog.error")),
       }
     );
   };
@@ -141,14 +143,14 @@ export default function EditUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Edit User</DialogTitle>
+          <DialogTitle>{t("editDialog.title")}</DialogTitle>
           <DialogDescription>
-            Update user information. Only changed fields will be sent.
+            {t("editDialog.description")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="edit-fullName">Full Name</Label>
+            <Label htmlFor="edit-fullName">{t("editDialog.fullName")}</Label>
             <Input
               id="edit-fullName"
               value={form.fullName}
@@ -159,9 +161,9 @@ export default function EditUserDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-phone">Phone</Label>
-            <div className="flex rounded-md border border-input overflow-hidden">
-              <span className="inline-flex items-center px-3 text-sm text-muted-foreground border-r border-input bg-muted/30">
+            <Label htmlFor="edit-phone">{t("editDialog.phone")}</Label>
+            <div dir="ltr" className="flex rounded-md border border-input overflow-hidden">
+              <span className="inline-flex items-center px-3 text-sm text-muted-foreground border-e border-input bg-muted/30">
                 +966
               </span>
               <Input
@@ -176,10 +178,10 @@ export default function EditUserDialog({
                 aria-invalid={!!phoneError}
               />
             </div>
-            {phoneError && <p className="text-xs text-red-600 font-medium">{phoneError}</p>}
+            {phoneError && <p className="text-xs text-destructive font-medium">{phoneError}</p>}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-email">Email</Label>
+            <Label htmlFor="edit-email">{t("editDialog.email")}</Label>
             <Input
               id="edit-email"
               type="email"
@@ -191,7 +193,7 @@ export default function EditUserDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="edit-role">Role</Label>
+            <Label htmlFor="edit-role">{t("editDialog.role")}</Label>
             <Select
               value={form.roleId || "none"}
               onValueChange={(v) =>
@@ -201,12 +203,12 @@ export default function EditUserDialog({
               <SelectTrigger id="edit-role">
                 <SelectValue
                   placeholder={
-                    rolesLoading ? "Loading roles..." : "Select role"
+                    rolesLoading ? t("editDialog.loadingRoles") : t("editDialog.selectRolePlaceholder")
                   }
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">No role</SelectItem>
+                <SelectItem value="none">{t("editDialog.noRole")}</SelectItem>
                 {assignableRoles.map((role) => (
                   <SelectItem key={role.id} value={String(role.id)}>
                     {role.name}
@@ -221,10 +223,10 @@ export default function EditUserDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              {t("editDialog.cancel")}
             </Button>
             <Button type="submit" disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? "Saving..." : "Save Changes"}
+              {updateMutation.isPending ? t("editDialog.saving") : t("editDialog.save")}
             </Button>
           </DialogFooter>
         </form>

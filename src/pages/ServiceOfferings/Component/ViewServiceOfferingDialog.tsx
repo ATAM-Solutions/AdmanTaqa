@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -5,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import useGetServiceOfferingById from "@/hooks/ServiceOfferings/useGetServiceOfferingById";
+import { formatDate } from "@/lib/i18n/formatters";
 
 type ViewServiceOfferingDialogProps = {
   open: boolean;
@@ -19,11 +21,11 @@ export default function ViewServiceOfferingDialog({
   organizationId,
   offeringId,
 }: ViewServiceOfferingDialogProps) {
+  const { t, i18n } = useTranslation("serviceOfferings");
   const { data: viewingResponse, isLoading } = useGetServiceOfferingById(
     organizationId ?? null,
     offeringId
   );
-  // console.log(viewingResponse);
 
   const viewing = viewingResponse?.data;
 
@@ -31,41 +33,41 @@ export default function ViewServiceOfferingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Service Offering Details</DialogTitle>
+          <DialogTitle>{t("viewDialog.title")}</DialogTitle>
         </DialogHeader>
         {isLoading ? (
-          <div className="py-8 text-center text-muted-foreground">Loading...</div>
+          <div className="py-8 text-center text-muted-foreground">{t("viewDialog.loading")}</div>
         ) : viewing ? (
           <div className="space-y-3 text-sm">
-          
+
             <p>
-              <span className="font-semibold">Category:</span>{" "}
-              {viewing.ServiceCategory?.nameEn }
+              <span className="font-semibold">{t("viewDialog.category")}:</span>{" "}
+              {viewing.ServiceCategory?.nameEn}
             </p>
             <p>
-              <span className="font-semibold">Governorate:</span>{" "}
+              <span className="font-semibold">{t("viewDialog.governorate")}:</span>{" "}
               {viewing.Governorate?.name || viewing.governorateId}
             </p>
             <p>
-              <span className="font-semibold">City:</span>{" "}
+              <span className="font-semibold">{t("viewDialog.city")}:</span>{" "}
               {viewing.City?.name || viewing.cityId}
             </p>
             <p>
-              <span className="font-semibold">Amount:</span>{" "}
+              <span className="font-semibold">{t("viewDialog.amount")}:</span>{" "}
               {Number(viewing.amount).toFixed(2)} {viewing.currency}
             </p>
             <p>
-              <span className="font-semibold">Created:</span>{" "}
-              {new Date(viewing.createdAt).toLocaleString()}
+              <span className="font-semibold">{t("viewDialog.created")}:</span>{" "}
+              {formatDate(viewing.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
             </p>
             <p>
-              <span className="font-semibold">Updated:</span>{" "}
-              {new Date(viewing.updatedAt).toLocaleString()}
+              <span className="font-semibold">{t("viewDialog.updated")}:</span>{" "}
+              {formatDate(viewing.updatedAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
             </p>
           </div>
         ) : (
           <div className="py-8 text-center text-muted-foreground">
-            Offering not found.
+            {t("viewDialog.notFound")}
           </div>
         )}
       </DialogContent>

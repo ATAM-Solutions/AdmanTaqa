@@ -1,0 +1,70 @@
+{
+  "list": {
+    "title": "الأدوار والصلاحيات",
+    "subtitle": "حدد مستويات الوصول وأسند الصلاحيات لمختلف فئات المستخدمين.",
+    "createButton": "إنشاء دور مخصص",
+    "loading": "جارٍ تحميل الأدوار...",
+    "deleteUnavailable": "نقطة حذف الدور غير متاحة بعد على /api/roles لـ \"{{name}}\"."
+  },
+  "card": {
+    "activeUsers": "{{count}} مستخدم نشط",
+    "permissionsHeading": "الصلاحيات ({{count}})",
+    "more": "+{{count}} أخرى",
+    "edit": "تعديل"
+  },
+  "create": {
+    "title": "إنشاء دور مخصص",
+    "subtitle": "حدد دورًا جديدًا بصلاحيات ومستويات وصول محددة.",
+    "detailsTitle": "تفاصيل الدور",
+    "detailsDescription": "أدخل المعلومات الأساسية لهذا الدور.",
+    "roleName": "اسم الدور",
+    "roleNamePlaceholder": "مثال: مسؤول الامتثال",
+    "description": "الوصف",
+    "descriptionPlaceholder": "صِف المسؤوليات ونطاق الوصول...",
+    "permissions": "الصلاحيات",
+    "loadingPermissions": "جارٍ تحميل الصلاحيات...",
+    "noPermissions": "لم يتم إرجاع أي صلاحيات قابلة للتخصيص من الواجهة البرمجية.",
+    "cancel": "إلغاء",
+    "create": "إنشاء الدور",
+    "creating": "جارٍ الإنشاء...",
+    "createdSuccess": "تم إنشاء الدور بنجاح!",
+    "createFailed": "فشل إنشاء الدور."
+  },
+  "edit": {
+    "title": "تعديل الدور",
+    "subtitle": "تعديل الصلاحيات والتفاصيل لـ {{name}}",
+    "detailsTitle": "تفاصيل الدور",
+    "detailsDescription": "تحديث المعلومات الأساسية لهذا الدور.",
+    "roleName": "اسم الدور",
+    "roleNamePlaceholder": "مثال: مسؤول الامتثال",
+    "description": "الوصف",
+    "descriptionPlaceholder": "صِف المسؤوليات ونطاق الوصول...",
+    "permissions": "الصلاحيات",
+    "permissionsHint": "اختر الصلاحيات التي تريد منحها للمستخدمين بهذا الدور.",
+    "loadingPermissions": "جارٍ تحميل الصلاحيات...",
+    "noPermissions": "لم يتم إرجاع أي صلاحيات قابلة للتخصيص من الواجهة البرمجية.",
+    "cancel": "إلغاء",
+    "save": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "updatedSuccess": "تم تحديث الدور \"{{name}}\" بنجاح!",
+    "updateFailed": "فشل تحديث الدور.",
+    "loading": "جارٍ تحميل الدور...",
+    "notFound": "الدور غير موجود",
+    "returnToRoles": "العودة إلى الأدوار"
+  },
+  "details": {
+    "permissionsTitle": "صلاحيات الدور",
+    "permissionsDescription": "الإجراءات المسموح بها للمستخدمين بهذا الدور.",
+    "editRole": "تعديل الدور",
+    "overview": "نظرة عامة",
+    "activeUsers": "المستخدمون النشطون",
+    "createdAt": "تاريخ الإنشاء",
+    "notAvailable": "غير متاح",
+    "roleType": "نوع الدور",
+    "globalDescription": "ينطبق على موارد النظام بالكامل.",
+    "orgDescription": "مقتصر على منظمات محددة.",
+    "loading": "جارٍ تحميل تفاصيل الدور...",
+    "notFound": "الدور غير موجود",
+    "returnToRoles": "العودة إلى الأدوار"
+  }
+}

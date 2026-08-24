@@ -1,0 +1,54 @@
+{
+  "title": "أوامر العمل",
+  "subtitle": "تتبع مهام الصيانة والتركيب الجارية.",
+  "activeOrders": "الأوامر النشطة",
+  "loading": "جارٍ تحميل أوامر العمل...",
+  "loadFailed": "فشل تحميل أوامر العمل.",
+  "table": {
+    "title": "العنوان",
+    "serviceProvider": "مزود الخدمة",
+    "dates": "التواريخ",
+    "status": "الحالة",
+    "actions": "الإجراءات",
+    "details": "التفاصيل",
+    "noResults": "لا توجد أوامر عمل."
+  },
+  "detail": {
+    "loading": "جارٍ التحميل...",
+    "backToList": "العودة إلى أوامر العمل",
+    "loadFailed": "فشل تحميل أمر العمل.",
+    "notFoundTitle": "أمر العمل غير موجود.",
+    "notFoundDescription": "ربما تمت إزالة أمر العمل أو لا تملك صلاحية عرضه.",
+    "returnToList": "العودة إلى أوامر العمل",
+    "sections": {
+      "details": "تفاصيل أمر العمل",
+      "timeline": "الجدول الزمني للنشاط",
+      "quickInfo": "معلومات سريعة"
+    },
+    "fields": {
+      "description": "الوصف",
+      "serviceProvider": "مزود الخدمة",
+      "branch": "الفرع",
+      "fuelStation": "محطة الوقود",
+      "areaCity": "المنطقة / المدينة",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء المتوقع",
+      "jobType": "نوع العمل",
+      "costEstimate": "التكلفة التقديرية",
+      "status": "الحالة",
+      "priority": "الأولوية",
+      "duration": "المدة"
+    },
+    "durationDays": "{{count}} يوم",
+    "timeline": {
+      "created": "تم إنشاء أمر العمل",
+      "requestedBy": "طلب بواسطة: {{name}}",
+      "scheduledFor": "مجدول بتاريخ {{date}}",
+      "inProgressTitle": "العمل قيد التنفيذ",
+      "inProgressDescription": "الفريق يعمل حاليًا على هذه المهمة",
+      "completedTitle": "تم إكمال العمل",
+      "completedDescription": "تم الانتهاء بنجاح بتاريخ {{date}}",
+      "awaiting": "بانتظار البدء..."
+    }
+  }
+}

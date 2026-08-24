@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -27,18 +28,19 @@ export default function DeleteOnboardingDialog({
   onCancel,
   submitting,
 }: DeleteOnboardingDialogProps) {
+  const { t } = useTranslation("onboarding");
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onCancel()}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete onboarding item</DialogTitle>
+          <DialogTitle>{t("deleteDialog.title")}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete &quot;{item?.title}&quot;? This cannot be undone.
+            {t("deleteDialog.description", { title: item?.title })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={onCancel}>
-            Cancel
+            {t("deleteDialog.cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -46,7 +48,7 @@ export default function DeleteOnboardingDialog({
             disabled={!item || submitting}
           >
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            Delete
+            {t("deleteDialog.confirm")}
           </Button>
         </DialogFooter>
       </DialogContent>

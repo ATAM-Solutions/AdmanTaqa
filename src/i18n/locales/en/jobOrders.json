@@ -1,0 +1,54 @@
+{
+  "title": "Job Orders",
+  "subtitle": "Track ongoing maintenance and installation tasks.",
+  "activeOrders": "Active Orders",
+  "loading": "Loading job orders...",
+  "loadFailed": "Failed to load job orders.",
+  "table": {
+    "title": "Title",
+    "serviceProvider": "Service Provider",
+    "dates": "Dates",
+    "status": "Status",
+    "actions": "Actions",
+    "details": "Details",
+    "noResults": "No job orders found."
+  },
+  "detail": {
+    "loading": "Loading...",
+    "backToList": "Back to Job Orders",
+    "loadFailed": "Failed to load job order.",
+    "notFoundTitle": "Job order not found.",
+    "notFoundDescription": "The job order may have been removed or you may not have permission to view it.",
+    "returnToList": "Return to Job Orders",
+    "sections": {
+      "details": "Job Order Details",
+      "timeline": "Activity Timeline",
+      "quickInfo": "Quick Info"
+    },
+    "fields": {
+      "description": "Description",
+      "serviceProvider": "Service Provider",
+      "branch": "Branch",
+      "fuelStation": "Fuel Station",
+      "areaCity": "Area / City",
+      "startDate": "Start Date",
+      "endDate": "Expected End Date",
+      "jobType": "Job Type",
+      "costEstimate": "Cost Estimate",
+      "status": "Status",
+      "priority": "Priority",
+      "duration": "Duration"
+    },
+    "durationDays": "{{count}} days",
+    "timeline": {
+      "created": "Job Order Created",
+      "requestedBy": "Requested by: {{name}}",
+      "scheduledFor": "Scheduled for {{date}}",
+      "inProgressTitle": "Work in Progress",
+      "inProgressDescription": "Team is actively working on this job",
+      "completedTitle": "Job Completed",
+      "completedDescription": "Successfully finished on {{date}}",
+      "awaiting": "Awaiting commencement..."
+    }
+  }
+}

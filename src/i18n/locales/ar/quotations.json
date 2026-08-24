@@ -1,0 +1,116 @@
+{
+  "title": {
+    "authority": "عروض الخدمة",
+    "default": "العروض المالية"
+  },
+  "description": {
+    "authority": "مراجعة عروض الخدمة لطلبات الخدمة وإدارتها.",
+    "default": "مراجعة العروض المالية لطلبات الخدمة وإدارتها."
+  },
+  "submitNewOffer": "تقديم عرض جديد",
+  "submitDialog": {
+    "title": "تقديم عرض جديد",
+    "description": "أرسل عرض سعر لطلب خدمة.",
+    "serviceRequestId": "معرّف طلب الخدمة",
+    "serviceRequestIdPlaceholder": "مثال: 15",
+    "amount": "المبلغ",
+    "currency": "العملة",
+    "cancel": "إلغاء",
+    "send": "إرسال العرض",
+    "sending": "جارٍ الإرسال..."
+  },
+  "toasts": {
+    "invalidRequestId": "يرجى إدخال معرّف طلب خدمة صالح.",
+    "invalidAmount": "يرجى إدخال مبلغ صالح.",
+    "submitSuccess": "تم إرسال عرض السعر بنجاح!",
+    "submitFailed": "فشل إرسال عرض السعر."
+  },
+  "statusFilter": {
+    "options": {
+      "all": "الكل",
+      "DRAFT": "مسودة",
+      "SUBMITTED": "مُرسَل",
+      "REVISED": "مُعدَّل",
+      "WITHDRAWN": "مسحوب",
+      "REJECTED": "مرفوض",
+      "SELECTED": "مُختار"
+    }
+  },
+  "loading": "جارٍ تحميل عروض الأسعار...",
+  "loadFailed": "فشل تحميل عروض الأسعار.",
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "pageOf": "صفحة {{page}} من {{maxPage}}"
+  },
+  "tableHeader": {
+    "recentOffers": "أحدث العروض",
+    "summary": "الإجمالي: {{total}} | الصفحة: {{page}}"
+  },
+  "table": {
+    "title": "العنوان",
+    "status": "الحالة",
+    "version": "الإصدار",
+    "totalCost": "التكلفة الإجمالية",
+    "branch": "الفرع",
+    "stationOrg": "المحطة / المنظمة",
+    "created": "تاريخ الإنشاء",
+    "attachments": "المرفقات",
+    "actions": "الإجراءات",
+    "yes": "نعم",
+    "view": "عرض",
+    "noOffers": "لا توجد عروض.",
+    "priority": "الأولوية",
+    "description": "الوصف",
+    "amount": "المبلغ",
+    "provider": "مزود الخدمة",
+    "branchStation": "الفرع / المحطة",
+    "submittedBy": "أُرسل بواسطة",
+    "noQuotations": "لا توجد عروض أسعار.",
+    "orgFallback": "منظمة رقم {{id}}",
+    "notAvailable": "غير متاح"
+  },
+  "detail": {
+    "loading": "جارٍ التحميل...",
+    "backButton": "رجوع",
+    "notFound": "العرض غير موجود.",
+    "backToOffers": "العودة إلى العروض",
+    "quoteHeading": "العرض رقم {{id}}",
+    "version": "الإصدار {{version}}",
+    "payment": "الدفع: {{type}}",
+    "created": "أُنشئ بتاريخ {{date}}",
+    "rejection": "سبب الرفض: {{reason}}",
+    "sections": {
+      "requestBranch": "الطلب / الفرع",
+      "requestDetails": "تفاصيل الطلب",
+      "pricingDetails": "تفاصيل التسعير",
+      "paymentTerms": "شروط الدفع",
+      "attachments": "المرفقات",
+      "revisions": "التعديلات"
+    },
+    "fields": {
+      "requestId": "معرّف الطلب",
+      "branch": "الفرع",
+      "address": "العنوان",
+      "stationOrg": "المحطة / المنظمة",
+      "asset": "الأصل",
+      "area": "المنطقة",
+      "city": "المدينة",
+      "title": "العنوان",
+      "priority": "الأولوية",
+      "description": "الوصف",
+      "attachmentsCount": "{{count}} ملف",
+      "amount": "المبلغ",
+      "laborCost": "تكلفة العمالة",
+      "materialCost": "تكلفة المواد",
+      "timeline": "الجدول الزمني",
+      "warranty": "الضمان",
+      "scopeOfWork": "نطاق العمل",
+      "technicalProposal": "العرض الفني",
+      "notes": "ملاحظات"
+    },
+    "paymentTermRow": "التسلسل {{sequence}}: {{percent}}% — {{trigger}}",
+    "attachmentFallback": "مرفق",
+    "revisionRow": "الإصدار {{version}} — {{date}}"
+  }
+}

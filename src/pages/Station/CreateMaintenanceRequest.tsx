@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +22,7 @@ import useLinkedProviders from "@/hooks/Station/useLinkedProviders";
 import type { MaintenanceMode, MaintenancePriority } from "@/types/station";
 
 export default function CreateMaintenanceRequest() {
+  const { t } = useTranslation("station");
   const navigate = useNavigate();
   const { data: branches = [] } = useGetBranches();
   const { data: linkedProviders = [], isLoading: linkedLoading } = useLinkedProviders();
@@ -44,11 +46,11 @@ export default function CreateMaintenanceRequest() {
     e.preventDefault();
     const bid = branchId ? Number(branchId) : undefined;
     if (!bid || !title.trim()) {
-      toast.error("Branch and title are required.");
+      toast.error(t("create.toasts.branchTitleRequired"));
       return;
     }
     if (!description.trim()) {
-      toast.error("Description is required.");
+      toast.error(t("create.toasts.descriptionRequired"));
       return;
     }
     createMutation.mutate(
@@ -70,9 +72,9 @@ export default function CreateMaintenanceRequest() {
       {
         onSuccess: (data) => {
           if (maintenanceMode === "EXTERNAL" && selectedProviderIds.length === 0 && data?.externalRequest?.id) {
-            toast.success("Request created (SUBMITTED_BY_STATION). Send to providers from the request detail.");
+            toast.success(t("create.toasts.createdPendingSend"));
           } else {
-            toast.success("Maintenance request created.");
+            toast.success(t("create.toasts.created"));
           }
           if (maintenanceMode === "INTERNAL" && data?.internalWorkOrder?.id) {
             navigate(`/internal-work-orders/${data.internalWorkOrder.id}`);
@@ -82,7 +84,7 @@ export default function CreateMaintenanceRequest() {
             navigate("/station-requests");
           }
         },
-        onError: (err) => toast.error(err instanceof Error ? err.message : "Failed to create request."),
+        onError: (err) => toast.error(err instanceof Error ? err.message : t("create.toasts.createFailed")),
       }
     );
   };
@@ -91,56 +93,54 @@ export default function CreateMaintenanceRequest() {
     <div className="p-4 md:p-8 space-y-6">
       <Button variant="ghost" asChild>
         <Link to="/station-requests" className="gap-2">
-          <ChevronLeft className="h-4 w-4" /> Back
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("back")}
         </Link>
       </Button>
       <Card>
         <CardHeader>
-          <CardTitle>New Maintenance Request</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Create internal (your team) or external (service provider) maintenance request.
-          </p>
+          <CardTitle>{t("create.title")}</CardTitle>
+          <p className="text-sm text-muted-foreground">{t("create.subtitle")}</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>Branch *</Label>
+              <Label>{t("create.branch")}</Label>
               <Select value={branchId} onValueChange={setBranchId} required>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select branch" />
+                  <SelectValue placeholder={t("create.selectBranch")} />
                 </SelectTrigger>
                 <SelectContent>
                   {branches.map((b) => (
                     <SelectItem key={b.id} value={String(b.id)}>
-                      {b.nameEn ?? b.nameAr ?? `Branch ${b.id}`}
+                      {b.nameEn ?? b.nameAr ?? t("create.branchFallback", { id: b.id })}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="title">Title *</Label>
+              <Label htmlFor="title">{t("create.requestTitle")}</Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="Request title"
+                placeholder={t("create.titlePlaceholder")}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description">{t("create.description")}</Label>
               <Textarea
                 id="description"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Request description (required)"
+                placeholder={t("create.descriptionPlaceholder")}
                 rows={3}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label>{t("create.priority")}</Label>
               <Select
                 value={priority}
                 onValueChange={(v) => setPriority(v as MaintenancePriority)}
@@ -149,14 +149,14 @@ export default function CreateMaintenanceRequest() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="LOW">Low</SelectItem>
-                  <SelectItem value="MEDIUM">Medium</SelectItem>
-                  <SelectItem value="HIGH">High</SelectItem>
+                  <SelectItem value="LOW">{t("create.priorityLow")}</SelectItem>
+                  <SelectItem value="MEDIUM">{t("create.priorityMedium")}</SelectItem>
+                  <SelectItem value="HIGH">{t("create.priorityHigh")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Execution (Internal vs External)</Label>
+              <Label>{t("create.executionMode")}</Label>
               <Select
                 value={maintenanceMode}
                 onValueChange={(v) => setMaintenanceMode(v as MaintenanceMode)}
@@ -165,42 +165,38 @@ export default function CreateMaintenanceRequest() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="INTERNAL">Internal (own team)</SelectItem>
-                  <SelectItem value="EXTERNAL">External (service provider)</SelectItem>
+                  <SelectItem value="INTERNAL">{t("create.modeInternal")}</SelectItem>
+                  <SelectItem value="EXTERNAL">{t("create.modeExternal")}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                {maintenanceMode === "INTERNAL"
-                  ? "Internal: المحطة تنفذ الطلب (موظفوها). مزود الخدمة لا يرى الطلبات الداخلية."
-                  : "External: ينفذ مزود الخدمة بعد اختيار العرض وتأكيد الدفع (ثنائي الخطوة)."}
+                {maintenanceMode === "INTERNAL" ? t("create.modeHintInternal") : t("create.modeHintExternal")}
               </p>
             </div>
             {maintenanceMode === "INTERNAL" && (
               <div className="space-y-2">
-                <Label htmlFor="firstTaskNotes">First task notes (optional)</Label>
+                <Label htmlFor="firstTaskNotes">{t("create.firstTaskNotes")}</Label>
                 <Input
                   id="firstTaskNotes"
                   value={firstTaskNotes}
                   onChange={(e) => setFirstTaskNotes(e.target.value)}
-                  placeholder="Notes for first internal task"
+                  placeholder={t("create.firstTaskNotesPlaceholder")}
                 />
               </div>
             )}
             {maintenanceMode === "EXTERNAL" && (
               <div className="space-y-2 rounded-lg border bg-muted/20 p-4">
-                <Label className="text-base font-semibold">المزودون (اختياري)</Label>
-                <p className="text-sm text-muted-foreground">
-                  اختر مزودين ليرسل لهم الطلب الآن فيصبح الطلب QUOTING_OPEN. إن لم تختر أي مزود، يُنشأ الطلب بحالة SUBMITTED_BY_STATION ويمكنك إرساله للمزودين لاحقاً من صفحة تفاصيل الطلب (Send to providers).
-                </p>
+                <Label className="text-base font-semibold">{t("create.providersHeading")}</Label>
+                <p className="text-sm text-muted-foreground">{t("create.providersDescription")}</p>
                 {linkedLoading ? (
-                  <p className="text-sm text-muted-foreground">Loading providers...</p>
+                  <p className="text-sm text-muted-foreground">{t("create.loadingProviders")}</p>
                 ) : linkedProviders.length === 0 ? (
-                  <p className="text-sm text-amber-600">
-                    لا يوجد مزودون مرتبطين. يمكنك إنشاء الطلب الآن (سيبقى SUBMITTED_BY_STATION) ثم{" "}
+                  <p className="text-sm text-amber-600 dark:text-amber-400">
+                    {t("create.noLinkedProvidersPrefix")}{" "}
                     <Link to="/linked-providers" className="underline font-medium">
-                      ربط مزودين
+                      {t("create.linkProviders")}
                     </Link>{" "}
-                    وإرسال الطلب من تفاصيل الطلب لاحقاً.
+                    {t("create.noLinkedProvidersSuffix")}
                   </p>
                 ) : (
                   <div className="flex flex-col gap-2 max-h-48 overflow-y-auto">
@@ -215,7 +211,7 @@ export default function CreateMaintenanceRequest() {
                         />
                         <Building2 className="h-4 w-4 text-muted-foreground" />
                         <span className="font-medium">
-                          {p.organizationName ?? `Provider #${p.organizationId}`}
+                          {p.organizationName ?? t("create.providerFallback", { id: p.organizationId })}
                         </span>
                       </label>
                     ))}
@@ -223,7 +219,7 @@ export default function CreateMaintenanceRequest() {
                 )}
                 {linkedProviders.length > 0 && selectedProviderIds.length > 0 && (
                   <p className="text-xs text-muted-foreground">
-                    {selectedProviderIds.length} مزود محدد. الطلب سيُرسل لهم ويصبح QUOTING_OPEN.
+                    {t("create.selectedProvidersCount", { count: selectedProviderIds.length })}
                   </p>
                 )}
               </div>
@@ -233,10 +229,10 @@ export default function CreateMaintenanceRequest() {
                 type="submit"
                 disabled={createMutation.isPending}
               >
-                {createMutation.isPending ? "Creating..." : "Create request"}
+                {createMutation.isPending ? t("create.submitting") : t("create.submit")}
               </Button>
               <Button type="button" variant="outline" asChild>
-                <Link to="/station-requests">Cancel</Link>
+                <Link to="/station-requests">{t("create.cancel")}</Link>
               </Button>
             </div>
           </form>

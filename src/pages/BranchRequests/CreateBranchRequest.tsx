@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,7 @@ import useGetFuelStationTypes from "@/hooks/Branches/useGetFuelStationTypes";
 import useGetFuelTypes from "@/hooks/Branches/useGetFuelTypes";
 
 export default function CreateBranchRequest() {
+  const { t } = useTranslation("branchRequests");
   const navigate = useNavigate();
   const createMutation = useCreateBranchRequest();
   const { data: orgResponse, isLoading: orgLoading } = useGetOrganization();
@@ -82,7 +84,7 @@ export default function CreateBranchRequest() {
     e.preventDefault();
     const areaIdNum = Number(areaId);
     if (!areaIdNum) {
-      toast.error("Area is required.");
+      toast.error(t("toasts.areaRequired"));
       return;
     }
 
@@ -107,11 +109,11 @@ export default function CreateBranchRequest() {
       },
       {
         onSuccess: () => {
-          toast.success("Branch request submitted.");
+          toast.success(t("toasts.submitted"));
           navigate("/branch-requests");
         },
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Failed to submit request."),
+          toast.error(err instanceof Error ? err.message : t("toasts.submitFailed")),
       }
     );
   };
@@ -120,39 +122,37 @@ export default function CreateBranchRequest() {
     <PendingApprovalGuard organization={organization} isLoading={orgLoading}>
       <div className="p-4 md:p-8 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Submit Branch Request</h1>
-          <p className="text-muted-foreground">
-            Fuel Station can submit a request for Authority review.
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("create.title")}</h1>
+          <p className="text-muted-foreground">{t("create.subtitle")}</p>
         </div>
         {!isFuelStation ? (
           <Card className="p-6 text-sm text-muted-foreground">
-            This page is available for Fuel Station organizations only.
+            {t("create.notAvailable")}
           </Card>
         ) : (
           <Card className="p-6 border-none shadow-xl bg-card/60 backdrop-blur-md">
             <form onSubmit={onSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Name (EN) *</Label>
+                  <Label>{t("create.nameEn")} *</Label>
                   <Input value={nameEn} onChange={(e) => setNameEn(e.target.value)} required />
                 </div>
                 <div className="space-y-2">
-                  <Label>Name (AR) *</Label>
+                  <Label>{t("create.nameAr")} *</Label>
                   <Input value={nameAr} onChange={(e) => setNameAr(e.target.value)} required />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>License Number</Label>
+                  <Label>{t("create.licenseNumber")}</Label>
                   <Input value={licenseNumber} onChange={(e) => setLicenseNumber(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Station Type</Label>
+                  <Label>{t("create.stationType")}</Label>
                   <Select value={stationTypeId} onValueChange={setStationTypeId}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select station type" />
+                      <SelectValue placeholder={t("create.selectStationType")} />
                     </SelectTrigger>
                     <SelectContent>
                       {stationTypes.map((st) => (
@@ -167,7 +167,7 @@ export default function CreateBranchRequest() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Country</Label>
+                  <Label>{t("create.country")}</Label>
                   <Select
                     value={countryId}
                     onValueChange={(v) => {
@@ -178,7 +178,7 @@ export default function CreateBranchRequest() {
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select country" />
+                      <SelectValue placeholder={t("create.selectCountry")} />
                     </SelectTrigger>
                     <SelectContent>
                       {countries.map((c) => (
@@ -190,7 +190,7 @@ export default function CreateBranchRequest() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Governorate</Label>
+                  <Label>{t("create.governorate")}</Label>
                   <Select
                     value={governorateId}
                     onValueChange={(v) => {
@@ -201,7 +201,7 @@ export default function CreateBranchRequest() {
                     disabled={!countryId}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select governorate" />
+                      <SelectValue placeholder={t("create.selectGovernorate")} />
                     </SelectTrigger>
                     <SelectContent>
                       {governorates.map((g) => (
@@ -213,7 +213,7 @@ export default function CreateBranchRequest() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>City</Label>
+                  <Label>{t("create.city")}</Label>
                   <Select
                     value={cityId}
                     onValueChange={(v) => {
@@ -223,7 +223,7 @@ export default function CreateBranchRequest() {
                     disabled={!governorateId}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Select city" />
+                      <SelectValue placeholder={t("create.selectCity")} />
                     </SelectTrigger>
                     <SelectContent>
                       {cities.map((c) => (
@@ -235,10 +235,10 @@ export default function CreateBranchRequest() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>Area *</Label>
+                  <Label>{t("create.area")} *</Label>
                   <Select value={areaId} onValueChange={setAreaId} disabled={!cityId}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select area" />
+                      <SelectValue placeholder={t("create.selectArea")} />
                     </SelectTrigger>
                     <SelectContent>
                       {areas.map((a) => (
@@ -252,17 +252,17 @@ export default function CreateBranchRequest() {
               </div>
 
               <div className="space-y-2">
-                <Label>Street</Label>
+                <Label>{t("create.street")}</Label>
                 <Input value={street} onChange={(e) => setStreet(e.target.value)} />
               </div>
               <div className="space-y-2">
-                <Label>Address</Label>
+                <Label>{t("create.address")}</Label>
                 <Textarea value={address} onChange={(e) => setAddress(e.target.value)} />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Latitude</Label>
+                  <Label>{t("create.latitude")}</Label>
                   <Input
                     type="number"
                     step="any"
@@ -271,7 +271,7 @@ export default function CreateBranchRequest() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Longitude</Label>
+                  <Label>{t("create.longitude")}</Label>
                   <Input
                     type="number"
                     step="any"
@@ -283,11 +283,11 @@ export default function CreateBranchRequest() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>Owner Name</Label>
+                  <Label>{t("create.ownerName")}</Label>
                   <Input value={ownerName} onChange={(e) => setOwnerName(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label>Owner Email</Label>
+                  <Label>{t("create.ownerEmail")}</Label>
                   <Input
                     type="email"
                     value={ownerEmail}
@@ -295,14 +295,14 @@ export default function CreateBranchRequest() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Manager Name</Label>
+                  <Label>{t("create.managerName")}</Label>
                   <Input
                     value={managerName}
                     onChange={(e) => setManagerName(e.target.value)}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label>Manager Email</Label>
+                  <Label>{t("create.managerEmail")}</Label>
                   <Input
                     type="email"
                     value={managerEmail}
@@ -311,7 +311,7 @@ export default function CreateBranchRequest() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label>Manager Phone</Label>
+                <Label>{t("create.managerPhone")}</Label>
                 <Input
                   value={managerPhone}
                   onChange={(e) => setManagerPhone(e.target.value)}
@@ -322,11 +322,11 @@ export default function CreateBranchRequest() {
                   checked={createManagerAccount}
                   onCheckedChange={(v) => setCreateManagerAccount(!!v)}
                 />
-                <p className="text-sm">Create manager account</p>
+                <p className="text-sm">{t("create.createManagerAccount")}</p>
               </div>
 
               <div className="space-y-2">
-                <Label>Fuel Types</Label>
+                <Label>{t("create.fuelTypes")}</Label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   {fuelTypes.map((ft) => (
                     <label
@@ -345,10 +345,10 @@ export default function CreateBranchRequest() {
 
               <div className="flex gap-2 pt-4">
                 <Button type="button" variant="outline" onClick={() => navigate("/branch-requests")}>
-                  Cancel
+                  {t("create.cancel")}
                 </Button>
                 <Button type="submit" disabled={!canSubmit || createMutation.isPending}>
-                  {createMutation.isPending ? "Submitting..." : "Submit Request"}
+                  {createMutation.isPending ? t("create.submitting") : t("create.submit")}
                 </Button>
               </div>
             </form>

@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import useApproveOrganization from "@/hooks/Organization/useApproveOrganization";
 import RejectModal from "./RejectModal";
+import { getApiErrorMessage } from "@/lib/utils";
 
 export type OrganizationActionsProps = {
   orgId: number | string;
@@ -22,6 +24,7 @@ export default function OrganizationActions({
   onSuccess,
   variant = "default",
 }: OrganizationActionsProps) {
+  const { t } = useTranslation("authority");
   const approveMutation = useApproveOrganization();
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
 
@@ -32,11 +35,10 @@ export default function OrganizationActions({
       { id: orgId, body: { decision: "APPROVED" } },
       {
         onSuccess: () => {
-          toast.success("Organization approved.");
+          toast.success(t("organizations.actions.approved"));
           onSuccess?.();
         },
-        onError: (e) =>
-          toast.error((e as Error)?.message ?? "Failed to approve."),
+        onError: (e) => toast.error(getApiErrorMessage(e, t("organizations.actions.approveFailed"))),
       }
     );
   };
@@ -46,12 +48,11 @@ export default function OrganizationActions({
       { id: orgId, body: { decision: "REJECTED", reason } },
       {
         onSuccess: () => {
-          toast.success("Organization rejected.");
+          toast.success(t("organizations.actions.rejected"));
           setRejectModalOpen(false);
           onSuccess?.();
         },
-        onError: (e) =>
-          toast.error((e as Error)?.message ?? "Failed to reject."),
+        onError: (e) => toast.error(getApiErrorMessage(e, t("organizations.actions.rejectFailed"))),
       }
     );
   };
@@ -72,7 +73,7 @@ export default function OrganizationActions({
         disabled={approveMutation.isPending}
       >
         <XCircle className={isCompact ? "h-3.5 w-3.5" : "h-4 w-4"} />
-        Reject
+        {t("organizations.actions.reject")}
       </Button>
 
       <Button
@@ -86,7 +87,7 @@ export default function OrganizationActions({
         disabled={approveMutation.isPending}
       >
         <CheckCircle2 className={isCompact ? "h-3.5 w-3.5" : "h-4 w-4"} />
-        Approve
+        {t("organizations.actions.approve")}
       </Button>
 
       <RejectModal

@@ -1,5 +1,6 @@
 import { AlertCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 interface PendingApprovalGuardProps {
@@ -17,6 +18,8 @@ export default function PendingApprovalGuard({
   organization,
   isLoading,
 }: PendingApprovalGuardProps) {
+  const { t } = useTranslation();
+
   if (isLoading) {
     return (
       <div className="flex h-[300px] items-center justify-center">
@@ -34,13 +37,13 @@ export default function PendingApprovalGuard({
         <div className="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-8 max-w-md text-center space-y-4">
           <AlertCircle className="h-12 w-12 text-amber-600 dark:text-amber-500 mx-auto" />
           <h2 className="text-xl font-semibold text-amber-800 dark:text-amber-200">
-            Organization pending approval
+            {t("pendingApproval.title")}
           </h2>
           <p className="text-sm text-amber-700 dark:text-amber-300">
-            This section is available only after your organization is approved. Please complete your profile and wait for approval.
+            {t("pendingApproval.description")}
           </p>
-          <Button asChild variant="outline" className="border-amber-300 text-amber-800">
-            <Link to="/profile">Go to Profile</Link>
+          <Button asChild variant="outline" className="border-amber-300 dark:border-amber-800 text-amber-800 dark:text-amber-200">
+            <Link to="/profile">{t("pendingApproval.goToProfile")}</Link>
           </Button>
         </div>
       </div>

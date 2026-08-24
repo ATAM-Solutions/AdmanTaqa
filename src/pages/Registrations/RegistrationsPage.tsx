@@ -1,10 +1,13 @@
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import TableOrganization from "@/pages/Authority/Organizations/Component/TableOrganization";
 import useGetOrganizations from "@/hooks/Organization/useGetOrganizations";
+import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 
 export default function RegistrationsPage() {
+  const { t } = useTranslation("registrations");
   const [searchQuery, setSearchQuery] = useState("");
-  const { data, isLoading, isError, error } = useGetOrganizations({
+  const { data, isLoading, error } = useGetOrganizations({
     status: "APPROVED",
     type: "SERVICE_PROVIDER",
     page: 1,
@@ -27,27 +30,25 @@ export default function RegistrationsPage() {
   return (
     <div className="p-4 md:p-8 space-y-6 animate-in fade-in duration-500">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Approved Service Provider Registrations</h1>
-        <p className="text-muted-foreground">
-          View approved service provider organizations.
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("list.title")}</h1>
+        <p className="text-muted-foreground">{t("list.subtitle")}</p>
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground">
-          Loading approved registrations...
-        </div>
-      ) : isError ? (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-destructive">
-          {(error as Error)?.message ?? "Failed to load approved registrations."}
-        </div>
-      ) : (
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error}
+        loadingFallback={
+          <div className="flex items-center justify-center py-16 text-muted-foreground">
+            {t("list.loading")}
+          </div>
+        }
+      >
         <TableOrganization
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           organizations={filteredOrgs}
         />
-      )}
+      </AsyncBoundary>
     </div>
   );
 }

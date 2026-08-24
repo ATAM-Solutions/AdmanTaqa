@@ -1,23 +1,26 @@
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, FileText, MapPin, Building2, Paperclip, CreditCard } from "lucide-react";
 import { useQuotationsWebById } from "@/hooks/Quotations/useQuotationsWeb";
-
-function formatDate(s: string | undefined | null): string {
-  if (!s) return "—";
-  return new Date(s).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
-}
+import { formatDate } from "@/lib/i18n/formatters";
 
 export default function QuotationDetail() {
+  const { t, i18n } = useTranslation("quotations");
   const { id } = useParams<{ id: string }>();
   const { data: quote, isLoading } = useQuotationsWebById(id ?? null);
+
+  const formatQuoteDate = (s: string | undefined | null): string => {
+    if (!s) return "—";
+    return formatDate(s, i18n.language, { dateStyle: "medium", timeStyle: "short" });
+  };
 
   if (isLoading || !id) {
     return (
       <div className="p-4 md:p-8 flex justify-center min-h-[200px] items-center text-muted-foreground">
-        Loading...
+        {t("detail.loading")}
       </div>
     );
   }
@@ -26,9 +29,9 @@ export default function QuotationDetail() {
     return (
       <div className="p-4 md:p-8 space-y-4">
         <Button variant="ghost" asChild>
-          <Link to="/quotations">Back</Link>
+          <Link to="/quotations">{t("detail.backButton")}</Link>
         </Button>
-        <p className="text-destructive">Quote not found.</p>
+        <p className="text-destructive">{t("detail.notFound")}</p>
       </div>
     );
   }
@@ -67,8 +70,8 @@ export default function QuotationDetail() {
     <div className="p-4 md:p-8 space-y-6">
       <Button variant="ghost" asChild>
         <Link to="/quotations" className="gap-2">
-          <ChevronLeft className="h-4 w-4" />
-          Back to offers
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+          {t("detail.backToOffers")}
         </Link>
       </Button>
 
@@ -76,42 +79,42 @@ export default function QuotationDetail() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            Quote #{quote.id}
+            {t("detail.quoteHeading", { id: quote.id })}
           </CardTitle>
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <Badge variant="secondary">{quote.status ?? "—"}</Badge>
             {quote.version != null && (
-              <span className="text-muted-foreground">Version {quote.version}</span>
+              <span className="text-muted-foreground">{t("detail.version", { version: quote.version })}</span>
             )}
             {quote.paymentType && (
-              <span className="text-muted-foreground">Payment: {quote.paymentType}</span>
+              <span className="text-muted-foreground">{t("detail.payment", { type: quote.paymentType })}</span>
             )}
             {quote.createdAt && (
-              <span className="text-muted-foreground">Created {formatDate(quote.createdAt)}</span>
+              <span className="text-muted-foreground">{t("detail.created", { date: formatQuoteDate(quote.createdAt) })}</span>
             )}
           </div>
           {quote.rejectionReason && (
-            <p className="text-sm text-destructive mt-2">Rejection: {quote.rejectionReason}</p>
+            <p className="text-sm text-destructive mt-2">{t("detail.rejection", { reason: quote.rejectionReason })}</p>
           )}
         </CardHeader>
         <CardContent className="space-y-6">
           {ext && (
             <div className="space-y-4">
               <h3 className="text-sm font-semibold flex items-center gap-2">
-                <MapPin className="h-4 w-4" /> Request / Branch
+                <MapPin className="h-4 w-4" /> {t("detail.sections.requestBranch")}
               </h3>
               <div className="grid gap-2 text-sm text-muted-foreground">
-                <p>Request ID: {ext.id ?? "—"}</p>
-                <p>Branch: {branchName}</p>
-                {ext.address && <p>Address: {ext.address}</p>}
+                <p>{t("detail.fields.requestId")}: {ext.id ?? "—"}</p>
+                <p>{t("detail.fields.branch")}: {branchName}</p>
+                {ext.address && <p>{t("detail.fields.address")}: {ext.address}</p>}
                 {org?.name && (
                   <p className="flex items-center gap-1">
-                    <Building2 className="h-4 w-4" /> Station / Org: {org.name}
+                    <Building2 className="h-4 w-4" /> {t("detail.fields.stationOrg")}: {org.name}
                   </p>
                 )}
-                {asset?.name && <p>Asset: {asset.name}</p>}
-                {area?.name && <p>Area: {area.name}</p>}
-                {city?.name && <p>City: {city.name}</p>}
+                {asset?.name && <p>{t("detail.fields.asset")}: {asset.name}</p>}
+                {area?.name && <p>{t("detail.fields.area")}: {area.name}</p>}
+                {city?.name && <p>{t("detail.fields.city")}: {city.name}</p>}
               </div>
             </div>
           )}
@@ -119,31 +122,31 @@ export default function QuotationDetail() {
           {formData && (
             <div className="space-y-3 pt-2 border-t">
               <h3 className="text-sm font-semibold flex items-center gap-2">
-                <FileText className="h-4 w-4" /> Request details
+                <FileText className="h-4 w-4" /> {t("detail.sections.requestDetails")}
               </h3>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 {formData.title != null && formData.title !== "" && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Title</dt>
+                    <dt className="text-muted-foreground font-medium">{t("detail.fields.title")}</dt>
                     <dd>{formData.title}</dd>
                   </>
                 )}
                 {formData.priority != null && formData.priority !== "" && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Priority</dt>
+                    <dt className="text-muted-foreground font-medium">{t("detail.fields.priority")}</dt>
                     <dd>{formData.priority}</dd>
                   </>
                 )}
                 {formData.description != null && formData.description !== "" && (
                   <>
-                    <dt className="text-muted-foreground font-medium sm:col-span-1">Description</dt>
+                    <dt className="text-muted-foreground font-medium sm:col-span-1">{t("detail.fields.description")}</dt>
                     <dd className="sm:col-span-1">{formData.description}</dd>
                   </>
                 )}
                 {Array.isArray(formData.attachments) && formData.attachments.length > 0 && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Attachments</dt>
-                    <dd>{formData.attachments.length} file(s)</dd>
+                    <dt className="text-muted-foreground font-medium">{t("detail.sections.attachments")}</dt>
+                    <dd>{t("detail.fields.attachmentsCount", { count: formData.attachments.length })}</dd>
                   </>
                 )}
               </dl>
@@ -153,54 +156,54 @@ export default function QuotationDetail() {
           {pricingJson && (
             <div className="space-y-3 pt-2 border-t">
               <h3 className="text-sm font-semibold flex items-center gap-2">
-                <CreditCard className="h-4 w-4" /> Pricing details
+                <CreditCard className="h-4 w-4" /> {t("detail.sections.pricingDetails")}
               </h3>
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 text-sm">
                 {pricingJson.amount != null && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Amount</dt>
+                    <dt className="text-muted-foreground font-medium">{t("detail.fields.amount")}</dt>
                     <dd>{pricingJson.amount}{pricingJson.currency ? ` ${pricingJson.currency}` : ""}</dd>
                   </>
                 )}
                 {pricingJson.laborCost != null && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Labor cost</dt>
+                    <dt className="text-muted-foreground font-medium">{t("detail.fields.laborCost")}</dt>
                     <dd>{pricingJson.laborCost}{pricingJson.currency ? ` ${pricingJson.currency}` : ""}</dd>
                   </>
                 )}
                 {pricingJson.materialCost != null && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Material cost</dt>
+                    <dt className="text-muted-foreground font-medium">{t("detail.fields.materialCost")}</dt>
                     <dd>{pricingJson.materialCost}{pricingJson.currency ? ` ${pricingJson.currency}` : ""}</dd>
                   </>
                 )}
                 {pricingJson.timeline != null && pricingJson.timeline !== "" && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Timeline</dt>
+                    <dt className="text-muted-foreground font-medium">{t("detail.fields.timeline")}</dt>
                     <dd>{pricingJson.timeline}</dd>
                   </>
                 )}
                 {pricingJson.warranty != null && pricingJson.warranty !== "" && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Warranty</dt>
+                    <dt className="text-muted-foreground font-medium">{t("detail.fields.warranty")}</dt>
                     <dd>{pricingJson.warranty}</dd>
                   </>
                 )}
                 {pricingJson.scopeOfWork != null && pricingJson.scopeOfWork !== "" && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Scope of work</dt>
+                    <dt className="text-muted-foreground font-medium">{t("detail.fields.scopeOfWork")}</dt>
                     <dd>{pricingJson.scopeOfWork}</dd>
                   </>
                 )}
                 {pricingJson.technicalProposal != null && pricingJson.technicalProposal !== "" && (
                   <>
-                    <dt className="text-muted-foreground font-medium">Technical proposal</dt>
+                    <dt className="text-muted-foreground font-medium">{t("detail.fields.technicalProposal")}</dt>
                     <dd>{pricingJson.technicalProposal}</dd>
                   </>
                 )}
                 {pricingJson.notes != null && pricingJson.notes !== "" && (
                   <>
-                    <dt className="text-muted-foreground font-medium sm:col-span-1">Notes</dt>
+                    <dt className="text-muted-foreground font-medium sm:col-span-1">{t("detail.fields.notes")}</dt>
                     <dd className="sm:col-span-1">{pricingJson.notes}</dd>
                   </>
                 )}
@@ -211,12 +214,12 @@ export default function QuotationDetail() {
           {paymentTerms.length > 0 && (
             <div className="space-y-2">
               <h3 className="text-sm font-semibold flex items-center gap-2">
-                <CreditCard className="h-4 w-4" /> Payment terms
+                <CreditCard className="h-4 w-4" /> {t("detail.sections.paymentTerms")}
               </h3>
               <ul className="text-sm space-y-1">
                 {paymentTerms.map((term, i) => (
                   <li key={i}>
-                    Seq {term.sequence ?? i + 1}: {term.percent ?? 0}% — {term.trigger ?? "—"}
+                    {t("detail.paymentTermRow", { sequence: term.sequence ?? i + 1, percent: term.percent ?? 0, trigger: term.trigger ?? "—" })}
                     {term.note && ` (${term.note})`}
                   </li>
                 ))}
@@ -227,7 +230,7 @@ export default function QuotationDetail() {
           {attachments.length > 0 && (
             <div className="space-y-2">
               <h3 className="text-sm font-semibold flex items-center gap-2">
-                <Paperclip className="h-4 w-4" /> Attachments
+                <Paperclip className="h-4 w-4" /> {t("detail.sections.attachments")}
               </h3>
               <ul className="text-sm space-y-1">
                 {attachments.map((a) => (
@@ -239,10 +242,10 @@ export default function QuotationDetail() {
                         rel="noreferrer"
                         className="text-primary underline"
                       >
-                        {a.fileName ?? "Attachment"}
+                        {a.fileName ?? t("detail.attachmentFallback")}
                       </a>
                     ) : (
-                      <span>{a.fileName ?? "Attachment"}</span>
+                      <span>{a.fileName ?? t("detail.attachmentFallback")}</span>
                     )}
                   </li>
                 ))}
@@ -252,11 +255,11 @@ export default function QuotationDetail() {
 
           {revisions.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold">Revisions</h3>
+              <h3 className="text-sm font-semibold">{t("detail.sections.revisions")}</h3>
               <ul className="text-sm space-y-1 text-muted-foreground">
                 {revisions.map((r) => (
                   <li key={r.id}>
-                    Version {r.version} — {r.submittedAt ? formatDate(r.submittedAt) : "—"}
+                    {t("detail.revisionRow", { version: r.version, date: r.submittedAt ? formatQuoteDate(r.submittedAt) : "—" })}
                   </li>
                 ))}
               </ul>

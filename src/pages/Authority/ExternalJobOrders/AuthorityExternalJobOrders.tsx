@@ -1,5 +1,7 @@
 import { useState, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { reportError } from "@/lib/errorReporting";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,29 +24,15 @@ import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
 import useAuthorityExternalJobOrders from "@/hooks/AuthorityExternalJobOrders/useAuthorityExternalJobOrders";
 import { fetchAuthorityExternalJobOrderExport } from "@/api/services/authorityExternalJobOrderService";
+import { formatDate } from "@/lib/i18n/formatters";
 import type {
   AuthorityExternalJobOrderItem,
   AuthorityExternalJobOrdersListParams,
   DatePreset,
 } from "@/types/authorityExternalJobOrder";
 
-const DATE_PRESETS: { value: DatePreset; label: string }[] = [
-  { value: "today", label: "Today" },
-  { value: "week", label: "Week" },
-  { value: "month", label: "Month" },
-  { value: "custom", label: "Custom" },
-];
-
-const STATUS_OPTIONS: { value: string; label: string }[] = [
-  { value: "all", label: "All" },
-  { value: "ACTIVE", label: "Active" },
-  { value: "IN_PROGRESS", label: "In progress" },
-  { value: "AWAITING_PAYMENT", label: "Awaiting payment" },
-  { value: "COMPLETED", label: "Completed" },
-  { value: "CLOSED", label: "Closed" },
-  { value: "CREATED", label: "Created" },
-  { value: "CANCELLED", label: "Cancelled" },
-];
+const DATE_PRESET_VALUES: DatePreset[] = ["today", "week", "month", "custom"];
+const STATUS_VALUES = ["ACTIVE", "IN_PROGRESS", "AWAITING_PAYMENT", "COMPLETED", "CLOSED", "CREATED", "CANCELLED"];
 
 const LIMIT = 20;
 
@@ -56,6 +44,7 @@ function getStatusBadgeVariant(status: string): "default" | "secondary" | "outli
 }
 
 export default function AuthorityExternalJobOrders() {
+  const { t, i18n } = useTranslation("authority");
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
   const [datePreset, setDatePreset] = useState<DatePreset | "">("");
@@ -95,7 +84,7 @@ export default function AuthorityExternalJobOrders() {
         format,
       });
     } catch (err) {
-      console.error("Export failed:", err);
+      reportError("Export failed:", err);
     } finally {
       setExportLoading(null);
     }
@@ -112,10 +101,8 @@ export default function AuthorityExternalJobOrders() {
     <div className="p-4 md:p-8 space-y-6 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">External Job Orders</h1>
-          <p className="text-muted-foreground">
-            Authority view of external maintenance job orders. No financial data.
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("externalJobOrders.list.title")}</h1>
+          <p className="text-muted-foreground">{t("externalJobOrders.list.subtitle")}</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -124,7 +111,7 @@ export default function AuthorityExternalJobOrders() {
             disabled={exportLoading !== null}
             onClick={() => handleExport("csv")}
           >
-            {exportLoading === "csv" ? "Exporting…" : "Export CSV"}
+            {exportLoading === "csv" ? t("externalJobOrders.list.exporting") : t("externalJobOrders.list.export")}
           </Button>
         </div>
       </div>
@@ -132,7 +119,7 @@ export default function AuthorityExternalJobOrders() {
       <Card className="border-none shadow-xl bg-card/60 backdrop-blur-md p-4 space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
           <div>
-            <label className="text-xs text-muted-foreground block mb-1">Status</label>
+            <label className="text-xs text-muted-foreground block mb-1">{t("externalJobOrders.list.statusLabel")}</label>
             <Select
               value={status || "all"}
               onValueChange={(v) => {
@@ -141,19 +128,19 @@ export default function AuthorityExternalJobOrders() {
               }}
             >
               <SelectTrigger className="h-9">
-                <SelectValue placeholder="All" />
+                <SelectValue placeholder={t("externalJobOrders.list.statusAll")} />
               </SelectTrigger>
               <SelectContent>
-                {STATUS_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
+                {STATUS_VALUES.map((opt) => (
+                  <SelectItem key={opt} value={opt}>
+                    {t(`externalJobOrders.list.statuses.${opt}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div>
-            <label className="text-xs text-muted-foreground block mb-1">Date preset</label>
+            <label className="text-xs text-muted-foreground block mb-1">{t("externalJobOrders.list.datePresetLabel")}</label>
             <Select
               value={datePreset || "all"}
               onValueChange={(v) => {
@@ -162,13 +149,13 @@ export default function AuthorityExternalJobOrders() {
               }}
             >
               <SelectTrigger className="h-9">
-                <SelectValue placeholder="All" />
+                <SelectValue placeholder={t("externalJobOrders.list.statusAll")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                {DATE_PRESETS.map((p) => (
-                  <SelectItem key={p.value} value={p.value}>
-                    {p.label}
+                <SelectItem value="all">{t("externalJobOrders.list.statusAll")}</SelectItem>
+                {DATE_PRESET_VALUES.map((p) => (
+                  <SelectItem key={p} value={p}>
+                    {t(`externalJobOrders.list.datePresets.${p}`)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -177,7 +164,7 @@ export default function AuthorityExternalJobOrders() {
           {datePreset === "custom" && (
             <>
               <div>
-                <label className="text-xs text-muted-foreground block mb-1">From date</label>
+                <label className="text-xs text-muted-foreground block mb-1">{t("externalJobOrders.list.fromDate")}</label>
                 <Input
                   type="date"
                   value={fromDate}
@@ -189,7 +176,7 @@ export default function AuthorityExternalJobOrders() {
                 />
               </div>
               <div>
-                <label className="text-xs text-muted-foreground block mb-1">To date</label>
+                <label className="text-xs text-muted-foreground block mb-1">{t("externalJobOrders.list.toDate")}</label>
                 <Input
                   type="date"
                   value={toDate}
@@ -203,9 +190,9 @@ export default function AuthorityExternalJobOrders() {
             </>
           )}
           <div>
-            <label className="text-xs text-muted-foreground block mb-1">Fuel station org name (search)</label>
+            <label className="text-xs text-muted-foreground block mb-1">{t("externalJobOrders.list.fuelStationSearch")}</label>
             <Input
-              placeholder="e.g. Oil Company"
+              placeholder={t("externalJobOrders.list.fuelStationSearchPlaceholder")}
               value={fuelStationOrganizationName}
               onChange={(e) => {
                 setFuelStationOrganizationName(e.target.value);
@@ -215,9 +202,9 @@ export default function AuthorityExternalJobOrders() {
             />
           </div>
           <div>
-            <label className="text-xs text-muted-foreground block mb-1">Service provider org name (search)</label>
+            <label className="text-xs text-muted-foreground block mb-1">{t("externalJobOrders.list.serviceProviderSearch")}</label>
             <Input
-              placeholder="e.g. Maintenance"
+              placeholder={t("externalJobOrders.list.serviceProviderSearchPlaceholder")}
               value={serviceProviderOrganizationName}
               onChange={(e) => {
                 setServiceProviderOrganizationName(e.target.value);
@@ -229,26 +216,26 @@ export default function AuthorityExternalJobOrders() {
         </div>
 
         <p className="text-xs text-muted-foreground">
-          Total: {total} | Page: {data?.page ?? page}
+          {t("externalJobOrders.list.totalPage", { total, page: data?.page ?? page })}
         </p>
 
         {isLoading ? (
-          <div className="p-6 text-sm text-muted-foreground">Loading job orders…</div>
+          <div className="p-6 text-sm text-muted-foreground">{t("externalJobOrders.list.loading")}</div>
         ) : isError ? (
           <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-destructive text-sm">
-            {error instanceof Error ? error.message : "Failed to load job orders."}
+            {error instanceof Error ? error.message : t("externalJobOrders.list.loadFailed")}
           </div>
         ) : items.length === 0 ? (
-          <div className="p-6 text-sm text-muted-foreground">No job orders found.</div>
+          <div className="p-6 text-sm text-muted-foreground">{t("externalJobOrders.list.empty")}</div>
         ) : (
           <Table>
             <TableHeader className="bg-muted/30">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="font-bold text-foreground">Status</TableHead>
-                <TableHead className="font-bold text-foreground">Created</TableHead>
-                <TableHead className="font-bold text-foreground">Title</TableHead>
-                <TableHead className="font-bold text-foreground">Branch</TableHead>
-                <TableHead className="text-right font-bold text-foreground">Actions</TableHead>
+                <TableHead className="font-bold text-foreground">{t("externalJobOrders.list.columns.status")}</TableHead>
+                <TableHead className="font-bold text-foreground">{t("externalJobOrders.list.columns.created")}</TableHead>
+                <TableHead className="font-bold text-foreground">{t("externalJobOrders.list.columns.title")}</TableHead>
+                <TableHead className="font-bold text-foreground">{t("externalJobOrders.list.columns.branch")}</TableHead>
+                <TableHead className="text-end font-bold text-foreground">{t("externalJobOrders.list.columns.actions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -260,7 +247,7 @@ export default function AuthorityExternalJobOrders() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {row.createdAt ? new Date(row.createdAt).toLocaleString(undefined, { dateStyle: "short", timeStyle: "short" }) : "—"}
+                    {row.createdAt ? formatDate(row.createdAt, i18n.language, { dateStyle: "short", timeStyle: "short" }) : "—"}
                   </TableCell>
                   <TableCell>
                     {row.ExternalRequest?.formData?.title ?? "—"}
@@ -268,11 +255,11 @@ export default function AuthorityExternalJobOrders() {
                   <TableCell>
                     {row.ExternalRequest?.Branch?.nameEn ?? row.ExternalRequest?.Branch?.nameAr ?? "—"}
                   </TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-end">
                     <Button variant="ghost" size="sm" asChild>
                       <Link to={`/external-job-orders/${row.id}`}>
-                        <Eye className="h-4 w-4 mr-1" />
-                        View
+                        <Eye className="h-4 w-4 me-1" />
+                        {t("externalJobOrders.list.view")}
                       </Link>
                     </Button>
                   </TableCell>
@@ -289,10 +276,10 @@ export default function AuthorityExternalJobOrders() {
             onClick={() => setPage((p) => Math.max(1, p - 1))}
             disabled={page <= 1}
           >
-            Previous
+            {t("externalJobOrders.list.previous")}
           </Button>
           <span className="text-sm text-muted-foreground">
-            Page {page} of {maxPage}
+            {t("externalJobOrders.list.pageOf", { page, maxPage })}
           </span>
           <Button
             variant="outline"
@@ -300,7 +287,7 @@ export default function AuthorityExternalJobOrders() {
             onClick={() => setPage((p) => (p < maxPage ? p + 1 : p))}
             disabled={page >= maxPage}
           >
-            Next
+            {t("externalJobOrders.list.next")}
           </Button>
         </div>
       </Card>

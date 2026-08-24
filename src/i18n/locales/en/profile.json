@@ -1,0 +1,117 @@
+{
+  "page": {
+    "title": "Organization Profile",
+    "subtitle": "Manage your organization's public identity and settings"
+  },
+  "menu": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteAccount": "Delete my account"
+  },
+  "pendingBanner": {
+    "title": "Your organization is pending approval.",
+    "description": "Operational features (service requests, quotations, job orders) are limited until your organization is approved."
+  },
+  "deleteSpDialog": {
+    "title": "Delete Service Provider Profile",
+    "description": "This will delete the profile and all associated documents. This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting..."
+  },
+  "toasts": {
+    "spProfileDeleted": "Service provider profile deleted."
+  },
+  "unified": {
+    "approvedBy": "Approved by {{name}} on {{date}}",
+    "documentsHeading": "Documents",
+    "view": "View"
+  },
+  "documentTypes": {
+    "LICENSE": "License",
+    "REGISTRATION": "Registration",
+    "OTHER": "Other",
+    "COMMERCIAL_REGISTRATION": "Commercial Registration",
+    "TAX_CERTIFICATE": "Tax Certificate",
+    "TECHNICAL_CERTIFICATE": "Technical Certificate",
+    "INSURANCE_CERTIFICATE": "Insurance Certificate",
+    "document": "Document"
+  },
+  "orgDetails": {
+    "accountType": "Account Type",
+    "memberSince": "Member Since",
+    "owner": "Owner",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone",
+    "serviceProviderProfile": "Service Provider Profile",
+    "licenseNumber": "License Number",
+    "yearsExperience": "Years Experience",
+    "area": "Area",
+    "city": "City",
+    "street": "Street",
+    "serviceCategories": "Service Categories"
+  },
+  "documentsCard": {
+    "title": "Documents",
+    "description": "Upload and manage organization documents.",
+    "documentType": "Document type",
+    "upload": "Upload",
+    "uploading": "Uploading...",
+    "loading": "Loading documents...",
+    "empty": "No documents uploaded yet.",
+    "view": "View",
+    "uploaded": "Document uploaded.",
+    "uploadFailed": "Upload failed."
+  },
+  "spProfileCard": {
+    "heading": "Service Provider",
+    "title": "Service Provider Profile",
+    "description": "License, experience, address, and profile documents.",
+    "createProfile": "Create Profile",
+    "loading": "Loading profile...",
+    "empty": "No service provider profile yet. Create one to add license, address, and profile documents.",
+    "editDialogTitle": "Edit Profile",
+    "createDialogTitle": "Create Profile",
+    "editDialogDescription": "Update your service provider profile.",
+    "createDialogDescription": "Add license, experience, and address (all optional).",
+    "cancel": "Cancel",
+    "save": "Save",
+    "create": "Create",
+    "saving": "Saving...",
+    "creating": "Creating...",
+    "update": "Update",
+    "profileCreated": "Profile created.",
+    "profileUpdated": "Profile updated.",
+    "createFailed": "Create failed.",
+    "updateFailed": "Update failed."
+  },
+  "spForm": {
+    "licenseNumber": "License Number",
+    "licenseNumberPlaceholder": "Optional",
+    "yearsExperience": "Years Experience",
+    "yearsExperiencePlaceholder": "Optional",
+    "country": "Country",
+    "governorate": "Governorate",
+    "city": "City",
+    "area": "Area",
+    "select": "Select",
+    "street": "Street",
+    "streetPlaceholder": "Optional",
+    "serviceCategories": "Service Categories (comma-separated)",
+    "serviceCategoriesPlaceholder": "e.g. Maintenance, Inspection"
+  },
+  "editModal": {
+    "title": "Edit Profile",
+    "description": "Update your organization and service provider details in one place.",
+    "orgName": "Organization Name",
+    "orgNamePlaceholder": "Enter organization name",
+    "spSectionTitle": "Service Provider Profile",
+    "cancel": "Cancel",
+    "saveChanges": "Save Changes",
+    "saving": "Saving...",
+    "orgUpdated": "Organization updated successfully",
+    "orgUpdateFailed": "Update failed",
+    "orgUpdateError": "An error occurred during update"
+  }
+}

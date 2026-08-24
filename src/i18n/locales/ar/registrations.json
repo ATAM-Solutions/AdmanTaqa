@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "طلبات تسجيل مزودي الخدمة المعتمدة",
+    "subtitle": "عرض منظمات مزودي الخدمة المعتمدة.",
+    "loading": "جارٍ تحميل طلبات التسجيل المعتمدة...",
+    "loadFailed": "فشل تحميل طلبات التسجيل المعتمدة."
+  },
+  "detailPage": {
+    "back": "رجوع",
+    "title": "تفاصيل طلب التسجيل"
+  },
+  "table": {
+    "company": "الشركة",
+    "contact": "جهة الاتصال",
+    "emailPhone": "البريد الإلكتروني / الهاتف",
+    "documents": "المستندات",
+    "actions": "الإجراءات",
+    "noDocuments": "—",
+    "docFallback": "مستند {{index}}",
+    "view": "عرض",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "loading": "جارٍ التحميل...",
+    "emptyTitle": "لا توجد طلبات تسجيل معتمدة",
+    "emptyDescription": "كل شيء محدث! ستظهر الطلبات الجديدة هنا.",
+    "showing": "عرض <strong>{{count}}</strong> من <strong>{{total}}</strong> طلب تسجيل"
+  },
+  "toasts": {
+    "loadFailed": "فشل تحميل طلبات التسجيل",
+    "approveSuccess": "تمت الموافقة على طلب التسجيل بنجاح",
+    "approveFailed": "فشلت الموافقة على طلب التسجيل",
+    "rejectSuccess": "تم رفض طلب التسجيل",
+    "rejectFailed": "فشل رفض طلب التسجيل",
+    "downloadSuccess": "تم تنزيل ملف PDF بنجاح",
+    "downloadFailed": "فشل تنزيل ملف PDF",
+    "detailsLoadFailed": "فشل تحميل تفاصيل طلب التسجيل"
+  },
+  "details": {
+    "companyInfo": {
+      "title": "معلومات الشركة",
+      "description": "بيانات أساسية عن مزود الخدمة.",
+      "companyName": "اسم الشركة",
+      "address": "العنوان",
+      "notAvailable": "غير متاح",
+      "email": "البريد الإلكتروني",
+      "phone": "الهاتف",
+      "contactPerson": "الشخص المسؤول"
+    },
+    "documents": {
+      "title": "المستندات المرفوعة",
+      "description": "مراجعة المستندات المقدمة.",
+      "empty": "لم يتم رفع أي مستندات.",
+      "viewDownload": "عرض وتنزيل PDF",
+      "download": "تنزيل"
+    },
+    "actions": {
+      "cancel": "إلغاء",
+      "reject": "رفض الطلب",
+      "approve": "الموافقة على الطلب"
+    }
+  }
+}

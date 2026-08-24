@@ -1,10 +1,13 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import TableOrganization from "./Component/TableOrganization";
 import useGetOrganizations from "@/hooks/Organization/useGetOrganizations";
+import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 
 export default function OrganizationsRejected() {
+  const { t } = useTranslation("authority");
   const [searchQuery, setSearchQuery] = useState("");
-  const { data, isLoading, isError, error } = useGetOrganizations({
+  const { data, isLoading, error } = useGetOrganizations({
     page: 1,
     limit: 100,
     type: "SERVICE_PROVIDER",
@@ -26,28 +29,26 @@ export default function OrganizationsRejected() {
     <div className="p-4 md:p-8 space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Organizations — Rejected</h1>
-          <p className="text-muted-foreground">
-            Service providers that were rejected.
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("organizations.rejectedList.title")}</h1>
+          <p className="text-muted-foreground">{t("organizations.rejectedList.subtitle")}</p>
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground">
-          Loading organizations...
-        </div>
-      ) : isError ? (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-destructive">
-          {(error as Error)?.message ?? "Failed to load organizations."}
-        </div>
-      ) : (
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error}
+        loadingFallback={
+          <div className="flex items-center justify-center py-16 text-muted-foreground">
+            {t("organizations.list.loading")}
+          </div>
+        }
+      >
         <TableOrganization
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           organizations={filteredOrgs}
         />
-      )}
+      </AsyncBoundary>
     </div>
   );
 }

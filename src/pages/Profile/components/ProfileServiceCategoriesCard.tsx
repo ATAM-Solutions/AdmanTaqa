@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
     Card,
     CardContent,
@@ -29,7 +30,6 @@ import {
 import { Tag, Plus, Trash2, Sparkles, Pencil, Check, X } from "lucide-react";
 import useGetOrganizationServiceCategories from "@/hooks/Organization/useGetOrganizationServiceCategories";
 import useGetServiceCategories from "@/hooks/ServiceCategories/useGetServiceCategories";
-// import useAddOrganizationServiceCategory from "@/hooks/Organization/useAddOrganizationServiceCategory";
 import useRemoveOrganizationServiceCategory from "@/hooks/Organization/useRemoveOrganizationServiceCategory";
 import useProposeServiceCategory from "@/hooks/ServiceCategories/useProposeServiceCategory";
 import useCreateServiceCategory from "@/hooks/ServiceCategories/useCreateServiceCategory";
@@ -49,9 +49,9 @@ export default function ProfileServiceCategoriesCard({
     organizationId,
     organizationType,
 }: ProfileServiceCategoriesCardProps) {
+    const { t } = useTranslation("serviceCategories");
     const { data: linkedCategories = [], isLoading } = useGetOrganizationServiceCategories(organizationId);
     const { data: allCategories = [], isLoading: allLoading } = useGetServiceCategories();
-    // const addMutation = useAddOrganizationServiceCategory();
     const removeMutation = useRemoveOrganizationServiceCategory();
     const proposeMutation = useProposeServiceCategory();
     const createMutation = useCreateServiceCategory();
@@ -92,7 +92,7 @@ export default function ProfileServiceCategoriesCard({
     );
 
     const getCategoryLabel = (cat: ServiceCategory) =>
-        cat.nameEn || cat.nameAr || cat.name || `Category #${cat.id}`;
+        cat.nameEn || cat.nameAr || cat.name || t("card.categoryLabelFallback", { id: cat.id });
 
     const getStatusBadgeVariant = (status?: ServiceCategory["status"]) => {
         if (status === "APPROVED") return "default";
@@ -100,29 +100,13 @@ export default function ProfileServiceCategoriesCard({
         return "secondary";
     };
 
-    // const handleAdd = () => {
-    //     const id = Number(selectedCategoryId);
-    //     if (!id) return;
-    //     addMutation.mutate(
-    //         { organizationId, categoryId: id },
-    //         {
-    //             onSuccess: () => {
-    //                 toast.success("Category linked.");
-    //                 setSelectedCategoryId("");
-    //             },
-    //             onError: (err) =>
-    //                 toast.error((err as Error)?.message ?? "Failed to add category."),
-    //         }
-    //     );
-    // };
-
     const handleRemove = (categoryId: number) => {
         removeMutation.mutate(
             { organizationId, categoryId },
             {
-                onSuccess: () => toast.success("Category unlinked."),
+                onSuccess: () => toast.success(t("card.toasts.categoryUnlinked")),
                 onError: (err) =>
-                    toast.error((err as Error)?.message ?? "Failed to remove category."),
+                    toast.error((err as Error)?.message ?? t("card.toasts.removeFailed")),
             }
         );
     };
@@ -142,7 +126,7 @@ export default function ProfileServiceCategoriesCard({
 
     const handleCreate = () => {
         if (!createNameEn.trim() || !createNameAr.trim()) {
-            toast.error("English and Arabic names are required.");
+            toast.error(t("card.toasts.namesRequired"));
             return;
         }
         createMutation.mutate(
@@ -153,14 +137,14 @@ export default function ProfileServiceCategoriesCard({
             },
             {
                 onSuccess: () => {
-                    toast.success("Category created.");
+                    toast.success(t("card.toasts.categoryCreated"));
                     setCreateOpen(false);
                     setCreateNameEn("");
                     setCreateNameAr("");
                     setCreateCode("");
                 },
                 onError: (err) =>
-                    toast.error((err as Error)?.message ?? "Failed to create category."),
+                    toast.error((err as Error)?.message ?? t("card.toasts.createFailed")),
             }
         );
     };
@@ -178,22 +162,21 @@ export default function ProfileServiceCategoriesCard({
             },
             {
                 onSuccess: () => {
-                    toast.success("Category updated.");
+                    toast.success(t("card.toasts.categoryUpdated"));
                     setEditOpen(false);
                     setEditTarget(null);
                 },
-                onError: (err: unknown  ) =>
-                    toast.error((err instanceof Error ? err.message : "Failed to update category."),
-                    ),
+                onError: (err: unknown) =>
+                    toast.error(err instanceof Error ? err.message : t("card.toasts.updateFailed")),
             }
         );
     };
 
     const handleApprove = (cat: ServiceCategory) => {
         approveMutation.mutate(cat.id, {
-            onSuccess: () => toast.success("Category approved."),
+            onSuccess: () => toast.success(t("card.toasts.categoryApproved")),
             onError: (err) =>
-                toast.error((err as Error)?.message ?? "Failed to approve category."),
+                toast.error((err as Error)?.message ?? t("card.toasts.approveFailed")),
         });
     };
 
@@ -212,20 +195,20 @@ export default function ProfileServiceCategoriesCard({
             },
             {
                 onSuccess: () => {
-                    toast.success("Category rejected.");
+                    toast.success(t("card.toasts.categoryRejected"));
                     setRejectOpen(false);
                     setRejectTarget(null);
                     setRejectReason("");
                 },
                 onError: (err) =>
-                    toast.error((err as Error)?.message ?? "Failed to reject category."),
+                    toast.error((err as Error)?.message ?? t("card.toasts.rejectFailed")),
             }
         );
     };
 
     const handlePropose = () => {
         if (!proposeNameEn.trim() || !proposeNameAr.trim()) {
-            toast.error("English and Arabic names are required.");
+            toast.error(t("card.toasts.namesRequired"));
             return;
         }
 
@@ -237,14 +220,14 @@ export default function ProfileServiceCategoriesCard({
             },
             {
                 onSuccess: () => {
-                    toast.success("Category proposal submitted.");
+                    toast.success(t("card.toasts.categoryProposed"));
                     setProposeNameEn("");
                     setProposeNameAr("");
                     setProposeCode("");
                     setProposeOpen(false);
                 },
                 onError: (err) =>
-                    toast.error((err as Error)?.message ?? "Failed to propose category."),
+                    toast.error((err as Error)?.message ?? t("card.toasts.proposeFailed")),
             }
         );
     };
@@ -254,24 +237,22 @@ export default function ProfileServiceCategoriesCard({
             <CardHeader className="border-b bg-muted/30 pb-4">
                 <CardTitle className="text-lg flex items-center gap-2">
                     <Tag className="h-5 w-5" />
-                    Service Categories
+                    {t("card.title")}
                 </CardTitle>
-                <CardDescription>
-                    Browse categories and manage them based on organization type.
-                </CardDescription>
+                <CardDescription>{t("card.description")}</CardDescription>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
                 {isServiceProvider && (
                     <div className="flex flex-wrap items-end gap-3">
                         <div className="space-y-2">
-                            <Label>Add category</Label>
+                            <Label>{t("card.addCategory")}</Label>
                             <Select
                                 value={selectedCategoryId}
                                 onValueChange={setSelectedCategoryId}
                                 disabled={allLoading || availableToAdd.length === 0}
                             >
                                 <SelectTrigger className="w-[220px]">
-                                    <SelectValue placeholder="Select category" />
+                                    <SelectValue placeholder={t("card.selectCategoryPlaceholder")} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     {availableToAdd.map((c) => (
@@ -282,14 +263,14 @@ export default function ProfileServiceCategoriesCard({
                                 </SelectContent>
                             </Select>
                         </div>
-                     
+
                         <Button
                             type="button"
                             size="sm"
                             onClick={() => setProposeOpen(true)}
                         >
-                            <Sparkles className="h-4 w-4 mr-1" />
-                            Propose Category
+                            <Sparkles className="h-4 w-4 me-1" />
+                            {t("card.proposeCategory")}
                         </Button>
                     </div>
                 )}
@@ -297,16 +278,16 @@ export default function ProfileServiceCategoriesCard({
                 {isAuthority && (
                     <div className="flex justify-end">
                         <Button type="button" size="sm" onClick={() => setCreateOpen(true)}>
-                            <Plus className="h-4 w-4 mr-1" />
-                            Create Category
+                            <Plus className="h-4 w-4 me-1" />
+                            {t("card.createCategory")}
                         </Button>
                     </div>
                 )}
 
                 {isLoading ? (
-                    <p className="text-sm text-muted-foreground">Loading categories...</p>
+                    <p className="text-sm text-muted-foreground">{t("card.loadingCategories")}</p>
                 ) : linkedCategories.length === 0 ? (
-                    <p className="text-sm text-muted-foreground italic">No service categories linked yet.</p>
+                    <p className="text-sm text-muted-foreground italic">{t("card.noLinked")}</p>
                 ) : (
                     <ul className="space-y-2">
                         {linkedCategories.map((cat: ServiceCategory) => (
@@ -322,7 +303,7 @@ export default function ProfileServiceCategoriesCard({
                                         size="sm"
                                         onClick={() => openView(cat.id)}
                                     >
-                                        View
+                                        {t("card.view")}
                                     </Button>
                                 </div>
                                 {isServiceProvider && (
@@ -344,15 +325,13 @@ export default function ProfileServiceCategoriesCard({
 
                 <div className="border-t pt-4">
                     <p className="text-sm font-semibold mb-2">
-                        {isAuthority ? "All Categories" : "My Proposed Categories"}
+                        {isAuthority ? t("card.sectionAllCategories") : t("card.sectionMyProposed")}
                     </p>
                     {allLoading ? (
-                        <p className="text-sm text-muted-foreground">Loading proposals...</p>
+                        <p className="text-sm text-muted-foreground">{t("card.loadingProposals")}</p>
                     ) : (isAuthority ? allCategories : proposedByMe).length === 0 ? (
                         <p className="text-sm text-muted-foreground italic">
-                            {isAuthority
-                                ? "No categories found."
-                                : "You did not propose categories yet."}
+                            {isAuthority ? t("card.noneFound") : t("card.noneProposed")}
                         </p>
                     ) : (
                         <ul className="space-y-2">
@@ -362,7 +341,7 @@ export default function ProfileServiceCategoriesCard({
                                         <div className="flex items-center gap-2">
                                             <p className="text-sm font-medium">{getCategoryLabel(cat)}</p>
                                             <Badge variant={getStatusBadgeVariant(cat.status)}>
-                                                {cat.status ?? "PENDING"}
+                                                {cat.status ?? t("card.status.pending")}
                                             </Badge>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -372,7 +351,7 @@ export default function ProfileServiceCategoriesCard({
                                                 size="sm"
                                                 onClick={() => openView(cat.id)}
                                             >
-                                                View
+                                                {t("card.view")}
                                             </Button>
                                             {isAuthority && (
                                                 <>
@@ -382,8 +361,8 @@ export default function ProfileServiceCategoriesCard({
                                                         size="sm"
                                                         onClick={() => openEdit(cat)}
                                                     >
-                                                        <Pencil className="h-3 w-3 mr-1" />
-                                                        Edit
+                                                        <Pencil className="h-3 w-3 me-1" />
+                                                        {t("card.edit")}
                                                     </Button>
                                                     {cat.status === "PENDING" && (
                                                         <>
@@ -394,8 +373,8 @@ export default function ProfileServiceCategoriesCard({
                                                                 onClick={() => handleApprove(cat)}
                                                                 disabled={approveMutation.isPending}
                                                             >
-                                                                <Check className="h-3 w-3 mr-1" />
-                                                                Approve
+                                                                <Check className="h-3 w-3 me-1" />
+                                                                {t("card.approve")}
                                                             </Button>
                                                             <Button
                                                                 type="button"
@@ -404,8 +383,8 @@ export default function ProfileServiceCategoriesCard({
                                                                 onClick={() => openReject(cat)}
                                                                 disabled={rejectMutation.isPending}
                                                             >
-                                                                <X className="h-3 w-3 mr-1" />
-                                                                Reject
+                                                                <X className="h-3 w-3 me-1" />
+                                                                {t("card.reject")}
                                                             </Button>
                                                         </>
                                                     )}
@@ -415,12 +394,12 @@ export default function ProfileServiceCategoriesCard({
                                     </div>
                                     {cat.code && (
                                         <p className="mt-1 text-xs text-muted-foreground">
-                                            Code: {cat.code}
+                                            {t("card.code", { code: cat.code })}
                                         </p>
                                     )}
                                     {cat.status === "REJECTED" && cat.rejectedReason && (
                                         <p className="mt-1 text-xs text-destructive">
-                                            Rejected reason: {cat.rejectedReason}
+                                            {t("card.rejectedReason", { reason: cat.rejectedReason })}
                                         </p>
                                     )}
                                 </li>
@@ -433,14 +412,12 @@ export default function ProfileServiceCategoriesCard({
             <Dialog open={proposeOpen} onOpenChange={setProposeOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Propose Service Category</DialogTitle>
-                        <DialogDescription>
-                            Submit a new category for Authority review.
-                        </DialogDescription>
+                        <DialogTitle>{t("card.dialogs.propose.title")}</DialogTitle>
+                        <DialogDescription>{t("card.dialogs.propose.description")}</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="propose-name-en">Name (English)</Label>
+                            <Label htmlFor="propose-name-en">{t("card.dialogs.propose.nameEn")}</Label>
                             <Input
                                 id="propose-name-en"
                                 value={proposeNameEn}
@@ -449,7 +426,7 @@ export default function ProfileServiceCategoriesCard({
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="propose-name-ar">Name (Arabic)</Label>
+                            <Label htmlFor="propose-name-ar">{t("card.dialogs.propose.nameAr")}</Label>
                             <Textarea
                                 id="propose-name-ar"
                                 value={proposeNameAr}
@@ -459,7 +436,7 @@ export default function ProfileServiceCategoriesCard({
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="propose-code">Code (optional)</Label>
+                            <Label htmlFor="propose-code">{t("card.dialogs.propose.codeOptional")}</Label>
                             <Input
                                 id="propose-code"
                                 value={proposeCode}
@@ -473,13 +450,13 @@ export default function ProfileServiceCategoriesCard({
                             variant="outline"
                             onClick={() => setProposeOpen(false)}
                         >
-                            Cancel
+                            {t("card.dialogs.propose.cancel")}
                         </Button>
                         <Button
                             onClick={handlePropose}
                             disabled={proposeMutation.isPending}
                         >
-                            {proposeMutation.isPending ? "Submitting..." : "Submit"}
+                            {proposeMutation.isPending ? t("card.dialogs.propose.submitting") : t("card.dialogs.propose.submit")}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -488,14 +465,12 @@ export default function ProfileServiceCategoriesCard({
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Create Service Category</DialogTitle>
-                        <DialogDescription>
-                            Authority can create categories directly as approved.
-                        </DialogDescription>
+                        <DialogTitle>{t("card.dialogs.create.title")}</DialogTitle>
+                        <DialogDescription>{t("card.dialogs.create.description")}</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="create-name-en">Name (English)</Label>
+                            <Label htmlFor="create-name-en">{t("card.dialogs.propose.nameEn")}</Label>
                             <Input
                                 id="create-name-en"
                                 value={createNameEn}
@@ -504,7 +479,7 @@ export default function ProfileServiceCategoriesCard({
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="create-name-ar">Name (Arabic)</Label>
+                            <Label htmlFor="create-name-ar">{t("card.dialogs.propose.nameAr")}</Label>
                             <Textarea
                                 id="create-name-ar"
                                 value={createNameAr}
@@ -514,7 +489,7 @@ export default function ProfileServiceCategoriesCard({
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="create-code">Code (optional)</Label>
+                            <Label htmlFor="create-code">{t("card.dialogs.propose.codeOptional")}</Label>
                             <Input
                                 id="create-code"
                                 value={createCode}
@@ -525,10 +500,10 @@ export default function ProfileServiceCategoriesCard({
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setCreateOpen(false)}>
-                            Cancel
+                            {t("card.dialogs.create.cancel")}
                         </Button>
                         <Button onClick={handleCreate} disabled={createMutation.isPending}>
-                            {createMutation.isPending ? "Creating..." : "Create"}
+                            {createMutation.isPending ? t("card.dialogs.create.creating") : t("card.dialogs.create.create")}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -537,14 +512,12 @@ export default function ProfileServiceCategoriesCard({
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Update Service Category</DialogTitle>
-                        <DialogDescription>
-                            Update category names or code.
-                        </DialogDescription>
+                        <DialogTitle>{t("card.dialogs.edit.title")}</DialogTitle>
+                        <DialogDescription>{t("card.dialogs.edit.description")}</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="edit-name-en">Name (English)</Label>
+                            <Label htmlFor="edit-name-en">{t("card.dialogs.propose.nameEn")}</Label>
                             <Input
                                 id="edit-name-en"
                                 value={editNameEn}
@@ -552,7 +525,7 @@ export default function ProfileServiceCategoriesCard({
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="edit-name-ar">Name (Arabic)</Label>
+                            <Label htmlFor="edit-name-ar">{t("card.dialogs.propose.nameAr")}</Label>
                             <Textarea
                                 id="edit-name-ar"
                                 value={editNameAr}
@@ -561,7 +534,7 @@ export default function ProfileServiceCategoriesCard({
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="edit-code">Code</Label>
+                            <Label htmlFor="edit-code">{t("card.dialogs.view.code")}</Label>
                             <Input
                                 id="edit-code"
                                 value={editCode}
@@ -571,10 +544,10 @@ export default function ProfileServiceCategoriesCard({
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setEditOpen(false)}>
-                            Cancel
+                            {t("card.dialogs.edit.cancel")}
                         </Button>
                         <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-                            {updateMutation.isPending ? "Saving..." : "Save"}
+                            {updateMutation.isPending ? t("card.dialogs.edit.saving") : t("card.dialogs.edit.save")}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -583,31 +556,29 @@ export default function ProfileServiceCategoriesCard({
             <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Reject Category</DialogTitle>
-                        <DialogDescription>
-                            Add optional reason for rejection.
-                        </DialogDescription>
+                        <DialogTitle>{t("card.dialogs.reject.title")}</DialogTitle>
+                        <DialogDescription>{t("card.dialogs.reject.description")}</DialogDescription>
                     </DialogHeader>
                     <div className="space-y-2">
-                        <Label htmlFor="reject-reason">Reason</Label>
+                        <Label htmlFor="reject-reason">{t("card.dialogs.reject.reason")}</Label>
                         <Textarea
                             id="reject-reason"
                             value={rejectReason}
                             onChange={(e) => setRejectReason(e.target.value)}
                             className="min-h-[90px]"
-                            placeholder="Optional reason"
+                            placeholder={t("card.dialogs.reject.reasonPlaceholder")}
                         />
                     </div>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setRejectOpen(false)}>
-                            Cancel
+                            {t("card.dialogs.reject.cancel")}
                         </Button>
                         <Button
                             variant="destructive"
                             onClick={handleReject}
                             disabled={rejectMutation.isPending}
                         >
-                            {rejectMutation.isPending ? "Rejecting..." : "Reject"}
+                            {rejectMutation.isPending ? t("card.dialogs.reject.rejecting") : t("card.dialogs.reject.reject")}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -616,45 +587,43 @@ export default function ProfileServiceCategoriesCard({
             <Dialog open={viewOpen} onOpenChange={setViewOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Category Details</DialogTitle>
-                        <DialogDescription>
-                            View category by id.
-                        </DialogDescription>
+                        <DialogTitle>{t("card.dialogs.view.title")}</DialogTitle>
+                        <DialogDescription>{t("card.dialogs.view.description")}</DialogDescription>
                     </DialogHeader>
                     {viewingLoading ? (
-                        <p className="text-sm text-muted-foreground">Loading details...</p>
+                        <p className="text-sm text-muted-foreground">{t("card.dialogs.view.loadingDetails")}</p>
                     ) : viewedCategory ? (
                         <div className="space-y-3 text-sm">
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">ID</span>
+                                <span className="text-muted-foreground">{t("card.dialogs.view.id")}</span>
                                 <span className="font-medium">{viewedCategory.id}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Name (EN)</span>
+                                <span className="text-muted-foreground">{t("card.dialogs.view.nameEn")}</span>
                                 <span className="font-medium">{viewedCategory.nameEn ?? "—"}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Name (AR)</span>
+                                <span className="text-muted-foreground">{t("card.dialogs.view.nameAr")}</span>
                                 <span className="font-medium">{viewedCategory.nameAr ?? "—"}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Code</span>
+                                <span className="text-muted-foreground">{t("card.dialogs.view.code")}</span>
                                 <span className="font-medium">{viewedCategory.code ?? "—"}</span>
                             </div>
                             <div className="flex items-center justify-between">
-                                <span className="text-muted-foreground">Status</span>
+                                <span className="text-muted-foreground">{t("card.dialogs.view.status")}</span>
                                 <Badge variant={getStatusBadgeVariant(viewedCategory.status)}>
-                                    {viewedCategory.status ?? "PENDING"}
+                                    {viewedCategory.status ?? t("card.status.pending")}
                                 </Badge>
                             </div>
                             {viewedCategory.rejectedReason && (
                                 <p className="text-destructive text-xs">
-                                    Rejected reason: {viewedCategory.rejectedReason}
+                                    {t("card.rejectedReason", { reason: viewedCategory.rejectedReason })}
                                 </p>
                             )}
                         </div>
                     ) : (
-                        <p className="text-sm text-muted-foreground">Category not found.</p>
+                        <p className="text-sm text-muted-foreground">{t("card.dialogs.view.notFound")}</p>
                     )}
                 </DialogContent>
             </Dialog>

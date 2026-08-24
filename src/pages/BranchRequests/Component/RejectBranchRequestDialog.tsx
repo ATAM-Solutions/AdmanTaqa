@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -23,6 +24,7 @@ export default function RejectBranchRequestDialog({
   isPending,
   onSubmit,
 }: RejectBranchRequestDialogProps) {
+  const { t } = useTranslation("branchRequests");
   const [reason, setReason] = useState("");
 
   const submit = () => {
@@ -34,23 +36,21 @@ export default function RejectBranchRequestDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reject Branch Request</DialogTitle>
-          <DialogDescription>
-            You can provide an optional rejection reason.
-          </DialogDescription>
+          <DialogTitle>{t("rejectDialog.title")}</DialogTitle>
+          <DialogDescription>{t("rejectDialog.description")}</DialogDescription>
         </DialogHeader>
         <Textarea
           value={reason}
           onChange={(e) => setReason(e.target.value)}
-          placeholder="Missing required location details..."
+          placeholder={t("rejectDialog.placeholder")}
           className="min-h-[100px]"
         />
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("rejectDialog.cancel")}
           </Button>
           <Button variant="destructive" onClick={submit} disabled={isPending}>
-            {isPending ? "Rejecting..." : "Reject"}
+            {isPending ? t("rejectDialog.rejecting") : t("rejectDialog.reject")}
           </Button>
         </DialogFooter>
       </DialogContent>

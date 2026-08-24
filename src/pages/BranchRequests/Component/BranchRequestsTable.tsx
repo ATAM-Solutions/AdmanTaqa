@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/utils";
+import { formatDate } from "@/lib/i18n/formatters";
 import {
   Table,
   TableBody,
@@ -27,21 +29,21 @@ export default function BranchRequestsTable({
   items,
   isAuthority,
 }: BranchRequestsTableProps) {
+  const { t, i18n } = useTranslation("branchRequests");
   const navigate = useNavigate();
   const approveMutation = useApproveBranchRequest();
   const rejectMutation = useRejectBranchRequest();
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectTargetId, setRejectTargetId] = useState<number | null>(null);
-console.log(items);
 
   const canReview = (status: string) =>
     status === "PENDING" || status === "UNDER_REVIEW";
 
   const onApprove = (id: number) => {
     approveMutation.mutate(id, {
-      onSuccess: () => toast.success("Branch request approved."),
+      onSuccess: () => toast.success(t("toasts.approved")),
       onError: (err) =>
-        toast.error(err instanceof Error ? err.message : "Failed to approve request."),
+        toast.error(getApiErrorMessage(err, t("toasts.approveFailed"))),
     });
   };
 
@@ -56,12 +58,12 @@ console.log(items);
       { id: rejectTargetId, body: { reason } },
       {
         onSuccess: () => {
-          toast.success("Branch request rejected.");
+          toast.success(t("toasts.rejected"));
           setRejectOpen(false);
           setRejectTargetId(null);
         },
         onError: (err) =>
-          toast.error(getApiErrorMessage(err, "Failed to reject request.")),
+          toast.error(getApiErrorMessage(err, t("toasts.rejectFailed"))),
       }
     );
   };
@@ -71,25 +73,25 @@ console.log(items);
       <Table>
         <TableHeader className="bg-muted/30">
           <TableRow className="hover:bg-transparent">
-            <TableHead>Reference Code</TableHead>
-            <TableHead>Name (EN)</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Submitted At</TableHead>
-            <TableHead>Branch</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t("table.referenceCode")}</TableHead>
+            <TableHead>{t("table.nameEn")}</TableHead>
+            <TableHead>{t("table.status")}</TableHead>
+            <TableHead>{t("table.submittedAt")}</TableHead>
+            <TableHead>{t("table.branch")}</TableHead>
+            <TableHead className="text-end">{t("table.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {items.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                No branch requests found.
+                {t("table.empty")}
               </TableCell>
             </TableRow>
           ) : (
             items.map((item) => (
               <TableRow key={item.id} className="hover:bg-muted/20 transition-all">
-                <TableCell className="font-mono text-xs">
+                <TableCell className="font-mono text-xs" dir="ltr">
                   {item.referenceCode || `BR-${item.id}`}
                 </TableCell>
                 <TableCell>{item.nameEn || "N/A"}</TableCell>
@@ -97,19 +99,19 @@ console.log(items);
                   <BranchRequestStatusBadge status={item.status} />
                 </TableCell>
                 <TableCell className="text-xs text-muted-foreground">
-                  {new Date(item.createdAt).toLocaleString()}
+                  {formatDate(item.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
                 </TableCell>
-                <TableCell className="font-mono text-xs">
+                <TableCell className="font-mono text-xs" dir="ltr">
                   {item.branchId != null ? `#${item.branchId}` : "—"}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-end">
                   <div className="flex items-center justify-end gap-2">
                     <Button
                       size="sm"
                       variant="outline"
                       onClick={() => navigate(`/branch-requests/${item.id}`)}
                     >
-                      View
+                      {t("table.view")}
                     </Button>
                     {isAuthority && canReview(item.status) && (
                       <>
@@ -118,7 +120,7 @@ console.log(items);
                           onClick={() => onApprove(item.id)}
                           disabled={approveMutation.isPending}
                         >
-                          Approve
+                          {t("table.approve")}
                         </Button>
                         <Button
                           size="sm"
@@ -126,7 +128,7 @@ console.log(items);
                           onClick={() => onOpenReject(item.id)}
                           disabled={rejectMutation.isPending}
                         >
-                          Reject
+                          {t("table.reject")}
                         </Button>
                       </>
                     )}

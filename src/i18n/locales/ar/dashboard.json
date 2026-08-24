@@ -1,0 +1,38 @@
+{
+  "title": "رؤى",
+  "titleHighlight": "تشغيلية",
+  "subtitle": "الحالة الفورية لشبكة الطاقة ومنظومة الخدمات لديك.",
+  "networkOnline": "الشبكة متصلة",
+  "stats": {
+    "totalOrganizations": "إجمالي المنظمات",
+    "activeUsers": "المستخدمون النشطون",
+    "openRequests": "الطلبات المفتوحة",
+    "revenueMtd": "الإيرادات (الشهر الحالي)",
+    "vsLastMonth": "مقارنة بالشهر الماضي"
+  },
+  "chart": {
+    "title": "اتجاه إنتاج الطاقة",
+    "subtitle": "تحليلات الأداء عبر جميع المحطات النشطة.",
+    "weekly": "أسبوعي",
+    "live": "مباشر",
+    "months": {
+      "jan": "يناير",
+      "feb": "فبراير",
+      "mar": "مارس",
+      "apr": "أبريل",
+      "may": "مايو",
+      "jun": "يونيو"
+    }
+  },
+  "activity": {
+    "title": "البث المباشر",
+    "active": "نشط",
+    "loadHistorical": "تحميل البيانات السابقة",
+    "items": {
+      "branchUpdate": { "user": "أحمد منصور", "action": "تحديث بيانات الفرع", "target": "محطة الشمال", "time": "قبل دقيقتين" },
+      "newRequest": { "user": "سارة الغامدي", "action": "إنشاء طلب خدمة جديد", "target": "REQ-2024-081", "time": "قبل 15 دقيقة" },
+      "autoApproved": { "user": "النظام", "action": "تمت الموافقة التلقائية على عرض السعر", "target": "QUO-9001", "time": "قبل ساعة" },
+      "inspectionLogged": { "user": "محمد خالد", "action": "تسجيل تقرير تفتيش", "target": "INS-501", "time": "قبل 3 ساعات" }
+    }
+  }
+}

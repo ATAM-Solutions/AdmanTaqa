@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -29,6 +31,7 @@ interface ProfileServiceProviderProfileCardProps {
 }
 
 export default function ProfileServiceProviderProfileCard({ organizationId, embedded }: ProfileServiceProviderProfileCardProps) {
+  const { t } = useTranslation("profile");
   const { data: profile, isLoading: profileLoading } = useGetServiceProviderProfile(organizationId);
   const createMutation = useCreateServiceProviderProfile();
   const updateMutation = useUpdateServiceProviderProfile();
@@ -76,10 +79,10 @@ export default function ProfileServiceProviderProfileCard({ organizationId, embe
         { organizationId, body },
         {
           onSuccess: () => {
-            toast.success("Profile updated.");
+            toast.success(t("spProfileCard.profileUpdated"));
             setShowForm(false);
           },
-          onError: (e) => toast.error((e as Error)?.message ?? "Update failed."),
+          onError: (e) => toast.error((e as Error)?.message ?? t("spProfileCard.updateFailed")),
         }
       );
     } else {
@@ -87,21 +90,21 @@ export default function ProfileServiceProviderProfileCard({ organizationId, embe
         { organizationId, body },
         {
           onSuccess: () => {
-            toast.success("Profile created.");
+            toast.success(t("spProfileCard.profileCreated"));
             setShowForm(false);
           },
-          onError: (e) => toast.error((e as Error)?.message ?? "Create failed."),
+          onError: (e) => toast.error((e as Error)?.message ?? t("spProfileCard.createFailed")),
         }
       );
     }
   };
 
   if (profileLoading) {
-    if (embedded) return <div className="border-t pt-6"><p className="text-sm text-muted-foreground">Loading profile...</p></div>;
+    if (embedded) return <div className="border-t pt-6"><p className="text-sm text-muted-foreground">{t("spProfileCard.loading")}</p></div>;
     return (
       <Card className="border-none shadow-lg bg-gradient-to-br from-card to-muted/20">
         <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground">Loading profile...</p>
+          <p className="text-sm text-muted-foreground">{t("spProfileCard.loading")}</p>
         </CardContent>
       </Card>
     );
@@ -110,16 +113,16 @@ export default function ProfileServiceProviderProfileCard({ organizationId, embe
   const sectionHeader = (
     <div className="flex flex-row items-start justify-between gap-4">
       <div className="space-y-1">
-        <h2 className="text-xl font-semibold tracking-tight">Service Provider</h2>
+        <h2 className="text-xl font-semibold tracking-tight">{t("spProfileCard.heading")}</h2>
         <CardTitle className="text-lg flex items-center gap-2 font-medium">
           <Wrench className="h-5 w-5" />
-          Service Provider Profile
+          {t("spProfileCard.title")}
         </CardTitle>
-        <CardDescription>License, experience, address, and profile documents.</CardDescription>
+        <CardDescription>{t("spProfileCard.description")}</CardDescription>
       </div>
       {!showForm && !profile && (
         <Button size="sm" onClick={openCreateForm}>
-          <Plus className="h-4 w-4 mr-1" /> Create Profile
+          <Plus className="h-4 w-4 me-1" /> {t("spProfileCard.createProfile")}
         </Button>
       )}
     </div>
@@ -131,27 +134,27 @@ export default function ProfileServiceProviderProfileCard({ organizationId, embe
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">License Number</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("orgDetails.licenseNumber")}</p>
                 <p className="font-medium">{profile.licenseNumber ?? "—"}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Years Experience</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("orgDetails.yearsExperience")}</p>
                 <p className="font-medium">{profile.yearsExperience ?? "—"}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Area</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("orgDetails.area")}</p>
                 <p className="font-medium">{profile.Area?.name ?? profile.areaId ?? "—"}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">City</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("orgDetails.city")}</p>
                 <p className="font-medium">{profile.City?.name ?? profile.cityId ?? "—"}</p>
               </div>
               <div className="md:col-span-2">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Street</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("orgDetails.street")}</p>
                 <p className="font-medium">{profile.street ?? "—"}</p>
               </div>
               <div className="md:col-span-2">
-                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Service Categories</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{t("orgDetails.serviceCategories")}</p>
                 <p className="font-medium">
                   {Array.isArray(profile.serviceCategories) && profile.serviceCategories.length
                     ? profile.serviceCategories.join(", ")
@@ -161,11 +164,116 @@ export default function ProfileServiceProviderProfileCard({ organizationId, embe
             </div>
           </>
         ) : (
-          <p className="text-sm text-muted-foreground italic">
-            No service provider profile yet. Create one to add license, address, and profile documents.
-          </p>
+          <p className="text-sm text-muted-foreground italic">{t("spProfileCard.empty")}</p>
         )}
     </>
+  );
+
+  const formBody = (
+    <div className="grid gap-4 py-4">
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>{t("spForm.licenseNumber")}</Label>
+          <Input value={form.licenseNumber ?? ""} onChange={(e) => setForm((p) => ({ ...p, licenseNumber: e.target.value }))} placeholder={t("spForm.licenseNumberPlaceholder")} />
+        </div>
+        <div>
+          <Label>{t("spForm.yearsExperience")}</Label>
+          <Input type="number" min={0} value={form.yearsExperience ?? ""} onChange={(e) => setForm((p) => ({ ...p, yearsExperience: e.target.value ? Number(e.target.value) : undefined }))} placeholder={t("spForm.yearsExperiencePlaceholder")} />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>{t("spForm.country")}</Label>
+          <Select
+            value={countryId != null ? String(countryId) : undefined}
+            onValueChange={(v) => {
+              setCountryId(Number(v));
+              setGovernorateId(null);
+              setForm((p) => ({ ...p, cityId: undefined, areaId: undefined }));
+            }}
+          >
+            <SelectTrigger><SelectValue placeholder={t("spForm.select")} /></SelectTrigger>
+            <SelectContent>
+              {countries.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label>{t("spForm.governorate")}</Label>
+          <Select
+            value={governorateId != null ? String(governorateId) : undefined}
+            disabled={!countryId}
+            onValueChange={(v) => {
+              setGovernorateId(Number(v));
+              setForm((p) => ({ ...p, cityId: undefined, areaId: undefined }));
+            }}
+          >
+            <SelectTrigger><SelectValue placeholder={t("spForm.select")} /></SelectTrigger>
+            <SelectContent>
+              {governorates.map((g) => <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label>{t("spForm.city")}</Label>
+          <Select
+            value={form.cityId != null ? String(form.cityId) : undefined}
+            disabled={!governorateId}
+            onValueChange={(v) => setForm((p) => ({ ...p, cityId: Number(v), areaId: undefined }))}
+          >
+            <SelectTrigger><SelectValue placeholder={t("spForm.select")} /></SelectTrigger>
+            <SelectContent>
+              {cities.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label>{t("spForm.area")}</Label>
+          <Select
+            value={form.areaId != null ? String(form.areaId) : undefined}
+            disabled={!form.cityId}
+            onValueChange={(v) => setForm((p) => ({ ...p, areaId: Number(v) }))}
+          >
+            <SelectTrigger><SelectValue placeholder={t("spForm.select")} /></SelectTrigger>
+            <SelectContent>
+              {areas.map((a) => <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+      <div>
+        <Label>{t("spForm.street")}</Label>
+        <Input value={form.street ?? ""} onChange={(e) => setForm((p) => ({ ...p, street: e.target.value }))} placeholder={t("spForm.streetPlaceholder")} />
+      </div>
+      <div>
+        <Label>{t("spForm.serviceCategories")}</Label>
+        <Input value={Array.isArray(form.serviceCategories) ? form.serviceCategories.join(", ") : ""} onChange={(e) => setForm((p) => ({ ...p, serviceCategories: e.target.value ? e.target.value.split(",").map((s) => s.trim()).filter(Boolean) : [] }))} placeholder={t("spForm.serviceCategoriesPlaceholder")} />
+      </div>
+    </div>
+  );
+
+  const formDialog = (
+    <Dialog open={showForm} onOpenChange={setShowForm}>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{editing ? t("spProfileCard.editDialogTitle") : t("spProfileCard.createDialogTitle")}</DialogTitle>
+          <DialogDescription>
+            {editing ? t("spProfileCard.editDialogDescription") : t("spProfileCard.createDialogDescription")}
+          </DialogDescription>
+        </DialogHeader>
+        {formBody}
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setShowForm(false)}>{t("spProfileCard.cancel")}</Button>
+          <Button onClick={submitForm} disabled={createMutation.isPending || updateMutation.isPending}>
+            {editing
+              ? (updateMutation.isPending ? t("spProfileCard.saving") : t("spProfileCard.update"))
+              : (createMutation.isPending ? t("spProfileCard.creating") : t("spProfileCard.create"))}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 
   if (embedded) {
@@ -175,72 +283,7 @@ export default function ProfileServiceProviderProfileCard({ organizationId, embe
           {sectionHeader}
           {sectionContent}
         </div>
-        <Dialog open={showForm} onOpenChange={setShowForm}>
-          <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editing ? "Edit Profile" : "Create Profile"}</DialogTitle>
-              <DialogDescription>
-                {editing ? "Update your service provider profile." : "Add license, experience, and address (all optional)."}
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>License Number</Label>
-                  <Input value={form.licenseNumber ?? ""} onChange={(e) => setForm((p) => ({ ...p, licenseNumber: e.target.value }))} placeholder="Optional" />
-                </div>
-                <div>
-                  <Label>Years Experience</Label>
-                  <Input type="number" min={0} value={form.yearsExperience ?? ""} onChange={(e) => setForm((p) => ({ ...p, yearsExperience: e.target.value ? Number(e.target.value) : undefined }))} placeholder="Optional" />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Country</Label>
-                  <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={countryId ?? ""} onChange={(e) => { const v = e.target.value ? Number(e.target.value) : null; setCountryId(v); setGovernorateId(null); setForm((p) => ({ ...p, cityId: undefined, areaId: undefined })); }}>
-                    <option value="">Select</option>
-                    {countries.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <Label>Governorate</Label>
-                  <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={governorateId ?? ""} onChange={(e) => { const v = e.target.value ? Number(e.target.value) : null; setGovernorateId(v); setForm((p) => ({ ...p, cityId: undefined, areaId: undefined })); }}>
-                    <option value="">Select</option>
-                    {governorates.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>City</Label>
-                  <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={form.cityId ?? ""} onChange={(e) => setForm((p) => ({ ...p, cityId: e.target.value ? Number(e.target.value) : undefined, areaId: undefined }))}>
-                    <option value="">Select</option>
-                    {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <Label>Area</Label>
-                  <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={form.areaId ?? ""} onChange={(e) => setForm((p) => ({ ...p, areaId: e.target.value ? Number(e.target.value) : undefined }))}>
-                    <option value="">Select</option>
-                    {areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <Label>Street</Label>
-                <Input value={form.street ?? ""} onChange={(e) => setForm((p) => ({ ...p, street: e.target.value }))} placeholder="Optional" />
-              </div>
-              <div>
-                <Label>Service Categories (comma-separated)</Label>
-                <Input value={Array.isArray(form.serviceCategories) ? form.serviceCategories.join(", ") : ""} onChange={(e) => setForm((p) => ({ ...p, serviceCategories: e.target.value ? e.target.value.split(",").map((s) => s.trim()).filter(Boolean) : [] }))} placeholder="e.g. Maintenance, Inspection" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
-              <Button onClick={submitForm} disabled={createMutation.isPending || updateMutation.isPending}>{editing ? "Update" : "Create"}</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        {formDialog}
       </>
     );
   }
@@ -253,73 +296,7 @@ export default function ProfileServiceProviderProfileCard({ organizationId, embe
       <CardContent className="pt-6 space-y-6">
         {sectionContent}
       </CardContent>
-
-      <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editing ? "Edit Profile" : "Create Profile"}</DialogTitle>
-            <DialogDescription>
-              {editing ? "Update your service provider profile." : "Add license, experience, and address (all optional)."}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>License Number</Label>
-                <Input value={form.licenseNumber ?? ""} onChange={(e) => setForm((p) => ({ ...p, licenseNumber: e.target.value }))} placeholder="Optional" />
-              </div>
-              <div>
-                <Label>Years Experience</Label>
-                <Input type="number" min={0} value={form.yearsExperience ?? ""} onChange={(e) => setForm((p) => ({ ...p, yearsExperience: e.target.value ? Number(e.target.value) : undefined }))} placeholder="Optional" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Country</Label>
-                <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={countryId ?? ""} onChange={(e) => { const v = e.target.value ? Number(e.target.value) : null; setCountryId(v); setGovernorateId(null); setForm((p) => ({ ...p, cityId: undefined, areaId: undefined })); }}>
-                  <option value="">Select</option>
-                  {countries.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <Label>Governorate</Label>
-                <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={governorateId ?? ""} onChange={(e) => { const v = e.target.value ? Number(e.target.value) : null; setGovernorateId(v); setForm((p) => ({ ...p, cityId: undefined, areaId: undefined })); }}>
-                  <option value="">Select</option>
-                  {governorates.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-                </select>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>City</Label>
-                <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={form.cityId ?? ""} onChange={(e) => setForm((p) => ({ ...p, cityId: e.target.value ? Number(e.target.value) : undefined, areaId: undefined }))}>
-                  <option value="">Select</option>
-                  {cities.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <Label>Area</Label>
-                <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" value={form.areaId ?? ""} onChange={(e) => setForm((p) => ({ ...p, areaId: e.target.value ? Number(e.target.value) : undefined }))}>
-                  <option value="">Select</option>
-                  {areas.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
-                </select>
-              </div>
-            </div>
-            <div>
-              <Label>Street</Label>
-              <Input value={form.street ?? ""} onChange={(e) => setForm((p) => ({ ...p, street: e.target.value }))} placeholder="Optional" />
-            </div>
-            <div>
-              <Label>Service Categories (comma-separated)</Label>
-              <Input value={Array.isArray(form.serviceCategories) ? form.serviceCategories.join(", ") : ""} onChange={(e) => setForm((p) => ({ ...p, serviceCategories: e.target.value ? e.target.value.split(",").map((s) => s.trim()).filter(Boolean) : [] }))} placeholder="e.g. Maintenance, Inspection" />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
-            <Button onClick={submitForm} disabled={createMutation.isPending || updateMutation.isPending}>{editing ? "Update" : "Create"}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {formDialog}
     </Card>
   );
 }

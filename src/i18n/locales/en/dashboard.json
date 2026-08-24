@@ -1,0 +1,38 @@
+{
+  "title": "Operational",
+  "titleHighlight": "Insights",
+  "subtitle": "Real-time status of your energy network and service ecosystem.",
+  "networkOnline": "Network Online",
+  "stats": {
+    "totalOrganizations": "Total Organizations",
+    "activeUsers": "Active Users",
+    "openRequests": "Open Requests",
+    "revenueMtd": "Revenue (MTD)",
+    "vsLastMonth": "vs last month"
+  },
+  "chart": {
+    "title": "Energy Output Trend",
+    "subtitle": "Performance analytics across all active stations.",
+    "weekly": "Weekly",
+    "live": "Live",
+    "months": {
+      "jan": "Jan",
+      "feb": "Feb",
+      "mar": "Mar",
+      "apr": "Apr",
+      "may": "May",
+      "jun": "Jun"
+    }
+  },
+  "activity": {
+    "title": "Live Feed",
+    "active": "Active",
+    "loadHistorical": "Load historical data",
+    "items": {
+      "branchUpdate": { "user": "Ahmed Mansour", "action": "Updated branch details", "target": "North Station", "time": "2 minutes ago" },
+      "newRequest": { "user": "Sarah Al-Ghamdi", "action": "Created new service request", "target": "REQ-2024-081", "time": "15 minutes ago" },
+      "autoApproved": { "user": "System", "action": "Auto-approved quotation", "target": "QUO-9001", "time": "1 hour ago" },
+      "inspectionLogged": { "user": "Mohammed Khalid", "action": "Logged inspection report", "target": "INS-501", "time": "3 hours ago" }
+    }
+  }
+}

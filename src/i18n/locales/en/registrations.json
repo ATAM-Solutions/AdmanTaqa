@@ -1,0 +1,62 @@
+{
+  "list": {
+    "title": "Approved Service Provider Registrations",
+    "subtitle": "View approved service provider organizations.",
+    "loading": "Loading approved registrations...",
+    "loadFailed": "Failed to load approved registrations."
+  },
+  "detailPage": {
+    "back": "Back",
+    "title": "Registration Details"
+  },
+  "table": {
+    "company": "Company",
+    "contact": "Contact",
+    "emailPhone": "Email / Phone",
+    "documents": "Documents",
+    "actions": "Actions",
+    "noDocuments": "—",
+    "docFallback": "Doc {{index}}",
+    "view": "View",
+    "approve": "Approve",
+    "reject": "Reject",
+    "loading": "Loading...",
+    "emptyTitle": "No approved registrations",
+    "emptyDescription": "Everything is caught up! New applications will appear here.",
+    "showing": "Showing <strong>{{count}}</strong> of <strong>{{total}}</strong> registrations"
+  },
+  "toasts": {
+    "loadFailed": "Failed to load registrations",
+    "approveSuccess": "Registration approved successfully",
+    "approveFailed": "Failed to approve registration",
+    "rejectSuccess": "Registration rejected",
+    "rejectFailed": "Failed to reject registration",
+    "downloadSuccess": "PDF downloaded successfully",
+    "downloadFailed": "Failed to download PDF",
+    "detailsLoadFailed": "Failed to load registration details"
+  },
+  "details": {
+    "companyInfo": {
+      "title": "Company Information",
+      "description": "Basic details about the service provider.",
+      "companyName": "Company Name",
+      "address": "Address",
+      "notAvailable": "N/A",
+      "email": "Email",
+      "phone": "Phone",
+      "contactPerson": "Contact Person"
+    },
+    "documents": {
+      "title": "Uploaded Documents",
+      "description": "Review the submitted documentation.",
+      "empty": "No documents uploaded.",
+      "viewDownload": "View & Download PDF",
+      "download": "Download"
+    },
+    "actions": {
+      "cancel": "Cancel",
+      "reject": "Reject Application",
+      "approve": "Approve Application"
+    }
+  }
+}

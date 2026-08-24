@@ -1,0 +1,128 @@
+{
+  "list": {
+    "title": "Users",
+    "subtitle": "Manage user accounts in your organization.",
+    "searchPlaceholder": "Search by name, email, or ID...",
+    "roleLabel": "Role:",
+    "allRoles": "All Roles",
+    "loading": "Loading users...",
+    "loadFailed": "Failed to load users."
+  },
+  "table": {
+    "userName": "User Name",
+    "emailId": "Email/ID",
+    "role": "Role",
+    "actions": "Actions",
+    "noResults": "No users found matching your search."
+  },
+  "menu": {
+    "view": "View",
+    "edit": "Edit",
+    "deactivate": "Deactivate"
+  },
+  "createDialog": {
+    "trigger": "Create New User",
+    "title": "Create New User",
+    "description": "Add a new user to your organization. You can optionally assign a role during creation.",
+    "fullName": "Full Name",
+    "email": "Email",
+    "password": "Password",
+    "phoneOptional": "Phone (optional)",
+    "roleOptional": "Role (optional)",
+    "selectRolePlaceholder": "Select role (optional)",
+    "loadingRoles": "Loading roles...",
+    "none": "None",
+    "cancel": "Cancel",
+    "create": "Create User",
+    "creating": "Creating...",
+    "success": "User created successfully.",
+    "error": "Failed to create user."
+  },
+  "editDialog": {
+    "title": "Edit User",
+    "description": "Update user information. Only changed fields will be sent.",
+    "fullName": "Full Name",
+    "phone": "Phone",
+    "email": "Email",
+    "role": "Role",
+    "selectRolePlaceholder": "Select role",
+    "loadingRoles": "Loading roles...",
+    "noRole": "No role",
+    "cancel": "Cancel",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "noChanges": "No changes to save.",
+    "success": "User updated successfully.",
+    "error": "Failed to update user."
+  },
+  "deactivateDialog": {
+    "title": "Deactivate User",
+    "description": "Are you sure you want to deactivate \"{{name}}\"? They will no longer be able to sign in. This can be reversed by an admin (Edit user → set Active).",
+    "cancel": "Cancel",
+    "deactivate": "Deactivate",
+    "deactivating": "Deactivating...",
+    "success": "User deactivated.",
+    "error": "Failed to deactivate user."
+  },
+  "deleteDialog": {
+    "title": "Delete User",
+    "description": "Are you sure you want to delete the user \"{{name}}\"? This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "success": "User deleted successfully.",
+    "error": "Failed to delete user."
+  },
+  "deleteAccountDialog": {
+    "title": "Delete my account",
+    "description": "This will deactivate your account. You will not be able to sign in again. Enter your current password to confirm.",
+    "passwordLabel": "Current password",
+    "cancel": "Cancel",
+    "submit": "Delete my account",
+    "submitting": "Deactivating...",
+    "passwordRequired": "Enter your password to confirm.",
+    "success": "Account deactivated successfully.",
+    "error": "Failed to delete account."
+  },
+  "details": {
+    "loading": "Loading...",
+    "notFound": "User not found.",
+    "back": "Back",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "personalInfo": "Personal Information",
+    "emailAddress": "Email Address",
+    "contactNumber": "Contact Number",
+    "organization": "Organization",
+    "accessLevel": "Access Level"
+  },
+  "updateUser": {
+    "title": "Update User",
+    "subtitle": "Modify user details and permissions.",
+    "notFoundTitle": "User not found",
+    "notFoundDescription": "The user with ID \"{{id}}\" could not be found.",
+    "backToUsers": "Back to Users",
+    "fullName": "Full Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "systemRole": "System Role",
+    "selectRole": "Select role",
+    "organization": "Organization",
+    "status": "Status",
+    "selectStatus": "Select status",
+    "cancel": "Cancel",
+    "update": "Update User",
+    "updateSuccess": "User updated successfully!",
+    "roles": {
+      "ADMIN": "Administrator",
+      "AUTHORITY": "Authority Viewer",
+      "SERVICE_PROVIDER": "Service Provider",
+      "BRANCH_MANAGER": "Branch Manager",
+      "TECHNICIAN": "Technician"
+    },
+    "statuses": {
+      "ACTIVE": "Active",
+      "INACTIVE": "Inactive"
+    }
+  }
+}

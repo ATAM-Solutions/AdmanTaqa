@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ import useGetRolePermissions from "@/hooks/Roles/useGetRolePermissions";
 import useCreateRole from "@/hooks/Roles/useCreateRole";
 
 export default function CreateCustomRole() {
+    const { t } = useTranslation("roles");
     const navigate = useNavigate();
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
@@ -34,11 +36,11 @@ export default function CreateCustomRole() {
             },
             {
                 onSuccess: () => {
-                    toast.success("Role created successfully!");
+                    toast.success(t("create.createdSuccess"));
                     navigate('/roles');
                 },
                 onError: (err) => {
-                    toast.error(err instanceof Error ? err.message : "Failed to create role.");
+                    toast.error(err instanceof Error ? err.message : t("create.createFailed"));
                 },
             }
         );
@@ -56,39 +58,37 @@ export default function CreateCustomRole() {
         <div className="p-4 md:p-8 space-y-6 animate-in slide-in-from-right duration-500 max-w-4xl mx-auto">
             <div className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => navigate('/roles')}>
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
                 </Button>
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Create Custom Role</h1>
-                    <p className="text-muted-foreground">
-                        Define a new role with specific permissions and access levels.
-                    </p>
+                    <h1 className="text-3xl font-bold tracking-tight">{t("create.title")}</h1>
+                    <p className="text-muted-foreground">{t("create.subtitle")}</p>
                 </div>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Role Details</CardTitle>
-                    <CardDescription>Enter the basic information for this role.</CardDescription>
+                    <CardTitle>{t("create.detailsTitle")}</CardTitle>
+                    <CardDescription>{t("create.detailsDescription")}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form id="create-role-form" onSubmit={handleCreateRole} className="space-y-6">
                         <div className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="roleName">Role Name</Label>
+                                <Label htmlFor="roleName">{t("create.roleName")}</Label>
                                 <Input
                                     id="roleName"
-                                    placeholder="e.g., Compliance Officer"
+                                    placeholder={t("create.roleNamePlaceholder")}
                                     required
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">{t("create.description")}</Label>
                                 <Textarea
                                     id="description"
-                                    placeholder="Describe the responsibilities and access scope..."
+                                    placeholder={t("create.descriptionPlaceholder")}
                                     className="min-h-[80px]"
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
@@ -97,17 +97,15 @@ export default function CreateCustomRole() {
                         </div>
 
                         <div className="space-y-3">
-                            <Label className="text-base font-semibold">Permissions</Label>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-slate-50/50">
+                            <Label className="text-base font-semibold">{t("create.permissions")}</Label>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 border rounded-lg bg-muted/50">
                                 {permissionsLoading ? (
-                                    <p className="text-sm text-muted-foreground">Loading permissions...</p>
+                                    <p className="text-sm text-muted-foreground">{t("create.loadingPermissions")}</p>
                                 ) : permissionItems.length === 0 ? (
-                                    <p className="text-sm text-muted-foreground">
-                                        No assignable permissions were returned from API.
-                                    </p>
+                                    <p className="text-sm text-muted-foreground">{t("create.noPermissions")}</p>
                                 ) : (
                                     permissionItems.map((permission) => (
-                                        <div key={permission.id} className="flex items-start space-x-2">
+                                        <div key={permission.id} className="flex items-start gap-2">
                                             <Checkbox
                                                 id={`perm-${permission.id}`}
                                                 checked={selectedPermissionIds.includes(permission.id)}
@@ -129,10 +127,10 @@ export default function CreateCustomRole() {
 
                         <div className="flex justify-end gap-4 pt-4 border-t">
                             <Button type="button" variant="outline" onClick={() => navigate('/roles')}>
-                                Cancel
+                                {t("create.cancel")}
                             </Button>
                             <Button type="submit" disabled={createMutation.isPending}>
-                                {createMutation.isPending ? "Creating..." : "Create Role"}
+                                {createMutation.isPending ? t("create.creating") : t("create.create")}
                             </Button>
                         </div>
                     </form>

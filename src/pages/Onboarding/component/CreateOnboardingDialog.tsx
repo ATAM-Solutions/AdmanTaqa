@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -17,7 +18,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Upload, X } from "lucide-react";
 import { ACCEPTED_IMAGE_TYPES } from "../constants";
 import {
-  onboardingFormSchema,
+  createOnboardingFormSchema,
   defaultOnboardingFormValues,
   type OnboardingFormValues,
 } from "../schema";
@@ -49,6 +50,7 @@ export default function CreateOnboardingDialog(props: CreateOnboardingDialogProp
     trigger,
   } = props;
 
+  const { t } = useTranslation("onboarding");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -60,8 +62,9 @@ export default function CreateOnboardingDialog(props: CreateOnboardingDialogProp
     setImageFile(file);
   };
 
+  const schema = useMemo(() => createOnboardingFormSchema(t), [t]);
   const form = useForm<OnboardingFormValues>({
-    resolver: zodResolver(onboardingFormSchema),
+    resolver: zodResolver(schema),
     defaultValues: defaultOnboardingFormValues,
   });
 
@@ -87,41 +90,41 @@ export default function CreateOnboardingDialog(props: CreateOnboardingDialogProp
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent className="sm:max-w-[520px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create onboarding item</DialogTitle>
-          <DialogDescription>Add a new slide or content block for onboarding.</DialogDescription>
+          <DialogTitle>{t("createDialog.title")}</DialogTitle>
+          <DialogDescription>{t("createDialog.description")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleFormSubmit} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="create-title">Title</Label>
+            <Label htmlFor="create-title">{t("createDialog.fields.title")}</Label>
             <Input
               id="create-title"
               {...form.register("title")}
-              placeholder="Welcome"
+              placeholder={t("createDialog.fields.titlePlaceholder")}
             />
             {form.formState.errors.title && (
               <p className="text-sm text-destructive">{form.formState.errors.title.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="create-desc">Description</Label>
+            <Label htmlFor="create-desc">{t("createDialog.fields.description")}</Label>
             <Input
               id="create-desc"
               {...form.register("description")}
-              placeholder="Short description"
+              placeholder={t("createDialog.fields.descriptionPlaceholder")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="create-content">Content</Label>
+            <Label htmlFor="create-content">{t("createDialog.fields.content")}</Label>
             <textarea
               id="create-content"
               className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               {...form.register("content")}
-              placeholder="Full content (optional)"
+              placeholder={t("createDialog.fields.contentPlaceholder")}
             />
           </div>
           <div className="flex gap-4 items-center">
             <div className="space-y-2 flex-1">
-              <Label htmlFor="create-order">Order</Label>
+              <Label htmlFor="create-order">{t("createDialog.fields.order")}</Label>
               <Controller
                 control={form.control}
                 name="order"
@@ -140,17 +143,17 @@ export default function CreateOnboardingDialog(props: CreateOnboardingDialogProp
                 <p className="text-sm text-destructive">{form.formState.errors.order.message}</p>
               )}
             </div>
-            <div className="flex items-center space-x-2 pt-8">
+            <div className="flex items-center gap-2 pt-8">
               <Checkbox
                 id="create-active"
                 checked={form.watch("isActive")}
                 onCheckedChange={(c) => form.setValue("isActive", !!c)}
               />
-              <Label htmlFor="create-active">Active</Label>
+              <Label htmlFor="create-active">{t("createDialog.fields.active")}</Label>
             </div>
           </div>
           <div className="space-y-2">
-            <Label>Image (drag & drop or click)</Label>
+            <Label>{t("createDialog.image.label")}</Label>
             <div
               className={`border-2 border-dashed rounded-lg p-4 text-center transition-colors ${isDragging ? "border-primary bg-primary/5" : "border-muted-foreground/30"}`}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -184,7 +187,7 @@ export default function CreateOnboardingDialog(props: CreateOnboardingDialogProp
                     type="button"
                     variant="secondary"
                     size="icon"
-                    className="absolute -top-2 -right-2 h-7 w-7"
+                    className="absolute -top-2 -end-2 h-7 w-7"
                     onClick={(e) => { e.stopPropagation(); setImageAndPreview(null); }}
                   >
                     <X className="h-4 w-4" />
@@ -193,15 +196,15 @@ export default function CreateOnboardingDialog(props: CreateOnboardingDialogProp
               ) : (
                 <>
                   <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground">Drag image here or click to select (JPEG, PNG, GIF, WebP — max 5MB)</p>
+                  <p className="text-sm text-muted-foreground">{t("createDialog.image.dropHint")}</p>
                 </>
               )}
             </div>
           </div>
           <DialogFooter className="pt-4">
-            <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+            <Button type="button" variant="outline" onClick={onCancel}>{t("createDialog.cancel")}</Button>
             <Button type="submit" disabled={submitting}>
-              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Create
+              {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null} {t("createDialog.submit")}
             </Button>
           </DialogFooter>
         </form>

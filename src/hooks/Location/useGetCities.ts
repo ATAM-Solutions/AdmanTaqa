@@ -1,13 +1,14 @@
  import axiosInstance from '@/api/config';
 import type { CitiesResponse } from '@/types/location';
 import { useQuery } from '@tanstack/react-query';
+import { reportError } from '@/lib/errorReporting';
 
 const getCities = async (governorateId: number): Promise<CitiesResponse> => {
     try {
         const response = await axiosInstance.get(`locations/governorates/${governorateId}/cities`);
         return response.data;
-    } catch (error: any) {
-        console.error("Error fetching cities:", error.response?.data || error.message);
+    } catch (error: unknown) {
+        reportError("Error fetching cities:", error);
         throw error;
     }
 };

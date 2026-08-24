@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -51,6 +52,7 @@ type CreateUserDialogProps = {
 };
 
 export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
+  const { t } = useTranslation("users");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
   const [phoneError, setPhoneError] = useState("");
@@ -80,14 +82,14 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
     };
     createMutation.mutate(body, {
       onSuccess: () => {
-        toast.success("User created successfully.");
+        toast.success(t("createDialog.success"));
         setOpen(false);
         setForm(initialForm);
       },
-      onError: (e) => toast.error((e as Error)?.message ?? "Failed to create user."),
+      onError: (e) => toast.error((e as Error)?.message ?? t("createDialog.error")),
     });
   };
- 
+
   const handleOpenChange = (next: boolean) => {
     if (!next) {
       setForm(initialForm);
@@ -102,21 +104,21 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
         {trigger ?? (
           <Button className="gap-2 shadow-sm">
             <UserPlus className="h-4 w-4" />
-            Create New User
+            {t("createDialog.trigger")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Create New User</DialogTitle>
+          <DialogTitle>{t("createDialog.title")}</DialogTitle>
           <DialogDescription>
-            Add a new user to your organization. You can optionally assign a role during creation.
+            {t("createDialog.description")}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="create-fullName">Full Name</Label>
+              <Label htmlFor="create-fullName">{t("createDialog.fullName")}</Label>
               <Input
                 id="create-fullName"
                 placeholder="John Doe"
@@ -126,7 +128,7 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="create-email">Email</Label>
+              <Label htmlFor="create-email">{t("createDialog.email")}</Label>
               <Input
                 id="create-email"
                 type="email"
@@ -138,7 +140,7 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="create-password">Password</Label>
+            <Label htmlFor="create-password">{t("createDialog.password")}</Label>
             <Input
               id="create-password"
               type="password"
@@ -149,9 +151,9 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="create-phone">Phone (optional)</Label>
-            <div className="flex rounded-md border border-input overflow-hidden">
-              <span className="inline-flex items-center px-3 text-sm text-muted-foreground border-r border-input bg-muted/30">
+            <Label htmlFor="create-phone">{t("createDialog.phoneOptional")}</Label>
+            <div dir="ltr" className="flex rounded-md border border-input overflow-hidden">
+              <span className="inline-flex items-center px-3 text-sm text-muted-foreground border-e border-input bg-muted/30">
                 +966
               </span>
               <Input
@@ -166,10 +168,10 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
                 aria-invalid={!!phoneError}
               />
             </div>
-            {phoneError && <p className="text-xs text-red-600 font-medium">{phoneError}</p>}
+            {phoneError && <p className="text-xs text-destructive font-medium">{phoneError}</p>}
           </div>
           <div className="space-y-2">
-            <Label>Role (optional)</Label>
+            <Label>{t("createDialog.roleOptional")}</Label>
             <Select
               value={form.roleId || "none"}
               onValueChange={(value) =>
@@ -178,11 +180,11 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
             >
               <SelectTrigger>
                 <SelectValue
-                  placeholder={rolesLoading ? "Loading roles..." : "Select role (optional)"}
+                  placeholder={rolesLoading ? t("createDialog.loadingRoles") : t("createDialog.selectRolePlaceholder")}
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="none">{t("createDialog.none")}</SelectItem>
                 {roles.map((role) => (
                   <SelectItem key={role.id} value={String(role.id)}>
                     {role.name}
@@ -193,10 +195,10 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
           </div>
           <DialogFooter className="pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t("createDialog.cancel")}
             </Button>
             <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create User"}
+              {createMutation.isPending ? t("createDialog.creating") : t("createDialog.create")}
             </Button>
           </DialogFooter>
         </form>

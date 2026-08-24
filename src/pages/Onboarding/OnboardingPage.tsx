@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -23,6 +24,7 @@ import EditOnboardingDialog from "./component/EditOnboardingDialog";
 import DeleteOnboardingDialog from "./component/DeleteOnboardingDialog";
 
 export default function OnboardingPage() {
+  const { t } = useTranslation("onboarding");
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,11 +69,11 @@ export default function OnboardingPage() {
 
   const validateImageFile = (file: File): boolean => {
     if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
-      toast.error("نوع الملف غير مدعوم. استخدم JPEG أو PNG أو GIF أو WebP.");
+      toast.error(t("toasts.invalidFileType"));
       return false;
     }
     if (file.size > MAX_IMAGE_SIZE) {
-      toast.error("حجم الصورة يجب ألا يتجاوز 5 ميجابايت.");
+      toast.error(t("toasts.imageTooLarge"));
       return false;
     }
     return true;
@@ -169,7 +171,7 @@ export default function OnboardingPage() {
 
   const handleDelete = async () => {
     if (!deletingItem) {
-      toast.error("No item selected to delete.");
+      toast.error(t("toasts.noItemSelected"));
       return;
     }
     try {
@@ -197,7 +199,7 @@ export default function OnboardingPage() {
           trigger={
             <Button className="gap-2 shadow-sm">
               <Plus className="h-4 w-4" />
-              Add Item
+              {t("page.addItem")}
             </Button>
           }
         />

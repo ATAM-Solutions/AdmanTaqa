@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -18,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Database, Globe, ChevronLeft, ChevronRight, User, Building2 } from "lucide-react";
+import { formatDate } from "@/lib/i18n/formatters";
 
 export type AuditLogRow = {
   action: string;
@@ -54,7 +56,7 @@ function getActionBadge(action: string) {
     <Badge
       variant={isCritical ? "default" : "outline"}
       className={`text-[10px] font-bold tracking-tight rounded-md py-0 ${
-        isWarning ? "bg-red-100 text-red-700 border-red-200" : !isCritical ? "bg-muted/50" : ""
+        isWarning ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-400 border-red-200 dark:border-red-900" : !isCritical ? "bg-muted/50" : ""
       }`}
     >
       {action.replace(/[_.]/g, " ")}
@@ -74,19 +76,20 @@ export default function TableAuditLog({
   onLimitChange,
   pageSizeOptions = [10, 20, 50, 100],
 }: TableAuditLogProps) {
+  const { t, i18n } = useTranslation("auditLog");
   const hasPrev = page > 1;
   const hasNext = page < totalPages;
 
   return (
     <Card className="border-none shadow-xl bg-card/60 backdrop-blur-md">
-      <CardHeader className="pb-3 border-b bg-slate-50/30">
+      <CardHeader className="pb-3 border-b bg-muted/30">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="relative w-full md:w-96">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by user, organization, action, resource, or IP..."
-                className="pl-10 bg-background/50 border-muted-foreground/10"
+                placeholder={t("searchPlaceholder")}
+                className="ps-10 bg-background/50 border-muted-foreground/10"
                 value={searchQuery}
                 onChange={(e) => onSearchChange(e.target.value)}
               />
@@ -94,7 +97,7 @@ export default function TableAuditLog({
             <div className="flex items-center gap-3 flex-wrap">
               {onLimitChange && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground whitespace-nowrap">Per page</span>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">{t("perPage")}</span>
                   <Select value={String(limit)} onValueChange={(v) => onLimitChange(Number(v))}>
                     <SelectTrigger className="w-[72px] h-8 text-xs">
                       <SelectValue />
@@ -110,7 +113,7 @@ export default function TableAuditLog({
                 </div>
               )}
               <span className="text-xs text-muted-foreground">
-                {total} total · Page {page} of {totalPages}
+                {t("totalSummary", { total, page, totalPages })}
               </span>
             </div>
           </div>
@@ -121,19 +124,19 @@ export default function TableAuditLog({
           <Table>
             <TableHeader className="bg-muted/20">
               <TableRow className="hover:bg-transparent">
-                <TableHead className="w-[160px] font-bold text-foreground">Timestamp</TableHead>
-                <TableHead className="font-bold text-foreground">User</TableHead>
-                <TableHead className="font-bold text-foreground">Organization</TableHead>
-                <TableHead className="w-[180px] font-bold text-foreground">Action</TableHead>
-                <TableHead className="font-bold text-foreground">Resource / Target</TableHead>
-                <TableHead className="font-bold text-foreground">IP</TableHead>
+                <TableHead className="w-[160px] font-bold text-foreground">{t("table.timestamp")}</TableHead>
+                <TableHead className="font-bold text-foreground">{t("table.user")}</TableHead>
+                <TableHead className="font-bold text-foreground">{t("table.organization")}</TableHead>
+                <TableHead className="w-[180px] font-bold text-foreground">{t("table.action")}</TableHead>
+                <TableHead className="font-bold text-foreground">{t("table.resource")}</TableHead>
+                <TableHead className="font-bold text-foreground">{t("table.ip")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {logs.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                    No audit logs found matching your filters
+                    {t("noResults")}
                   </TableCell>
                 </TableRow>
               ) : (
@@ -144,9 +147,9 @@ export default function TableAuditLog({
                   >
                     <TableCell className="text-[11px] font-bold text-muted-foreground">
                       <div className="flex flex-col">
-                        <span>{new Date(log.createdAt).toLocaleDateString()}</span>
+                        <span>{formatDate(log.createdAt, i18n.language, { dateStyle: "medium" })}</span>
                         <span className="font-mono text-primary/70">
-                          {new Date(log.createdAt).toLocaleTimeString("en-US", {
+                          {formatDate(log.createdAt, i18n.language, {
                             hour: "numeric",
                             minute: "2-digit",
                             hour12: true,
@@ -178,13 +181,12 @@ export default function TableAuditLog({
                           <Database className="h-2.5 w-2.5" />
                           {log.resourceType}
                         </span>
-                        {/* <span className="text-xs text-muted-foreground">{log.resourceId}</span> */}
                       </div>
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Globe className="h-3.5 w-3.5 text-muted-foreground" />
-                        <span className="text-xs font-mono">{log.ip ?? "N/A"}</span>
+                        <span className="text-xs font-mono" dir="ltr">{log.ip ?? t("notAvailable")}</span>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -196,7 +198,7 @@ export default function TableAuditLog({
         {onPageChange && totalPages > 1 && (
           <div className="flex items-center justify-between gap-4 px-4 py-3 border-t bg-muted/20">
             <p className="text-xs text-muted-foreground">
-              Showing page {page} of {totalPages} ({total} records)
+              {t("showingPage", { page, totalPages, total })}
             </p>
             <div className="flex items-center gap-2">
               <Button
@@ -206,8 +208,8 @@ export default function TableAuditLog({
                 onClick={() => onPageChange(page - 1)}
                 disabled={!hasPrev}
               >
-                <ChevronLeft className="h-4 w-4" />
-                Previous
+                <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+                {t("previous")}
               </Button>
               <Button
                 variant="outline"
@@ -216,8 +218,8 @@ export default function TableAuditLog({
                 onClick={() => onPageChange(page + 1)}
                 disabled={!hasNext}
               >
-                Next
-                <ChevronRight className="h-4 w-4" />
+                {t("next")}
+                <ChevronRight className="h-4 w-4 rtl:rotate-180" />
               </Button>
             </div>
           </div>

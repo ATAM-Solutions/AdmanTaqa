@@ -1,0 +1,70 @@
+{
+  "list": {
+    "title": "Roles & Permissions",
+    "subtitle": "Define access levels and assign permissions to different user categories.",
+    "createButton": "Create Custom Role",
+    "loading": "Loading roles...",
+    "deleteUnavailable": "Delete endpoint is not available on /api/roles yet for \"{{name}}\"."
+  },
+  "card": {
+    "activeUsers": "{{count}} Active Users",
+    "permissionsHeading": "Permissions ({{count}})",
+    "more": "+{{count}} more",
+    "edit": "Edit"
+  },
+  "create": {
+    "title": "Create Custom Role",
+    "subtitle": "Define a new role with specific permissions and access levels.",
+    "detailsTitle": "Role Details",
+    "detailsDescription": "Enter the basic information for this role.",
+    "roleName": "Role Name",
+    "roleNamePlaceholder": "e.g., Compliance Officer",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the responsibilities and access scope...",
+    "permissions": "Permissions",
+    "loadingPermissions": "Loading permissions...",
+    "noPermissions": "No assignable permissions were returned from API.",
+    "cancel": "Cancel",
+    "create": "Create Role",
+    "creating": "Creating...",
+    "createdSuccess": "Role created successfully!",
+    "createFailed": "Failed to create role."
+  },
+  "edit": {
+    "title": "Edit Role",
+    "subtitle": "Modify permissions and details for {{name}}",
+    "detailsTitle": "Role Details",
+    "detailsDescription": "Update the basic information for this role.",
+    "roleName": "Role Name",
+    "roleNamePlaceholder": "e.g., Compliance Officer",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the responsibilities and access scope...",
+    "permissions": "Permissions",
+    "permissionsHint": "Select the permissions to grant to users with this role.",
+    "loadingPermissions": "Loading permissions...",
+    "noPermissions": "No assignable permissions were returned from API.",
+    "cancel": "Cancel",
+    "save": "Save Changes",
+    "saving": "Saving...",
+    "updatedSuccess": "Role \"{{name}}\" updated successfully!",
+    "updateFailed": "Failed to update role.",
+    "loading": "Loading role...",
+    "notFound": "Role not found",
+    "returnToRoles": "Return to Roles"
+  },
+  "details": {
+    "permissionsTitle": "Role Permissions",
+    "permissionsDescription": "Actions allowed for users with this role.",
+    "editRole": "Edit Role",
+    "overview": "Overview",
+    "activeUsers": "Active Users",
+    "createdAt": "Created At",
+    "notAvailable": "N/A",
+    "roleType": "Role Type",
+    "globalDescription": "Applies to system-wide resources.",
+    "orgDescription": "Scoped to specific organizations.",
+    "loading": "Loading role details...",
+    "notFound": "Role not found",
+    "returnToRoles": "Return to Roles"
+  }
+}

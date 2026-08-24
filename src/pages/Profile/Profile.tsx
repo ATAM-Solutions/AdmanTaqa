@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import useGetOrganizationFull from "@/hooks/Organization/useGetOrganizationFull";
 import useDeleteServiceProviderProfile from "@/hooks/Organization/useDeleteServiceProviderProfile";
 import { useAuth } from "@/context/AuthContext";
 import { MoreVertical, AlertCircle, Pencil, Trash2, UserX } from "lucide-react";
-// import DeleteAccountDialog from "./components/DeleteAccountDialog";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -19,6 +19,7 @@ import UnifiedProfileCard from "./components/UnifiedProfileCard";
 import DeleteAccountDialog from "../Users/component/DeleteAccountDialog";
 
 export default function Profile() {
+    const { t } = useTranslation("profile");
     const { user: currentUser } = useAuth();
     const { data: organizationResponse, isLoading } = useGetOrganizationFull();
     const organization = organizationResponse?.data;
@@ -49,7 +50,7 @@ export default function Profile() {
         deleteMutation.mutate(organization.id, {
             onSuccess: () => {
                 setDeleteConfirmOpen(false);
-                toast.success("Service provider profile deleted.");
+                toast.success(t("toasts.spProfileDeleted"));
             },
         });
     };
@@ -66,10 +67,8 @@ export default function Profile() {
         <div className="px-8 py-8 space-y-6">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Organization Profile</h1>
-                    <p className="text-muted-foreground">
-                        Manage your organization's public identity and settings.
-                    </p>
+                    <h1 className="text-3xl font-bold tracking-tight">{t("page.title")}</h1>
+                    <p className="text-muted-foreground">{t("page.subtitle")}</p>
                 </div>
                 <div className="relative flex items-center gap-1" ref={menuRef}>
                     <Button
@@ -81,7 +80,7 @@ export default function Profile() {
                         <MoreVertical className="h-5 w-5" />
                     </Button>
                     {menuOpen && (
-                        <div className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-md border bg-popover py-1 text-popover-foreground shadow-md">
+                        <div className="absolute end-0 top-full z-50 mt-1 min-w-[160px] rounded-md border bg-popover py-1 text-popover-foreground shadow-md">
                             <button
                                 type="button"
                                 className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-accent"
@@ -90,7 +89,7 @@ export default function Profile() {
                                     setIsEditModalOpen(true);
                                 }}
                             >
-                                <Pencil className="h-4 w-4" /> Edit
+                                <Pencil className="h-4 w-4" /> {t("menu.edit")}
                             </button>
                             {isServiceProvider && hasSPProfile && (
                                 <button
@@ -101,7 +100,7 @@ export default function Profile() {
                                         setDeleteConfirmOpen(true);
                                     }}
                                 >
-                                    <Trash2 className="h-4 w-4" /> Delete
+                                    <Trash2 className="h-4 w-4" /> {t("menu.delete")}
                                 </button>
                             )}
                             <button
@@ -112,7 +111,7 @@ export default function Profile() {
                                     setDeleteAccountOpen(true);
                                 }}
                             >
-                                <UserX className="h-4 w-4" /> Delete my account
+                                <UserX className="h-4 w-4" /> {t("menu.deleteAccount")}
                             </button>
                         </div>
                     )}
@@ -124,10 +123,10 @@ export default function Profile() {
                     <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-500 shrink-0 mt-0.5" />
                     <div>
                         <p className="font-semibold text-amber-800 dark:text-amber-200">
-                            Your organization is pending approval.
+                            {t("pendingBanner.title")}
                         </p>
                         <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                            Operational features (service requests, quotations, job orders) are limited until your organization is approved.
+                            {t("pendingBanner.description")}
                         </p>
                     </div>
                 </div>
@@ -147,21 +146,19 @@ export default function Profile() {
             <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Delete Service Provider Profile</DialogTitle>
-                        <DialogDescription>
-                            This will delete the profile and all associated documents. This action cannot be undone.
-                        </DialogDescription>
+                        <DialogTitle>{t("deleteSpDialog.title")}</DialogTitle>
+                        <DialogDescription>{t("deleteSpDialog.description")}</DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
-                            Cancel
+                            {t("deleteSpDialog.cancel")}
                         </Button>
                         <Button
                             variant="destructive"
                             onClick={handleDeleteConfirm}
                             disabled={deleteMutation.isPending}
                         >
-                            {deleteMutation.isPending ? "Deleting..." : "Delete"}
+                            {deleteMutation.isPending ? t("deleteSpDialog.deleting") : t("deleteSpDialog.delete")}
                         </Button>
                     </DialogFooter>
                 </DialogContent>

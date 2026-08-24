@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,6 +10,7 @@ import useReviewInternalWorkOrder from "@/hooks/Station/useReviewInternalWorkOrd
 import useCloseInternalWorkOrder from "@/hooks/Station/useCloseInternalWorkOrder";
 
 export default function InternalWorkOrderDetail() {
+  const { t } = useTranslation("station");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: order, isLoading } = useInternalWorkOrderById(id ?? null);
@@ -20,8 +22,8 @@ export default function InternalWorkOrderDetail() {
     reviewMutation.mutate(
       { id, body: { decision } },
       {
-        onSuccess: () => toast.success(`Order ${decision === "APPROVE" ? "approved" : "rejected"}.`),
-        onError: (e) => toast.error(e instanceof Error ? e.message : "Review failed."),
+        onSuccess: () => toast.success(decision === "APPROVE" ? t("internalWorkOrders.detail.toasts.approved") : t("internalWorkOrders.detail.toasts.rejected")),
+        onError: (e) => toast.error(e instanceof Error ? e.message : t("internalWorkOrders.detail.toasts.reviewFailed")),
       }
     );
   };
@@ -29,8 +31,8 @@ export default function InternalWorkOrderDetail() {
   const handleClose = () => {
     if (!id) return;
     closeMutation.mutate(id, {
-      onSuccess: () => toast.success("Order closed."),
-      onError: (e) => toast.error(e instanceof Error ? e.message : "Close failed."),
+      onSuccess: () => toast.success(t("internalWorkOrders.detail.toasts.closed")),
+      onError: (e) => toast.error(e instanceof Error ? e.message : t("internalWorkOrders.detail.toasts.closeFailed")),
     });
   };
 
@@ -41,20 +43,20 @@ export default function InternalWorkOrderDetail() {
     <div className="p-4 md:p-8">
       {isLoading || !id ? (
         <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
-          Loading...
+          {t("loading")}
         </div>
       ) : !order ? (
         <>
           <Button variant="ghost" onClick={() => navigate("/internal-work-orders")} className="mb-4">
-            <ChevronLeft className="h-4 w-4 mr-2" /> Back
+            <ChevronLeft className="h-4 w-4 me-2 rtl:rotate-180" /> {t("back")}
           </Button>
-          <p className="text-destructive">Internal work order not found.</p>
+          <p className="text-destructive">{t("internalWorkOrders.detail.notFound")}</p>
         </>
       ) : (
     <div className="space-y-6">
       <Button variant="ghost" asChild>
         <Link to="/internal-work-orders" className="gap-2">
-          <ChevronLeft className="h-4 w-4" /> Back
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("back")}
         </Link>
       </Button>
       <Card>
@@ -62,7 +64,7 @@ export default function InternalWorkOrderDetail() {
           <div>
             <CardTitle>{order.title}</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              ID: {order.id} · <Badge variant="secondary">{order.status}</Badge>
+              {t("internalWorkOrders.detail.idLabel", { id: order.id })} <Badge variant="secondary">{order.status}</Badge>
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -74,7 +76,7 @@ export default function InternalWorkOrderDetail() {
                   disabled={reviewMutation.isPending}
                   className="gap-1"
                 >
-                  <CheckCircle className="h-4 w-4" /> Approve
+                  <CheckCircle className="h-4 w-4" /> {t("internalWorkOrders.detail.approve")}
                 </Button>
                 <Button
                   size="sm"
@@ -83,7 +85,7 @@ export default function InternalWorkOrderDetail() {
                   disabled={reviewMutation.isPending}
                   className="gap-1"
                 >
-                  <XCircle className="h-4 w-4" /> Reject
+                  <XCircle className="h-4 w-4" /> {t("internalWorkOrders.detail.reject")}
                 </Button>
               </>
             )}
@@ -95,7 +97,7 @@ export default function InternalWorkOrderDetail() {
                 disabled={closeMutation.isPending}
                 className="gap-1"
               >
-                <Lock className="h-4 w-4" /> Close
+                <Lock className="h-4 w-4" /> {t("internalWorkOrders.detail.close")}
               </Button>
             )}
           </div>

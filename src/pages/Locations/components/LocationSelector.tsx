@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
     Card,
     CardContent,
@@ -79,6 +80,7 @@ export default function LocationSelector({
     onEditLevel,
     onDeleteLevel,
 }: LocationSelectorProps) {
+    const { t } = useTranslation("locations");
     const [openMenu, setOpenMenu] = useState<LocationLevel | null>(null);
     const menuRef = useRef<HTMLDivElement>(null);
     const triggerRefs = useRef<Record<LocationLevel, HTMLButtonElement | null>>({ country: null, governorate: null, city: null, area: null });
@@ -107,21 +109,21 @@ export default function LocationSelector({
                     className="h-8 w-8 shrink-0"
                     onClick={(e) => { e.preventDefault(); setOpenMenu(isOpen ? null : level); }}
                     ref={(el) => { triggerRefs.current[level] = el; }}
-                    aria-label={`${level} menu`}
+                    aria-label={t("selector.menu.ariaLabel", { level: t(`levels.${level}`) })}
                 >
                     <EllipsisVertical size={16} />
                 </Button>
                 {isOpen && (
                     <div
                         ref={menuRef}
-                        className="absolute right-0 top-full z-50 mt-1 min-w-[160px] rounded-md border bg-popover py-1 text-popover-foreground shadow-md"
+                        className="absolute end-0 top-full z-50 mt-1 min-w-[160px] rounded-md border bg-popover py-1 text-popover-foreground shadow-md"
                     >
                         <button
                             type="button"
                             className="flex w-full items-center gap-2 px-3 py-2 text-sm hover:bg-muted"
                             onClick={() => { onCreateLevel?.(level); setOpenMenu(null); }}
                         >
-                            <Plus className="h-4 w-4" /> Create
+                            <Plus className="h-4 w-4" /> {t("selector.menu.create")}
                         </button>
                         <button
                             type="button"
@@ -129,7 +131,7 @@ export default function LocationSelector({
                             disabled={!selectedItem}
                             onClick={() => { if (selectedItem) { onEditLevel?.(level, selectedItem); setOpenMenu(null); } }}
                         >
-                            <Pencil className="h-4 w-4" /> Update
+                            <Pencil className="h-4 w-4" /> {t("selector.menu.update")}
                         </button>
                         <button
                             type="button"
@@ -137,7 +139,7 @@ export default function LocationSelector({
                             disabled={!selectedItem}
                             onClick={() => { if (selectedItem) { onDeleteLevel?.(level, selectedItem); setOpenMenu(null); } }}
                         >
-                            <Trash2 className="h-4 w-4" /> Delete
+                            <Trash2 className="h-4 w-4" /> {t("selector.menu.delete")}
                         </button>
                     </div>
                 )}
@@ -152,9 +154,9 @@ export default function LocationSelector({
                 <CardHeader>
                     <CardTitle className="text-xl font-semibold flex items-center gap-2">
                         <MapPin className="h-5 w-5 text-primary" />
-                        Selection
+                        {t("selector.selectionTitle")}
                     </CardTitle>
-                    <CardDescription>Drill down to find a specific area.</CardDescription>
+                    <CardDescription>{t("selector.selectionDescription")}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     {/* Country checkboxes */}
@@ -162,15 +164,15 @@ export default function LocationSelector({
                         <div className="flex items-center justify-between gap-2">
                             <Label className="flex items-center gap-2">
                                 <Globe className="h-4 w-4 text-muted-foreground" />
-                                Country
+                                {t("levels.country")}
                             </Label>
                             {renderLevelMenu("country", selectedCountryId, countries)}
                         </div>
                         <div className={cn("grid grid-cols-2 gap-2 rounded-md border p-2 space-y-1 max-h-[180px] overflow-y-auto", loadingCountries && "opacity-60")}>
                             {loadingCountries ? (
-                                <p className="text-sm text-muted-foreground py-2">Loading countries...</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.loadingCountries")}</p>
                             ) : countries.length === 0 ? (
-                                <p className="text-sm text-muted-foreground py-2">No countries.</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.noCountries")}</p>
                             ) : (
                                 countries.map((country) => (
                                     <label
@@ -206,17 +208,17 @@ export default function LocationSelector({
                         <div className="flex items-center justify-between gap-2">
                             <Label className="flex items-center gap-2">
                                 <Landmark className="h-4 w-4 text-muted-foreground" />
-                                Governorate
+                                {t("levels.governorate")}
                             </Label>
                             {selectedCountryId ? renderLevelMenu("governorate", selectedGovernorateId, governorates) : null}
                         </div>
                         <div className={cn("grid grid-cols-2 gap-2 rounded-md border-b p-2 space-y-1 max-h-[180px] overflow-y-auto", (!selectedCountryId || loadingGovs) && "opacity-60")}>
                             {!selectedCountryId ? (
-                                <p className="text-sm text-muted-foreground py-2">Select a country first.</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.selectCountryFirst")}</p>
                             ) : loadingGovs ? (
-                                <p className="text-sm text-muted-foreground py-2">Loading...</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.loadingGovernorates")}</p>
                             ) : governorates.length === 0 ? (
-                                <p className="text-sm text-muted-foreground py-2">No governorates.</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.noGovernorates")}</p>
                             ) : (
                                 governorates.map((gov) => (
                                     <label
@@ -250,17 +252,17 @@ export default function LocationSelector({
                         <div className="flex items-center justify-between gap-2">
                             <Label className="flex items-center gap-2">
                                 <Building className="h-4 w-4 text-muted-foreground" />
-                                City
+                                {t("levels.city")}
                             </Label>
                             {selectedGovernorateId ? renderLevelMenu("city", selectedCityId, cities) : null}
                         </div>
                         <div className={cn("grid grid-cols-2 gap-2 rounded-md border-b p-2 space-y-1 max-h-[180px] overflow-y-auto", (!selectedGovernorateId || loadingCities) && "opacity-60")}>
                             {!selectedGovernorateId ? (
-                                <p className="text-sm text-muted-foreground py-2">Select a governorate first.</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.selectGovernorateFirst")}</p>
                             ) : loadingCities ? (
-                                <p className="text-sm text-muted-foreground py-2">Loading...</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.loadingCities")}</p>
                             ) : cities.length === 0 ? (
-                                <p className="text-sm text-muted-foreground py-2">No cities.</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.noCities")}</p>
                             ) : (
                                 cities.map((city) => (
                                     <label
@@ -292,17 +294,17 @@ export default function LocationSelector({
                         <div className="flex items-center justify-between gap-2">
                             <Label className="flex items-center gap-2">
                                 <Navigation className="h-4 w-4 text-muted-foreground" />
-                                Area
+                                {t("levels.area")}
                             </Label>
                             {selectedCityId ? renderLevelMenu("area", selectedAreaId, areas) : null}
                         </div>
                         <div className={cn("grid grid-cols-2 gap-2 rounded-md border-b p-2 space-y-1 max-h-[180px] overflow-y-auto", (!selectedCityId || loadingAreas) && "opacity-60")}>
                             {!selectedCityId ? (
-                                <p className="text-sm text-muted-foreground py-2">Select a city first.</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.selectCityFirst")}</p>
                             ) : loadingAreas ? (
-                                <p className="text-sm text-muted-foreground py-2">Loading...</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.loadingAreas")}</p>
                             ) : areas.length === 0 ? (
-                                <p className="text-sm text-muted-foreground py-2">No areas.</p>
+                                <p className="text-sm text-muted-foreground py-2">{t("selector.noAreas")}</p>
                             ) : (
                                 areas.map((area) => (
                                     <label
@@ -330,18 +332,18 @@ export default function LocationSelector({
             <div className="space-y-4">
                 <Card className="bg-muted/30 border-dashed w-3/4">
                     <CardHeader>
-                        <CardTitle className="text-xl font-semibold">Location Details</CardTitle>
-                        <CardDescription>Summary of your selection.</CardDescription>
+                        <CardTitle className="text-xl font-semibold">{t("selector.detailsTitle")}</CardTitle>
+                        <CardDescription>{t("selector.detailsDescription")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid gap-4">
                             <div className="flex flex-col gap-1">
-                                <span className="text-xs font-medium text-muted-foreground uppercase">Path</span>
+                                <span className="text-xs font-medium text-muted-foreground uppercase">{t("selector.path")}</span>
                                 <div className="flex flex-wrap items-center gap-2 text-sm">
                                     {selectedCountry ? <span className="font-semibold text-primary">{selectedCountry}</span> : <Skeleton className="h-4 w-20" />}
                                     {selectedGov && <><span className="text-muted-foreground">/</span> <span className="font-semibold">{selectedGov}</span></>}
                                     {selectedCity && <><span className="text-muted-foreground">/</span> <span className="font-semibold">{selectedCity}</span></>}
-                                    {selectedArea && <><span className="text-muted-foreground">/</span> <span className="font-semibold text-green-600">{selectedArea}</span></>}
+                                    {selectedArea && <><span className="text-muted-foreground">/</span> <span className="font-semibold text-green-600 dark:text-green-400">{selectedArea}</span></>}
                                 </div>
                             </div>
                         </div>
@@ -350,7 +352,7 @@ export default function LocationSelector({
                         <CardFooter>
                             <div className="w-full p-3 rounded-lg bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-900/20 text-green-700 dark:text-green-400 text-xs flex items-center gap-2">
                                 <Navigation className="h-3.5 w-3.5 shrink-0" />
-                                Full location hierarchy successfully identified.
+                                {t("selector.fullyIdentified")}
                             </div>
                         </CardFooter>
                     )}

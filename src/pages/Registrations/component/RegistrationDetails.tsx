@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { reportError } from '@/lib/errorReporting';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,6 +14,7 @@ interface RegistrationDetailsProps {
 }
 
 export default function RegistrationDetails({ id }: RegistrationDetailsProps) {
+    const { t } = useTranslation("registrations");
     const [registration, setRegistration] = useState<Registration | null>(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -23,8 +26,8 @@ export default function RegistrationDetails({ id }: RegistrationDetailsProps) {
                 const data = await fetchRegistrationById(id);
                 setRegistration(data);
             } catch (error) {
-                console.error(error);
-                toast.error('Failed to load registration details');
+                reportError("Error loading registration details:", error);
+                toast.error(t("toasts.detailsLoadFailed"));
                 navigate('/registrations');
             } finally {
                 setLoading(false);
@@ -32,27 +35,27 @@ export default function RegistrationDetails({ id }: RegistrationDetailsProps) {
         };
 
         loadData();
-    }, [id, navigate]);
+    }, [id, navigate, t]);
 
     const handleApprove = async () => {
         try {
             await approveRegistration(id);
-            toast.success('Registration approved successfully');
+            toast.success(t("toasts.approveSuccess"));
             navigate('/registrations');
         } catch (error) {
-            console.error(error);
-            toast.error('Failed to approve registration');
+            reportError("Error approving registration:", error);
+            toast.error(t("toasts.approveFailed"));
         }
     };
 
     const handleReject = async () => {
         try {
             await rejectRegistration(id);
-            toast.success('Registration rejected');
+            toast.success(t("toasts.rejectSuccess"));
             navigate('/registrations');
         } catch (error) {
-            console.error(error);
-            toast.error('Failed to reject registration');
+            reportError("Error rejecting registration:", error);
+            toast.error(t("toasts.rejectFailed"));
         }
     };
 
@@ -68,10 +71,10 @@ export default function RegistrationDetails({ id }: RegistrationDetailsProps) {
             link.click();
             document.body.removeChild(link);
             window.URL.revokeObjectURL(downloadUrl);
-            toast.success('PDF downloaded successfully');
+            toast.success(t("toasts.downloadSuccess"));
         } catch (error) {
-            console.error('Error downloading PDF:', error);
-            toast.error('Failed to download PDF');
+            reportError('Error downloading PDF:', error);
+            toast.error(t("toasts.downloadFailed"));
         }
     };
 
@@ -94,43 +97,43 @@ export default function RegistrationDetails({ id }: RegistrationDetailsProps) {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Building2 className="h-5 w-5 text-primary" />
-                            Company Information
+                            {t("details.companyInfo.title")}
                         </CardTitle>
-                        <CardDescription>Basic details about the service provider.</CardDescription>
+                        <CardDescription>{t("details.companyInfo.description")}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-[25px_1fr] items-start gap-3">
                             <Building2 className="h-4 w-4 mt-1 text-muted-foreground" />
                             <div>
-                                <p className="text-sm font-medium leading-none">Company Name</p>
+                                <p className="text-sm font-medium leading-none">{t("details.companyInfo.companyName")}</p>
                                 <p className="text-sm text-muted-foreground mt-1">{registration.companyName}</p>
                             </div>
                         </div>
                         <div className="grid grid-cols-[25px_1fr] items-start gap-3">
                             <MapPin className="h-4 w-4 mt-1 text-muted-foreground" />
                             <div>
-                                <p className="text-sm font-medium leading-none">Address</p>
-                                <p className="text-sm text-muted-foreground mt-1">{registration.address || 'N/A'}</p>
+                                <p className="text-sm font-medium leading-none">{t("details.companyInfo.address")}</p>
+                                <p className="text-sm text-muted-foreground mt-1">{registration.address || t("details.companyInfo.notAvailable")}</p>
                             </div>
                         </div>
                         <div className="grid grid-cols-[25px_1fr] items-start gap-3">
                             <Mail className="h-4 w-4 mt-1 text-muted-foreground" />
                             <div>
-                                <p className="text-sm font-medium leading-none">Email</p>
-                                <p className="text-sm text-muted-foreground mt-1">{registration.email}</p>
+                                <p className="text-sm font-medium leading-none">{t("details.companyInfo.email")}</p>
+                                <p className="text-sm text-muted-foreground mt-1" dir="ltr">{registration.email}</p>
                             </div>
                         </div>
                         <div className="grid grid-cols-[25px_1fr] items-start gap-3">
                             <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
                             <div>
-                                <p className="text-sm font-medium leading-none">Phone</p>
-                                <p className="text-sm text-muted-foreground mt-1">{registration.phone}</p>
+                                <p className="text-sm font-medium leading-none">{t("details.companyInfo.phone")}</p>
+                                <p className="text-sm text-muted-foreground mt-1" dir="ltr">{registration.phone}</p>
                             </div>
                         </div>
                         <div className="grid grid-cols-[25px_1fr] items-start gap-3">
                             <User className="h-4 w-4 mt-1 text-muted-foreground" />
                             <div>
-                                <p className="text-sm font-medium leading-none">Contact Person</p>
+                                <p className="text-sm font-medium leading-none">{t("details.companyInfo.contactPerson")}</p>
                                 <p className="text-sm text-muted-foreground mt-1">{registration.contactPerson}</p>
                             </div>
                         </div>
@@ -142,32 +145,32 @@ export default function RegistrationDetails({ id }: RegistrationDetailsProps) {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <FileText className="h-5 w-5 text-primary" />
-                            Uploaded Documents
+                            {t("details.documents.title")}
                         </CardTitle>
-                        <CardDescription>Review the submitted documentation.</CardDescription>
+                        <CardDescription>{t("details.documents.description")}</CardDescription>
                     </CardHeader>
                     <CardContent>
                         {registration.documents.length === 0 ? (
-                            <p className="text-sm text-muted-foreground italic">No documents uploaded.</p>
+                            <p className="text-sm text-muted-foreground italic">{t("details.documents.empty")}</p>
                         ) : (
                             <ul className="space-y-3">
                                 {registration.documents.map((doc: { url: string; name: string }, idx: number) => (
-                                    <li key={idx} className="flex items-center justify-between p-3 border rounded-md bg-slate-50">
+                                    <li key={idx} className="flex items-center justify-between p-3 border rounded-md bg-muted/50">
                                         <div className="flex items-center gap-2 overflow-hidden">
-                                            <FileText className="h-4 w-4 flex-shrink-0 text-slate-500" />
+                                            <FileText className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
                                             <span className="text-sm font-medium truncate">{doc.name}</span>
                                         </div>
-                                        <div className="flex gap-2 ml-4">
+                                        <div className="flex gap-2 ms-4">
                                             <Button
                                                 variant="outline"
                                                 size="icon"
                                                 onClick={() => handleDownloadPDF(doc.url, doc.name)}
-                                                title="View & Download PDF"
+                                                title={t("details.documents.viewDownload")}
                                             >
                                                 <ExternalLink className="h-4 w-4" />
                                             </Button>
                                             <Button variant="outline" size="icon" asChild>
-                                                <a href={doc.url} download={doc.name} title="Download">
+                                                <a href={doc.url} download={doc.name} title={t("details.documents.download")}>
                                                     <Download className="h-4 w-4" />
                                                 </a>
                                             </Button>
@@ -181,29 +184,29 @@ export default function RegistrationDetails({ id }: RegistrationDetailsProps) {
             </div>
 
             {/* Bottom Actions */}
-            <div className="flex items-center justify-end gap-4 p-6 bg-white border rounded-lg shadow-sm">
+            <div className="flex items-center justify-end gap-4 p-6 bg-card border rounded-lg shadow-sm">
                 <Button
                     variant="outline"
                     className="min-w-[120px]"
                     onClick={() => navigate('/registrations')}
                 >
-                    Cancel
+                    {t("details.actions.cancel")}
                 </Button>
                 <Button
                     variant="destructive"
                     className="min-w-[120px]"
                     onClick={handleReject}
                 >
-                    <X className="h-4 w-4 mr-2" />
-                    Reject Application
+                    <X className="h-4 w-4 me-2" />
+                    {t("details.actions.reject")}
                 </Button>
                 <Button
                     variant="default"
-                    className="min-w-[120px] bg-green-600 hover:bg-green-700"
+                    className="min-w-[120px] bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600"
                     onClick={handleApprove}
                 >
-                    <Check className="h-4 w-4 mr-2" />
-                    Approve Application
+                    <Check className="h-4 w-4 me-2" />
+                    {t("details.actions.approve")}
                 </Button>
             </div>
         </div>

@@ -1,0 +1,74 @@
+{
+  "page": {
+    "title": "تفتيش الامتثال",
+    "subtitle": "خطط لعمليات التفتيش الرقابي ونفذها وراجعها عبر جميع المنظمات.",
+    "newPlan": "خطة تفتيش جديدة"
+  },
+  "createDialog": {
+    "title": "إنشاء خطة تفتيش",
+    "description": "جدولة عملية تفتيش امتثال جديدة لمنظمة أو فرع.",
+    "targetOrganization": "المنظمة المستهدفة",
+    "selectTarget": "اختر الهدف",
+    "assignedInspector": "المفتش المكلّف",
+    "selectInspector": "اختر المفتش",
+    "inspectionType": "نوع التفتيش",
+    "selectType": "اختر النوع",
+    "types": {
+      "routine": "تفتيش روتيني",
+      "safety": "تدقيق سلامة",
+      "compliance": "مراجعة امتثال",
+      "followUp": "تفتيش متابعة"
+    },
+    "scheduledDate": "التاريخ المجدول",
+    "scope": "نطاق التفتيش",
+    "scopePlaceholder": "حدد نطاق ومحاور تركيز هذا التفتيش...",
+    "notes": "ملاحظات إضافية (اختياري)",
+    "notesPlaceholder": "أي تعليمات أو ملاحظات خاصة...",
+    "cancel": "إلغاء",
+    "submit": "جدولة التفتيش"
+  },
+  "toasts": {
+    "created": "تم إنشاء خطة التفتيش بنجاح!"
+  },
+  "table": {
+    "header": "سجل التفتيش",
+    "records": "{{count}} سجل",
+    "searchPlaceholder": "ابحث عن الأهداف أو المفتشين...",
+    "columns": {
+      "id": "رقم التفتيش",
+      "targetBranch": "المنظمة والفرع المستهدف",
+      "inspector": "المفتش",
+      "status": "الحالة",
+      "date": "التاريخ",
+      "actions": "الإجراءات"
+    },
+    "noResults": "لا توجد عمليات تفتيش مطابقة لـ \"{{query}}\"",
+    "reportAction": "التقرير"
+  },
+  "mock": {
+    "targets": {
+      "alAmal": "محطة الأمل للوقود",
+      "ecoEnergy": "إيكو إنرجي للخدمات",
+      "redSea": "البحر الأحمر للبترول",
+      "mastersMaintenance": "ماسترز للصيانة"
+    },
+    "branches": {
+      "northRiyadh": "شمال الرياض",
+      "mainHub": "المركز الرئيسي",
+      "highway10": "الطريق السريع 10",
+      "eastZone": "المنطقة الشرقية"
+    },
+    "inspectors": {
+      "mohammedKhalid": "محمد خالد",
+      "sarahAlGhamdi": "سارة الغامدي",
+      "ahmedMansour": "أحمد منصور",
+      "fatimaHassan": "فاطمة حسن"
+    },
+    "findings": {
+      "safetyEquipment": "تم العثور على مشكلات بسيطة في تخزين معدات السلامة.",
+      "maintenanceWorkspace": "مراجعة معمّقة لمساحة عمل الصيانة.",
+      "annualCompliance": "التفتيش السنوي للسلامة والامتثال.",
+      "rescheduled": "تمت إعادة الجدولة بناءً على طلب المزود."
+    }
+  }
+}

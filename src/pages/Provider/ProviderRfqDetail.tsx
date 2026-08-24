@@ -1,4 +1,5 @@
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,23 +14,8 @@ import {
 import { ChevronLeft, Building2, MapPin, Calendar, Hash, Briefcase, CreditCard, Info } from "lucide-react";
 import useProviderRfqById from "@/hooks/Provider/useProviderRfqById";
 import { getQuotePaymentTerms } from "@/types/provider";
-
-function formatDate(s: string | undefined): string {
-  if (!s) return "—";
-  return new Date(s).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
-}
-
-/** Human-readable label for payment trigger (from backend). */
-function paymentTriggerLabel(trigger: string | undefined): string {
-  if (!trigger) return "—";
-  const map: Record<string, string> = {
-    ON_APPROVAL: "On quote approval (when station selects this quote)",
-    ON_JOB_START: "When job starts",
-    ON_COMPLETION_SUBMITTED: "When completion is submitted",
-    ON_JOB_CLOSED: "When job is closed",
-  };
-  return map[trigger] ?? trigger;
-}
+import { formatDate as formatDateShared } from "@/lib/i18n/formatters";
+import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 
 /** Resolve pricing details from quote: either pricingDetails (flattened API) or latest ProviderQuoteRevision.pricingJson. */
 function getQuotePricingDetails(q: {
@@ -46,13 +32,25 @@ function getQuotePricingDetails(q: {
 }
 
 export default function ProviderRfqDetail() {
+  const { t, i18n } = useTranslation("provider");
   const { id } = useParams<{ id: string }>();
   const { data: rfq, isLoading } = useProviderRfqById(id ?? null);
+
+  const formatDate = (s: string | undefined): string => {
+    if (!s) return "—";
+    return formatDateShared(s, i18n.language, { dateStyle: "medium", timeStyle: "short" });
+  };
+
+  const paymentTriggerLabel = (trigger: string | undefined): string => {
+    if (!trigger) return "—";
+    return t(`rfqDetail.paymentTriggers.${trigger}`, { defaultValue: trigger });
+  };
+
   const quotes = rfq?.quotes ?? rfq?.ProviderQuotes ?? [];
   const selectedQuote = quotes.find((q: { status?: string }) => q.status === "SELECTED");
   const externalJobOrder = selectedQuote?.ExternalJobOrder ?? (selectedQuote as { ExternalJobOrder?: { id?: number; PaymentRecord?: { status?: string; receiptFileUrl?: string | null } } | null })?.ExternalJobOrder ?? null;
 
-  const title = rfq?.formData?.title ?? rfq?.title ?? `RFQ #${rfq?.id}`;
+  const title = rfq?.formData?.title ?? rfq?.title ?? (rfq ? `RFQ #${rfq.id}` : "");
   const description = rfq?.formData?.description ?? rfq?.description;
   const priority = rfq?.formData?.priority;
 
@@ -66,22 +64,28 @@ export default function ProviderRfqDetail() {
 
   return (
     <div className="p-4 md:p-8">
-      {isLoading || !id ? (
-        <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
-          Loading...
-        </div>
-      ) : !rfq ? (
-        <>
-          <Button variant="ghost" asChild>
-            <Link to="/provider-rfqs">Back</Link>
-          </Button>
-          <p className="text-destructive">RFQ not found.</p>
-        </>
-      ) : (
+      <AsyncBoundary
+        isLoading={isLoading || !id}
+        isEmpty={!rfq}
+        loadingFallback={
+          <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
+            {t("rfqDetail.loading")}
+          </div>
+        }
+        emptyFallback={
+          <>
+            <Button variant="ghost" asChild>
+              <Link to="/provider-rfqs">{t("rfqDetail.back")}</Link>
+            </Button>
+            <p className="text-destructive">{t("rfqDetail.notFound")}</p>
+          </>
+        }
+      >
+        {rfq && (
         <div className="space-y-6">
           <Button variant="ghost" asChild>
             <Link to="/provider-rfqs" className="gap-2">
-              <ChevronLeft className="h-4 w-4" /> Back
+              <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("rfqDetail.back")}
             </Link>
           </Button>
 
@@ -90,11 +94,11 @@ export default function ProviderRfqDetail() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-base">
                   <Building2 className="h-4 w-4" />
-                  Branch
+                  {t("rfqDetail.branch")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-sm space-y-2">
-                <p className="font-medium">{branch.nameEn ?? branch.nameAr ?? (branch.id != null ? `Branch #${branch.id}` : "—")}</p>
+                <p className="font-medium">{branch.nameEn ?? branch.nameAr ?? (branch.id != null ? t("rfqDetail.branchFallback", { id: branch.id }) : "—")}</p>
                 {branch.address && (
                   <p className="flex items-center gap-1.5 text-muted-foreground">
                     <MapPin className="h-3.5 w-3.5 shrink-0" />
@@ -103,7 +107,7 @@ export default function ProviderRfqDetail() {
                   </p>
                 )}
                 {(branch.latitude || branch.longitude) && (
-                  <p className="text-muted-foreground text-xs">
+                  <p className="text-muted-foreground text-xs" dir="ltr">
                     {[branch.latitude, branch.longitude].filter(Boolean).join(", ")}
                   </p>
                 )}
@@ -114,12 +118,12 @@ export default function ProviderRfqDetail() {
           {(org || area || city) && (
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Organization & location</CardTitle>
+                <CardTitle className="text-base">{t("rfqDetail.orgAndLocation")}</CardTitle>
               </CardHeader>
               <CardContent className="text-sm space-y-2">
-                {org && <p><span className="text-muted-foreground">Organization:</span> {org.name ?? (org.id != null ? `#${org.id}` : "—")}</p>}
-                {area && <p><span className="text-muted-foreground">Area:</span> {area.name ?? (area.id != null ? `#${area.id}` : "—")}</p>}
-                {city && <p><span className="text-muted-foreground">City:</span> {city.name ?? (city.id != null ? `#${city.id}` : "—")}</p>}
+                {org && <p><span className="text-muted-foreground">{t("rfqDetail.organization")}</span> {org.name ?? (org.id != null ? `#${org.id}` : "—")}</p>}
+                {area && <p><span className="text-muted-foreground">{t("rfqDetail.area")}</span> {area.name ?? (area.id != null ? `#${area.id}` : "—")}</p>}
+                {city && <p><span className="text-muted-foreground">{t("rfqDetail.city")}</span> {city.name ?? (city.id != null ? `#${city.id}` : "—")}</p>}
               </CardContent>
             </Card>
           )}
@@ -132,37 +136,29 @@ export default function ProviderRfqDetail() {
               </CardTitle>
               <div className="flex flex-wrap items-center gap-2 text-sm">
                 <Badge variant="secondary">{rfq.status ?? "—"}</Badge>
-                {priority && <span className="text-muted-foreground">Priority: {priority}</span>}
+                {priority && <span className="text-muted-foreground">{t("rfqDetail.priority", { priority })}</span>}
                 <span className="text-muted-foreground flex items-center gap-1">
                   <Calendar className="h-3.5 w-3.5" />
-                  Created {formatDate(rfq.createdAt)}
+                  {t("rfqDetail.created", { date: formatDate(rfq.createdAt) })}
                 </span>
                 {rfq.updatedAt && rfq.updatedAt !== rfq.createdAt && (
-                  <span className="text-muted-foreground">Updated {formatDate(rfq.updatedAt)}</span>
+                  <span className="text-muted-foreground">{t("rfqDetail.updated", { date: formatDate(rfq.updatedAt) })}</span>
                 )}
               </div>
-
-              {/* <p className="text-xs text-muted-foreground mt-1">
-                ID {rfq.id}
-                {rfq.branchId != null && ` · Branch ${rfq.branchId}`}
-                {rfq.fuelStationOrganizationId != null && ` · Station org ${rfq.fuelStationOrganizationId}`}
-                {rfq.areaId != null && ` · Area ${rfq.areaId}`}
-              </p> */}
-
             </CardHeader>
             {externalJobOrder?.id != null && (
               <div className="ms-6 pt-2 pb-2 border-b">
                 <Button size="sm" variant="outline" className="gap-2" asChild>
                   <Link to={`/provider-job-orders/${externalJobOrder.id}`}>
                     <Briefcase className="h-4 w-4" />
-                    Job Order
+                    {t("rfqDetail.jobOrder")}
                   </Link>
                 </Button>
               </div>
             )}
             {receiptFileUrl && (
               <div className="ms-6 pt-2 pb-2 border-b space-y-2">
-                <p className="text-sm font-medium">Payment receipt</p>
+                <p className="text-sm font-medium">{t("rfqDetail.paymentReceipt")}</p>
                 <a
                   href={receiptFileUrl}
                   target="_blank"
@@ -171,13 +167,13 @@ export default function ProviderRfqDetail() {
                 >
                   <img
                     src={receiptFileUrl}
-                    alt="Payment receipt"
+                    alt={t("rfqDetail.paymentReceipt")}
                     className="w-full h-auto object-contain max-h-64"
                   />
                 </a>
                 <p className="text-xs text-muted-foreground">
                   <a href={receiptFileUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
-                    Open receipt in new tab
+                    {t("rfqDetail.openReceiptNewTab")}
                   </a>
                 </p>
               </div>
@@ -185,51 +181,51 @@ export default function ProviderRfqDetail() {
             <CardContent className="space-y-4">
               {description && rfq.status !== "AWAITING_PAYMENT" && (
                 <div>
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Description</p>
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{t("rfqDetail.description")}</p>
                   <p className="text-sm mt-1">{description}</p>
                 </div>
               )}
 
               <div className="pt-4 border-t">
-                <p className="text-sm font-medium mb-2">Your quotes</p>
+                <p className="text-sm font-medium mb-2">{t("rfqDetail.yourQuotes")}</p>
                 {quotes.length === 0 ? (
                   <div className="rounded border border-muted/50 px-3 py-4 text-sm text-muted-foreground space-y-4">
-                    <p>No quotes yet.</p>
+                    <p>{t("rfqDetail.noQuotesYet")}</p>
                     <div className="space-y-3">
                       <div>
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-2">
                           <CreditCard className="h-3.5 w-3.5" />
-                          Pricing details
+                          {t("rfqDetail.pricingDetails")}
                         </p>
                         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
-                          <><dt className="text-muted-foreground">Amount</dt><dd>—</dd></>
-                          <><dt className="text-muted-foreground">Labor cost</dt><dd>—</dd></>
-                          <><dt className="text-muted-foreground">Material cost</dt><dd>—</dd></>
-                          <><dt className="text-muted-foreground">Timeline</dt><dd>—</dd></>
-                          <><dt className="text-muted-foreground">Warranty</dt><dd>—</dd></>
-                          <><dt className="text-muted-foreground">Scope of work</dt><dd>—</dd></>
-                          <><dt className="text-muted-foreground">Technical proposal</dt><dd>—</dd></>
-                          <><dt className="text-muted-foreground sm:col-span-1">Notes</dt><dd className="sm:col-span-1">—</dd></>
+                          <><dt className="text-muted-foreground">{t("rfqDetail.fields.amount")}</dt><dd>—</dd></>
+                          <><dt className="text-muted-foreground">{t("rfqDetail.fields.laborCost")}</dt><dd>—</dd></>
+                          <><dt className="text-muted-foreground">{t("rfqDetail.fields.materialCost")}</dt><dd>—</dd></>
+                          <><dt className="text-muted-foreground">{t("rfqDetail.fields.timeline")}</dt><dd>—</dd></>
+                          <><dt className="text-muted-foreground">{t("rfqDetail.fields.warranty")}</dt><dd>—</dd></>
+                          <><dt className="text-muted-foreground">{t("rfqDetail.fields.scopeOfWork")}</dt><dd>—</dd></>
+                          <><dt className="text-muted-foreground">{t("rfqDetail.fields.technicalProposal")}</dt><dd>—</dd></>
+                          <><dt className="text-muted-foreground sm:col-span-1">{t("rfqDetail.fields.notes")}</dt><dd className="sm:col-span-1">—</dd></>
                         </dl>
                       </div>
                       <div>
                         <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground mb-2">
                           <CreditCard className="h-3.5 w-3.5" />
-                          Payment terms (installments)
+                          {t("rfqDetail.paymentTermsInstallments")}
                         </p>
                         <Table>
                           <TableHeader>
                             <TableRow className="border-muted/50 hover:bg-transparent">
-                              <TableHead className="text-xs font-medium">#</TableHead>
-                              <TableHead className="text-xs font-medium">Percent</TableHead>
-                              <TableHead className="text-xs font-medium">When due</TableHead>
-                              <TableHead className="text-xs font-medium">Attachments</TableHead>
+                              <TableHead className="text-xs font-medium">{t("rfqDetail.table.sequence")}</TableHead>
+                              <TableHead className="text-xs font-medium">{t("rfqDetail.table.percent")}</TableHead>
+                              <TableHead className="text-xs font-medium">{t("rfqDetail.table.whenDue")}</TableHead>
+                              <TableHead className="text-xs font-medium">{t("rfqDetail.table.attachments")}</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>
                             <TableRow className="border-muted/50">
                               <TableCell colSpan={4} className="text-xs py-3 text-center text-muted-foreground">
-                                No payment terms
+                                {t("rfqDetail.noPaymentTerms")}
                               </TableCell>
                             </TableRow>
                           </TableBody>
@@ -272,53 +268,53 @@ export default function ProviderRfqDetail() {
                                 <span>
                                   #{q.id}
                                   {amount != null ? ` · ${amount}${currency ? ` ${currency}` : ""}` : ""}
-                                  {q.validUntil ? ` · Valid until ${String(q.validUntil).slice(0, 10)}` : ""}
+                                  {q.validUntil ? ` · ${t("rfqDetail.validUntil", { date: String(q.validUntil).slice(0, 10) })}` : ""}
                                   {paymentType ? ` · ${paymentType.replace(/_/g, " ")}` : ""}
                                 </span>
                                 <div className="flex items-center gap-2">
-                                  {q.status === "REJECTED" && <Badge variant="destructive">Rejected</Badge>}
-                                  {q.status === "WITHDRAWN" && <Badge variant="secondary">Withdrawn</Badge>}
-                                  {q.status === "ACCEPTED" && <Badge variant="default">Accepted</Badge>}
-                                  {q.status === "SELECTED" && <Badge variant="default">Selected</Badge>}
+                                  {q.status === "REJECTED" && <Badge variant="destructive">{t("rfqDetail.status.rejected")}</Badge>}
+                                  {q.status === "WITHDRAWN" && <Badge variant="secondary">{t("rfqDetail.status.withdrawn")}</Badge>}
+                                  {q.status === "ACCEPTED" && <Badge variant="default">{t("rfqDetail.status.accepted")}</Badge>}
+                                  {q.status === "SELECTED" && <Badge variant="default">{t("rfqDetail.status.selected")}</Badge>}
                                 </div>
                               </div>
 
                               <div className="mt-2 pt-2 border-t border-muted/50 space-y-2">
                                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
                                   <CreditCard className="h-3.5 w-3.5" />
-                                  Pricing details
+                                  {t("rfqDetail.pricingDetails")}
                                 </p>
                                 <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1.5 text-sm">
-                                  <><dt className="text-muted-foreground">Amount</dt><dd>{pd?.amount != null ? `${String(pd.amount)}${pd.currency ? ` ${String(pd.currency)}` : ""}` : "—"}</dd></>
-                                  <><dt className="text-muted-foreground">Labor cost</dt><dd>{pd?.laborCost != null ? `${String(pd.laborCost)}${pd.currency ? ` ${String(pd.currency)}` : ""}` : "—"}</dd></>
-                                  <><dt className="text-muted-foreground">Material cost</dt><dd>{pd?.materialCost != null ? `${String(pd.materialCost)}${pd.currency ? ` ${String(pd.currency)}` : ""}` : "—"}</dd></>
-                                  <><dt className="text-muted-foreground">Timeline</dt><dd>{pd?.timeline != null && pd.timeline !== "" ? String(pd.timeline) : "—"}</dd></>
-                                  <><dt className="text-muted-foreground">Warranty</dt><dd>{pd?.warranty != null && pd.warranty !== "" ? String(pd.warranty) : "—"}</dd></>
-                                  <><dt className="text-muted-foreground">Scope of work</dt><dd>{pd?.scopeOfWork != null && pd.scopeOfWork !== "" ? String(pd.scopeOfWork) : "—"}</dd></>
-                                  <><dt className="text-muted-foreground">Technical proposal</dt><dd>{pd?.technicalProposal != null && pd.technicalProposal !== "" ? String(pd.technicalProposal) : "—"}</dd></>
-                                  <><dt className="text-muted-foreground sm:col-span-1">Notes</dt><dd className="sm:col-span-1">{pd?.notes != null && pd.notes !== "" ? String(pd.notes) : "—"}</dd></>
+                                  <><dt className="text-muted-foreground">{t("rfqDetail.fields.amount")}</dt><dd>{pd?.amount != null ? `${String(pd.amount)}${pd.currency ? ` ${String(pd.currency)}` : ""}` : "—"}</dd></>
+                                  <><dt className="text-muted-foreground">{t("rfqDetail.fields.laborCost")}</dt><dd>{pd?.laborCost != null ? `${String(pd.laborCost)}${pd.currency ? ` ${String(pd.currency)}` : ""}` : "—"}</dd></>
+                                  <><dt className="text-muted-foreground">{t("rfqDetail.fields.materialCost")}</dt><dd>{pd?.materialCost != null ? `${String(pd.materialCost)}${pd.currency ? ` ${String(pd.currency)}` : ""}` : "—"}</dd></>
+                                  <><dt className="text-muted-foreground">{t("rfqDetail.fields.timeline")}</dt><dd>{pd?.timeline != null && pd.timeline !== "" ? String(pd.timeline) : "—"}</dd></>
+                                  <><dt className="text-muted-foreground">{t("rfqDetail.fields.warranty")}</dt><dd>{pd?.warranty != null && pd.warranty !== "" ? String(pd.warranty) : "—"}</dd></>
+                                  <><dt className="text-muted-foreground">{t("rfqDetail.fields.scopeOfWork")}</dt><dd>{pd?.scopeOfWork != null && pd.scopeOfWork !== "" ? String(pd.scopeOfWork) : "—"}</dd></>
+                                  <><dt className="text-muted-foreground">{t("rfqDetail.fields.technicalProposal")}</dt><dd>{pd?.technicalProposal != null && pd.technicalProposal !== "" ? String(pd.technicalProposal) : "—"}</dd></>
+                                  <><dt className="text-muted-foreground sm:col-span-1">{t("rfqDetail.fields.notes")}</dt><dd className="sm:col-span-1">{pd?.notes != null && pd.notes !== "" ? String(pd.notes) : "—"}</dd></>
                                 </dl>
                               </div>
 
                               <div className="w-full mt-1 pt-2 border-t border-muted/50 space-y-2">
                                 <p className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
                                   <CreditCard className="h-3.5 w-3.5" />
-                                  Payment terms (installments)
+                                  {t("rfqDetail.paymentTermsInstallments")}
                                 </p>
                                 <Table>
                                   <TableHeader>
                                     <TableRow className="border-muted/50 hover:bg-transparent">
-                                      <TableHead className="text-xs font-medium">#</TableHead>
-                                      <TableHead className="text-xs font-medium">Percent</TableHead>
-                                      <TableHead className="text-xs font-medium">When due</TableHead>
-                                      <TableHead className="text-xs font-medium">Attachments</TableHead>
+                                      <TableHead className="text-xs font-medium">{t("rfqDetail.table.sequence")}</TableHead>
+                                      <TableHead className="text-xs font-medium">{t("rfqDetail.table.percent")}</TableHead>
+                                      <TableHead className="text-xs font-medium">{t("rfqDetail.table.whenDue")}</TableHead>
+                                      <TableHead className="text-xs font-medium">{t("rfqDetail.table.attachments")}</TableHead>
                                     </TableRow>
                                   </TableHeader>
                                   <TableBody>
                                     {quotePaymentTerms.length === 0 ? (
                                       <TableRow className="border-muted/50">
                                         <TableCell colSpan={4} className="text-xs py-3 text-center text-muted-foreground">
-                                          No payment terms
+                                          {t("rfqDetail.noPaymentTerms")}
                                         </TableCell>
                                       </TableRow>
                                     ) : (
@@ -344,7 +340,7 @@ export default function ProviderRfqDetail() {
                                                             rel="noopener noreferrer"
                                                             className="text-primary hover:underline"
                                                           >
-                                                            {att.fileName ?? "Attachment"}
+                                                            {att.fileName ?? t("rfqDetail.attachment")}
                                                           </a>
                                                         ) : (
                                                           <span>{att.fileName ?? "—"}</span>
@@ -366,7 +362,7 @@ export default function ProviderRfqDetail() {
                                   <div className="flex gap-1.5 rounded-md bg-muted/40 p-2 text-xs text-muted-foreground">
                                     <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
                                     <span>
-                                      Payment is made in {quotePaymentTerms.length} installment{quotePaymentTerms.length !== 1 ? "s" : ""}. The fuel station confirms &quot;payment sent&quot; for each milestone; you then confirm &quot;received&quot; (or reject with a reason). Until both confirm, the job stays in AWAITING_PAYMENT.
+                                      {t("rfqDetail.installmentsInfo", { count: quotePaymentTerms.length })}
                                     </span>
                                   </div>
                                 )}
@@ -380,7 +376,8 @@ export default function ProviderRfqDetail() {
             </CardContent>
           </Card>
         </div>
-      )}
+        )}
+      </AsyncBoundary>
     </div>
   );
 }

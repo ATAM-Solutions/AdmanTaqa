@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -36,11 +37,11 @@ type TableJobOrdersProps = {
 
 function getStatusBadge(status: string) {
   const styles: Record<string, string> = {
-    COMPLETED: "bg-green-50 text-green-700 border-green-200",
-    IN_PROGRESS: "bg-blue-50 text-blue-700 border-blue-200",
-    PLANNED: "bg-purple-50 text-purple-700 border-purple-200",
-    PENDING: "bg-amber-50 text-amber-700 border-amber-200",
-    CREATED: "bg-slate-50 text-slate-700 border-slate-200",
+    COMPLETED: "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900",
+    IN_PROGRESS: "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900",
+    PLANNED: "bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-900",
+    PENDING: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900",
+    CREATED: "bg-muted text-muted-foreground border-border",
   };
 
   const icons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -55,7 +56,7 @@ function getStatusBadge(status: string) {
 
   return (
     <Badge
-      className={`${styles[status] || "bg-gray-50"} border shadow-none font-medium gap-1 text-[10px]`}
+      className={`${styles[status] || "bg-muted text-muted-foreground border-border"} border shadow-none font-medium gap-1 text-[10px]`}
     >
       <StatusIcon className="h-3 w-3" />
       {status.replace("_", " ")}
@@ -64,6 +65,7 @@ function getStatusBadge(status: string) {
 }
 
 export default function TableJobOrders({ orders }: TableJobOrdersProps) {
+  const { t } = useTranslation("jobOrders");
   const navigate = useNavigate();
 
   return (
@@ -71,18 +73,18 @@ export default function TableJobOrders({ orders }: TableJobOrdersProps) {
       <Table>
         <TableHeader className="bg-muted/30">
           <TableRow className="hover:bg-transparent">
-            <TableHead className="font-bold text-foreground">Title</TableHead>
-            <TableHead className="font-bold text-foreground">Service Provider</TableHead>
-            <TableHead className="font-bold text-foreground">Dates</TableHead>
-            <TableHead className="font-bold text-foreground">Status</TableHead>
-            <TableHead className="text-right font-bold text-foreground px-6">Actions</TableHead>
+            <TableHead className="font-bold text-foreground">{t("table.title")}</TableHead>
+            <TableHead className="font-bold text-foreground">{t("table.serviceProvider")}</TableHead>
+            <TableHead className="font-bold text-foreground">{t("table.dates")}</TableHead>
+            <TableHead className="font-bold text-foreground">{t("table.status")}</TableHead>
+            <TableHead className="text-end font-bold text-foreground px-6">{t("table.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.length === 0 ? (
             <TableRow>
               <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                No job orders found.
+                {t("table.noResults")}
               </TableCell>
             </TableRow>
           ) : (
@@ -104,17 +106,17 @@ export default function TableJobOrders({ orders }: TableJobOrdersProps) {
                 <TableCell>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <PlayCircle className="h-3 w-3 text-green-600" />
-                      {order.startDate}
+                      <PlayCircle className="h-3 w-3 text-green-600 dark:text-green-400" />
+                      <span dir="ltr">{order.startDate}</span>
                     </div>
                     <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <CheckCircle2 className="h-3 w-3 text-slate-400" />
-                      {order.endDate}
+                      <CheckCircle2 className="h-3 w-3 text-muted-foreground" />
+                      <span dir="ltr">{order.endDate}</span>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>{getStatusBadge(order.status)}</TableCell>
-                <TableCell className="text-right px-6">
+                <TableCell className="text-end px-6">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -122,7 +124,7 @@ export default function TableJobOrders({ orders }: TableJobOrdersProps) {
                     onClick={() => navigate(`/job-orders/${order.id}`)}
                   >
                     <Eye className="h-3.5 w-3.5" />
-                    Details
+                    {t("table.details")}
                   </Button>
                 </TableCell>
               </TableRow>

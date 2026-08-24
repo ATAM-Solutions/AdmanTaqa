@@ -1,5 +1,6 @@
 import axiosInstance from "@/api/config";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { reportError } from "@/lib/errorReporting";
 import type { BranchApiItem } from "./useGetBranches";
 
 export interface CreateBranchBody {
@@ -41,18 +42,15 @@ const createBranch = async (
 
     return response.data;
   } catch (error: unknown) {
-    console.log(error);
-    
     const err = error as {
       response?: { data?: { message?: string } };
       message?: string;
     };
-console.log(err);
 
     const message =
       err.response?.data?.message || err.message || "Something went wrong";
 
-    console.error("Create branch error:", message);
+    reportError("Create branch error:", message);
 
     throw new Error(message);
   }

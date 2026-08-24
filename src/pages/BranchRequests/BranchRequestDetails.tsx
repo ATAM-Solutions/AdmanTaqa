@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,21 +10,21 @@ import useApproveBranchRequest from "@/hooks/BranchRequests/useApproveBranchRequ
 import useRejectBranchRequest from "@/hooks/BranchRequests/useRejectBranchRequest";
 import BranchRequestStatusBadge from "./Component/BranchRequestStatusBadge";
 import RejectBranchRequestDialog from "./Component/RejectBranchRequestDialog";
+import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 
 export default function BranchRequestDetails() {
+  const { t } = useTranslation("branchRequests");
   const navigate = useNavigate();
   const { id } = useParams();
   const numericId = id ? Number(id) : null;
   const [rejectOpen, setRejectOpen] = useState(false);
 
-
   const { data: orgResponse } = useGetOrganization();
-  console.log(orgResponse);
 
   const organization = orgResponse?.data;
   const isAuthority = organization?.type === "AUTHORITY";
 
-  const { data: request, isLoading, isError, error } = useGetBranchRequestById(numericId);
+  const { data: request, isLoading, error } = useGetBranchRequestById(numericId);
   const approveMutation = useApproveBranchRequest();
   const rejectMutation = useRejectBranchRequest();
 
@@ -33,9 +34,9 @@ export default function BranchRequestDetails() {
   const onApprove = () => {
     if (!request) return;
     approveMutation.mutate(request.id, {
-      onSuccess: () => toast.success("Branch request approved."),
+      onSuccess: () => toast.success(t("toasts.approved")),
       onError: (err) =>
-        toast.error(err instanceof Error ? err.message : "Failed to approve request."),
+        toast.error(err instanceof Error ? err.message : t("toasts.approveFailed")),
     });
   };
 
@@ -45,105 +46,105 @@ export default function BranchRequestDetails() {
       { id: request.id, body: { reason } },
       {
         onSuccess: () => {
-          toast.success("Branch request rejected.");
+          toast.success(t("toasts.rejected"));
           setRejectOpen(false);
         },
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Failed to reject request."),
+          toast.error(err instanceof Error ? err.message : t("toasts.rejectFailed")),
       }
     );
   };
 
   return (
     <div className="p-4 md:p-8">
-      {isLoading ? (
-        <div className="p-8 text-sm text-muted-foreground">Loading request...</div>
-      ) : isError || !request ? (
-        <div className="p-8 text-sm text-destructive">
-          {error instanceof Error ? error.message : "Request not found."}
-        </div>
-      ) : (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Branch Request Details</h1>
-          <p className="text-muted-foreground">
-            {request.referenceCode || `Request #${request.id}`}
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <BranchRequestStatusBadge status={request.status} />
-          <Button variant="outline" onClick={() => navigate("/branch-requests")}>
-            Back
-          </Button>
-        </div>
-      </div>
-
-      <Card className="border-none shadow-xl bg-card/60 backdrop-blur-md">
-        <CardHeader>
-          <CardTitle>Request Information</CardTitle>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <p className="text-muted-foreground">Name (EN)</p>
-            <p className="font-medium">{request.nameEn || "N/A"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Name (AR)</p>
-            <p className="font-medium">{request.nameAr || "N/A"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Area ID</p>
-            <p className="font-medium">{request.areaId ?? "N/A"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Station Type ID</p>
-            <p className="font-medium">{request.stationTypeId ?? "N/A"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">License Number</p>
-            <p className="font-medium">{request.licenseNumber || "N/A"}</p>
-          </div>
-          <div>
-            <p className="text-muted-foreground">Branch ID (after approval)</p>
-            <p className="font-medium">{request.branchId ?? "N/A"}</p>
-          </div>
-          <div className="md:col-span-2">
-            <p className="text-muted-foreground">Address</p>
-            <p className="font-medium">{request.address || "N/A"}</p>
-          </div>
-          {request.rejectionReason && (
-            <div className="md:col-span-2">
-              <p className="text-muted-foreground">Rejection Reason</p>
-              <p className="font-medium text-destructive">{request.rejectionReason}</p>
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error ?? (!request ? new Error(t("details.notFound")) : undefined)}
+        loadingFallback={<div className="p-8 text-sm text-muted-foreground">{t("details.loading")}</div>}
+      >
+        {request && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">{t("details.title")}</h1>
+                <p className="text-muted-foreground">
+                  {request.referenceCode || t("details.requestFallback", { id: request.id })}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <BranchRequestStatusBadge status={request.status} />
+                <Button variant="outline" onClick={() => navigate("/branch-requests")}>
+                  {t("details.back")}
+                </Button>
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
 
-      {isAuthority && canReview && (
-        <div className="flex gap-2">
-          <Button onClick={onApprove} disabled={approveMutation.isPending}>
-            {approveMutation.isPending ? "Approving..." : "Approve"}
-          </Button>
-          <Button
-            variant="destructive"
-            onClick={() => setRejectOpen(true)}
-            disabled={rejectMutation.isPending}
-          >
-            Reject
-          </Button>
-        </div>
-      )}
+            <Card className="border-none shadow-xl bg-card/60 backdrop-blur-md">
+              <CardHeader>
+                <CardTitle>{t("details.info")}</CardTitle>
+              </CardHeader>
+              <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-muted-foreground">{t("details.nameEn")}</p>
+                  <p className="font-medium">{request.nameEn || t("details.notAvailable")}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">{t("details.nameAr")}</p>
+                  <p className="font-medium">{request.nameAr || t("details.notAvailable")}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">{t("details.areaId")}</p>
+                  <p className="font-medium">{request.areaId ?? t("details.notAvailable")}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">{t("details.stationTypeId")}</p>
+                  <p className="font-medium">{request.stationTypeId ?? t("details.notAvailable")}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">{t("details.licenseNumber")}</p>
+                  <p className="font-medium">{request.licenseNumber || t("details.notAvailable")}</p>
+                </div>
+                <div>
+                  <p className="text-muted-foreground">{t("details.branchIdAfterApproval")}</p>
+                  <p className="font-medium">{request.branchId ?? t("details.notAvailable")}</p>
+                </div>
+                <div className="md:col-span-2">
+                  <p className="text-muted-foreground">{t("details.address")}</p>
+                  <p className="font-medium">{request.address || t("details.notAvailable")}</p>
+                </div>
+                {request.rejectionReason && (
+                  <div className="md:col-span-2">
+                    <p className="text-muted-foreground">{t("details.rejectionReason")}</p>
+                    <p className="font-medium text-destructive">{request.rejectionReason}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-      <RejectBranchRequestDialog
-        open={rejectOpen}
-        onOpenChange={setRejectOpen}
-        isPending={rejectMutation.isPending}
-        onSubmit={onReject}
-      />
-    </div>
-      )}
+            {isAuthority && canReview && (
+              <div className="flex gap-2">
+                <Button onClick={onApprove} disabled={approveMutation.isPending}>
+                  {approveMutation.isPending ? t("details.approving") : t("details.approve")}
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => setRejectOpen(true)}
+                  disabled={rejectMutation.isPending}
+                >
+                  {t("table.reject")}
+                </Button>
+              </div>
+            )}
+
+            <RejectBranchRequestDialog
+              open={rejectOpen}
+              onOpenChange={setRejectOpen}
+              isPending={rejectMutation.isPending}
+              onSubmit={onReject}
+            />
+          </div>
+        )}
+      </AsyncBoundary>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -27,6 +28,7 @@ export default function RejectModal({
   isPending,
   onSubmit,
 }: RejectModalProps) {
+  const { t } = useTranslation("authority");
   const [reason, setReason] = useState("");
 
   const handleOpenChange = (next: boolean) => {
@@ -47,18 +49,17 @@ export default function RejectModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Reject Organization</DialogTitle>
+          <DialogTitle>{t("organizations.rejectModal.title")}</DialogTitle>
           <DialogDescription>
-            Provide a reason for rejecting &quot;{orgName}&quot; (required). The
-            reason may be shown to the organization.
+            {t("organizations.rejectModal.description", { name: orgName })}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="org-reject-reason">Reason (required)</Label>
+            <Label htmlFor="org-reject-reason">{t("organizations.rejectModal.reasonLabel")}</Label>
             <Textarea
               id="org-reject-reason"
-              placeholder="e.g. Incomplete documents, missing information..."
+              placeholder={t("organizations.rejectModal.reasonPlaceholder")}
               className="min-h-[100px]"
               value={reason}
               onChange={(e) => setReason(e.target.value)}
@@ -71,14 +72,14 @@ export default function RejectModal({
             onClick={() => handleOpenChange(false)}
             disabled={isPending}
           >
-            Cancel
+            {t("organizations.rejectModal.cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleSubmit}
             disabled={isPending || !canSubmit}
           >
-            {isPending ? "Rejecting..." : "Reject"}
+            {isPending ? t("organizations.rejectModal.rejecting") : t("organizations.rejectModal.reject")}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import useGetCountries from "@/hooks/Location/useGetCountries";
 import useGetGovernorates from "@/hooks/Location/useGetGovernorates";
@@ -22,8 +23,10 @@ import LocationSelector from "./components/LocationSelector";
 // import LocationManageCard from "./components/LocationManageCard";
 import LocationFormDialog, { type LocationLevel, type LocationFormValues } from "./components/LocationFormDialog";
 import LocationDeleteDialog from "./components/LocationDeleteDialog";
+import { PageHeader } from "@/components/patterns/PageHeader";
 
 export default function Locations() {
+  const { t } = useTranslation("locations");
   const [selectedCountryId, setSelectedCountryId] = useState<string>("");
   const [selectedGovernorateId, setSelectedGovernorateId] = useState<string>("");
   const [selectedCityId, setSelectedCityId] = useState<string>("");
@@ -125,49 +128,49 @@ export default function Locations() {
       if (formMode === "create") {
         if (formLevel === "country") {
           await createCountryMutation.mutateAsync({ name: values.name, code: values.code || undefined });
-          toast.success("Country created.");
+          toast.success(t("toasts.countryCreated"));
         } else if (formLevel === "governorate") {
           if (!selectedCountryId) return;
           await createGovernorateMutation.mutateAsync({
             countryId: parseInt(selectedCountryId),
             body: { name: values.name, code: values.code || undefined },
           });
-          toast.success("Governorate created.");
+          toast.success(t("toasts.governorateCreated"));
         } else if (formLevel === "city") {
           if (!selectedGovernorateId) return;
           await createCityMutation.mutateAsync({
             governorateId: parseInt(selectedGovernorateId),
             body: { name: values.name, code: values.code || undefined },
           });
-          toast.success("City created.");
+          toast.success(t("toasts.cityCreated"));
         } else {
           if (!selectedCityId) return;
           await createAreaMutation.mutateAsync({
             cityId: parseInt(selectedCityId),
             body: { name: values.name, code: values.code || undefined },
           });
-          toast.success("Area created.");
+          toast.success(t("toasts.areaCreated"));
         }
       } else {
         if (editingItemId == null) return;
         if (formLevel === "country") {
           await updateCountryMutation.mutateAsync({ id: editingItemId, body: { name: values.name, code: values.code || undefined } });
-          toast.success("Country updated.");
+          toast.success(t("toasts.countryUpdated"));
         } else if (formLevel === "governorate") {
           await updateGovernorateMutation.mutateAsync({ id: editingItemId, body: { name: values.name, code: values.code || undefined } });
-          toast.success("Governorate updated.");
+          toast.success(t("toasts.governorateUpdated"));
         } else if (formLevel === "city") {
           await updateCityMutation.mutateAsync({ id: editingItemId, body: { name: values.name, code: values.code || undefined } });
-          toast.success("City updated.");
+          toast.success(t("toasts.cityUpdated"));
         } else {
           await updateAreaMutation.mutateAsync({ id: editingItemId, body: { name: values.name, code: values.code || undefined } });
-          toast.success("Area updated.");
+          toast.success(t("toasts.areaUpdated"));
         }
       }
       setFormOpen(false);
       setEditingItemId(null);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      const msg = err instanceof Error ? err.message : t("toasts.genericError");
       toast.error(msg);
     }
   };
@@ -177,21 +180,21 @@ export default function Locations() {
     try {
       if (deleteLevel === "country") {
         await deleteCountryMutation.mutateAsync(deleteItem.id);
-        toast.success("Country deleted.");
+        toast.success(t("toasts.countryDeleted"));
       } else if (deleteLevel === "governorate") {
         await deleteGovernorateMutation.mutateAsync(deleteItem.id);
-        toast.success("Governorate deleted.");
+        toast.success(t("toasts.governorateDeleted"));
       } else if (deleteLevel === "city") {
         await deleteCityMutation.mutateAsync(deleteItem.id);
-        toast.success("City deleted.");
+        toast.success(t("toasts.cityDeleted"));
       } else {
         await deleteAreaMutation.mutateAsync(deleteItem.id);
-        toast.success("Area deleted.");
+        toast.success(t("toasts.areaDeleted"));
       }
       setDeleteOpen(false);
       setDeleteItem(null);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      const msg = err instanceof Error ? err.message : t("toasts.genericError");
       toast.error(msg);
     }
   };
@@ -202,18 +205,16 @@ export default function Locations() {
 
   return (
     <div className="container py-6 space-y-8 p-7">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Locations</h1>
-          <p className="text-muted-foreground">
-            Select a location and manage countries, governorates, cities, and areas.
-          </p>
-        </div>
-        <Button variant="outline" size="sm" onClick={handleReset} className="gap-2">
-          <RotateCcw className="h-4 w-4" />
-          Reset
-        </Button>
-      </div>
+      <PageHeader
+        title={t("title")}
+        description={t("subtitle")}
+        action={
+          <Button variant="outline" size="sm" onClick={handleReset} className="gap-2">
+            <RotateCcw className="h-4 w-4" />
+            {t("reset")}
+          </Button>
+        }
+      />
 
       <LocationSelector
         countries={countries}

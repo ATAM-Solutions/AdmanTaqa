@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, Building2, Mail, Phone, MapPin, Globe, Users, FileText } from "lucide-react";
 
 export default function CreateRegisterOrganization() {
+    const { t } = useTranslation("authority");
     const navigate = useNavigate();
 
     // State for form data
@@ -59,17 +61,17 @@ export default function CreateRegisterOrganization() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Validation
         if (!formData.name || !formData.email || !formData.phone || !formData.address) {
-            toast.error("Please fill in all required fields");
+            toast.error(t("organizations.create.validationError"));
             return;
         }
 
         // In a real app, this would send data to an API
         console.log("Form submitted:", { ...formData, licenseFile, businessFile });
-        
-        toast.success("Organization registered successfully! Awaiting approval.");
+
+        toast.success(t("organizations.create.submitSuccess"));
         navigate('/organizations');
     };
 
@@ -77,26 +79,26 @@ export default function CreateRegisterOrganization() {
         <div className="p-4 md:p-8 space-y-6 animate-in slide-in-from-right duration-500 max-w-4xl mx-auto">
             <div className="flex items-center gap-4">
                 <Button variant="ghost" size="icon" onClick={() => navigate('/organizations')}>
-                    <ChevronLeft className="h-4 w-4" />
+                    <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
                 </Button>
                 <div>
                     <div className="flex items-center gap-2">
-                        <h1 className="text-3xl font-bold tracking-tight">Register Organization</h1>
+                        <h1 className="text-3xl font-bold tracking-tight">{t("organizations.create.title")}</h1>
                         <Badge variant="outline" className="text-xs font-medium">
-                            PENDING APPROVAL
+                            {t("organizations.create.pendingBadge")}
                         </Badge>
                     </div>
                     <p className="text-muted-foreground mt-1">
-                        Submit your organization details for review and approval
+                        {t("organizations.create.subtitle")}
                     </p>
                 </div>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Organization Information</CardTitle>
+                    <CardTitle>{t("organizations.create.cardTitle")}</CardTitle>
                     <CardDescription>
-                        Provide accurate details about your organization
+                        {t("organizations.create.cardDescription")}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -104,140 +106,140 @@ export default function CreateRegisterOrganization() {
                         {/* Basic Information */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="name">Organization Name *</Label>
+                                <Label htmlFor="name">{t("organizations.create.name")}</Label>
                                 <div className="relative">
-                                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input 
-                                        id="name" 
+                                    <Building2 className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="name"
                                         name="name"
                                         value={formData.name}
                                         onChange={handleInputChange}
-                                        placeholder="Enter organization name" 
-                                        className="pl-10" 
-                                        required 
+                                        placeholder={t("organizations.create.namePlaceholder")}
+                                        className="ps-10"
+                                        required
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="type">Organization Type *</Label>
+                                <Label htmlFor="type">{t("organizations.create.type")}</Label>
                                 <Select value={formData.type} onValueChange={(value) => handleSelectChange('type', value)}>
                                     <SelectTrigger id="type" className="w-full">
-                                        <SelectValue placeholder="Select type" />
+                                        <SelectValue placeholder={t("organizations.create.typePlaceholder")} />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="FUEL_STATION">Fuel Station</SelectItem>
-                                        <SelectItem value="SERVICE_PROVIDER">Service Provider</SelectItem>
+                                        <SelectItem value="FUEL_STATION">{t("organizations.create.typeFuelStation")}</SelectItem>
+                                        <SelectItem value="SERVICE_PROVIDER">{t("organizations.create.typeServiceProvider")}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email Address *</Label>
+                                <Label htmlFor="email">{t("organizations.create.email")}</Label>
                                 <div className="relative">
-                                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input 
-                                        id="email" 
+                                    <Mail className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="email"
                                         name="email"
                                         type="email"
                                         value={formData.email}
                                         onChange={handleInputChange}
-                                        placeholder="organization@example.com" 
-                                        className="pl-10" 
-                                        required 
+                                        placeholder={t("organizations.create.emailPlaceholder")}
+                                        className="ps-10"
+                                        required
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="phone">Phone Number *</Label>
-                                <div className="relative">
-                                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input 
-                                        id="phone" 
+                                <Label htmlFor="phone">{t("organizations.create.phone")}</Label>
+                                <div className="relative" dir="ltr">
+                                    <Phone className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="phone"
                                         name="phone"
                                         value={formData.phone}
                                         onChange={handleInputChange}
-                                        placeholder="+966 50 123 4567" 
-                                        className="pl-10" 
-                                        required 
+                                        placeholder={t("organizations.create.phonePlaceholder")}
+                                        className="ps-10"
+                                        required
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="website">Website (Optional)</Label>
+                                <Label htmlFor="website">{t("organizations.create.website")}</Label>
                                 <div className="relative">
-                                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                    <Input 
-                                        id="website" 
+                                    <Globe className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                    <Input
+                                        id="website"
                                         name="website"
                                         value={formData.website}
                                         onChange={handleInputChange}
-                                        placeholder="https://www.organization.com" 
-                                        className="pl-10" 
+                                        placeholder={t("organizations.create.websitePlaceholder")}
+                                        className="ps-10"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="licenseNumber">License Number *</Label>
-                                <Input 
-                                    id="licenseNumber" 
+                                <Label htmlFor="licenseNumber">{t("organizations.create.licenseNumber")}</Label>
+                                <Input
+                                    id="licenseNumber"
                                     name="licenseNumber"
                                     value={formData.licenseNumber}
                                     onChange={handleInputChange}
-                                    placeholder="Enter official license number" 
-                                    required 
+                                    placeholder={t("organizations.create.licenseNumberPlaceholder")}
+                                    required
                                 />
                             </div>
                         </div>
 
                         {/* Address Information */}
                         <div className="space-y-3">
-                            <Label className="text-base font-semibold">Address Information</Label>
+                            <Label className="text-base font-semibold">{t("organizations.create.addressSection")}</Label>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="address">Street Address *</Label>
+                                    <Label htmlFor="address">{t("organizations.create.address")}</Label>
                                     <div className="relative">
-                                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input 
-                                            id="address" 
+                                        <MapPin className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            id="address"
                                             name="address"
                                             value={formData.address}
                                             onChange={handleInputChange}
-                                            placeholder="Street address" 
-                                            className="pl-10" 
-                                            required 
+                                            placeholder={t("organizations.create.addressPlaceholder")}
+                                            className="ps-10"
+                                            required
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="city">City *</Label>
-                                    <Input 
-                                        id="city" 
+                                    <Label htmlFor="city">{t("organizations.create.city")}</Label>
+                                    <Input
+                                        id="city"
                                         name="city"
                                         value={formData.city}
                                         onChange={handleInputChange}
-                                        placeholder="City" 
-                                        required 
+                                        placeholder={t("organizations.create.cityPlaceholder")}
+                                        required
                                     />
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="country">Country *</Label>
+                                    <Label htmlFor="country">{t("organizations.create.country")}</Label>
                                     <Select value={formData.country} onValueChange={(value) => handleSelectChange('country', value)}>
                                         <SelectTrigger id="country">
-                                            <SelectValue placeholder="Select country" />
+                                            <SelectValue placeholder={t("organizations.create.countryPlaceholder")} />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="SA">Saudi Arabia</SelectItem>
-                                            <SelectItem value="AE">United Arab Emirates</SelectItem>
-                                            <SelectItem value="KW">Kuwait</SelectItem>
-                                            <SelectItem value="QA">Qatar</SelectItem>
-                                            <SelectItem value="BH">Bahrain</SelectItem>
-                                            <SelectItem value="OM">Oman</SelectItem>
+                                            <SelectItem value="SA">{t("organizations.create.countries.SA")}</SelectItem>
+                                            <SelectItem value="AE">{t("organizations.create.countries.AE")}</SelectItem>
+                                            <SelectItem value="KW">{t("organizations.create.countries.KW")}</SelectItem>
+                                            <SelectItem value="QA">{t("organizations.create.countries.QA")}</SelectItem>
+                                            <SelectItem value="BH">{t("organizations.create.countries.BH")}</SelectItem>
+                                            <SelectItem value="OM">{t("organizations.create.countries.OM")}</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -246,33 +248,33 @@ export default function CreateRegisterOrganization() {
 
                         {/* Contact Person Information */}
                         <div className="space-y-3">
-                            <Label className="text-base font-semibold">Contact Person</Label>
+                            <Label className="text-base font-semibold">{t("organizations.create.contactSection")}</Label>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="contactPerson">Full Name *</Label>
+                                    <Label htmlFor="contactPerson">{t("organizations.create.contactPerson")}</Label>
                                     <div className="relative">
-                                        <Users className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input 
-                                            id="contactPerson" 
+                                        <Users className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            id="contactPerson"
                                             name="contactPerson"
                                             value={formData.contactPerson}
                                             onChange={handleInputChange}
-                                            placeholder="Full name of primary contact" 
-                                            className="pl-10" 
-                                            required 
+                                            placeholder={t("organizations.create.contactPersonPlaceholder")}
+                                            className="ps-10"
+                                            required
                                         />
                                     </div>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="contactPosition">Position *</Label>
-                                    <Input 
-                                        id="contactPosition" 
+                                    <Label htmlFor="contactPosition">{t("organizations.create.contactPosition")}</Label>
+                                    <Input
+                                        id="contactPosition"
                                         name="contactPosition"
                                         value={formData.contactPosition}
                                         onChange={handleInputChange}
-                                        placeholder="Job title or position" 
-                                        required 
+                                        placeholder={t("organizations.create.contactPositionPlaceholder")}
+                                        required
                                     />
                                 </div>
                             </div>
@@ -280,16 +282,16 @@ export default function CreateRegisterOrganization() {
 
                         {/* Description */}
                         <div className="space-y-2">
-                            <Label htmlFor="description">Organization Description *</Label>
+                            <Label htmlFor="description">{t("organizations.create.description")}</Label>
                             <div className="relative">
-                                <FileText className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                <FileText className="absolute start-3 top-3 h-4 w-4 text-muted-foreground" />
                                 <Textarea
                                     id="description"
                                     name="description"
                                     value={formData.description}
                                     onChange={handleInputChange}
-                                    placeholder="Describe your organization, services offered, and business objectives..."
-                                    className="min-h-[120px] pl-10"
+                                    placeholder={t("organizations.create.descriptionPlaceholder")}
+                                    className="min-h-[120px] ps-10"
                                     required
                                 />
                             </div>
@@ -297,16 +299,16 @@ export default function CreateRegisterOrganization() {
 
                         {/* Document Uploads */}
                         <div className="space-y-3">
-                            <Label className="text-base font-semibold">Required Documents</Label>
-                            <p className="text-sm text-muted-foreground">Upload the following documents for verification</p>
-                            
+                            <Label className="text-base font-semibold">{t("organizations.create.documentsSection")}</Label>
+                            <p className="text-sm text-muted-foreground">{t("organizations.create.documentsSubtitle")}</p>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="license-upload">Business License *</Label>
+                                    <Label htmlFor="license-upload">{t("organizations.create.licenseUpload")}</Label>
                                     <div className="flex items-center gap-2">
-                                        <Input 
+                                        <Input
                                             id="license-upload"
-                                            type="file" 
+                                            type="file"
                                             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                             onChange={(e) => handleFileChange('license', e.target.files?.[0] || null)}
                                             className="cursor-pointer"
@@ -315,11 +317,11 @@ export default function CreateRegisterOrganization() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="business-upload">Business Registration *</Label>
+                                    <Label htmlFor="business-upload">{t("organizations.create.businessUpload")}</Label>
                                     <div className="flex items-center gap-2">
-                                        <Input 
+                                        <Input
                                             id="business-upload"
-                                            type="file" 
+                                            type="file"
                                             accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
                                             onChange={(e) => handleFileChange('business', e.target.files?.[0] || null)}
                                             className="cursor-pointer"
@@ -331,35 +333,35 @@ export default function CreateRegisterOrganization() {
 
                         {/* Submission Buttons */}
                         <div className="flex justify-end gap-4 pt-6 border-t">
-                            <Button 
-                                type="button" 
-                                variant="outline" 
+                            <Button
+                                type="button"
+                                variant="outline"
                                 onClick={() => navigate('/organizations')}
                             >
-                                Cancel
+                                {t("organizations.create.cancel")}
                             </Button>
                             <Button type="submit">
-                                Submit for Approval
+                                {t("organizations.create.submit")}
                             </Button>
                         </div>
                     </form>
                 </CardContent>
             </Card>
 
-            <Card className="bg-blue-50 border-blue-200">
+            <Card className="bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-900">
                 <CardHeader>
-                    <CardTitle className="text-blue-800 flex items-center gap-2">
+                    <CardTitle className="text-blue-800 dark:text-blue-300 flex items-center gap-2">
                         <FileText className="h-5 w-5" />
-                        Registration Guidelines
+                        {t("organizations.create.guidelinesTitle")}
                     </CardTitle>
                 </CardHeader>
-                <CardContent className="text-blue-700">
-                    <ul className="list-disc pl-5 space-y-2">
-                        <li>All fields marked with * are mandatory</li>
-                        <li>Documents must be clear and legible</li>
-                        <li>Organization details must match official documents</li>
-                        <li>Registration requests are typically reviewed within 2-3 business days</li>
-                        <li>You will receive an email notification once approved</li>
+                <CardContent className="text-blue-700 dark:text-blue-400">
+                    <ul className="list-disc ps-5 space-y-2">
+                        <li>{t("organizations.create.guidelines.required")}</li>
+                        <li>{t("organizations.create.guidelines.clear")}</li>
+                        <li>{t("organizations.create.guidelines.match")}</li>
+                        <li>{t("organizations.create.guidelines.reviewTime")}</li>
+                        <li>{t("organizations.create.guidelines.notification")}</li>
                     </ul>
                 </CardContent>
             </Card>

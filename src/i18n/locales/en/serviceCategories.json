@@ -1,0 +1,92 @@
+{
+  "title": "Service Categories",
+  "subtitle": "Browse categories and manage them according to your organization type.",
+  "loadFailed": "Failed to load organization.",
+  "notAvailable": "Service categories page is available for Service Provider and Authority only.",
+  "card": {
+    "title": "Service Categories",
+    "description": "Browse categories and manage them based on organization type.",
+    "addCategory": "Add category",
+    "selectCategoryPlaceholder": "Select category",
+    "proposeCategory": "Propose Category",
+    "createCategory": "Create Category",
+    "loadingCategories": "Loading categories...",
+    "noLinked": "No service categories linked yet.",
+    "view": "View",
+    "sectionAllCategories": "All Categories",
+    "sectionMyProposed": "My Proposed Categories",
+    "loadingProposals": "Loading proposals...",
+    "noneFound": "No categories found.",
+    "noneProposed": "You did not propose categories yet.",
+    "edit": "Edit",
+    "approve": "Approve",
+    "reject": "Reject",
+    "code": "Code: {{code}}",
+    "rejectedReason": "Rejected reason: {{reason}}",
+    "categoryLabelFallback": "Category #{{id}}",
+    "status": {
+      "pending": "PENDING"
+    },
+    "dialogs": {
+      "propose": {
+        "title": "Propose Service Category",
+        "description": "Submit a new category for Authority review.",
+        "nameEn": "Name (English)",
+        "nameAr": "Name (Arabic)",
+        "codeOptional": "Code (optional)",
+        "cancel": "Cancel",
+        "submit": "Submit",
+        "submitting": "Submitting..."
+      },
+      "create": {
+        "title": "Create Service Category",
+        "description": "Authority can create categories directly as approved.",
+        "cancel": "Cancel",
+        "create": "Create",
+        "creating": "Creating..."
+      },
+      "edit": {
+        "title": "Update Service Category",
+        "description": "Update category names or code.",
+        "cancel": "Cancel",
+        "save": "Save",
+        "saving": "Saving..."
+      },
+      "reject": {
+        "title": "Reject Category",
+        "description": "Add optional reason for rejection.",
+        "reason": "Reason",
+        "reasonPlaceholder": "Optional reason",
+        "cancel": "Cancel",
+        "reject": "Reject",
+        "rejecting": "Rejecting..."
+      },
+      "view": {
+        "title": "Category Details",
+        "description": "View category by id.",
+        "loadingDetails": "Loading details...",
+        "id": "ID",
+        "nameEn": "Name (EN)",
+        "nameAr": "Name (AR)",
+        "code": "Code",
+        "status": "Status",
+        "notFound": "Category not found."
+      }
+    },
+    "toasts": {
+      "categoryUnlinked": "Category unlinked.",
+      "categoryCreated": "Category created.",
+      "categoryUpdated": "Category updated.",
+      "categoryApproved": "Category approved.",
+      "categoryRejected": "Category rejected.",
+      "categoryProposed": "Category proposal submitted.",
+      "namesRequired": "English and Arabic names are required.",
+      "removeFailed": "Failed to remove category.",
+      "createFailed": "Failed to create category.",
+      "updateFailed": "Failed to update category.",
+      "approveFailed": "Failed to approve category.",
+      "rejectFailed": "Failed to reject category.",
+      "proposeFailed": "Failed to propose category."
+    }
+  }
+}

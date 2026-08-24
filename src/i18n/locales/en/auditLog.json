@@ -1,0 +1,22 @@
+{
+  "title": "System Audit Log",
+  "subtitle": "Comprehensive record of all administrative actions and system events.",
+  "liveMonitoring": "Live Monitoring",
+  "loading": "Loading audit logs...",
+  "searchPlaceholder": "Search by user, organization, action, resource, or IP...",
+  "perPage": "Per page",
+  "totalSummary": "{{total}} total · Page {{page}} of {{totalPages}}",
+  "table": {
+    "timestamp": "Timestamp",
+    "user": "User",
+    "organization": "Organization",
+    "action": "Action",
+    "resource": "Resource / Target",
+    "ip": "IP"
+  },
+  "noResults": "No audit logs found matching your filters",
+  "showingPage": "Showing page {{page}} of {{totalPages}} ({{total}} records)",
+  "previous": "Previous",
+  "next": "Next",
+  "notAvailable": "N/A"
+}

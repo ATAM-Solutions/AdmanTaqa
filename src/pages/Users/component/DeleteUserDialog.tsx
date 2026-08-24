@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -21,17 +22,18 @@ export default function DeleteUserDialog({
   onOpenChange,
   user,
 }: DeleteUserDialogProps) {
+  const { t } = useTranslation("users");
   const deleteMutation = useDeleteUser();
 
   const handleDelete = () => {
     if (!user) return;
     deleteMutation.mutate(user.id, {
       onSuccess: () => {
-        toast.success("User deleted successfully.");
+        toast.success(t("deleteDialog.success"));
         onOpenChange(false);
       },
       onError: (e) =>
-        toast.error((e as Error)?.message ?? "Failed to delete user."),
+        toast.error((e as Error)?.message ?? t("deleteDialog.error")),
     });
   };
 
@@ -39,22 +41,21 @@ export default function DeleteUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete User</DialogTitle>
+          <DialogTitle>{t("deleteDialog.title")}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete the user &quot;{user?.fullName}
-            &quot;? This action cannot be undone.
+            {t("deleteDialog.description", { name: user?.fullName })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("deleteDialog.cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
           >
-            {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            {deleteMutation.isPending ? t("deleteDialog.deleting") : t("deleteDialog.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

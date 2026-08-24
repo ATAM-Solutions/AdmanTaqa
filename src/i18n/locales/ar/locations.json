@@ -1,0 +1,77 @@
+{
+  "title": "المواقع",
+  "subtitle": "اختر موقعًا وأدر الدول والمحافظات والمدن والمناطق.",
+  "reset": "إعادة تعيين",
+  "levels": {
+    "country": "الدولة",
+    "governorate": "المحافظة",
+    "city": "المدينة",
+    "area": "المنطقة"
+  },
+  "selector": {
+    "selectionTitle": "الاختيار",
+    "selectionDescription": "تصفّح للوصول إلى منطقة محددة.",
+    "menu": {
+      "ariaLabel": "قائمة {{level}}",
+      "create": "إنشاء",
+      "update": "تحديث",
+      "delete": "حذف"
+    },
+    "loadingCountries": "جارٍ تحميل الدول...",
+    "noCountries": "لا توجد دول.",
+    "selectCountryFirst": "اختر دولة أولاً.",
+    "loadingGovernorates": "جارٍ التحميل...",
+    "noGovernorates": "لا توجد محافظات.",
+    "selectGovernorateFirst": "اختر محافظة أولاً.",
+    "loadingCities": "جارٍ التحميل...",
+    "noCities": "لا توجد مدن.",
+    "selectCityFirst": "اختر مدينة أولاً.",
+    "loadingAreas": "جارٍ التحميل...",
+    "noAreas": "لا توجد مناطق.",
+    "detailsTitle": "تفاصيل الموقع",
+    "detailsDescription": "ملخص اختيارك.",
+    "path": "المسار",
+    "fullyIdentified": "تم تحديد التسلسل الهرمي للموقع بالكامل بنجاح."
+  },
+  "manageCard": {
+    "emptyDefault": "لا توجد عناصر بعد."
+  },
+  "form": {
+    "add": "إضافة {{level}}",
+    "edit": "تعديل {{level}}",
+    "createDescription": "إنشاء {{level}} جديدة.",
+    "updateDescription": "تحديث اسم ورمز {{level}}.",
+    "name": "الاسم *",
+    "code": "الرمز (اختياري)",
+    "codePlaceholder": "مثال: EG, CAI",
+    "cancel": "إلغاء",
+    "create": "إنشاء",
+    "save": "حفظ",
+    "placeholders": {
+      "country": "مصر",
+      "governorate": "القاهرة",
+      "city": "مدينة نصر"
+    }
+  },
+  "delete": {
+    "title": "حذف {{level}}",
+    "description": "هل أنت متأكد من حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+    "cancel": "إلغاء",
+    "delete": "حذف"
+  },
+  "toasts": {
+    "countryCreated": "تم إنشاء الدولة.",
+    "governorateCreated": "تم إنشاء المحافظة.",
+    "cityCreated": "تم إنشاء المدينة.",
+    "areaCreated": "تم إنشاء المنطقة.",
+    "countryUpdated": "تم تحديث الدولة.",
+    "governorateUpdated": "تم تحديث المحافظة.",
+    "cityUpdated": "تم تحديث المدينة.",
+    "areaUpdated": "تم تحديث المنطقة.",
+    "countryDeleted": "تم حذف الدولة.",
+    "governorateDeleted": "تم حذف المحافظة.",
+    "cityDeleted": "تم حذف المدينة.",
+    "areaDeleted": "تم حذف المنطقة.",
+    "genericError": "حدث خطأ ما."
+  }
+}

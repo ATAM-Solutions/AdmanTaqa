@@ -1,51 +1,37 @@
+import { useTranslation } from "react-i18next";
 import useGetOrganization from "@/hooks/Organization/useGetOrganization";
 import ProfileServiceCategoriesCard from "@/pages/Profile/components/ProfileServiceCategoriesCard";
+import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function ServiceCategories() {
-  const { data: organizationResponse, isLoading } = useGetOrganization();
+  const { t } = useTranslation("serviceCategories");
+  const { data: organizationResponse, isLoading, error } = useGetOrganization();
   const organization = organizationResponse?.data;
-
-  if (isLoading) {
-    return (
-      <div className="flex h-[400px] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (!organization?.id) {
-    return (
-      <div className="px-8 py-8">
-        <div className="rounded-lg border border-destructive/20 bg-destructive/5 p-4 text-sm text-destructive">
-          Failed to load organization.
-        </div>
-      </div>
-    );
-  }
-
-  if (organization.type !== "SERVICE_PROVIDER" && organization.type !== "AUTHORITY") {
-    return (
-      <div className="px-8 py-8">
-        <div className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">
-          Service categories page is available for Service Provider and Authority only.
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="px-8 py-8 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Service Categories</h1>
-        <p className="text-muted-foreground">
-          Browse categories and manage them according to your organization type.
-        </p>
-      </div>
-
-      <ProfileServiceCategoriesCard
-        organizationId={organization.id}
-        organizationType={organization.type}
-      />
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error ?? (!organization?.id ? new Error(t("loadFailed")) : undefined)}
+      >
+        {organization && organization.type !== "SERVICE_PROVIDER" && organization.type !== "AUTHORITY" ? (
+          <Alert>
+            <AlertDescription>{t("notAvailable")}</AlertDescription>
+          </Alert>
+        ) : organization ? (
+          <>
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">{t("title")}</h1>
+              <p className="text-muted-foreground">{t("subtitle")}</p>
+            </div>
+            <ProfileServiceCategoriesCard
+              organizationId={organization.id}
+              organizationType={organization.type}
+            />
+          </>
+        ) : null}
+      </AsyncBoundary>
     </div>
   );
 }

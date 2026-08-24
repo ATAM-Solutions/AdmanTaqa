@@ -1,4 +1,5 @@
 import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -6,6 +7,8 @@ import { ChevronLeft, Building2, FileText, Calendar, ListOrdered, ClipboardList,
 import useAuthorityExternalJobOrderById from "@/hooks/AuthorityExternalJobOrders/useAuthorityExternalJobOrderById";
 import useAuthorityExternalJobOrderTimeline from "@/hooks/AuthorityExternalJobOrders/useAuthorityExternalJobOrderTimeline";
 import useAuthorityExternalJobOrderReports from "@/hooks/AuthorityExternalJobOrders/useAuthorityExternalJobOrderReports";
+import { formatDate } from "@/lib/i18n/formatters";
+import type { TFunction } from "i18next";
 
 function getStatusBadgeVariant(status: string): "default" | "secondary" | "outline" | "destructive" {
   if (["COMPLETED", "DONE", "CLOSED", "APPROVED"].includes(status)) return "secondary";
@@ -47,12 +50,8 @@ interface MaintenanceReportItem {
   ReviewedBy?: { id?: number; fullName?: string } | null;
 }
 
-function formatDate(s: string | undefined | null): string {
-  if (!s) return "—";
-  return new Date(s).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", hour12: true });
-}
-
-function ReportCard({ report: r }: { report: MaintenanceReportItem }) {
+function ReportCard({ report: r, t, locale }: { report: MaintenanceReportItem; t: TFunction; locale: string }) {
+  const fmt = (s: string | undefined | null) => (s ? formatDate(s, locale, { dateStyle: "medium", timeStyle: "short", hour12: true }) : "—");
   return (
     <div className="rounded-lg border bg-card p-4 space-y-4">
       <div className="flex flex-wrap items-center gap-2">
@@ -60,40 +59,40 @@ function ReportCard({ report: r }: { report: MaintenanceReportItem }) {
           <Badge variant={r.status === "APPROVED" ? "secondary" : "outline"}>{r.status}</Badge>
         )}
         {r.submittedAt != null && (
-          <span className="text-xs text-muted-foreground">Submitted {formatDate(r.submittedAt)}</span>
+          <span className="text-xs text-muted-foreground">{t("externalJobOrders.detail.report.submitted", { date: fmt(r.submittedAt) })}</span>
         )}
         {r.SubmittedBy?.fullName != null && (
-          <span className="text-xs text-muted-foreground">by {r.SubmittedBy.fullName}</span>
+          <span className="text-xs text-muted-foreground">{t("externalJobOrders.detail.report.by", { name: r.SubmittedBy.fullName })}</span>
         )}
       </div>
 
       {r.findings != null && String(r.findings).trim() !== "" && (
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase mb-1">Findings</p>
+          <p className="text-[10px] text-muted-foreground uppercase mb-1">{t("externalJobOrders.detail.report.findings")}</p>
           <p className="text-sm">{r.findings}</p>
         </div>
       )}
       {r.actionsTaken != null && String(r.actionsTaken).trim() !== "" && (
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase mb-1">Actions taken</p>
+          <p className="text-[10px] text-muted-foreground uppercase mb-1">{t("externalJobOrders.detail.report.actionsTaken")}</p>
           <p className="text-sm">{r.actionsTaken}</p>
         </div>
       )}
       {r.recommendations != null && String(r.recommendations).trim() !== "" && (
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase mb-1">Recommendations</p>
+          <p className="text-[10px] text-muted-foreground uppercase mb-1">{t("externalJobOrders.detail.report.recommendations")}</p>
           <p className="text-sm">{r.recommendations}</p>
         </div>
       )}
 
       {Array.isArray(r.checklistJson) && r.checklistJson.length > 0 && (
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase mb-2">Checklist</p>
+          <p className="text-[10px] text-muted-foreground uppercase mb-2">{t("externalJobOrders.detail.report.checklist")}</p>
           <ul className="space-y-1.5">
             {r.checklistJson.map((row, idx) => (
               <li key={idx} className="flex items-center gap-2 text-sm">
                 {row.checked ? (
-                  <Check className="h-4 w-4 text-green-600 shrink-0" />
+                  <Check className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
                 ) : (
                   <span className="h-4 w-4 rounded border border-muted-foreground/50 shrink-0" />
                 )}
@@ -106,7 +105,7 @@ function ReportCard({ report: r }: { report: MaintenanceReportItem }) {
 
       {Array.isArray(r.attachments) && r.attachments.length > 0 && (
         <div>
-          <p className="text-[10px] text-muted-foreground uppercase mb-2">Attachments</p>
+          <p className="text-[10px] text-muted-foreground uppercase mb-2">{t("externalJobOrders.detail.report.attachments")}</p>
           <ul className="space-y-2">
             {r.attachments.map((att, idx) => (
               <li key={idx} className="flex flex-wrap items-center gap-2 text-sm">
@@ -117,11 +116,15 @@ function ReportCard({ report: r }: { report: MaintenanceReportItem }) {
                   className="text-primary hover:underline inline-flex items-center gap-1"
                 >
                   <ExternalLink className="h-3 w-3" />
-                  {att.category ? `${att.category} — Open` : att.description && String(att.description).trim() ? `${att.description} — Open` : "Open"}
+                  {att.category
+                    ? `${att.category} — ${t("externalJobOrders.detail.report.open")}`
+                    : att.description && String(att.description).trim()
+                      ? `${att.description} — ${t("externalJobOrders.detail.report.open")}`
+                      : t("externalJobOrders.detail.report.open")}
                 </a>
                 {att.uploadedAt != null && (
                   <span className="text-muted-foreground text-xs">
-                    {formatDate(att.uploadedAt)}
+                    {fmt(att.uploadedAt)}
                   </span>
                 )}
               </li>
@@ -132,21 +135,22 @@ function ReportCard({ report: r }: { report: MaintenanceReportItem }) {
 
       {(r.reviewedAt != null || r.ReviewedBy?.fullName != null) && (
         <div className="pt-2 border-t text-xs text-muted-foreground">
-          {r.reviewedAt != null && <span>Reviewed {formatDate(r.reviewedAt)}</span>}
-          {r.ReviewedBy?.fullName != null && <span> by {r.ReviewedBy.fullName}</span>}
+          {r.reviewedAt != null && <span>{t("externalJobOrders.detail.report.reviewed", { date: fmt(r.reviewedAt) })}</span>}
+          {r.ReviewedBy?.fullName != null && <span> {t("externalJobOrders.detail.report.by", { name: r.ReviewedBy.fullName })}</span>}
         </div>
       )}
       {r.reviewNote != null && String(r.reviewNote).trim() !== "" && (
-        <p className="text-xs text-muted-foreground"><span className="font-medium">Review note:</span> {r.reviewNote}</p>
+        <p className="text-xs text-muted-foreground"><span className="font-medium">{t("externalJobOrders.detail.report.reviewNote")}</span> {r.reviewNote}</p>
       )}
       {r.rejectionReason != null && String(r.rejectionReason).trim() !== "" && (
-        <p className="text-xs text-destructive"><span className="font-medium">Rejection reason:</span> {r.rejectionReason}</p>
+        <p className="text-xs text-destructive"><span className="font-medium">{t("externalJobOrders.detail.report.rejectionReason")}</span> {r.rejectionReason}</p>
       )}
     </div>
   );
 }
 
 export default function AuthorityExternalJobOrderDetail() {
+  const { t, i18n } = useTranslation("authority");
   const { id } = useParams<{ id: string }>();
   const { data: jobOrder, isLoading: loadingDetail, isError: errorDetail, error: detailError } = useAuthorityExternalJobOrderById(id);
   const { data: timeline = [], isLoading: loadingTimeline, isError: errorTimeline, error: timelineError } = useAuthorityExternalJobOrderTimeline(id);
@@ -155,7 +159,7 @@ export default function AuthorityExternalJobOrderDetail() {
   if (loadingDetail || !id) {
     return (
       <div className="p-4 md:p-8 flex items-center justify-center min-h-[200px] text-muted-foreground">
-        Loading…
+        {t("externalJobOrders.detail.loading")}
       </div>
     );
   }
@@ -165,11 +169,11 @@ export default function AuthorityExternalJobOrderDetail() {
       <div className="p-4 md:p-8 space-y-4">
         <Button variant="ghost" size="sm" asChild>
           <Link to="/external-job-orders" className="gap-2">
-            <ChevronLeft className="h-4 w-4" /> Back to External Job Orders
+            <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("externalJobOrders.detail.backToList")}
           </Link>
         </Button>
         <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-destructive">
-          {detailError instanceof Error ? detailError.message : "Failed to load job order."}
+          {detailError instanceof Error ? detailError.message : t("externalJobOrders.detail.loadFailed")}
         </div>
       </div>
     );
@@ -184,21 +188,21 @@ export default function AuthorityExternalJobOrderDetail() {
     <div className="p-4 md:p-8 space-y-6 animate-in fade-in duration-300">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" asChild className="rounded-full shadow-sm border border-transparent hover:border-slate-200">
+          <Button variant="ghost" size="icon" asChild className="rounded-full shadow-sm border border-transparent hover:border-border">
             <Link to="/external-job-orders">
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
             </Link>
           </Button>
           <div>
             <div className="flex items-center gap-3 mb-1">
-              <h1 className="text-3xl font-bold tracking-tight">External Job Order</h1>
+              <h1 className="text-3xl font-bold tracking-tight">{t("externalJobOrders.detail.title")}</h1>
               <Badge variant={getStatusBadgeVariant(jobOrder.status ?? "")}>
                 {jobOrder.status ?? "—"}
               </Badge>
             </div>
             <p className="text-muted-foreground text-sm">
               {jobOrder.createdAt
-                ? new Date(jobOrder.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", hour12: true })
+                ? formatDate(jobOrder.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short", hour12: true })
                 : "—"}
             </p>
           </div>
@@ -211,32 +215,32 @@ export default function AuthorityExternalJobOrderDetail() {
             <CardHeader className="border-b bg-muted/30 py-4">
               <CardTitle className="text-lg flex items-center gap-2">
                 <FileText className="h-5 w-5 text-primary" />
-                Job Order Details (Authority view — no financial data)
+                {t("externalJobOrders.detail.detailsCardTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-6">
               {req && (
                 <div className="space-y-4">
                   <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                    External Request
+                    {t("externalJobOrders.detail.externalRequest")}
                   </p>
                   <div>
-                    <p className="text-[10px] text-muted-foreground uppercase mb-1">Status</p>
+                    <p className="text-[10px] text-muted-foreground uppercase mb-1">{t("externalJobOrders.detail.status")}</p>
                     <Badge variant={req.status === "ACTIVE" ? "default" : "outline"}>
                       {req.status ?? "—"}
                     </Badge>
                   </div>
                   <div className="rounded-lg border bg-muted/20 p-4 space-y-4">
                     <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                      Form data
+                      {t("externalJobOrders.detail.formData")}
                     </p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <p className="text-[10px] text-muted-foreground uppercase mb-1">Title</p>
+                        <p className="text-[10px] text-muted-foreground uppercase mb-1">{t("externalJobOrders.detail.formTitle")}</p>
                         <p className="text-sm font-medium">{req.formData?.title ?? "—"}</p>
                       </div>
                       <div>
-                        <p className="text-[10px] text-muted-foreground uppercase mb-1">Priority</p>
+                        <p className="text-[10px] text-muted-foreground uppercase mb-1">{t("externalJobOrders.detail.priority")}</p>
                         <Badge variant="outline" className="font-normal">
                           {req.formData?.priority ?? "—"}
                         </Badge>
@@ -244,17 +248,17 @@ export default function AuthorityExternalJobOrderDetail() {
                     </div>
                     {req.formData?.description != null && String(req.formData.description).trim() !== "" && (
                       <div>
-                        <p className="text-[10px] text-muted-foreground uppercase mb-1">Description</p>
+                        <p className="text-[10px] text-muted-foreground uppercase mb-1">{t("externalJobOrders.detail.description")}</p>
                         <p className="text-sm text-muted-foreground">{String(req.formData.description)}</p>
                       </div>
                     )}
                     {Array.isArray(req.formData?.attachments) && (
                       <div>
-                        <p className="text-[10px] text-muted-foreground uppercase mb-1">Attachments</p>
+                        <p className="text-[10px] text-muted-foreground uppercase mb-1">{t("externalJobOrders.detail.attachments")}</p>
                         <p className="text-sm text-muted-foreground">
                           {req.formData.attachments.length === 0
-                            ? "None"
-                            : `${req.formData.attachments.length} file(s)`}
+                            ? t("externalJobOrders.detail.attachmentsNone")
+                            : t("externalJobOrders.detail.attachmentsCount", { count: req.formData.attachments.length })}
                         </p>
                       </div>
                     )}
@@ -265,14 +269,14 @@ export default function AuthorityExternalJobOrderDetail() {
               {quote && (
                 <div className="space-y-2">
                   <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-                    Provider Quote (reference only — no amounts)
+                    {t("externalJobOrders.detail.providerQuote")}
                   </p>
                   <div className="flex flex-wrap gap-3">
                     <Badge variant="outline">{quote.status ?? "—"}</Badge>
                     {quote.version != null && <span className="text-sm text-muted-foreground">v{quote.version}</span>}
                     {quote.createdAt && (
                       <span className="text-sm text-muted-foreground">
-                        {new Date(quote.createdAt).toLocaleString(undefined, { dateStyle: "short" })}
+                        {formatDate(quote.createdAt, i18n.language, { dateStyle: "short" })}
                       </span>
                     )}
                   </div>
@@ -282,11 +286,11 @@ export default function AuthorityExternalJobOrderDetail() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {branch && (
                   <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 flex-shrink-0">
+                    <div className="h-8 w-8 rounded-lg bg-blue-50 dark:bg-blue-950 flex items-center justify-center text-blue-600 dark:text-blue-400 flex-shrink-0">
                       <Building2 className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Branch</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{t("externalJobOrders.detail.branch")}</p>
                       <p className="text-sm font-medium">{branch.nameEn ?? branch.nameAr ?? `ID ${branch.id}`}</p>
                       {branch.address && <p className="text-xs text-muted-foreground">{branch.address}</p>}
                     </div>
@@ -294,11 +298,11 @@ export default function AuthorityExternalJobOrderDetail() {
                 )}
                 {org && (
                   <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-lg bg-purple-50 flex items-center justify-center text-purple-600 flex-shrink-0">
+                    <div className="h-8 w-8 rounded-lg bg-purple-50 dark:bg-purple-950 flex items-center justify-center text-purple-600 dark:text-purple-400 flex-shrink-0">
                       <Building2 className="h-4 w-4" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Organization</p>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{t("externalJobOrders.detail.organization")}</p>
                       <p className="text-sm font-medium">{org.name ?? `ID ${org.id}`}</p>
                     </div>
                   </div>
@@ -311,25 +315,25 @@ export default function AuthorityExternalJobOrderDetail() {
             <CardHeader className="border-b bg-muted/30 py-4">
               <CardTitle className="text-lg flex items-center gap-2">
                 <ListOrdered className="h-5 w-5 text-primary" />
-                Timeline
+                {t("externalJobOrders.detail.timeline")}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               {loadingTimeline ? (
-                <p className="text-sm text-muted-foreground">Loading timeline…</p>
+                <p className="text-sm text-muted-foreground">{t("externalJobOrders.detail.loadingTimeline")}</p>
               ) : errorTimeline ? (
                 <p className="text-sm text-destructive">
-                  {timelineError instanceof Error ? timelineError.message : "Failed to load timeline."}
+                  {timelineError instanceof Error ? timelineError.message : t("externalJobOrders.detail.timelineFailed")}
                 </p>
               ) : Array.isArray(timeline) && timeline.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No timeline entries.</p>
+                <p className="text-sm text-muted-foreground">{t("externalJobOrders.detail.noTimeline")}</p>
               ) : (
                 <ul className="space-y-3">
                   {(timeline as Record<string, unknown>[]).map((entry, i) => {
                     const dateRaw = entry.createdAt ?? entry.date;
                     const dateStr =
                       dateRaw != null
-                        ? new Date(String(dateRaw)).toLocaleString(undefined, {
+                        ? formatDate(String(dateRaw), i18n.language, {
                             dateStyle: "medium",
                             timeStyle: "short",
                             hour12: true,
@@ -341,11 +345,11 @@ export default function AuthorityExternalJobOrderDetail() {
                     return (
                       <li
                         key={(entry.id as number) ?? i}
-                        className="flex flex-col gap-1 border-l-2 border-primary/30 pl-3 py-2"
+                        className="flex flex-col gap-1 border-s-2 border-primary/30 ps-3 py-2"
                       >
                         <div className="flex flex-wrap items-center gap-2 text-sm">
                           {dateStr && (
-                            <span className="text-muted-foreground text-xs font-medium shrink-0" title="Time is in your local timezone">
+                            <span className="text-muted-foreground text-xs font-medium shrink-0" title={t("externalJobOrders.detail.localTimezone")}>
                               {dateStr}
                             </span>
                           )}
@@ -375,22 +379,22 @@ export default function AuthorityExternalJobOrderDetail() {
             <CardHeader className="border-b bg-muted/30 py-4">
               <CardTitle className="text-lg flex items-center gap-2">
                 <ClipboardList className="h-5 w-5 text-primary" />
-                Reports
+                {t("externalJobOrders.detail.reports")}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               {loadingReports ? (
-                <p className="text-sm text-muted-foreground">Loading reports…</p>
+                <p className="text-sm text-muted-foreground">{t("externalJobOrders.detail.loadingReports")}</p>
               ) : errorReports ? (
                 <p className="text-sm text-destructive">
-                  {reportsError instanceof Error ? reportsError.message : "Failed to load reports."}
+                  {reportsError instanceof Error ? reportsError.message : t("externalJobOrders.detail.reportsFailed")}
                 </p>
               ) : Array.isArray(reports) && reports.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No reports.</p>
+                <p className="text-sm text-muted-foreground">{t("externalJobOrders.detail.noReports")}</p>
               ) : (
                 <div className="space-y-6">
                   {(reports as MaintenanceReportItem[]).map((r, i) => (
-                    <ReportCard key={r.id ?? i} report={r} />
+                    <ReportCard key={r.id ?? i} report={r} t={t} locale={i18n.language} />
                   ))}
                 </div>
               )}
@@ -403,23 +407,23 @@ export default function AuthorityExternalJobOrderDetail() {
             <CardHeader className="border-b bg-muted/30 py-4">
               <CardTitle className="text-base flex items-center gap-2">
                 <Calendar className="h-4 w-4 text-primary" />
-                Dates
+                {t("externalJobOrders.detail.dates")}
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-4 space-y-2 text-sm">
               <div>
-                <p className="text-[10px] text-muted-foreground uppercase">Created</p>
+                <p className="text-[10px] text-muted-foreground uppercase">{t("externalJobOrders.detail.created")}</p>
                 <p>
                 {jobOrder.createdAt
-                  ? new Date(jobOrder.createdAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", hour12: true })
+                  ? formatDate(jobOrder.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short", hour12: true })
                   : "—"}
               </p>
               </div>
               {jobOrder.updatedAt && (
                 <div>
-                  <p className="text-[10px] text-muted-foreground uppercase">Updated</p>
+                  <p className="text-[10px] text-muted-foreground uppercase">{t("externalJobOrders.detail.updated")}</p>
                   <p>
-                    {new Date(jobOrder.updatedAt).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short", hour12: true })}
+                    {formatDate(jobOrder.updatedAt, i18n.language, { dateStyle: "medium", timeStyle: "short", hour12: true })}
                   </p>
                 </div>
               )}

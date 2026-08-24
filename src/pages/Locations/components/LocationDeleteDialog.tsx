@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -9,13 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import type { LocationLevel } from "./LocationFormDialog";
-
-const levelLabels: Record<LocationLevel, string> = {
-  country: "Country",
-  governorate: "Governorate",
-  city: "City",
-  area: "Area",
-};
 
 type LocationDeleteDialogProps = {
   open: boolean;
@@ -34,23 +28,24 @@ export default function LocationDeleteDialog({
   onConfirm,
   submitting,
 }: LocationDeleteDialogProps) {
-  const label = levelLabels[level];
+  const { t } = useTranslation("locations");
+  const label = t(`levels.${level}`);
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle>Delete {label}</DialogTitle>
+          <DialogTitle>{t("delete.title", { level: label })}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete &quot;{itemName}&quot;? This action cannot be undone.
+            {t("delete.description", { name: itemName })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="pt-2">
           <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={submitting}>
-            Cancel
+            {t("delete.cancel")}
           </Button>
           <Button variant="destructive" onClick={onConfirm} disabled={submitting}>
             {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            Delete
+            {t("delete.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

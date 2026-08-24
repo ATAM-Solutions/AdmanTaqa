@@ -1,0 +1,77 @@
+{
+  "title": "Locations",
+  "subtitle": "Select a location and manage countries, governorates, cities, and areas.",
+  "reset": "Reset",
+  "levels": {
+    "country": "Country",
+    "governorate": "Governorate",
+    "city": "City",
+    "area": "Area"
+  },
+  "selector": {
+    "selectionTitle": "Selection",
+    "selectionDescription": "Drill down to find a specific area.",
+    "menu": {
+      "ariaLabel": "{{level}} menu",
+      "create": "Create",
+      "update": "Update",
+      "delete": "Delete"
+    },
+    "loadingCountries": "Loading countries...",
+    "noCountries": "No countries.",
+    "selectCountryFirst": "Select a country first.",
+    "loadingGovernorates": "Loading...",
+    "noGovernorates": "No governorates.",
+    "selectGovernorateFirst": "Select a governorate first.",
+    "loadingCities": "Loading...",
+    "noCities": "No cities.",
+    "selectCityFirst": "Select a city first.",
+    "loadingAreas": "Loading...",
+    "noAreas": "No areas.",
+    "detailsTitle": "Location Details",
+    "detailsDescription": "Summary of your selection.",
+    "path": "Path",
+    "fullyIdentified": "Full location hierarchy successfully identified."
+  },
+  "manageCard": {
+    "emptyDefault": "No items yet."
+  },
+  "form": {
+    "add": "Add {{level}}",
+    "edit": "Edit {{level}}",
+    "createDescription": "Create a new {{level}}.",
+    "updateDescription": "Update {{level}} name and code.",
+    "name": "Name *",
+    "code": "Code (optional)",
+    "codePlaceholder": "e.g. EG, CAI",
+    "cancel": "Cancel",
+    "create": "Create",
+    "save": "Save",
+    "placeholders": {
+      "country": "Egypt",
+      "governorate": "Cairo",
+      "city": "Nasr City"
+    }
+  },
+  "delete": {
+    "title": "Delete {{level}}",
+    "description": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "toasts": {
+    "countryCreated": "Country created.",
+    "governorateCreated": "Governorate created.",
+    "cityCreated": "City created.",
+    "areaCreated": "Area created.",
+    "countryUpdated": "Country updated.",
+    "governorateUpdated": "Governorate updated.",
+    "cityUpdated": "City updated.",
+    "areaUpdated": "Area updated.",
+    "countryDeleted": "Country deleted.",
+    "governorateDeleted": "Governorate deleted.",
+    "cityDeleted": "City deleted.",
+    "areaDeleted": "Area deleted.",
+    "genericError": "Something went wrong."
+  }
+}

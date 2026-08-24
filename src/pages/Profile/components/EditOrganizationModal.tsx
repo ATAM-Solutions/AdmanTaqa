@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import useUpdataOrganization from "@/hooks/Organization/useUpdataOrganization";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import useUpdateOrganization from "@/hooks/Organization/useUpdateOrganization";
 import useCreateServiceProviderProfile from "@/hooks/Organization/useCreateServiceProviderProfile";
 import useUpdateServiceProviderProfile from "@/hooks/Organization/useUpdateServiceProviderProfile";
 import useGetCountries from "@/hooks/Location/useGetCountries";
@@ -39,6 +41,7 @@ export default function EditOrganizationModal({
   organizationId,
   initialServiceProviderProfile,
 }: EditOrganizationModalProps) {
+  const { t } = useTranslation("profile");
   const [name, setName] = useState(currentName);
   const [spForm, setSpForm] = useState<ServiceProviderProfileBody>({
     licenseNumber: "",
@@ -51,7 +54,7 @@ export default function EditOrganizationModal({
   const [countryId, setCountryId] = useState<number | null>(null);
   const [governorateId, setGovernorateId] = useState<number | null>(null);
 
-  const updateOrgMutation = useUpdataOrganization();
+  const updateOrgMutation = useUpdateOrganization();
   const createSPMutation = useCreateServiceProviderProfile();
   const updateSPMutation = useUpdateServiceProviderProfile();
 
@@ -149,20 +152,18 @@ export default function EditOrganizationModal({
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Edit Profile</DialogTitle>
-            <DialogDescription>
-              Update your organization and service provider details in one place.
-            </DialogDescription>
+            <DialogTitle>{t("editModal.title")}</DialogTitle>
+            <DialogDescription>{t("editModal.description")}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-6 py-4">
             {/* Organization Name */}
             <div className="grid gap-2">
-              <Label htmlFor="org-name">Organization Name</Label>
+              <Label htmlFor="org-name">{t("editModal.orgName")}</Label>
               <Input
                 id="org-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Enter organization name"
+                placeholder={t("editModal.orgNamePlaceholder")}
               />
             </div>
 
@@ -171,20 +172,20 @@ export default function EditOrganizationModal({
               <>
                 <hr className="my-2" />
                 <div className="space-y-4">
-                  <h4 className="text-sm font-semibold">Service Provider Profile</h4>
+                  <h4 className="text-sm font-semibold">{t("editModal.spSectionTitle")}</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>License Number</Label>
+                      <Label>{t("spForm.licenseNumber")}</Label>
                       <Input
                         value={spForm.licenseNumber ?? ""}
                         onChange={(e) =>
                           setSpForm((p) => ({ ...p, licenseNumber: e.target.value }))
                         }
-                        placeholder="Optional"
+                        placeholder={t("spForm.licenseNumberPlaceholder")}
                       />
                     </div>
                     <div>
-                      <Label>Years Experience</Label>
+                      <Label>{t("spForm.yearsExperience")}</Label>
                       <Input
                         type="number"
                         min={0}
@@ -195,104 +196,94 @@ export default function EditOrganizationModal({
                             yearsExperience: e.target.value ? Number(e.target.value) : undefined,
                           }))
                         }
-                        placeholder="Optional"
+                        placeholder={t("spForm.yearsExperiencePlaceholder")}
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>Country</Label>
-                      <select
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                        value={countryId ?? ""}
-                        onChange={(e) => {
-                          const v = e.target.value ? Number(e.target.value) : null;
-                          setCountryId(v);
+                      <Label>{t("spForm.country")}</Label>
+                      <Select
+                        value={countryId != null ? String(countryId) : undefined}
+                        onValueChange={(v) => {
+                          setCountryId(Number(v));
                           setGovernorateId(null);
                           setSpForm((p) => ({ ...p, cityId: undefined, areaId: undefined }));
                         }}
                       >
-                        <option value="">Select</option>
-                        {countries.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger><SelectValue placeholder={t("spForm.select")} /></SelectTrigger>
+                        <SelectContent>
+                          {countries.map((c) => (
+                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
-                      <Label>Governorate</Label>
-                      <select
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                        value={governorateId ?? ""}
-                        onChange={(e) => {
-                          const v = e.target.value ? Number(e.target.value) : null;
-                          setGovernorateId(v);
+                      <Label>{t("spForm.governorate")}</Label>
+                      <Select
+                        value={governorateId != null ? String(governorateId) : undefined}
+                        disabled={!countryId}
+                        onValueChange={(v) => {
+                          setGovernorateId(Number(v));
                           setSpForm((p) => ({ ...p, cityId: undefined, areaId: undefined }));
                         }}
                       >
-                        <option value="">Select</option>
-                        {governorates.map((g) => (
-                          <option key={g.id} value={g.id}>
-                            {g.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger><SelectValue placeholder={t("spForm.select")} /></SelectTrigger>
+                        <SelectContent>
+                          {governorates.map((g) => (
+                            <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <Label>City</Label>
-                      <select
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                        value={spForm.cityId ?? ""}
-                        onChange={(e) =>
-                          setSpForm((p) => ({
-                            ...p,
-                            cityId: e.target.value ? Number(e.target.value) : undefined,
-                            areaId: undefined,
-                          }))
+                      <Label>{t("spForm.city")}</Label>
+                      <Select
+                        value={spForm.cityId != null ? String(spForm.cityId) : undefined}
+                        disabled={!governorateId}
+                        onValueChange={(v) =>
+                          setSpForm((p) => ({ ...p, cityId: Number(v), areaId: undefined }))
                         }
                       >
-                        <option value="">Select</option>
-                        {cities.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger><SelectValue placeholder={t("spForm.select")} /></SelectTrigger>
+                        <SelectContent>
+                          {cities.map((c) => (
+                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
-                      <Label>Area</Label>
-                      <select
-                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
-                        value={spForm.areaId ?? ""}
-                        onChange={(e) =>
-                          setSpForm((p) => ({
-                            ...p,
-                            areaId: e.target.value ? Number(e.target.value) : undefined,
-                          }))
+                      <Label>{t("spForm.area")}</Label>
+                      <Select
+                        value={spForm.areaId != null ? String(spForm.areaId) : undefined}
+                        disabled={!spForm.cityId}
+                        onValueChange={(v) =>
+                          setSpForm((p) => ({ ...p, areaId: Number(v) }))
                         }
                       >
-                        <option value="">Select</option>
-                        {areas.map((a) => (
-                          <option key={a.id} value={a.id}>
-                            {a.name}
-                          </option>
-                        ))}
-                      </select>
+                        <SelectTrigger><SelectValue placeholder={t("spForm.select")} /></SelectTrigger>
+                        <SelectContent>
+                          {areas.map((a) => (
+                            <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   <div>
-                    <Label>Street</Label>
+                    <Label>{t("spForm.street")}</Label>
                     <Input
                       value={spForm.street ?? ""}
                       onChange={(e) => setSpForm((p) => ({ ...p, street: e.target.value }))}
-                      placeholder="Optional"
+                      placeholder={t("spForm.streetPlaceholder")}
                     />
                   </div>
                   <div>
-                    <Label>Service Categories (comma-separated)</Label>
+                    <Label>{t("spForm.serviceCategories")}</Label>
                     <Input
                       value={
                         Array.isArray(spForm.serviceCategories)
@@ -307,7 +298,7 @@ export default function EditOrganizationModal({
                             : [],
                         }))
                       }
-                      placeholder="e.g. maintenance, repair"
+                      placeholder={t("spForm.serviceCategoriesPlaceholder")}
                     />
                   </div>
                 </div>
@@ -316,10 +307,10 @@ export default function EditOrganizationModal({
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={onClose} disabled={pending}>
-              Cancel
+              {t("editModal.cancel")}
             </Button>
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Save Changes"}
+              {pending ? t("editModal.saving") : t("editModal.saveChanges")}
             </Button>
           </DialogFooter>
         </form>

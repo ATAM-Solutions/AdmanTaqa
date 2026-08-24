@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -28,6 +29,7 @@ type Props = {
 };
 
 export default function AssignTaskDialog({ workOrderId }: Props) {
+  const { t } = useTranslation("workOrders");
   const createTaskMutation = useCreateInternalTask();
   const { data: usersResponse, isLoading: usersLoading } = useGetUsers();
   const [open, setOpen] = useState(false);
@@ -47,14 +49,14 @@ export default function AssignTaskDialog({ workOrderId }: Props) {
       },
       {
         onSuccess: () => {
-          toast.success("Internal task assigned.");
+          toast.success(t("assignTaskDialog.toasts.assigned"));
           setOpen(false);
           setTitle("");
           setDescription("");
           setAssignedUserId("");
         },
         onError: (err) => {
-          toast.error(err instanceof Error ? err.message : "Failed to assign task.");
+          toast.error(err instanceof Error ? err.message : t("assignTaskDialog.toasts.assignFailed"));
         },
       }
     );
@@ -63,27 +65,27 @@ export default function AssignTaskDialog({ workOrderId }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Assign Task</Button>
+        <Button>{t("assignTaskDialog.trigger")}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[520px]">
         <DialogHeader>
-          <DialogTitle>Create Internal Task</DialogTitle>
+          <DialogTitle>{t("assignTaskDialog.title")}</DialogTitle>
           <DialogDescription>
-            This task will be linked to work order #{workOrderId}.
+            {t("assignTaskDialog.description", { id: workOrderId })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="task-title">Title</Label>
+            <Label htmlFor="task-title">{t("assignTaskDialog.titleLabel")}</Label>
             <Input
               id="task-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Optional task title"
+              placeholder={t("assignTaskDialog.titlePlaceholder")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="task-description">Description</Label>
+            <Label htmlFor="task-description">{t("assignTaskDialog.descriptionLabel")}</Label>
             <Textarea
               id="task-description"
               value={description}
@@ -92,18 +94,18 @@ export default function AssignTaskDialog({ workOrderId }: Props) {
             />
           </div>
           <div className="space-y-2">
-            <Label>Assigned User</Label>
+            <Label>{t("assignTaskDialog.assignedUser")}</Label>
             <Select
               value={assignedUserId || "none"}
               onValueChange={(value) => setAssignedUserId(value === "none" ? "" : value)}
             >
               <SelectTrigger>
                 <SelectValue
-                  placeholder={usersLoading ? "Loading users..." : "Select user (optional)"}
+                  placeholder={usersLoading ? t("assignTaskDialog.loadingUsers") : t("assignTaskDialog.selectUserOptional")}
                 />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="none">{t("assignTaskDialog.none")}</SelectItem>
                 {users.map((user) => (
                   <SelectItem key={user.id} value={String(user.id)}>
                     {user.fullName} (#{user.id})
@@ -114,10 +116,10 @@ export default function AssignTaskDialog({ workOrderId }: Props) {
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t("assignTaskDialog.cancel")}
             </Button>
             <Button type="submit" disabled={createTaskMutation.isPending}>
-              {createTaskMutation.isPending ? "Assigning..." : "Assign"}
+              {createTaskMutation.isPending ? t("assignTaskDialog.assigning") : t("assignTaskDialog.assign")}
             </Button>
           </DialogFooter>
         </form>

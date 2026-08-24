@@ -1,0 +1,22 @@
+{
+  "title": "سجل التدقيق",
+  "subtitle": "سجل شامل لجميع الإجراءات الإدارية وأحداث النظام.",
+  "liveMonitoring": "مراقبة مباشرة",
+  "loading": "جارٍ تحميل سجلات التدقيق...",
+  "searchPlaceholder": "ابحث حسب المستخدم أو المنظمة أو الإجراء أو المورد أو عنوان IP...",
+  "perPage": "لكل صفحة",
+  "totalSummary": "{{total}} إجمالي · صفحة {{page}} من {{totalPages}}",
+  "table": {
+    "timestamp": "التاريخ والوقت",
+    "user": "المستخدم",
+    "organization": "المنظمة",
+    "action": "الإجراء",
+    "resource": "المورد / الهدف",
+    "ip": "عنوان IP"
+  },
+  "noResults": "لا توجد سجلات تدقيق مطابقة لعوامل التصفية",
+  "showingPage": "عرض صفحة {{page}} من {{totalPages}} ({{total}} سجل)",
+  "previous": "السابق",
+  "next": "التالي",
+  "notAvailable": "غير متاح"
+}

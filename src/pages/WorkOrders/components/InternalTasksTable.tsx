@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,6 +33,7 @@ import useReviewInternalTask from "@/hooks/WorkOrders/useReviewInternalTask";
 import useCloseInternalTask from "@/hooks/WorkOrders/useCloseInternalTask";
 import useUploadInternalTaskAttachment from "@/hooks/WorkOrders/useUploadInternalTaskAttachment";
 import { useAuth } from "@/context/AuthContext";
+import { formatDate } from "@/lib/i18n/formatters";
 
 type Props = {
   items: InternalTaskItem[];
@@ -47,6 +49,7 @@ const STATUS_OPTIONS: InternalTaskStatus[] = [
 ];
 
 export default function InternalTasksTable({ items }: Props) {
+  const { t, i18n } = useTranslation("workOrders");
   const { hasPermission } = useAuth();
   const [startTask, setStartTask] = useState<InternalTaskItem | null>(null);
   const [startMessage, setStartMessage] = useState("");
@@ -59,9 +62,9 @@ export default function InternalTasksTable({ items }: Props) {
     updateStatusMutation.mutate(
       { id: task.id, body: { status }, workOrderId: task.workOrderId },
       {
-        onSuccess: () => toast.success("Task status updated."),
+        onSuccess: () => toast.success(t("internalTasksTable.toasts.statusUpdated")),
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Failed to update task status."),
+          toast.error(err instanceof Error ? err.message : t("internalTasksTable.toasts.statusUpdateFailed")),
       }
     );
   };
@@ -70,9 +73,14 @@ export default function InternalTasksTable({ items }: Props) {
     reviewMutation.mutate(
       { id: task.id, body: { decision }, workOrderId: task.workOrderId },
       {
-        onSuccess: () => toast.success(`Task ${decision === "APPROVE" ? "approved" : "rejected"}.`),
+        onSuccess: () =>
+          toast.success(
+            decision === "APPROVE"
+              ? t("internalTasksTable.toasts.approved")
+              : t("internalTasksTable.toasts.rejected")
+          ),
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Failed to review task."),
+          toast.error(err instanceof Error ? err.message : t("internalTasksTable.toasts.reviewFailed")),
       }
     );
   };
@@ -81,9 +89,9 @@ export default function InternalTasksTable({ items }: Props) {
     closeMutation.mutate(
       { id: task.id, workOrderId: task.workOrderId },
       {
-        onSuccess: () => toast.success("Task closed."),
+        onSuccess: () => toast.success(t("internalTasksTable.toasts.closed")),
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Failed to close task."),
+          toast.error(err instanceof Error ? err.message : t("internalTasksTable.toasts.closeFailed")),
       }
     );
   };
@@ -92,9 +100,9 @@ export default function InternalTasksTable({ items }: Props) {
     uploadAttachmentMutation.mutate(
       { id: task.id, file, workOrderId: task.workOrderId },
       {
-        onSuccess: () => toast.success("Attachment uploaded."),
+        onSuccess: () => toast.success(t("internalTasksTable.toasts.attachmentUploaded")),
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Failed to upload attachment."),
+          toast.error(err instanceof Error ? err.message : t("internalTasksTable.toasts.attachmentUploadFailed")),
       }
     );
   };
@@ -109,12 +117,12 @@ export default function InternalTasksTable({ items }: Props) {
       },
       {
         onSuccess: () => {
-          toast.success("Task started (Check-in recorded).");
+          toast.success(t("internalTasksTable.toasts.started"));
           setStartTask(null);
           setStartMessage("");
         },
         onError: (err) =>
-          toast.error(err instanceof Error ? err.message : "Failed to start task."),
+          toast.error(err instanceof Error ? err.message : t("internalTasksTable.toasts.startFailed")),
       }
     );
   };
@@ -129,19 +137,19 @@ export default function InternalTasksTable({ items }: Props) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>ID</TableHead>
-            <TableHead>Title</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Assigned User</TableHead>
-            <TableHead>Created</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead>{t("internalTasksTable.id")}</TableHead>
+            <TableHead>{t("internalTasksTable.title")}</TableHead>
+            <TableHead>{t("internalTasksTable.status")}</TableHead>
+            <TableHead>{t("internalTasksTable.assignedUser")}</TableHead>
+            <TableHead>{t("internalTasksTable.created")}</TableHead>
+            <TableHead className="text-end">{t("internalTasksTable.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {items.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                No internal tasks found.
+                {t("internalTasksTable.noResults")}
               </TableCell>
             </TableRow>
           ) : (
@@ -150,7 +158,7 @@ export default function InternalTasksTable({ items }: Props) {
                 <TableCell className="font-mono text-xs">{task.id}</TableCell>
                 <TableCell>
                   <div className="space-y-1">
-                    <p className="font-medium">{task.title ?? "Internal Task"}</p>
+                    <p className="font-medium">{task.title ?? t("internalTasksTable.internalTaskFallback")}</p>
                     {task.description ? (
                       <p className="text-xs text-muted-foreground line-clamp-2">{task.description}</p>
                     ) : null}
@@ -161,9 +169,9 @@ export default function InternalTasksTable({ items }: Props) {
                 </TableCell>
                 <TableCell>{task.assignedUserId ?? "—"}</TableCell>
                 <TableCell className="text-xs text-muted-foreground">
-                  {new Date(task.createdAt).toLocaleString()}
+                  {formatDate(task.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-end">
                   <div className="flex flex-wrap gap-2 justify-end">
                     {task.status === "ASSIGNED" && canUpdateStatus ? (
                       <Button
@@ -174,7 +182,7 @@ export default function InternalTasksTable({ items }: Props) {
                         }}
                         disabled={updateStatusMutation.isPending}
                       >
-                        Start
+                        {t("internalTasksTable.start")}
                       </Button>
                     ) : null}
                     {canUpdateStatus ? (
@@ -204,7 +212,7 @@ export default function InternalTasksTable({ items }: Props) {
                           onClick={() => handleReview(task, "APPROVE")}
                           disabled={reviewMutation.isPending}
                         >
-                          Approve
+                          {t("internalTasksTable.approve")}
                         </Button>
                         <Button
                           size="sm"
@@ -212,7 +220,7 @@ export default function InternalTasksTable({ items }: Props) {
                           onClick={() => handleReview(task, "REJECT")}
                           disabled={reviewMutation.isPending}
                         >
-                          Reject
+                          {t("internalTasksTable.reject")}
                         </Button>
                       </>
                     ) : null}
@@ -223,7 +231,7 @@ export default function InternalTasksTable({ items }: Props) {
                         onClick={() => handleClose(task)}
                         disabled={closeMutation.isPending}
                       >
-                        Close
+                        {t("internalTasksTable.close")}
                       </Button>
                     ) : null}
                     {canUpload ? (
@@ -239,7 +247,7 @@ export default function InternalTasksTable({ items }: Props) {
                           }}
                         />
                         <span className="inline-flex h-8 items-center rounded-md border px-3 text-xs cursor-pointer">
-                          Upload
+                          {t("internalTasksTable.upload")}
                         </span>
                       </label>
                     ) : null}
@@ -261,17 +269,17 @@ export default function InternalTasksTable({ items }: Props) {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Start / Check-in visit</DialogTitle>
+            <DialogTitle>{t("internalTasksTable.startDialogTitle")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-2">
             <Label htmlFor="start-message" className="text-sm">
-              Message (optional)
+              {t("internalTasksTable.messageOptional")}
             </Label>
             <Textarea
               id="start-message"
               value={startMessage}
               onChange={(e) => setStartMessage(e.target.value)}
-              placeholder="Add a message..."
+              placeholder={t("internalTasksTable.messagePlaceholder")}
               className="min-h-[80px] resize-y"
             />
           </div>
@@ -283,13 +291,13 @@ export default function InternalTasksTable({ items }: Props) {
                 setStartMessage("");
               }}
             >
-              Cancel
+              {t("internalTasksTable.cancel")}
             </Button>
             <Button
               onClick={handleStartSubmit}
               disabled={updateStatusMutation.isPending}
             >
-              {updateStatusMutation.isPending ? "Submitting..." : "Submit"}
+              {updateStatusMutation.isPending ? t("internalTasksTable.submitting") : t("internalTasksTable.submit")}
             </Button>
           </DialogFooter>
         </DialogContent>

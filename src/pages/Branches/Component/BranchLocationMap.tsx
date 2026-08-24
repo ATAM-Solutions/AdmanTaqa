@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
 import L, { type LeafletMouseEvent } from "leaflet";
 
@@ -47,6 +48,7 @@ export default function BranchLocationMap({
   center,
   readOnly = false,
 }: BranchLocationMapProps) {
+  const { t } = useTranslation("branches");
   const lat = latitude ? parseFloat(String(latitude).trim()) : NaN;
   const lng = longitude ? parseFloat(String(longitude).trim()) : NaN;
   const hasPosition = !Number.isNaN(lat) && !Number.isNaN(lng);
@@ -63,7 +65,8 @@ export default function BranchLocationMap({
   );
 
   return (
-    <div className="rounded-md border overflow-hidden" style={{ height }}>
+    // Geographic/map content never mirrors, even in an RTL app.
+    <div dir="ltr" className="rounded-md border overflow-hidden" style={{ height }}>
       <MapContainer
         key={`${latitude}-${longitude}-${center?.[0] ?? ""}-${center?.[1] ?? ""}`}
         center={position}
@@ -81,12 +84,12 @@ export default function BranchLocationMap({
       </MapContainer>
       {!readOnly && (
         <p className="text-xs text-muted-foreground px-2 py-1 bg-muted/50">
-          Click on the map to set the branch location (latitude / longitude)
+          {t("map.clickToSetHint")}
         </p>
       )}
       {readOnly && hasPosition && (
         <p className="text-xs text-muted-foreground px-2 py-1 bg-muted/50">
-          Click on the map to open in Google Maps
+          {t("map.clickToOpenGoogleMapsHint")}
         </p>
       )}
     </div>

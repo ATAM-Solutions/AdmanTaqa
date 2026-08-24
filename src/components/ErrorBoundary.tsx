@@ -2,6 +2,8 @@ import { Component, type ErrorInfo, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, AlertTriangle } from "lucide-react";
+import i18n from "@/i18n/config";
+import { reportError } from "@/lib/errorReporting";
 
 interface Props {
   children: ReactNode;
@@ -23,14 +25,14 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("ErrorBoundary caught an error:", error, errorInfo);
+    reportError("ErrorBoundary caught an error:", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError && this.state.error) {
       const message =
         this.state.error.message ||
-        "An unexpected error occurred.";
+        i18n.t("routeError.fallbackMessage");
 
       return (
         <div className="min-h-[60vh] flex flex-col items-center justify-center p-4 md:p-8 text-center">
@@ -40,7 +42,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                 <AlertTriangle className="h-8 w-8 text-destructive" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900">Something went wrong</h1>
+            <h1 className="text-2xl font-bold text-foreground">{i18n.t("routeError.title")}</h1>
             <p className="text-muted-foreground text-sm">
               {message}
             </p>
@@ -48,7 +50,7 @@ export default class ErrorBoundary extends Component<Props, State> {
               <Button asChild size="lg" className="gap-2">
                 <Link to="/">
                   <Home className="h-4 w-4" />
-                  Return Home
+                  {i18n.t("routeError.returnHome")}
                 </Link>
               </Button>
               <Button
@@ -57,8 +59,8 @@ export default class ErrorBoundary extends Component<Props, State> {
                 className="gap-2"
                 onClick={() => this.setState({ hasError: false, error: null })}
               >
-                <ArrowLeft className="h-4 w-4" />
-                Try again
+                <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+                {i18n.t("routeError.tryAgain")}
               </Button>
             </div>
           </div>

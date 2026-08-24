@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ export default function EditServiceOfferingDialog({
   organizationId,
   offering,
 }: EditServiceOfferingDialogProps) {
+  const { t } = useTranslation("serviceOfferings");
   const updateMutation = useUpdateServiceOffering();
   const [amount, setAmount] = useState("");
   const [currency, setCurrency] = useState("USD");
@@ -53,7 +55,7 @@ export default function EditServiceOfferingDialog({
     }
 
     if (Object.keys(body).length === 0) {
-      toast.info("No changes to update.");
+      toast.info(t("editDialog.noChanges"));
       return;
     }
 
@@ -61,11 +63,11 @@ export default function EditServiceOfferingDialog({
       { organizationId, offeringId: offering.id, body },
       {
         onSuccess: () => {
-          toast.success("Service offering updated.");
+          toast.success(t("editDialog.updated"));
           onOpenChange(false);
         },
         onError: (err) =>
-          toast.error((err as Error)?.message ?? "Failed to update offering."),
+          toast.error((err as Error)?.message ?? t("editDialog.updateFailed")),
       }
     );
   };
@@ -74,9 +76,9 @@ export default function EditServiceOfferingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Service Offering</DialogTitle>
+          <DialogTitle>{t("editDialog.title")}</DialogTitle>
           <DialogDescription>
-            You can update amount and currency only.
+            {t("editDialog.description")}
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
@@ -84,23 +86,23 @@ export default function EditServiceOfferingDialog({
             type="number"
             step="0.01"
             min="0"
-            placeholder="Amount"
+            placeholder={t("editDialog.amountPlaceholder")}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
           />
           <Input
             maxLength={3}
-            placeholder="Currency"
+            placeholder={t("editDialog.currencyPlaceholder")}
             value={currency}
             onChange={(e) => setCurrency(e.target.value.toUpperCase())}
           />
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("editDialog.cancel")}
           </Button>
           <Button onClick={handleUpdate} disabled={updateMutation.isPending}>
-            {updateMutation.isPending ? "Saving..." : "Save"}
+            {updateMutation.isPending ? t("editDialog.saving") : t("editDialog.save")}
           </Button>
         </DialogFooter>
       </DialogContent>

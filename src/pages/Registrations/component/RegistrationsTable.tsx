@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Trans, useTranslation } from 'react-i18next';
+import { reportError } from '@/lib/errorReporting';
 import {
   Table,
   TableBody,
@@ -24,6 +26,7 @@ import { Eye, Check, X, FileText, Building2, User, Mail, Phone } from 'lucide-re
 import { fetchRegistrations, approveRegistration, rejectRegistration, type Registration } from '@/api/api';
 
 export default function RegistrationsTable() {
+  const { t } = useTranslation("registrations");
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -46,8 +49,8 @@ export default function RegistrationsTable() {
       setTotalItems(response.total);
       setCurrentPage(response.page);
     } catch (error) {
-      console.error(error);
-      toast.error('Failed to load registrations');
+      reportError("Error loading registrations:", error);
+      toast.error(t("toasts.loadFailed"));
     } finally {
       setLoading(false);
     }
@@ -60,22 +63,22 @@ export default function RegistrationsTable() {
   const handleApprove = async (id: string) => {
     try {
       await approveRegistration(id);
-      toast.success('Registration approved successfully');
+      toast.success(t("toasts.approveSuccess"));
       loadData(currentPage);
     } catch (error) {
-      console.error(error);
-      toast.error('Failed to approve registration');
+      reportError("Error approving registration:", error);
+      toast.error(t("toasts.approveFailed"));
     }
   };
 
   const handleReject = async (id: string) => {
     try {
       await rejectRegistration(id);
-      toast.success('Registration rejected');
+      toast.success(t("toasts.rejectSuccess"));
       loadData(currentPage);
     } catch (error) {
-      console.error(error);
-      toast.error('Failed to reject registration');
+      reportError("Error rejecting registration:", error);
+      toast.error(t("toasts.rejectFailed"));
     }
   };
 
@@ -91,10 +94,10 @@ export default function RegistrationsTable() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(downloadUrl);
-      toast.success('PDF downloaded successfully');
+      toast.success(t("toasts.downloadSuccess"));
     } catch (error) {
-      console.error('Error downloading PDF:', error);
-      toast.error('Failed to download PDF');
+      reportError('Error downloading PDF:', error);
+      toast.error(t("toasts.downloadFailed"));
     }
   };
 
@@ -121,8 +124,8 @@ export default function RegistrationsTable() {
           <div className="rounded-2xl bg-primary/10 p-6 mb-6">
             <FileText className="h-14 w-14 text-primary/70" />
           </div>
-          <h3 className="text-xl font-bold text-slate-900 mb-2">No approved registrations</h3>
-          <p className="text-muted-foreground text-sm">Everything is caught up! New applications will appear here.</p>
+          <h3 className="text-xl font-bold text-foreground mb-2">{t("table.emptyTitle")}</h3>
+          <p className="text-muted-foreground text-sm">{t("table.emptyDescription")}</p>
         </CardContent>
       </Card>
     );
@@ -136,7 +139,7 @@ export default function RegistrationsTable() {
             <div className="absolute inset-0 bg-background/60 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
               <div className="flex flex-col items-center gap-3">
                 <div className="h-9 w-9 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                <span className="text-sm font-medium text-muted-foreground">Loading...</span>
+                <span className="text-sm font-medium text-muted-foreground">{t("table.loading")}</span>
               </div>
             </div>
           )}
@@ -144,11 +147,11 @@ export default function RegistrationsTable() {
             <Table>
               <TableHeader className="bg-muted/30">
                 <TableRow className="hover:bg-transparent border-b border-muted/20">
-                  <TableHead className="font-bold text-foreground">Company</TableHead>
-                  <TableHead className="font-bold text-foreground">Contact</TableHead>
-                  <TableHead className="font-bold text-foreground">Email / Phone</TableHead>
-                  <TableHead className="font-bold text-foreground">Documents</TableHead>
-                  <TableHead className="text-right font-bold text-foreground px-6">Actions</TableHead>
+                  <TableHead className="font-bold text-foreground">{t("table.company")}</TableHead>
+                  <TableHead className="font-bold text-foreground">{t("table.contact")}</TableHead>
+                  <TableHead className="font-bold text-foreground">{t("table.emailPhone")}</TableHead>
+                  <TableHead className="font-bold text-foreground">{t("table.documents")}</TableHead>
+                  <TableHead className="text-end font-bold text-foreground px-6">{t("table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -163,10 +166,10 @@ export default function RegistrationsTable() {
                           <Building2 className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex flex-col min-w-0">
-                          <span className="font-semibold text-sm text-slate-900 truncate">
+                          <span className="font-semibold text-sm text-foreground truncate">
                             {registration.companyName}
                           </span>
-                          <span className="text-xs text-muted-foreground font-mono">{registration.id}</span>
+                          <span className="text-xs text-muted-foreground font-mono" dir="ltr">{registration.id}</span>
                         </div>
                       </div>
                     </TableCell>
@@ -180,11 +183,11 @@ export default function RegistrationsTable() {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <span className="flex items-center gap-1.5 text-sm text-slate-700">
+                        <span className="flex items-center gap-1.5 text-sm text-foreground" dir="ltr">
                           <Mail className="h-3.5 w-3.5 text-muted-foreground" />
                           {registration.email}
                         </span>
-                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1.5 text-xs text-muted-foreground" dir="ltr">
                           <Phone className="h-3 w-3" />
                           {registration.phone}
                         </span>
@@ -201,15 +204,15 @@ export default function RegistrationsTable() {
                             onClick={() => handleDownloadPDF(doc.url, doc.name)}
                           >
                             <FileText className="h-3 w-3" />
-                            {doc.name?.replace(/\.[^/.]+$/, '') || `Doc ${idx + 1}`}
+                            {doc.name?.replace(/\.[^/.]+$/, '') || t("table.docFallback", { index: idx + 1 })}
                           </Button>
                         ))}
                         {(!registration.documents || registration.documents.length === 0) && (
-                          <span className="text-xs text-muted-foreground italic">—</span>
+                          <span className="text-xs text-muted-foreground italic">{t("table.noDocuments")}</span>
                         )}
                       </div>
                     </TableCell>
-                    <TableCell className="text-right px-6">
+                    <TableCell className="text-end px-6">
                       <div className="flex justify-end gap-2">
                         <Button
                           variant="outline"
@@ -218,15 +221,15 @@ export default function RegistrationsTable() {
                           onClick={() => navigate(`/registrations/${registration.id}`)}
                         >
                           <Eye className="h-3.5 w-3.5" />
-                          View
+                          {t("table.view")}
                         </Button>
                         <Button
                           size="sm"
-                          className="h-8 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white"
+                          className="h-8 gap-1.5 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 text-white"
                           onClick={() => handleApprove(registration.id)}
                         >
                           <Check className="h-3.5 w-3.5" />
-                          Approve
+                          {t("table.approve")}
                         </Button>
                         <Button
                           variant="destructive"
@@ -235,7 +238,7 @@ export default function RegistrationsTable() {
                           onClick={() => handleReject(registration.id)}
                         >
                           <X className="h-3.5 w-3.5" />
-                          Reject
+                          {t("table.reject")}
                         </Button>
                       </div>
                     </TableCell>
@@ -250,8 +253,12 @@ export default function RegistrationsTable() {
       {/* Pagination */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">
-          Showing <span className="font-semibold text-foreground">{registrations.length}</span> of{' '}
-          <span className="font-semibold text-foreground">{totalItems}</span> registrations
+          <Trans
+            i18nKey="table.showing"
+            ns="registrations"
+            values={{ count: registrations.length, total: totalItems }}
+            components={{ strong: <span className="font-semibold text-foreground" /> }}
+          />
         </p>
         <Pagination className="justify-end w-auto mx-0">
           <PaginationContent className="gap-1">

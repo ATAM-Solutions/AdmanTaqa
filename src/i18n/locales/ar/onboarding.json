@@ -1,0 +1,83 @@
+{
+  "page": {
+    "title": "التأهيل",
+    "subtitle": "إدارة شرائح ومحتوى التأهيل الخاصة بالتطبيق.",
+    "addItem": "إضافة عنصر"
+  },
+  "toasts": {
+    "invalidFileType": "نوع الملف غير مدعوم. استخدم JPEG أو PNG أو GIF أو WebP.",
+    "imageTooLarge": "حجم الصورة يجب ألا يتجاوز 5 ميجابايت.",
+    "noItemSelected": "لم يتم اختيار عنصر للحذف."
+  },
+  "table": {
+    "searchPlaceholder": "ابحث حسب العنوان أو الوصف...",
+    "title": "العنوان",
+    "description": "الوصف",
+    "order": "الترتيب",
+    "status": "الحالة",
+    "image": "الصورة",
+    "actions": "الإجراءات",
+    "empty": "لا توجد عناصر تأهيل بعد. أضف عنصرًا للبدء.",
+    "viewDetails": "عرض التفاصيل",
+    "active": "نشط",
+    "inactive": "غير نشط"
+  },
+  "createDialog": {
+    "title": "إنشاء عنصر تأهيل",
+    "description": "أضف شريحة أو محتوى جديد للتأهيل.",
+    "fields": {
+      "title": "العنوان",
+      "titlePlaceholder": "مرحبًا",
+      "description": "الوصف",
+      "descriptionPlaceholder": "وصف مختصر",
+      "content": "المحتوى",
+      "contentPlaceholder": "المحتوى الكامل (اختياري)",
+      "order": "الترتيب",
+      "active": "نشط"
+    },
+    "image": {
+      "label": "الصورة (اسحب وأفلت أو اضغط)",
+      "dropHint": "اسحب الصورة هنا أو اضغط للاختيار (JPEG أو PNG أو GIF أو WebP — بحد أقصى 5 ميجابايت)"
+    },
+    "cancel": "إلغاء",
+    "submit": "إنشاء"
+  },
+  "editDialog": {
+    "title": "تعديل عنصر التأهيل",
+    "description": "تحديث العنوان والمحتوى والترتيب وحالة الظهور.",
+    "image": {
+      "label": "الصورة (اسحب وأفلت أو اضغط)",
+      "dropHint": "اسحب صورة هنا أو اضغط للاختيار (بحد أقصى 5 ميجابايت)",
+      "currentImage": "الصورة الحالية (من رابط)",
+      "replaceHint": "اسحب صورة جديدة أو اضغط للاستبدال",
+      "orUrl": "أو رابط الصورة:"
+    },
+    "cancel": "إلغاء",
+    "submit": "حفظ"
+  },
+  "deleteDialog": {
+    "title": "حذف عنصر التأهيل",
+    "description": "هل أنت متأكد من حذف \"{{title}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+    "cancel": "إلغاء",
+    "confirm": "حذف"
+  },
+  "details": {
+    "notFound": "عنصر التأهيل غير موجود.",
+    "backToList": "العودة للقائمة",
+    "description": "الوصف",
+    "content": "المحتوى",
+    "noContent": "لا يوجد وصف أو محتوى لهذا العنصر.",
+    "image": "الصورة",
+    "detailsHeading": "التفاصيل",
+    "order": "الترتيب",
+    "status": "الحالة",
+    "created": "تم الإنشاء {{date}}",
+    "updated": "تم التحديث {{date}}",
+    "active": "نشط",
+    "inactive": "غير نشط"
+  },
+  "validation": {
+    "titleRequired": "العنوان مطلوب",
+    "orderMin": "يجب أن يكون الترتيب ≥ 0"
+  }
+}

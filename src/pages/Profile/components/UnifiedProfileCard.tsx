@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Card,
   CardContent,
@@ -9,36 +10,19 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, UserCheck, FileText } from "lucide-react";
 import type { OrganizationMeFullData } from "@/types/organization";
 import OrganizationDetailsCard from "./OrganizationDetailsCard";
+import { formatDate } from "@/lib/i18n/formatters";
 
 interface UnifiedProfileCardProps {
   organization: OrganizationMeFullData | null | undefined;
   isLoading?: boolean;
 }
 
-function formatDate(iso: string | null | undefined) {
-  if (!iso) return "—";
-  return new Date(iso).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  });
-}
-
-function documentTypeLabel(type: string | null | undefined): string {
-  if (!type) return "Document";
-  const labels: Record<string, string> = {
-    LICENSE: "License",
-    REGISTRATION: "Registration",
-    OTHER: "Other",
-    COMMERCIAL_REGISTRATION: "Commercial Registration",
-    TAX_CERTIFICATE: "Tax Certificate",
-    TECHNICAL_CERTIFICATE: "Technical Certificate",
-    INSURANCE_CERTIFICATE: "Insurance Certificate",
-  };
-  return labels[type] ?? type;
-}
-
 export default function UnifiedProfileCard({ organization, isLoading }: UnifiedProfileCardProps) {
+  const { t, i18n } = useTranslation("profile");
+
+  const documentTypeLabel = (type: string | null | undefined): string =>
+    type ? t(`documentTypes.${type}`, { defaultValue: type }) : t("documentTypes.document");
+
   if (isLoading) {
     return (
       <Card className="overflow-hidden border-none shadow-lg bg-gradient-to-br from-card to-muted/20">
@@ -65,7 +49,10 @@ export default function UnifiedProfileCard({ organization, isLoading }: UnifiedP
               {organization?.status === "APPROVED" && organization?.approvedAt && (
                 <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
                   <UserCheck className="h-3.5 w-3.5" />
-                  Approved by {organization.User?.fullName ?? "—"} on {formatDate(organization.approvedAt)}
+                  {t("unified.approvedBy", {
+                    name: organization.User?.fullName ?? "—",
+                    date: formatDate(organization.approvedAt, i18n.language, { year: "numeric", month: "short", day: "numeric" }),
+                  })}
                 </p>
               )}
             </div>
@@ -86,7 +73,7 @@ export default function UnifiedProfileCard({ organization, isLoading }: UnifiedP
           <div className="border-t pt-6 space-y-3">
             <h3 className="text-lg font-semibold flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Documents
+              {t("unified.documentsHeading")}
             </h3>
             <ul className="space-y-2">
               {organization?.OrganizationDocuments?.map((doc) => (
@@ -96,14 +83,14 @@ export default function UnifiedProfileCard({ organization, isLoading }: UnifiedP
                 >
                   <div>
                     <p className="font-medium">{doc.fileName ?? "—"}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {documentTypeLabel(doc.documentType)}
+                    <div className="text-muted-foreground text-xs flex items-center flex-wrap gap-2">
+                      <span>{documentTypeLabel(doc.documentType)}</span>
                       {doc.status != null && doc.status !== "" && (
-                        <Badge variant="secondary" className="ml-2 text-[10px]">
+                        <Badge variant="secondary" className="text-[10px]">
                           {doc.status}
                         </Badge>
                       )}
-                    </p>
+                    </div>
                   </div>
                   {doc.fileUrl && (
                     <a
@@ -112,7 +99,7 @@ export default function UnifiedProfileCard({ organization, isLoading }: UnifiedP
                       rel="noopener noreferrer"
                       className="text-primary hover:underline text-xs shrink-0"
                     >
-                      View
+                      {t("unified.view")}
                     </a>
                   )}
                 </li>
@@ -123,15 +110,15 @@ export default function UnifiedProfileCard({ organization, isLoading }: UnifiedP
                   className="flex items-center justify-between rounded-lg border px-4 py-3 text-sm"
                 >
                   <div>
-                    <p className="font-medium">{doc.fileName ?? doc.documentType ?? "Document"}</p>
-                    <p className="text-muted-foreground text-xs">
-                      {documentTypeLabel(doc.documentType)}
+                    <p className="font-medium">{doc.fileName ?? doc.documentType ?? t("documentTypes.document")}</p>
+                    <div className="text-muted-foreground text-xs flex items-center flex-wrap gap-2">
+                      <span>{documentTypeLabel(doc.documentType)}</span>
                       {doc.status != null && doc.status !== "" && (
-                        <Badge variant="secondary" className="ml-2 text-[10px]">
+                        <Badge variant="secondary" className="text-[10px]">
                           {doc.status}
                         </Badge>
                       )}
-                    </p>
+                    </div>
                   </div>
                   {(doc.fileUrl ?? (doc as { url?: string }).url) && (
                     <a
@@ -140,7 +127,7 @@ export default function UnifiedProfileCard({ organization, isLoading }: UnifiedP
                       rel="noopener noreferrer"
                       className="text-primary hover:underline text-xs shrink-0"
                     >
-                      View
+                      {t("unified.view")}
                     </a>
                   )}
                 </li>

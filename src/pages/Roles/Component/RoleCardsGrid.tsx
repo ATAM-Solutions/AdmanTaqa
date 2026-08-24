@@ -1,17 +1,8 @@
-// import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-// import {
-//   Dialog,
-//   DialogContent,
-//   DialogDescription,
-//   DialogFooter,
-//   DialogHeader,
-//   DialogTitle,
-//   DialogTrigger,
-// } from "@/components/ui/dialog";
 import { ShieldCheck, ShieldAlert, Users, Lock, Pencil } from "lucide-react";
 import type { PermissionItem } from "@/types/role";
 
@@ -31,22 +22,8 @@ type RoleCardsGridProps = {
 };
 
 export default function RoleCardsGrid({ roles }: RoleCardsGridProps) {
+  const { t } = useTranslation("roles");
   const navigate = useNavigate();
-  // const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
-  // const [roleToDelete, setRoleToDelete] = useState<{ id: string; name: string } | null>(null);
-
-  // const handleDeleteClick = (role: { id: string; name: string }) => {
-  //   setRoleToDelete(role);
-  //   setOpenDeleteDialog(true);
-  // };
-
-  // const handleDeleteConfirm = () => {
-  //   if (roleToDelete) {
-  //     onDeleteConfirm?.(roleToDelete);
-  //     // setOpenDeleteDialog(false);
-  //     setRoleToDelete(null);
-  //   }
-  // };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -60,7 +37,9 @@ export default function RoleCardsGrid({ roles }: RoleCardsGridProps) {
             <div className="flex items-center justify-between mb-2">
               <div
                 className={`p-2 rounded-lg ${
-                  role.type === "GLOBAL" ? "bg-purple-100 text-purple-700" : "bg-blue-100 text-blue-700"
+                  role.type === "GLOBAL"
+                    ? "bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-400"
+                    : "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-400"
                 }`}
               >
                 {role.type === "GLOBAL" ? (
@@ -80,12 +59,12 @@ export default function RoleCardsGrid({ roles }: RoleCardsGridProps) {
           <CardContent className="flex-1 space-y-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
               <Users className="h-3.5 w-3.5" />
-              {role.userCount} Active Users
+              {t("card.activeUsers", { count: role.userCount })}
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                 <Lock className="h-2.5 w-2.5" />
-                Permissions ({role.permissionsList.length || role.permissions.length})
+                {t("card.permissionsHeading", { count: role.permissionsList.length || role.permissions.length })}
               </div>
               <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
                 {(role.permissionsList.length ? role.permissionsList : role.permissions.map((code) => ({ id: 0, code, name: code })))
@@ -102,7 +81,7 @@ export default function RoleCardsGrid({ roles }: RoleCardsGridProps) {
                   ))}
                 {(role.permissionsList.length || role.permissions.length) > 8 && (
                   <span className="text-[10px] text-muted-foreground px-1">
-                    +{(role.permissionsList.length || role.permissions.length) - 8} more
+                    {t("card.more", { count: (role.permissionsList.length || role.permissions.length) - 8 })}
                   </span>
                 )}
               </div>
@@ -119,58 +98,9 @@ export default function RoleCardsGrid({ roles }: RoleCardsGridProps) {
                 navigate(`/roles/${role.id}/edit`);
               }}
             >
-              <Pencil className="h-3.5 w-3.5 mr-2" />
-              Edit
+              <Pencil className="h-3.5 w-3.5 me-2" />
+              {t("card.edit")}
             </Button>
-            {/* <Dialog
-              open={openDeleteDialog && roleToDelete?.id === role.id}
-              onOpenChange={(open) => !open && setOpenDeleteDialog(false)}
-            >
-              <DialogTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex-1 justify-center text-xs font-semibold hover:bg-destructive/10 p-2 h-8 text-destructive"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteClick(role);
-                  }}
-                >
-                  <Trash2 className="h-3.5 w-3.5 mr-2" />
-                  Delete
-                </Button>
-              </DialogTrigger>
-              <DialogContent onClick={(e) => e.stopPropagation()}>
-                <DialogHeader>
-                  <DialogTitle>Delete Role</DialogTitle>
-                  <DialogDescription>
-                    Are you sure you want to delete the role &quot;{roleToDelete?.name}&quot;? This
-                    action cannot be undone and will remove this role from all users assigned to it.
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setOpenDeleteDialog(false);
-                      setRoleToDelete(null);
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteConfirm();
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog> */}
           </CardFooter>
         </Card>
       ))}

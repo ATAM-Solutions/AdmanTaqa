@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +25,7 @@ export default function DeleteServiceOfferingDialog({
   organizationId,
   offering,
 }: DeleteServiceOfferingDialogProps) {
+  const { t } = useTranslation("serviceOfferings");
   const deleteMutation = useDeleteServiceOffering();
 
   const handleDelete = () => {
@@ -32,11 +34,11 @@ export default function DeleteServiceOfferingDialog({
       { organizationId, offeringId: offering.id },
       {
         onSuccess: () => {
-          toast.success("Service offering deleted.");
+          toast.success(t("deleteDialog.deleted"));
           onOpenChange(false);
         },
         onError: (err) =>
-          toast.error((err as Error)?.message ?? "Failed to delete offering."),
+          toast.error((err as Error)?.message ?? t("deleteDialog.deleteFailed")),
       }
     );
   };
@@ -45,21 +47,21 @@ export default function DeleteServiceOfferingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Service Offering</DialogTitle>
+          <DialogTitle>{t("deleteDialog.title")}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to delete offering #{offering?.id}?
+            {t("deleteDialog.description", { id: offering?.id })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("deleteDialog.cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
             disabled={deleteMutation.isPending}
           >
-            {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            {deleteMutation.isPending ? t("deleteDialog.deleting") : t("deleteDialog.delete")}
           </Button>
         </DialogFooter>
       </DialogContent>

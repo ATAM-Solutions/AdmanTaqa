@@ -1,3 +1,4 @@
+import { Trans, useTranslation } from "react-i18next";
 import {
   Pagination,
   PaginationContent,
@@ -25,6 +26,7 @@ export default function TablePagination({
   onPageChange,
   startIndex,
 }: TablePaginationProps) {
+  const { t } = useTranslation();
   const start = startIndex ?? (currentPage - 1) * pageSize + 1;
   const end = Math.min(currentPage * pageSize, total);
 
@@ -34,13 +36,13 @@ export default function TablePagination({
     <div className="flex flex-col sm:flex-row items-center justify-between gap-2 py-3 px-4 border-t bg-muted/20">
       <p className="text-sm text-muted-foreground">
         {total === 0 ? (
-          "No items"
+          t("tablePagination.noItems")
         ) : (
-          <>
-            Showing <span className="font-medium">{start}</span>–
-            <span className="font-medium">{end}</span> of{" "}
-            <span className="font-medium">{total}</span>
-          </>
+          <Trans
+            i18nKey="tablePagination.showing"
+            values={{ start, end, total }}
+            components={{ b: <span className="font-medium" /> }}
+          />
         )}
       </p>
       {totalPages > 1 && (

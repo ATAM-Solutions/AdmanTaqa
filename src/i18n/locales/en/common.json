@@ -12,5 +12,29 @@
   "asyncBoundary": {
     "error": "Something went wrong. Please try again.",
     "empty": "Nothing to show yet."
+  },
+  "accessDenied": {
+    "title": "Access Denied",
+    "subtitle": "You are not authorized",
+    "description": "You do not have the required permissions to access this page. You can go back or return to the home page.",
+    "returnHome": "Return Home",
+    "goBack": "Go Back",
+    "errorCode": "Error Code"
+  },
+  "pendingApproval": {
+    "title": "Organization pending approval",
+    "description": "This section is available only after your organization is approved. Please complete your profile and wait for approval.",
+    "goToProfile": "Go to Profile"
+  },
+  "routeError": {
+    "title": "Something went wrong",
+    "fallbackMessage": "An unexpected error occurred.",
+    "returnHome": "Return Home",
+    "goBack": "Go Back",
+    "tryAgain": "Try again"
+  },
+  "tablePagination": {
+    "noItems": "No items",
+    "showing": "Showing <b>{{start}}</b>–<b>{{end}}</b> of <b>{{total}}</b>"
   }
 }

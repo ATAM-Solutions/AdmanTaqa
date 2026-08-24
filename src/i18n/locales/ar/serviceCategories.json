@@ -1,0 +1,92 @@
+{
+  "title": "فئات الخدمات",
+  "subtitle": "تصفح الفئات وأدرها حسب نوع منظمتك.",
+  "loadFailed": "فشل تحميل بيانات المنظمة.",
+  "notAvailable": "صفحة فئات الخدمات متاحة فقط لمزود الخدمة والجهة الرقابية.",
+  "card": {
+    "title": "فئات الخدمات",
+    "description": "تصفح الفئات وأدرها حسب نوع المنظمة.",
+    "addCategory": "إضافة فئة",
+    "selectCategoryPlaceholder": "اختر فئة",
+    "proposeCategory": "اقتراح فئة",
+    "createCategory": "إنشاء فئة",
+    "loadingCategories": "جارٍ تحميل الفئات...",
+    "noLinked": "لا توجد فئات خدمات مرتبطة بعد.",
+    "view": "عرض",
+    "sectionAllCategories": "جميع الفئات",
+    "sectionMyProposed": "الفئات التي اقترحتها",
+    "loadingProposals": "جارٍ تحميل المقترحات...",
+    "noneFound": "لم يتم العثور على فئات.",
+    "noneProposed": "لم تقترح أي فئات بعد.",
+    "edit": "تعديل",
+    "approve": "موافقة",
+    "reject": "رفض",
+    "code": "الرمز: {{code}}",
+    "rejectedReason": "سبب الرفض: {{reason}}",
+    "categoryLabelFallback": "فئة رقم {{id}}",
+    "status": {
+      "pending": "قيد الانتظار"
+    },
+    "dialogs": {
+      "propose": {
+        "title": "اقتراح فئة خدمة",
+        "description": "أرسل فئة جديدة لمراجعة الجهة الرقابية.",
+        "nameEn": "الاسم (بالإنجليزية)",
+        "nameAr": "الاسم (بالعربية)",
+        "codeOptional": "الرمز (اختياري)",
+        "cancel": "إلغاء",
+        "submit": "إرسال",
+        "submitting": "جارٍ الإرسال..."
+      },
+      "create": {
+        "title": "إنشاء فئة خدمة",
+        "description": "يمكن للجهة الرقابية إنشاء فئات معتمدة مباشرة.",
+        "cancel": "إلغاء",
+        "create": "إنشاء",
+        "creating": "جارٍ الإنشاء..."
+      },
+      "edit": {
+        "title": "تحديث فئة الخدمة",
+        "description": "تحديث أسماء الفئة أو رمزها.",
+        "cancel": "إلغاء",
+        "save": "حفظ",
+        "saving": "جارٍ الحفظ..."
+      },
+      "reject": {
+        "title": "رفض الفئة",
+        "description": "أضف سببًا اختياريًا للرفض.",
+        "reason": "السبب",
+        "reasonPlaceholder": "سبب اختياري",
+        "cancel": "إلغاء",
+        "reject": "رفض",
+        "rejecting": "جارٍ الرفض..."
+      },
+      "view": {
+        "title": "تفاصيل الفئة",
+        "description": "عرض الفئة حسب المعرف.",
+        "loadingDetails": "جارٍ تحميل التفاصيل...",
+        "id": "المعرف",
+        "nameEn": "الاسم (إنجليزي)",
+        "nameAr": "الاسم (عربي)",
+        "code": "الرمز",
+        "status": "الحالة",
+        "notFound": "الفئة غير موجودة."
+      }
+    },
+    "toasts": {
+      "categoryUnlinked": "تم إلغاء ربط الفئة.",
+      "categoryCreated": "تم إنشاء الفئة.",
+      "categoryUpdated": "تم تحديث الفئة.",
+      "categoryApproved": "تمت الموافقة على الفئة.",
+      "categoryRejected": "تم رفض الفئة.",
+      "categoryProposed": "تم إرسال اقتراح الفئة.",
+      "namesRequired": "الاسمان بالإنجليزية والعربية مطلوبان.",
+      "removeFailed": "فشل إزالة الفئة.",
+      "createFailed": "فشل إنشاء الفئة.",
+      "updateFailed": "فشل تحديث الفئة.",
+      "approveFailed": "فشلت الموافقة على الفئة.",
+      "rejectFailed": "فشل رفض الفئة.",
+      "proposeFailed": "فشل اقتراح الفئة."
+    }
+  }
+}

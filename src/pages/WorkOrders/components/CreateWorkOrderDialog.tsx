@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ import useGetAssets from "@/hooks/Assets/useGetAssets";
 import type { CreateWorkOrderBody, WorkOrderPriority } from "@/types/workOrder";
 
 export default function CreateWorkOrderDialog() {
+  const { t } = useTranslation("workOrders");
   const createMutation = useCreateWorkOrder();
   const { data: branches = [], isLoading: branchesLoading } = useGetBranches();
   const { data: usersResponse, isLoading: usersLoading } = useGetUsers();
@@ -55,7 +57,7 @@ export default function CreateWorkOrderDialog() {
     };
     createMutation.mutate(payload, {
       onSuccess: () => {
-        toast.success("Work order created.");
+        toast.success(t("createDialog.toasts.created"));
         setOpen(false);
         setTitle("");
         setDescription("");
@@ -65,7 +67,7 @@ export default function CreateWorkOrderDialog() {
         setAssignedUserId("");
       },
       onError: (err) => {
-        toast.error(err instanceof Error ? err.message : "Failed to create work order.");
+        toast.error(err instanceof Error ? err.message : t("createDialog.toasts.createFailed"));
       },
     });
   };
@@ -73,39 +75,37 @@ export default function CreateWorkOrderDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>Create Work Order</Button>
+        <Button>{t("createDialog.trigger")}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[560px]">
         <DialogHeader>
-          <DialogTitle>New Work Order</DialogTitle>
-          <DialogDescription>
-            Create a work order and optionally assign it to a technician directly.
-          </DialogDescription>
+          <DialogTitle>{t("createDialog.title")}</DialogTitle>
+          <DialogDescription>{t("createDialog.description")}</DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="wo-title">Title</Label>
+            <Label htmlFor="wo-title">{t("createDialog.titleLabel")}</Label>
             <Input
               id="wo-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Work order title"
+              placeholder={t("createDialog.titlePlaceholder")}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="wo-description">Description</Label>
+            <Label htmlFor="wo-description">{t("createDialog.descriptionLabel")}</Label>
             <Textarea
               id="wo-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Optional details"
+              placeholder={t("createDialog.descriptionPlaceholder")}
               rows={3}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Priority</Label>
+              <Label>{t("createDialog.priority")}</Label>
               <Select value={priority} onValueChange={(v: WorkOrderPriority) => setPriority(v)}>
                 <SelectTrigger>
                   <SelectValue />
@@ -118,18 +118,18 @@ export default function CreateWorkOrderDialog() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Assigned User</Label>
+              <Label>{t("createDialog.assignedUser")}</Label>
               <Select
                 value={assignedUserId || "none"}
                 onValueChange={(value) => setAssignedUserId(value === "none" ? "" : value)}
               >
                 <SelectTrigger>
                   <SelectValue
-                    placeholder={usersLoading ? "Loading users..." : "Select user (optional)"}
+                    placeholder={usersLoading ? t("createDialog.loadingUsers") : t("createDialog.selectUserOptional")}
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="none">{t("createDialog.none")}</SelectItem>
                   {users.map((user) => (
                     <SelectItem key={user.id} value={String(user.id)}>
                       {user.fullName} (#{user.id})
@@ -141,7 +141,7 @@ export default function CreateWorkOrderDialog() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label>Branch</Label>
+              <Label>{t("createDialog.branch")}</Label>
               <Select
                 value={branchId || "none"}
                 onValueChange={(value) => {
@@ -152,11 +152,11 @@ export default function CreateWorkOrderDialog() {
               >
                 <SelectTrigger>
                   <SelectValue
-                    placeholder={branchesLoading ? "Loading branches..." : "Select branch (optional)"}
+                    placeholder={branchesLoading ? t("createDialog.loadingBranches") : t("createDialog.selectBranchOptional")}
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="none">{t("createDialog.none")}</SelectItem>
                   {branches.map((branch) => (
                     <SelectItem key={branch.id} value={String(branch.id)}>
                       {branch.nameEn || branch.nameAr || `Branch #${branch.id}`}
@@ -166,7 +166,7 @@ export default function CreateWorkOrderDialog() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Asset</Label>
+              <Label>{t("createDialog.asset")}</Label>
               <Select
                 value={assetId || "none"}
                 onValueChange={(value) => setAssetId(value === "none" ? "" : value)}
@@ -176,15 +176,15 @@ export default function CreateWorkOrderDialog() {
                   <SelectValue
                     placeholder={
                       !branchId
-                        ? "Select branch first"
+                        ? t("createDialog.selectBranchFirst")
                         : assetsLoading
-                        ? "Loading assets..."
-                        : "Select asset (optional)"
+                        ? t("createDialog.loadingAssets")
+                        : t("createDialog.selectAssetOptional")
                     }
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="none">{t("createDialog.none")}</SelectItem>
                   {assets.map((asset) => (
                     <SelectItem key={asset.id} value={String(asset.id)}>
                       {asset.nameEn || asset.nameAr || asset.name || `Asset #${asset.id}`}
@@ -196,10 +196,10 @@ export default function CreateWorkOrderDialog() {
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-              Cancel
+              {t("createDialog.cancel")}
             </Button>
             <Button type="submit" disabled={createMutation.isPending}>
-              {createMutation.isPending ? "Creating..." : "Create"}
+              {createMutation.isPending ? t("createDialog.creating") : t("createDialog.create")}
             </Button>
           </DialogFooter>
         </form>

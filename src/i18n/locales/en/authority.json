@@ -1,0 +1,261 @@
+{
+  "organizations": {
+    "list": {
+      "title": "Organizations",
+      "subtitle": "Service providers pending approval.",
+      "loading": "Loading organizations...",
+      "loadFailed": "Failed to load organizations."
+    },
+    "rejectedList": {
+      "title": "Organizations — Rejected",
+      "subtitle": "Service providers that were rejected."
+    },
+    "table": {
+      "searchPlaceholder": "Search by name or ID...",
+      "count": "{{count}} Organizations",
+      "columns": {
+        "organization": "Organization",
+        "type": "Type",
+        "status": "Status",
+        "createdAt": "Created At",
+        "actions": "Actions"
+      },
+      "empty": "No organizations found matching your search.",
+      "view": "View"
+    },
+    "status": {
+      "approved": "Approved",
+      "pendingReview": "Pending Review",
+      "rejected": "Rejected"
+    },
+    "detail": {
+      "loading": "Loading...",
+      "notFound": "Organization not found.",
+      "back": "Back",
+      "managePermissions": "Manage Permissions",
+      "profileInfo": "Profile Information",
+      "registrationDate": "Registration Date",
+      "approvedAt": "Approved At",
+      "rejectionReason": "Rejection Reason",
+      "spProfile": "Service Provider Profile",
+      "licenseNumber": "License Number",
+      "yearsExperience": "Years Experience",
+      "street": "Street",
+      "amount": "Amount",
+      "area": "Area",
+      "city": "City",
+      "serviceCategories": "Service Categories",
+      "documents": "Documents",
+      "documentsSubtitle": "Organization documents and Service Provider documents.",
+      "noDocuments": "No documents uploaded yet.",
+      "view": "View",
+      "owner": "Owner",
+      "statusCardTitle": "Status",
+      "current": "Current"
+    },
+    "docTypes": {
+      "LICENSE": "License",
+      "REGISTRATION": "Registration",
+      "OTHER": "Other",
+      "document": "Document"
+    },
+    "actions": {
+      "approve": "Approve",
+      "reject": "Reject",
+      "approved": "Organization approved.",
+      "rejected": "Organization rejected.",
+      "approveFailed": "Failed to approve.",
+      "rejectFailed": "Failed to reject."
+    },
+    "rejectModal": {
+      "title": "Reject Organization",
+      "description": "Provide a reason for rejecting \"{{name}}\" (required). The reason may be shown to the organization.",
+      "reasonLabel": "Reason (required)",
+      "reasonPlaceholder": "e.g. Incomplete documents, missing information...",
+      "cancel": "Cancel",
+      "reject": "Reject",
+      "rejecting": "Rejecting..."
+    },
+    "create": {
+      "title": "Register Organization",
+      "pendingBadge": "PENDING APPROVAL",
+      "subtitle": "Submit your organization details for review and approval",
+      "cardTitle": "Organization Information",
+      "cardDescription": "Provide accurate details about your organization",
+      "name": "Organization Name *",
+      "namePlaceholder": "Enter organization name",
+      "type": "Organization Type *",
+      "typePlaceholder": "Select type",
+      "typeFuelStation": "Fuel Station",
+      "typeServiceProvider": "Service Provider",
+      "email": "Email Address *",
+      "emailPlaceholder": "organization@example.com",
+      "phone": "Phone Number *",
+      "phonePlaceholder": "+966 50 123 4567",
+      "website": "Website (Optional)",
+      "websitePlaceholder": "https://www.organization.com",
+      "licenseNumber": "License Number *",
+      "licenseNumberPlaceholder": "Enter official license number",
+      "addressSection": "Address Information",
+      "address": "Street Address *",
+      "addressPlaceholder": "Street address",
+      "city": "City *",
+      "cityPlaceholder": "City",
+      "country": "Country *",
+      "countryPlaceholder": "Select country",
+      "countries": {
+        "SA": "Saudi Arabia",
+        "AE": "United Arab Emirates",
+        "KW": "Kuwait",
+        "QA": "Qatar",
+        "BH": "Bahrain",
+        "OM": "Oman"
+      },
+      "contactSection": "Contact Person",
+      "contactPerson": "Full Name *",
+      "contactPersonPlaceholder": "Full name of primary contact",
+      "contactPosition": "Position *",
+      "contactPositionPlaceholder": "Job title or position",
+      "description": "Organization Description *",
+      "descriptionPlaceholder": "Describe your organization, services offered, and business objectives...",
+      "documentsSection": "Required Documents",
+      "documentsSubtitle": "Upload the following documents for verification",
+      "licenseUpload": "Business License *",
+      "businessUpload": "Business Registration *",
+      "cancel": "Cancel",
+      "submit": "Submit for Approval",
+      "validationError": "Please fill in all required fields",
+      "submitSuccess": "Organization registered successfully! Awaiting approval.",
+      "guidelinesTitle": "Registration Guidelines",
+      "guidelines": {
+        "required": "All fields marked with * are mandatory",
+        "clear": "Documents must be clear and legible",
+        "match": "Organization details must match official documents",
+        "reviewTime": "Registration requests are typically reviewed within 2-3 business days",
+        "notification": "You will receive an email notification once approved"
+      }
+    }
+  },
+  "fuelStations": {
+    "list": {
+      "title": "Fuel Stations",
+      "subtitle": "Approved fuel stations.",
+      "loading": "Loading fuel stations...",
+      "loadFailed": "Failed to load fuel stations."
+    },
+    "pendingList": {
+      "title": "Fuel Stations — Pending",
+      "subtitle": "Fuel stations pending approval."
+    },
+    "rejectedList": {
+      "title": "Fuel Stations — Rejected",
+      "subtitle": "Fuel stations that were rejected."
+    },
+    "table": {
+      "searchPlaceholder": "Search by name or ID...",
+      "count": "{{count}} stations",
+      "statusPlaceholder": "Status",
+      "statusAll": "All",
+      "columns": {
+        "name": "Name",
+        "status": "Status",
+        "rejectionReason": "Rejection Reason",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "empty": "No fuel stations found.",
+      "view": "View"
+    }
+  },
+  "externalJobOrders": {
+    "list": {
+      "title": "External Job Orders",
+      "subtitle": "Authority view of external maintenance job orders. No financial data.",
+      "export": "Export CSV",
+      "exporting": "Exporting…",
+      "statusLabel": "Status",
+      "statusAll": "All",
+      "statuses": {
+        "ACTIVE": "Active",
+        "IN_PROGRESS": "In progress",
+        "AWAITING_PAYMENT": "Awaiting payment",
+        "COMPLETED": "Completed",
+        "CLOSED": "Closed",
+        "CREATED": "Created",
+        "CANCELLED": "Cancelled"
+      },
+      "datePresetLabel": "Date preset",
+      "datePresets": {
+        "today": "Today",
+        "week": "Week",
+        "month": "Month",
+        "custom": "Custom"
+      },
+      "fromDate": "From date",
+      "toDate": "To date",
+      "fuelStationSearch": "Fuel station org name (search)",
+      "fuelStationSearchPlaceholder": "e.g. Oil Company",
+      "serviceProviderSearch": "Service provider org name (search)",
+      "serviceProviderSearchPlaceholder": "e.g. Maintenance",
+      "totalPage": "Total: {{total}} | Page: {{page}}",
+      "loading": "Loading job orders…",
+      "loadFailed": "Failed to load job orders.",
+      "empty": "No job orders found.",
+      "columns": {
+        "status": "Status",
+        "created": "Created",
+        "title": "Title",
+        "branch": "Branch",
+        "actions": "Actions"
+      },
+      "view": "View",
+      "previous": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{maxPage}}"
+    },
+    "detail": {
+      "loading": "Loading…",
+      "backToList": "Back to External Job Orders",
+      "loadFailed": "Failed to load job order.",
+      "title": "External Job Order",
+      "detailsCardTitle": "Job Order Details (Authority view — no financial data)",
+      "externalRequest": "External Request",
+      "status": "Status",
+      "formData": "Form data",
+      "formTitle": "Title",
+      "priority": "Priority",
+      "description": "Description",
+      "attachments": "Attachments",
+      "attachmentsNone": "None",
+      "attachmentsCount": "{{count}} file(s)",
+      "providerQuote": "Provider Quote (reference only — no amounts)",
+      "branch": "Branch",
+      "organization": "Organization",
+      "timeline": "Timeline",
+      "loadingTimeline": "Loading timeline…",
+      "timelineFailed": "Failed to load timeline.",
+      "noTimeline": "No timeline entries.",
+      "localTimezone": "Time is in your local timezone",
+      "reports": "Reports",
+      "loadingReports": "Loading reports…",
+      "reportsFailed": "Failed to load reports.",
+      "noReports": "No reports.",
+      "dates": "Dates",
+      "created": "Created",
+      "updated": "Updated",
+      "report": {
+        "submitted": "Submitted {{date}}",
+        "by": "by {{name}}",
+        "findings": "Findings",
+        "actionsTaken": "Actions taken",
+        "recommendations": "Recommendations",
+        "checklist": "Checklist",
+        "attachments": "Attachments",
+        "open": "Open",
+        "reviewed": "Reviewed {{date}}",
+        "reviewNote": "Review note:",
+        "rejectionReason": "Rejection reason:"
+      }
+    }
+  }
+}

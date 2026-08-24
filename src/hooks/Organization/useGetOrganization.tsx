@@ -1,16 +1,14 @@
 import axiosInstance from '@/api/config';
 import type { OrganizationResponse } from '@/types/organization';
 import { useQuery } from '@tanstack/react-query';
-
+import { reportError } from '@/lib/errorReporting';
 
 const getOrganization = async (): Promise<OrganizationResponse> => {
-
   try {
     const response = await axiosInstance.get("organizations/me");
     return response.data;
   } catch (error: unknown) {
-    const err = error as { response?: { data?: unknown }; message?: string };
-    console.error("Error fetching organization:", err.response?.data ?? err.message);
+    reportError("Error fetching organization:", error);
     throw error;
   }
 };

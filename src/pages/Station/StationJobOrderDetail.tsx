@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,10 +24,12 @@ import useRejectReport from "@/hooks/Station/useRejectReport";
 import useUploadJobOrderReceipt from "@/hooks/Station/useUploadJobOrderReceipt";
 import useConfirmPaymentSent from "@/hooks/Station/useConfirmPaymentSent";
 import { getApiErrorMessage } from "@/lib/utils";
+import { formatDate } from "@/lib/i18n/formatters";
 
 const MAX_RECEIPT_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 export default function StationJobOrderDetail() {
+  const { t, i18n } = useTranslation("station");
   const { id } = useParams<{ id: string }>();
   const { data: order, isLoading } = useStationJobOrderById(id ?? null);
   const { data: reports = [] } = useStationJobOrderReports(id ?? null);
@@ -56,49 +59,49 @@ export default function StationJobOrderDetail() {
   const handleApproveOrder = () => {
     if (!id) return;
     approveOrderMutation.mutate(id, {
-      onSuccess: () => toast.success("Job order approved and closed."),
-      onError: (e) => toast.error(e instanceof Error ? e.message : "Approve failed."),
+      onSuccess: () => toast.success(t("jobOrderDetail.toasts.approved")),
+      onError: (e) => toast.error(e instanceof Error ? e.message : t("jobOrderDetail.toasts.approveFailed")),
     });
   };
 
   const handleRejectOrder = () => {
     if (!id || !rejectReason.trim()) {
-      toast.error("Enter a reason for rework.");
+      toast.error(t("jobOrderDetail.toasts.reworkReasonRequired"));
       return;
     }
     rejectOrderMutation.mutate(
       { jobOrderId: id, body: { reason: rejectReason.trim() } },
       {
         onSuccess: () => {
-          toast.success("Rework requested.");
+          toast.success(t("jobOrderDetail.toasts.reworkRequested"));
           setRejectReason("");
         },
-        onError: (e) => toast.error(e instanceof Error ? e.message : "Reject failed."),
+        onError: (e) => toast.error(e instanceof Error ? e.message : t("jobOrderDetail.toasts.rejectFailed")),
       }
     );
   };
 
   const handleApproveReport = (reportId: number) => {
     approveReportMutation.mutate(reportId, {
-      onSuccess: () => toast.success("Report approved."),
-      onError: (e) => toast.error(e instanceof Error ? e.message : "Failed."),
+      onSuccess: () => toast.success(t("jobOrderDetail.toasts.reportApproved")),
+      onError: (e) => toast.error(e instanceof Error ? e.message : t("jobOrderDetail.toasts.reportActionFailed")),
     });
   };
 
   const handleRejectReport = (reportId: number) => {
     if (!rejectReportReason.trim()) {
-      toast.error("Enter a reason.");
+      toast.error(t("jobOrderDetail.toasts.reportReasonRequired"));
       return;
     }
     rejectReportMutation.mutate(
       { reportId, body: { reason: rejectReportReason.trim() } },
       {
         onSuccess: () => {
-          toast.success("Report rejected.");
+          toast.success(t("jobOrderDetail.toasts.reportRejected"));
           setRejectReportId(null);
           setRejectReportReason("");
         },
-        onError: (e) => toast.error(e instanceof Error ? e.message : "Failed."),
+        onError: (e) => toast.error(e instanceof Error ? e.message : t("jobOrderDetail.toasts.reportActionFailed")),
       }
     );
   };
@@ -107,12 +110,12 @@ export default function StationJobOrderDetail() {
     const file = e.target.files?.[0];
     if (!file || !id) return;
     if (file.size > MAX_RECEIPT_SIZE_BYTES) {
-      toast.error("File size too large. Maximum size is 5MB.");
+      toast.error(t("jobOrderDetail.toasts.fileTooLarge"));
       e.target.value = "";
       return;
     }
     if (order?.paymentRecord?.status === "STATION_CONFIRMED_SENT") {
-      toast.info("Payment already confirmed for this job order.");
+      toast.info(t("jobOrderDetail.toasts.alreadyConfirmed"));
       e.target.value = "";
       return;
     }
@@ -123,12 +126,12 @@ export default function StationJobOrderDetail() {
           const url = (data as { receiptFileUrl?: string })?.receiptFileUrl;
           if (url) {
             setReceiptFileUrl(url);
-            toast.success("Receipt uploaded. Click «Confirm payment sent» to confirm.");
+            toast.success(t("jobOrderDetail.toasts.receiptUploaded"));
           } else {
-            toast.success("Receipt uploaded.");
+            toast.success(t("jobOrderDetail.toasts.receiptUploadedGeneric"));
           }
         },
-        onError: (err) => toast.error(getApiErrorMessage(err, "Upload failed.")),
+        onError: (err) => toast.error(getApiErrorMessage(err, t("jobOrderDetail.toasts.uploadFailed"))),
       }
     );
     e.target.value = "";
@@ -137,13 +140,13 @@ export default function StationJobOrderDetail() {
   const handleConfirmPaymentSent = () => {
     if (!id) return;
     if (order?.paymentRecord?.status === "STATION_CONFIRMED_SENT") {
-      toast.info("Payment already confirmed for this job order.");
+      toast.info(t("jobOrderDetail.toasts.alreadyConfirmed"));
       return;
     }
     const hasReceipt = !!(receiptFileUrl || order?.paymentRecord?.receiptFileUrl);
     const hasRef = referenceNumber.trim().length > 0;
     if (!hasReceipt && !hasRef) {
-      toast.error("Upload a receipt or enter a reference number before confirming.");
+      toast.error(t("jobOrderDetail.toasts.uploadOrRefRequired"));
       return;
     }
     const body: { receiptFileUrl?: string; referenceNumber?: string; amount?: number; method?: string } = {};
@@ -158,9 +161,9 @@ export default function StationJobOrderDetail() {
       { jobOrderId: id, body },
       {
         onSuccess: () => {
-          toast.success("Payment sent confirmed. Waiting for provider to confirm receipt.");
+          toast.success(t("jobOrderDetail.toasts.paymentConfirmed"));
         },
-        onError: (err) => toast.error(getApiErrorMessage(err, "Confirm failed.")),
+        onError: (err) => toast.error(getApiErrorMessage(err, t("jobOrderDetail.toasts.confirmFailed"))),
       }
     );
   };
@@ -168,7 +171,7 @@ export default function StationJobOrderDetail() {
   if (isLoading || !id) {
     return (
       <div className="p-4 md:p-8 flex justify-center min-h-[200px] items-center text-muted-foreground">
-        Loading...
+        {t("loading")}
       </div>
     );
   }
@@ -176,9 +179,9 @@ export default function StationJobOrderDetail() {
     return (
       <div className="p-4 md:p-8">
         <Button variant="ghost" asChild>
-          <Link to="/station-job-orders">Back</Link>
+          <Link to="/station-job-orders">{t("back")}</Link>
         </Button>
-        <p className="text-destructive">Job order not found.</p>
+        <p className="text-destructive">{t("jobOrderDetail.notFound")}</p>
       </div>
     );
   }
@@ -187,7 +190,7 @@ export default function StationJobOrderDetail() {
     <div className="p-4 md:p-8 space-y-6">
       <Button variant="ghost" asChild>
         <Link to="/station-job-orders" className="gap-2">
-          <ChevronLeft className="h-4 w-4" /> Back
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("back")}
         </Link>
       </Button>
 
@@ -197,16 +200,16 @@ export default function StationJobOrderDetail() {
             {order.ExternalRequest?.formData?.title ??
               order.ServiceRequest?.formData?.title ??
               order.ServiceRequest?.formData?.description ??
-              `Job Order #${order.id}`}
+              t("jobOrderDetail.jobOrderFallback", { id: order.id })}
           </CardTitle>
           <p className="text-sm text-muted-foreground">
-            Status: <Badge variant="secondary">{order.status}</Badge>
+            {t("jobOrderDetail.statusLabel")} <Badge variant="secondary">{order.status}</Badge>
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           {canApproveOrRejectOrder && (
             <div className="pt-4 border-t space-y-3">
-              <p className="text-sm font-medium">Review (approve close or request rework)</p>
+              <p className="text-sm font-medium">{t("jobOrderDetail.reviewHeading")}</p>
               <div className="flex flex-wrap gap-2 items-end">
                 <Button
                   size="sm"
@@ -214,16 +217,16 @@ export default function StationJobOrderDetail() {
                   onClick={handleApproveOrder}
                   disabled={approveOrderMutation.isPending}
                 >
-                  <CheckCircle className="h-4 w-4" /> Approve & close
+                  <CheckCircle className="h-4 w-4" /> {t("jobOrderDetail.approveClose")}
                 </Button>
                 <div className="flex gap-2 items-end">
                   <div className="space-y-1">
-                    <Label htmlFor="reject-reason" className="text-xs">Rework reason</Label>
+                    <Label htmlFor="reject-reason" className="text-xs">{t("jobOrderDetail.reworkReason")}</Label>
                     <Input
                       id="reject-reason"
                       value={rejectReason}
                       onChange={(e) => setRejectReason(e.target.value)}
-                      placeholder="Reason for rework"
+                      placeholder={t("jobOrderDetail.reworkReasonPlaceholder")}
                       className="w-[200px]"
                     />
                   </div>
@@ -234,7 +237,7 @@ export default function StationJobOrderDetail() {
                     onClick={handleRejectOrder}
                     disabled={rejectOrderMutation.isPending || !rejectReason.trim()}
                   >
-                    <XCircle className="h-4 w-4" /> Request rework
+                    <XCircle className="h-4 w-4" /> {t("jobOrderDetail.requestRework")}
                   </Button>
                 </div>
               </div>
@@ -246,10 +249,8 @@ export default function StationJobOrderDetail() {
       {paymentRejected && (
         <Card className="border-destructive/50 bg-destructive/5">
           <CardHeader>
-            <CardTitle className="text-destructive">المزود رفض استلام الدفع (Payment Rejected)</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              أمر العمل يبقى في انتظار الدفع ولا يُفعّل — لا يصل إلى ACTIVE.
-            </p>
+            <CardTitle className="text-destructive">{t("jobOrderDetail.paymentRejectedTitle")}</CardTitle>
+            <p className="text-sm text-muted-foreground">{t("jobOrderDetail.paymentRejectedNote")}</p>
             {order.paymentRecord?.rejectionReason && (
               <p className="text-sm text-muted-foreground mt-1">{order.paymentRecord.rejectionReason}</p>
             )}
@@ -258,14 +259,12 @@ export default function StationJobOrderDetail() {
       )}
 
       {awaitingPayment && stationAlreadyConfirmedSent && (
-        <Card className="border-green-200 bg-green-50/50 dark:bg-green-950/20">
+        <Card className="border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20">
           <CardContent className="pt-4 space-y-2">
             <p className="text-sm font-medium text-green-800 dark:text-green-200">
-              تم تأكيد إرسال المبلغ. في انتظار تأكيد المزود.
+              {t("jobOrderDetail.paymentConfirmedTitle")}
             </p>
-            <p className="text-xs text-muted-foreground">
-              المزود يدخل من حسابه → <strong>Provider Job Orders</strong> → يفتح هذا الأمر (أمر العمل #{id}) → يضغط <strong>«Confirm received»</strong>. لو المزود لا يرى الأمر في القائمة، فهو يجب أن يكون مسجّل دخول بحساب منظمة المزود صاحبة العرض المختار.
-            </p>
+            <p className="text-xs text-muted-foreground">{t("jobOrderDetail.paymentConfirmedNote", { id })}</p>
           </CardContent>
         </Card>
       )}
@@ -273,17 +272,13 @@ export default function StationJobOrderDetail() {
       {showPaymentSection && (
         <Card>
           <CardHeader>
-            <CardTitle>الدفع (Payment)</CardTitle>
-            <p className="text-sm font-medium text-amber-700 dark:text-amber-400">
-              تأكيد الدفع من هنا — المحطة تؤكد أنها أرسلت المبلغ للمزود.
-            </p>
-            <p className="text-sm text-muted-foreground">
-              ١) ارفع إيصال التحويل. ٢) (اختياري) أدخل رقم التحويل / المبلغ / الطريقة. ٣) اضغط «تأكيد إرسال المبلغ».
-            </p>
+            <CardTitle>{t("jobOrderDetail.paymentHeading")}</CardTitle>
+            <p className="text-sm font-medium text-amber-700 dark:text-amber-400">{t("jobOrderDetail.paymentHint")}</p>
+            <p className="text-sm text-muted-foreground">{t("jobOrderDetail.paymentSteps")}</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-sm">1. رفع إيصال التحويل (Upload receipt)</Label>
+              <Label className="text-sm">{t("jobOrderDetail.uploadReceiptLabel")}</Label>
               <input
                 type="file"
                 accept=".pdf,image/*"
@@ -300,7 +295,7 @@ export default function StationJobOrderDetail() {
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadReceiptMutation.isPending}
                 >
-                  <Upload className="h-4 w-4" /> رفع إيصال
+                  <Upload className="h-4 w-4" /> {t("jobOrderDetail.uploadReceipt")}
                 </Button>
                 {(receiptFileUrl || order.paymentRecord?.receiptFileUrl) && (
                   <a
@@ -309,43 +304,44 @@ export default function StationJobOrderDetail() {
                     rel="noreferrer"
                     className="text-sm text-primary underline"
                   >
-                    View receipt
+                    {t("jobOrderDetail.viewReceipt")}
                   </a>
                 )}
               </div>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1">
-                <Label htmlFor="ref-number" className="text-sm">رقم التحويل (optional)</Label>
+                <Label htmlFor="ref-number" className="text-sm">{t("jobOrderDetail.referenceNumber")}</Label>
                 <Input
                   id="ref-number"
                   value={referenceNumber}
                   onChange={(e) => setReferenceNumber(e.target.value)}
                   placeholder="e.g. TRF-2024-001"
+                  dir="ltr"
                 />
               </div>
               <div className="space-y-1">
-                <Label htmlFor="payment-amount" className="text-sm">المبلغ (optional)</Label>
+                <Label htmlFor="payment-amount" className="text-sm">{t("jobOrderDetail.amount")}</Label>
                 <Input
                   id="payment-amount"
                   type="number"
                   min={0}
                   value={paymentAmount}
                   onChange={(e) => setPaymentAmount(e.target.value)}
-                  placeholder="Amount"
+                  placeholder="0"
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-sm">طريقة الدفع (optional)</Label>
+                <Label className="text-sm">{t("jobOrderDetail.method")}</Label>
                 <Select value={paymentMethod || "_"} onValueChange={(v) => setPaymentMethod(v === "_" ? "" : v)}>
                   <SelectTrigger>
                     <SelectValue placeholder="—" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="_">—</SelectItem>
-                    <SelectItem value="BANK_TRANSFER">Bank transfer</SelectItem>
-                    <SelectItem value="CASH">Cash</SelectItem>
-                    <SelectItem value="OTHER">Other</SelectItem>
+                    <SelectItem value="BANK_TRANSFER">{t("jobOrderDetail.methodBankTransfer")}</SelectItem>
+                    <SelectItem value="CASH">{t("jobOrderDetail.methodCash")}</SelectItem>
+                    <SelectItem value="OTHER">{t("jobOrderDetail.methodOther")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -360,7 +356,7 @@ export default function StationJobOrderDetail() {
                   (!(receiptFileUrl || order.paymentRecord?.receiptFileUrl) && !referenceNumber.trim())
                 }
               >
-                <CheckCircle className="h-4 w-4" /> 2. تأكيد إرسال المبلغ (Confirm payment sent)
+                <CheckCircle className="h-4 w-4" /> {t("jobOrderDetail.confirmPaymentSent")}
               </Button>
             </div>
           </CardContent>
@@ -371,7 +367,7 @@ export default function StationJobOrderDetail() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" /> Maintenance reports
+              <FileText className="h-5 w-5" /> {t("jobOrderDetail.reportsHeading")}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -379,11 +375,11 @@ export default function StationJobOrderDetail() {
               {reports.map((r) => (
                 <li key={r.id} className="flex items-center justify-between rounded-lg border p-3">
                   <div>
-                    <span className="font-medium">{r.title ?? `Report #${r.id}`}</span>
-                    <Badge variant="outline" className="ml-2 text-xs">{r.status}</Badge>
+                    <span className="font-medium">{r.title ?? t("jobOrderDetail.reportFallback", { id: r.id })}</span>
+                    <Badge variant="outline" className="ms-2 text-xs">{r.status}</Badge>
                     {r.createdAt && (
-                      <span className="ml-2 text-xs text-muted-foreground">
-                        {new Date(r.createdAt).toLocaleString()}
+                      <span className="ms-2 text-xs text-muted-foreground">
+                        {formatDate(r.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
                       </span>
                     )}
                   </div>
@@ -394,14 +390,14 @@ export default function StationJobOrderDetail() {
                       onClick={() => handleApproveReport(r.id)}
                       disabled={approveReportMutation.isPending}
                     >
-                      Approve
+                      {t("jobOrderDetail.approve")}
                     </Button>
                     {rejectReportId === r.id ? (
                       <div className="flex gap-2 items-center">
                         <Input
                           value={rejectReportReason}
                           onChange={(e) => setRejectReportReason(e.target.value)}
-                          placeholder="Reason"
+                          placeholder={t("jobOrderDetail.reasonPlaceholder")}
                           className="w-32 h-8"
                         />
                         <Button
@@ -410,15 +406,15 @@ export default function StationJobOrderDetail() {
                           onClick={() => handleRejectReport(r.id)}
                           disabled={rejectReportMutation.isPending || !rejectReportReason.trim()}
                         >
-                          Reject
+                          {t("jobOrderDetail.reject")}
                         </Button>
                         <Button size="sm" variant="ghost" onClick={() => setRejectReportId(null)}>
-                          Cancel
+                          {t("jobOrderDetail.cancel")}
                         </Button>
                       </div>
                     ) : (
                       <Button size="sm" variant="ghost" onClick={() => setRejectReportId(r.id)}>
-                        Reject
+                        {t("jobOrderDetail.reject")}
                       </Button>
                     )}
                   </div>

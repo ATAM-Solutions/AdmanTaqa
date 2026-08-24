@@ -1,0 +1,83 @@
+{
+  "page": {
+    "title": "Onboarding",
+    "subtitle": "Manage onboarding slides and content for the app.",
+    "addItem": "Add Item"
+  },
+  "toasts": {
+    "invalidFileType": "Unsupported file type. Use JPEG, PNG, GIF, or WebP.",
+    "imageTooLarge": "Image size must not exceed 5MB.",
+    "noItemSelected": "No item selected to delete."
+  },
+  "table": {
+    "searchPlaceholder": "Search by title or description...",
+    "title": "Title",
+    "description": "Description",
+    "order": "Order",
+    "status": "Status",
+    "image": "Image",
+    "actions": "Actions",
+    "empty": "No onboarding items yet. Add one to get started.",
+    "viewDetails": "View details",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "createDialog": {
+    "title": "Create onboarding item",
+    "description": "Add a new slide or content block for onboarding.",
+    "fields": {
+      "title": "Title",
+      "titlePlaceholder": "Welcome",
+      "description": "Description",
+      "descriptionPlaceholder": "Short description",
+      "content": "Content",
+      "contentPlaceholder": "Full content (optional)",
+      "order": "Order",
+      "active": "Active"
+    },
+    "image": {
+      "label": "Image (drag & drop or click)",
+      "dropHint": "Drag image here or click to select (JPEG, PNG, GIF, WebP — max 5MB)"
+    },
+    "cancel": "Cancel",
+    "submit": "Create"
+  },
+  "editDialog": {
+    "title": "Edit onboarding item",
+    "description": "Update title, content, order, and visibility.",
+    "image": {
+      "label": "Image (drag & drop or click)",
+      "dropHint": "Drag image here or click to select (max 5MB)",
+      "currentImage": "Current image (from URL)",
+      "replaceHint": "Drag a new image or click to replace",
+      "orUrl": "Or image URL:"
+    },
+    "cancel": "Cancel",
+    "submit": "Save"
+  },
+  "deleteDialog": {
+    "title": "Delete onboarding item",
+    "description": "Are you sure you want to delete \"{{title}}\"? This cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
+  "details": {
+    "notFound": "Onboarding item not found.",
+    "backToList": "Back to list",
+    "description": "Description",
+    "content": "Content",
+    "noContent": "No description or content for this item.",
+    "image": "Image",
+    "detailsHeading": "Details",
+    "order": "Order",
+    "status": "Status",
+    "created": "Created {{date}}",
+    "updated": "Updated {{date}}",
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "validation": {
+    "titleRequired": "Title is required",
+    "orderMin": "Order must be ≥ 0"
+  }
+}

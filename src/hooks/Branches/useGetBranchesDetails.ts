@@ -1,5 +1,6 @@
 import axiosInstance from "@/api/config";
 import { useQuery } from "@tanstack/react-query";
+import { reportError } from "@/lib/errorReporting";
 import type { BranchApiItem } from "./useGetBranches";
 
 interface BranchDetailApiResponse {
@@ -12,8 +13,7 @@ const getBranchesDetails = async (id: number | string): Promise<BranchApiItem | 
     const response = await axiosInstance.get<BranchDetailApiResponse>(`branches/${id}`);
     return response.data?.data ?? null;
   } catch (error: unknown) {
-    const err = error as { response?: { data?: unknown }; message?: string };
-    console.error("Error fetching branch details:", err.response?.data ?? err.message);
+    reportError("Error fetching branch details:", error);
     throw error;
   }
 };

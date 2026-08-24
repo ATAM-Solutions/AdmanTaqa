@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
@@ -30,10 +31,12 @@ export default function LocationManageCard({
   onEdit,
   onDelete,
   addLabel,
-  emptyMessage = "No items yet.",
+  emptyMessage,
   disabledMessage,
   addDisabled = false,
 }: LocationManageCardProps) {
+  const { t } = useTranslation("locations");
+  const resolvedEmptyMessage = emptyMessage ?? t("manageCard.emptyDefault");
   const showDisabled = !!disabledMessage && items.length === 0;
   return (
     <Card>
@@ -51,7 +54,7 @@ export default function LocationManageCard({
         {showDisabled ? (
           <p className="text-sm text-muted-foreground py-4">{disabledMessage}</p>
         ) : items.length === 0 ? (
-          <p className="text-sm text-muted-foreground py-4">{emptyMessage}</p>
+          <p className="text-sm text-muted-foreground py-4">{resolvedEmptyMessage}</p>
         ) : (
           <ul className="space-y-2">
             {items.map((item) => (
@@ -61,7 +64,7 @@ export default function LocationManageCard({
               >
                 <span>
                   {item.name}
-                  {item.code ? <span className="text-muted-foreground ml-2">({item.code})</span> : null}
+                  {item.code ? <span className="text-muted-foreground ms-2">({item.code})</span> : null}
                 </span>
                 <div className="flex gap-1">
                   <Button type="button" variant="ghost" size="icon" className="h-8 w-8" onClick={() => onEdit(item)}>

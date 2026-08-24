@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import useAddLinkedProvider from "@/hooks/Station/useAddLinkedProvider";
 import useRemoveLinkedProvider from "@/hooks/Station/useRemoveLinkedProvider";
 
 export default function LinkedProviders() {
+  const { t } = useTranslation("station");
   const { data: linked = [], isLoading } = useLinkedProviders();
   const { data: available = [] } = useAvailableProviders();
   const addMutation = useAddLinkedProvider();
@@ -32,8 +34,8 @@ export default function LinkedProviders() {
     addMutation.mutate(
       { providerOrganizationId: orgId },
       {
-        onSuccess: () => toast.success("Provider linked."),
-        onError: (e) => toast.error(e instanceof Error ? e.message : "Failed to add."),
+        onSuccess: () => toast.success(t("linkedProviders.toasts.added")),
+        onError: (e) => toast.error(e instanceof Error ? e.message : t("linkedProviders.toasts.addFailed")),
       }
     );
   };
@@ -46,10 +48,10 @@ export default function LinkedProviders() {
     if (!removeTarget) return;
     removeMutation.mutate(removeTarget.linkId, {
       onSuccess: () => {
-        toast.success("Provider removed.");
+        toast.success(t("linkedProviders.toasts.removed"));
         setRemoveTarget(null);
       },
-      onError: (e) => toast.error(e instanceof Error ? e.message : "Failed to remove."),
+      onError: (e) => toast.error(e instanceof Error ? e.message : t("linkedProviders.toasts.removeFailed")),
     });
   };
 
@@ -57,35 +59,29 @@ export default function LinkedProviders() {
     <div className="p-4 md:p-8 space-y-6">
       <Button variant="ghost" size="sm" asChild className="gap-2">
         <Link to="/station-requests">
-          <ChevronLeft className="h-4 w-4" />
-          Back to Station Requests
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+          {t("linkedProviders.backToRequests")}
         </Link>
       </Button>
 
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Linked Service Providers</h1>
-        <p className="text-muted-foreground">
-          Manage service providers linked to your station. Linked providers are shown below; choose one to remove or add from available providers.
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("linkedProviders.title")}</h1>
+        <p className="text-muted-foreground">{t("linkedProviders.subtitle")}</p>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5" />
-            Linked providers ({linked.length})
+            {t("linkedProviders.linkedHeading", { count: linked.length })}
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Providers already linked to your station. You can remove them below.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("linkedProviders.linkedDescription")}</p>
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <p className="text-sm text-muted-foreground">Loading...</p>
+            <p className="text-sm text-muted-foreground">{t("loading")}</p>
           ) : linked.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No linked providers. Add one from the &quot;Available providers&quot; section below.
-            </p>
+            <p className="text-sm text-muted-foreground">{t("linkedProviders.noLinked")}</p>
           ) : (
             <ul className="space-y-2">
               {linked.map((p) => (
@@ -96,7 +92,7 @@ export default function LinkedProviders() {
                   <div className="flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium">
-                      {p.organizationName ?? `Organization #${p.organizationId}`}
+                      {p.organizationName ?? t("linkedProviders.organizationFallback", { id: p.organizationId })}
                     </span>
                     {p.status && (
                       <Badge variant="secondary" className="text-xs">
@@ -112,7 +108,7 @@ export default function LinkedProviders() {
                     disabled={removeMutation.isPending}
                   >
                     <Trash2 className="h-4 w-4" />
-                    Remove
+                    {t("linkedProviders.remove")}
                   </Button>
                 </li>
               ))}
@@ -125,17 +121,13 @@ export default function LinkedProviders() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5" />
-            Available providers to add
+            {t("linkedProviders.availableHeading")}
           </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            Choose a provider from the list and click Add to link them to your station.
-          </p>
+          <p className="text-sm text-muted-foreground">{t("linkedProviders.availableDescription")}</p>
         </CardHeader>
         <CardContent>
           {canAdd.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              No available providers to add (all are already linked).
-            </p>
+            <p className="text-sm text-muted-foreground">{t("linkedProviders.noAvailable")}</p>
           ) : (
             <ul className="space-y-2">
               {canAdd.map((p) => (
@@ -146,7 +138,7 @@ export default function LinkedProviders() {
                   <div className="flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-muted-foreground" />
                     <span className="font-medium">
-                      {p.organizationName ?? `Organization #${p.organizationId}`}
+                      {p.organizationName ?? t("linkedProviders.organizationFallback", { id: p.organizationId })}
                     </span>
                     {p.status && (
                       <Badge variant="secondary" className="text-xs">
@@ -161,7 +153,7 @@ export default function LinkedProviders() {
                     disabled={addMutation.isPending}
                   >
                     <UserPlus className="h-4 w-4" />
-                    Add
+                    {t("linkedProviders.add")}
                   </Button>
                 </li>
               ))}
@@ -173,22 +165,21 @@ export default function LinkedProviders() {
       <Dialog open={!!removeTarget} onOpenChange={(open) => !open && setRemoveTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Remove linked provider</DialogTitle>
+            <DialogTitle>{t("linkedProviders.removeDialog.title")}</DialogTitle>
             <DialogDescription>
-              Are you sure you want to remove &quot;{removeTarget?.name || "this provider"}&quot; from
-              linked providers? You can add them again later from available providers.
+              {t("linkedProviders.removeDialog.description", { name: removeTarget?.name || t("linkedProviders.removeDialog.defaultName") })}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRemoveTarget(null)}>
-              Cancel
+              {t("linkedProviders.removeDialog.cancel")}
             </Button>
             <Button
               variant="destructive"
               onClick={handleRemoveConfirm}
               disabled={removeMutation.isPending}
             >
-              {removeMutation.isPending ? "Removing..." : "Remove"}
+              {removeMutation.isPending ? t("linkedProviders.removeDialog.removing") : t("linkedProviders.removeDialog.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,8 +13,11 @@ import useSubmitJobOrderForCompletion from "@/hooks/Provider/useSubmitJobOrderFo
 import useUploadProviderJobOrderAttachment from "@/hooks/Provider/useUploadProviderJobOrderAttachment";
 import useProviderJobOrderReports from "@/hooks/Provider/useProviderJobOrderReports";
 import type { ProviderJobOrderAssignment, ProviderJobOrderVisit } from "@/types/provider";
+import { formatDate } from "@/lib/i18n/formatters";
+import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 
 export default function ProviderJobOrderDetail() {
+  const { t, i18n } = useTranslation("provider");
   const { id } = useParams<{ id: string }>();
   const { data: order, isLoading } = useProviderJobOrderById(id ?? null);
   // const statusMutation = useUpdateProviderJobOrderStatus();
@@ -99,29 +103,35 @@ export default function ProviderJobOrderDetail() {
 
   return (
     <div className="p-4 md:p-8">
-      {isLoading || !id ? (
-        <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
-          Loading...
-        </div>
-      ) : !order ? (
-        <>
-          <Button variant="ghost" asChild>
-            <Link to="/provider-job-orders">Back</Link>
-          </Button>
-          <p className="text-destructive">Job order not found.</p>
-        </>
-      ) : (
+      <AsyncBoundary
+        isLoading={isLoading || !id}
+        isEmpty={!order}
+        loadingFallback={
+          <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
+            {t("jobOrderDetail.loading")}
+          </div>
+        }
+        emptyFallback={
+          <>
+            <Button variant="ghost" asChild>
+              <Link to="/provider-job-orders">{t("jobOrderDetail.back")}</Link>
+            </Button>
+            <p className="text-destructive">{t("jobOrderDetail.notFound")}</p>
+          </>
+        }
+      >
+        {order && (
     <div className="space-y-6">
       <Button variant="ghost" asChild>
         <Link to="/provider-job-orders" className="gap-2">
-          <ChevronLeft className="h-4 w-4" /> Back
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("jobOrderDetail.back")}
         </Link>
       </Button>
 
       {isCancelled && (
-        <Card className="border-amber-200 bg-amber-50/50">
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30">
           <CardContent className="pt-4">
-            <p className="font-medium text-amber-800">Job order cancelled.</p>
+            <p className="font-medium text-amber-800 dark:text-amber-200">{t("jobOrderDetail.cancelled")}</p>
           </CardContent>
         </Card>
       )}
@@ -131,7 +141,7 @@ export default function ProviderJobOrderDetail() {
           <CardContent className="pt-4 flex items-start gap-2">
             <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
             <div>
-              <p className="font-medium text-destructive">Payment rejected.</p>
+              <p className="font-medium text-destructive">{t("jobOrderDetail.paymentRejected")}</p>
               {order.paymentRecord?.rejectionReason && (
                 <p className="text-sm text-muted-foreground mt-1">
                   {order.paymentRecord.rejectionReason}
@@ -144,7 +154,7 @@ export default function ProviderJobOrderDetail() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{requestTitle || "Job Order"}</CardTitle>
+          <CardTitle>{requestTitle || t("jobOrderDetail.defaultTitle")}</CardTitle>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mt-1">
             {requestPriority && (
               <Badge variant="outline" className="text-xs font-normal">{requestPriority}</Badge>
@@ -162,7 +172,7 @@ export default function ProviderJobOrderDetail() {
             <>
               <div className="pt-4 border-t space-y-2">
                 <p className="text-sm font-medium flex items-center gap-1">
-                  <MapPin className="h-4 w-4" /> Visits
+                  <MapPin className="h-4 w-4" /> {t("jobOrderDetail.visits")}
                 </p>
                 {jobOrderVisitsList.length > 0 ? (
                   <ul className="text-xs space-y-2">
@@ -177,12 +187,12 @@ export default function ProviderJobOrderDetail() {
                           </div>
                           {createdBy && (createdBy.fullName || createdBy.email) && (
                             <p className="text-muted-foreground">
-                              Created by: {createdBy.fullName ?? ""}{createdBy.email ? ` (${createdBy.email})` : ""}
+                              {t("jobOrderDetail.createdBy", { name: `${createdBy.fullName ?? ""}${createdBy.email ? ` (${createdBy.email})` : ""}` })}
                             </p>
                           )}
                           {operatorUser && (operatorUser.fullName || operatorUser.email) && (
                             <p className="text-muted-foreground">
-                              Operator: {operatorUser.fullName ?? ""}{operatorUser.email ? ` (${operatorUser.email})` : ""}
+                              {t("jobOrderDetail.operatorLabel", { name: `${operatorUser.fullName ?? ""}${operatorUser.email ? ` (${operatorUser.email})` : ""}` })}
                             </p>
                           )}
                         </li>
@@ -190,27 +200,27 @@ export default function ProviderJobOrderDetail() {
                     })}
                   </ul>
                 ) : (
-                  <p className="text-xs text-muted-foreground">No visits recorded.</p>
+                  <p className="text-xs text-muted-foreground">{t("jobOrderDetail.noVisits")}</p>
                 )}
               </div>
               {executionAttachments.length > 0 && (
               <div className="pt-4 border-t space-y-2">
                 <p className="text-sm font-medium flex items-center gap-1">
-                  <Paperclip className="h-4 w-4" /> Execution attachments
+                  <Paperclip className="h-4 w-4" /> {t("jobOrderDetail.executionAttachments")}
                 </p>
                 <ul className="text-xs space-y-1.5">
                   {executionAttachments.map((a, i) => (
                     <li key={i} className="flex flex-wrap items-center gap-2">
                       {a.fileUrl ? (
                         <a href={a.fileUrl} target="_blank" rel="noreferrer" className="text-primary underline">
-                          {a.description?.trim() || `Attachment ${i + 1}`}
+                          {a.description?.trim() || t("jobOrderDetail.attachmentFallback", { index: i + 1 })}
                         </a>
                       ) : (
-                        <span>{a.description?.trim() || `Attachment ${i + 1}`}</span>
+                        <span>{a.description?.trim() || t("jobOrderDetail.attachmentFallback", { index: i + 1 })}</span>
                       )}
                       {a.uploadedAt && (
                         <span className="text-muted-foreground">
-                          {new Date(a.uploadedAt).toLocaleString()}
+                          {formatDate(a.uploadedAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
                         </span>
                       )}
                     </li>
@@ -220,72 +230,72 @@ export default function ProviderJobOrderDetail() {
               )}
               <div className="pt-4 border-t space-y-2">
                 <p className="text-sm font-medium flex items-center gap-1">
-                  <UserPlus className="h-4 w-4" /> Operators
+                  <UserPlus className="h-4 w-4" /> {t("jobOrderDetail.operators")}
                 </p>
                 {jobOrderOperatorsList.length > 0 ? (
                   <ul className="text-xs space-y-2">
                     {jobOrderOperatorsList.map(({ assignmentId, operator }) => (
                       <li key={assignmentId} className="rounded border px-3 py-2 flex flex-wrap items-center gap-2">
-                        <span className="font-medium">{operator.name ?? `Operator #${operator.id}`}</span>
+                        <span className="font-medium">{operator.name ?? t("jobOrderDetail.operatorFallback", { id: operator.id })}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs text-muted-foreground">No operators assigned to this job order.</p>
+                  <p className="text-xs text-muted-foreground">{t("jobOrderDetail.noOperators")}</p>
                 )}
               </div>
               <div className="pt-4 border-t space-y-2">
                 <p className="text-sm font-medium flex items-center gap-1">
-                  <FileText className="h-4 w-4" /> Maintenance Reports
+                  <FileText className="h-4 w-4" /> {t("jobOrderDetail.maintenanceReports")}
                 </p>
                 {reportsList.length > 0 ? (
                   <ul className="text-xs space-y-3">
                     {reportsList.map((r) => (
                       <li key={r.id} className="rounded border px-3 py-2 space-y-1.5">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-medium">{r.title ?? `Report #${r.id}`}</span>
+                          <span className="font-medium">{r.title ?? t("jobOrderDetail.reportFallback", { id: r.id })}</span>
                           {r.status != null && r.status !== "" && (
                             <span className="text-muted-foreground">{r.status}</span>
                           )}
                           {r.Visit?.visitDate && (
-                            <span className="text-muted-foreground">Visit: {r.Visit.visitDate}</span>
+                            <span className="text-muted-foreground">{t("jobOrderDetail.visitLabel", { date: r.Visit.visitDate })}</span>
                           )}
                           {r.SubmittedBy?.fullName && (
-                            <span className="text-muted-foreground">By: {r.SubmittedBy.fullName}</span>
+                            <span className="text-muted-foreground">{t("jobOrderDetail.byLabel", { name: r.SubmittedBy.fullName })}</span>
                           )}
                           {r.createdAt && (
                             <span className="text-muted-foreground">
-                              {new Date(r.createdAt).toLocaleString()}
+                              {formatDate(r.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
                             </span>
                           )}
                           {(r.ReviewedBy?.fullName ?? (r as { reviewedBy?: { fullName?: string } }).reviewedBy?.fullName) && (
                             <span className="text-muted-foreground">
-                              Reviewed by: {r.ReviewedBy?.fullName ?? (r as { reviewedBy?: { fullName?: string } }).reviewedBy?.fullName}
+                              {t("jobOrderDetail.reviewedByLabel", { name: r.ReviewedBy?.fullName ?? (r as { reviewedBy?: { fullName?: string } }).reviewedBy?.fullName })}
                             </span>
                           )}
                           {(r.reviewedAt ?? (r as { reviewedAt?: string }).reviewedAt) && (
                             <span className="text-muted-foreground">
-                              {new Date(r.reviewedAt ?? (r as { reviewedAt?: string }).reviewedAt ?? "").toLocaleString()}
+                              {formatDate(r.reviewedAt ?? (r as { reviewedAt?: string }).reviewedAt ?? "", i18n.language, { dateStyle: "medium", timeStyle: "short" })}
                             </span>
                           )}
                         </div>
                         {r.findings != null && r.findings !== "" && (
-                          <p className="text-muted-foreground"><span className="font-medium text-foreground">Findings:</span> {r.findings}</p>
+                          <p className="text-muted-foreground"><span className="font-medium text-foreground">{t("jobOrderDetail.findings")}</span> {r.findings}</p>
                         )}
                         {r.actionsTaken != null && r.actionsTaken !== "" && (
-                          <p className="text-muted-foreground"><span className="font-medium text-foreground">Actions taken:</span> {r.actionsTaken}</p>
+                          <p className="text-muted-foreground"><span className="font-medium text-foreground">{t("jobOrderDetail.actionsTaken")}</span> {r.actionsTaken}</p>
                         )}
                         {r.recommendations != null && r.recommendations !== "" && (
-                          <p className="text-muted-foreground"><span className="font-medium text-foreground">Recommendations:</span> {r.recommendations}</p>
+                          <p className="text-muted-foreground"><span className="font-medium text-foreground">{t("jobOrderDetail.recommendations")}</span> {r.recommendations}</p>
                         )}
                         {Array.isArray(r.checklistJson) && r.checklistJson.length > 0 && (
                           <div className="pt-1.5">
-                            <p className="text-xs font-medium text-foreground mb-1.5">Checklist</p>
+                            <p className="text-xs font-medium text-foreground mb-1.5">{t("jobOrderDetail.checklist")}</p>
                             <ul className="space-y-1">
                               {r.checklistJson.map((row, idx) => (
                                 <li key={idx} className="flex items-center gap-2 text-xs">
                                   {row.checked ? (
-                                    <Check className="h-4 w-4 text-green-600 shrink-0" />
+                                    <Check className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
                                   ) : (
                                     <span className="h-4 w-4 rounded border border-muted-foreground/50 shrink-0" />
                                   )}
@@ -300,10 +310,10 @@ export default function ProviderJobOrderDetail() {
                             {r.attachments.map((a, i) => (
                               a.fileUrl ? (
                                 <a key={i} href={a.fileUrl} target="_blank" rel="noreferrer" className="text-primary underline text-xs">
-                                  {a.category ?? `Attachment ${i + 1}`}
+                                  {a.category ?? t("jobOrderDetail.attachmentFallback", { index: i + 1 })}
                                 </a>
                               ) : (
-                                <span key={i} className="text-muted-foreground text-xs">{a.category ?? `Attachment ${i + 1}`}</span>
+                                <span key={i} className="text-muted-foreground text-xs">{a.category ?? t("jobOrderDetail.attachmentFallback", { index: i + 1 })}</span>
                               )
                             ))}
                           </div>
@@ -312,7 +322,7 @@ export default function ProviderJobOrderDetail() {
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-xs text-muted-foreground">No maintenance reports.</p>
+                  <p className="text-xs text-muted-foreground">{t("jobOrderDetail.noReports")}</p>
                 )}
               </div>
               {/* {canAssignOrUpdateStatus && !isCompleted && (
@@ -460,7 +470,8 @@ export default function ProviderJobOrderDetail() {
         </CardContent>
       </Card>
     </div>
-      )}
+        )}
+      </AsyncBoundary>
     </div>
   );
 }

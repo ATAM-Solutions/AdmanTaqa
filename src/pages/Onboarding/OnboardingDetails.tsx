@@ -1,22 +1,22 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, FileText, ImageIcon, Hash, Calendar, Loader2 } from "lucide-react";
 import useGetOnboardingById from "@/hooks/Onboarding/useGetOnboardingById";
+import { formatDate } from "@/lib/i18n/formatters";
 
 export default function OnboardingDetails() {
+  const { t, i18n } = useTranslation("onboarding");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: item, isLoading: loading, isError } = useGetOnboardingById(id);
 
-  const formatDate = (dateStr?: string) => {
+  const formatItemDate = (dateStr?: string) => {
     if (!dateStr) return "—";
     try {
-      return new Date(dateStr).toLocaleDateString(undefined, {
-        dateStyle: "medium",
-        timeStyle: "short",
-      });
+      return formatDate(dateStr, i18n.language, { dateStyle: "medium", timeStyle: "short" });
     } catch {
       return dateStr;
     }
@@ -31,14 +31,14 @@ export default function OnboardingDetails() {
       ) : isError || !item ? (
         <div className="space-y-4">
           <Button variant="ghost" size="icon" onClick={() => navigate("/onboarding")} className="rounded-full">
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
           </Button>
           <Card className="border-dashed">
             <CardContent className="py-12 text-center text-muted-foreground">
               <FileText className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>Onboarding item not found.</p>
+              <p>{t("details.notFound")}</p>
               <Button variant="outline" className="mt-4" onClick={() => navigate("/onboarding")}>
-                Back to list
+                {t("details.backToList")}
               </Button>
             </CardContent>
           </Card>
@@ -51,30 +51,30 @@ export default function OnboardingDetails() {
             variant="ghost"
             size="icon"
             onClick={() => navigate("/onboarding")}
-            className="rounded-full shadow-sm border border-transparent hover:border-slate-200"
+            className="rounded-full shadow-sm border border-transparent hover:border-border"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5 rtl:rotate-180" />
           </Button>
           <div>
             <div className="flex items-center gap-3 mb-1">
               <h1 className="text-3xl font-black tracking-tight">{item.title}</h1>
               <Badge variant={item.isActive ? "default" : "secondary"} className="font-bold uppercase text-[10px]">
-                {item.isActive ? "Active" : "Inactive"}
+                {item.isActive ? t("details.active") : t("details.inactive")}
               </Badge>
             </div>
             <p className="text-muted-foreground flex items-center gap-2">
-              <span className="font-mono text-xs font-semibold bg-muted px-2 py-0.5 rounded">#{item.id}</span>
+              <span className="font-mono text-xs font-semibold bg-muted px-2 py-0.5 rounded" dir="ltr">#{item.id}</span>
               <span className="text-muted-foreground/50">•</span>
               <span className="flex items-center gap-1">
                 <Hash className="h-3.5 w-3.5" />
-                Order {item.order}
+                {t("details.order")} {item.order}
               </span>
             </p>
           </div>
         </div>
         <Button variant="outline" className="gap-2" onClick={() => navigate("/onboarding")}>
-          <ChevronLeft className="h-4 w-4" />
-          Back to list
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" />
+          {t("details.backToList")}
         </Button>
       </div>
 
@@ -85,7 +85,7 @@ export default function OnboardingDetails() {
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  Description
+                  {t("details.description")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -99,7 +99,7 @@ export default function OnboardingDetails() {
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <FileText className="h-4 w-4" />
-                  Content
+                  {t("details.content")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -113,7 +113,7 @@ export default function OnboardingDetails() {
           {!item.description && !item.content && (
             <Card className="border-dashed">
               <CardContent className="py-8 text-center text-muted-foreground text-sm">
-                No description or content for this item.
+                {t("details.noContent")}
               </CardContent>
             </Card>
           )}
@@ -125,7 +125,7 @@ export default function OnboardingDetails() {
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
                   <ImageIcon className="h-4 w-4" />
-                  Image
+                  {t("details.image")}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -140,17 +140,17 @@ export default function OnboardingDetails() {
 
           <Card className="border-none shadow-xl bg-card/50 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle className="text-base">Details</CardTitle>
+              <CardTitle className="text-base">{t("details.detailsHeading")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Order</span>
+                <span className="text-muted-foreground">{t("details.order")}</span>
                 <span className="font-medium">{item.order}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Status</span>
+                <span className="text-muted-foreground">{t("details.status")}</span>
                 <Badge variant={item.isActive ? "default" : "secondary"} className="text-xs">
-                  {item.isActive ? "Active" : "Inactive"}
+                  {item.isActive ? t("details.active") : t("details.inactive")}
                 </Badge>
               </div>
               {(item.createdAt || item.updatedAt) && (
@@ -158,13 +158,13 @@ export default function OnboardingDetails() {
                   {item.createdAt && (
                     <div className="flex items-center gap-2 text-muted-foreground pt-2 border-t">
                       <Calendar className="h-4 w-4" />
-                      <span>Created {formatDate(item.createdAt)}</span>
+                      <span>{t("details.created", { date: formatItemDate(item.createdAt) })}</span>
                     </div>
                   )}
                   {item.updatedAt && (
                     <div className="flex items-center gap-2 text-muted-foreground">
                       <Calendar className="h-4 w-4" />
-                      <span>Updated {formatDate(item.updatedAt)}</span>
+                      <span>{t("details.updated", { date: formatItemDate(item.updatedAt) })}</span>
                     </div>
                   )}
                 </>

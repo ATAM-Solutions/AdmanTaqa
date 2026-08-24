@@ -1,13 +1,6 @@
-import i18n from "i18next";
+import i18n, { type Resource } from "i18next";
 import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
-
-import enCommon from "./locales/en/common.json";
-import enNav from "./locales/en/nav.json";
-import enAuth from "./locales/en/auth.json";
-import arCommon from "./locales/ar/common.json";
-import arNav from "./locales/ar/nav.json";
-import arAuth from "./locales/ar/auth.json";
 
 export const LOCALE_STORAGE_KEY = "app_locale";
 const RTL_LANGUAGES = ["ar"];
@@ -21,17 +14,32 @@ export function applyDocumentDirection(language: string): void {
   document.documentElement.lang = language;
 }
 
+/** Every ./locales/<lng>/<namespace>.json is picked up automatically — no manual registration per domain. */
+const localeModules = import.meta.glob<{ default: Record<string, unknown> }>("./locales/*/*.json", { eager: true });
+
+function buildResources(): Resource {
+  const resources: Resource = {};
+  for (const path in localeModules) {
+    const match = path.match(/\.\/locales\/([^/]+)\/([^/]+)\.json$/);
+    if (!match) continue;
+    const [, lng, ns] = match;
+    resources[lng] ??= {};
+    resources[lng][ns] = localeModules[path].default;
+  }
+  return resources;
+}
+
+const resources = buildResources();
+const namespaces = Array.from(new Set(Object.values(resources).flatMap((byNs) => Object.keys(byNs))));
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: {
-      en: { common: enCommon, nav: enNav, auth: enAuth },
-      ar: { common: arCommon, nav: arNav, auth: arAuth },
-    },
+    resources,
     fallbackLng: "en",
     supportedLngs: ["en", "ar"],
-    ns: ["common", "nav", "auth"],
+    ns: namespaces,
     defaultNS: "common",
     detection: {
       order: ["localStorage", "navigator"],

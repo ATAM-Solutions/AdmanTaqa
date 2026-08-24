@@ -1,13 +1,16 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import useGetFuelStations from "@/hooks/Organization/useGetFuelStations";
 import FuelStationsTable from "./Component/FuelStationsTable";
+import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 
 export default function FuelStations() {
+  const { t } = useTranslation("authority");
   const [searchQuery, setSearchQuery] = useState("");
   const [page] = useState(1);
   const [limit] = useState(100);
 
-  const { data, isLoading, isError, error } = useGetFuelStations({
+  const { data, isLoading, error } = useGetFuelStations({
     status: "APPROVED",
     page,
     limit,
@@ -28,22 +31,16 @@ export default function FuelStations() {
     <div className="p-4 md:p-8 space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Fuel Stations</h1>
-          <p className="text-muted-foreground">
-            Approved fuel stations.
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("fuelStations.list.title")}</h1>
+          <p className="text-muted-foreground">{t("fuelStations.list.subtitle")}</p>
         </div>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-16 text-muted-foreground">
-          Loading fuel stations...
-        </div>
-      ) : isError ? (
-        <div className="rounded-lg border border-destructive/50 bg-destructive/5 p-4 text-destructive">
-          {(error as Error)?.message ?? "Failed to load fuel stations."}
-        </div>
-      ) : (
+      <AsyncBoundary
+        isLoading={isLoading}
+        error={error}
+        loadingFallback={<div className="flex justify-center py-16 text-muted-foreground">{t("fuelStations.list.loading")}</div>}
+      >
         <FuelStationsTable
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
@@ -52,7 +49,7 @@ export default function FuelStations() {
           stations={filteredStations}
           hideStatusFilter
         />
-      )}
+      </AsyncBoundary>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ export default function CreateServiceOfferingDialog({
   onOpenChange,
   organizationId,
 }: CreateServiceOfferingDialogProps) {
+  const { t } = useTranslation("serviceOfferings");
   const [form, setForm] = useState<OfferingForm>(initialCreateForm);
   const [countryId, setCountryId] = useState<string>("");
   const createMutation = useCreateServiceOffering();
@@ -107,7 +109,7 @@ export default function CreateServiceOfferingDialog({
     if (!organizationId) return;
     const amount = Number(form.amount);
     if (!Number.isFinite(amount) || amount <= 0) {
-      toast.error("Amount must be a positive number.");
+      toast.error(t("create.amountInvalid"));
       return;
     }
     createMutation.mutate(
@@ -123,11 +125,11 @@ export default function CreateServiceOfferingDialog({
       },
       {
         onSuccess: () => {
-          toast.success("Service offering created.");
+          toast.success(t("create.created"));
           resetAndClose();
         },
         onError: (err) =>
-          toast.error((err as Error)?.message ?? "Failed to create offering."),
+          toast.error((err as Error)?.message ?? t("create.createFailed")),
       }
     );
   };
@@ -136,13 +138,13 @@ export default function CreateServiceOfferingDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Create Service Offering</DialogTitle>
+          <DialogTitle>{t("create.title")}</DialogTitle>
           <DialogDescription>
-            Add fixed pricing for a service category in a specific city and governorate.
+            {t("create.description")}
           </DialogDescription>
         </DialogHeader>
         <form className="space-y-4" onSubmit={handleCreate}>
-      
+
           <Select
             value={
               approvedCategories.some((c) => String(c.id) === form.serviceCategoryId)
@@ -155,17 +157,17 @@ export default function CreateServiceOfferingDialog({
             disabled={approvedCategories.length === 0}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select service category" />
+              <SelectValue placeholder={t("create.selectCategoryPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {approvedCategories.length === 0 ? (
                 <div className="py-2 px-2 text-sm text-muted-foreground">
-                  No approved service categories available.
+                  {t("create.noApprovedCategories")}
                 </div>
               ) : (
                 approvedCategories.map((cat) => (
                   <SelectItem key={cat.id} value={String(cat.id)}>
-                    {cat.nameEn ?? cat.nameAr ?? cat.name ?? `Category ${cat.id}`}
+                    {cat.nameEn ?? cat.nameAr ?? cat.name ?? t("create.categoryFallback", { id: cat.id })}
                   </SelectItem>
                 ))
               )}
@@ -173,7 +175,7 @@ export default function CreateServiceOfferingDialog({
           </Select>
           {approvedCategories.length === 0 && (
             <p className="text-sm text-muted-foreground">
-              No approved service categories available. Only approved categories can be used for offerings.
+              {t("create.noApprovedCategoriesHint")}
             </p>
           )}
           <Select
@@ -184,10 +186,9 @@ export default function CreateServiceOfferingDialog({
             }}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select country" />
+              <SelectValue placeholder={t("create.selectCountryPlaceholder")} />
             </SelectTrigger>
-            {/* console.log() */}
-            
+
             <SelectContent>
               {countries.map((country) => (
                 <SelectItem key={country.id} value={String(country.id)}>
@@ -204,7 +205,7 @@ export default function CreateServiceOfferingDialog({
             }
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select governorate" />
+              <SelectValue placeholder={t("create.selectGovernoratePlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {governorates.map((gov) => (
@@ -220,7 +221,7 @@ export default function CreateServiceOfferingDialog({
             onValueChange={(v) => setForm((p) => ({ ...p, cityId: v }))}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Select city" />
+              <SelectValue placeholder={t("create.selectCityPlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {createCities.map((city) => (
@@ -235,7 +236,7 @@ export default function CreateServiceOfferingDialog({
             type="number"
             step="0.01"
             min="0"
-            placeholder="Amount (e.g. 99.5)"
+            placeholder={t("create.amountPlaceholder")}
             value={form.amount}
             onChange={(e) =>
               setForm((p) => ({ ...p, amount: e.target.value }))
@@ -244,7 +245,7 @@ export default function CreateServiceOfferingDialog({
 
           <Input
             maxLength={3}
-            placeholder="Currency (default SAR)"
+            placeholder={t("create.currencyPlaceholder")}
             value={form.currency}
             onChange={(e) =>
               setForm((p) => ({
@@ -256,10 +257,10 @@ export default function CreateServiceOfferingDialog({
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={resetAndClose}>
-              Cancel
+              {t("create.cancel")}
             </Button>
             <Button type="submit" disabled={!canSubmit}>
-              {createMutation.isPending ? "Creating..." : "Create"}
+              {createMutation.isPending ? t("create.submitting") : t("create.submit")}
             </Button>
           </DialogFooter>
         </form>

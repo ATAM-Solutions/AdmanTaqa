@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -24,24 +25,25 @@ export default function DeleteAccountDialog({
   onOpenChange,
   userId,
 }: DeleteAccountDialogProps) {
+  const { t } = useTranslation("users");
   const [password, setPassword] = useState("");
   const deleteAccountMutation = useDeleteAccount();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!password.trim()) {
-      toast.error("Enter your password to confirm.");
+      toast.error(t("deleteAccountDialog.passwordRequired"));
       return;
     }
     deleteAccountMutation.mutate(
       { userId, password },
       {
         onSuccess: () => {
-          toast.success("Account deactivated successfully.");
+          toast.success(t("deleteAccountDialog.success"));
           onOpenChange(false);
         },
         onError: (e) =>
-          toast.error((e as Error)?.message ?? "Failed to delete account."),
+          toast.error((e as Error)?.message ?? t("deleteAccountDialog.error")),
       }
     );
   };
@@ -56,13 +58,13 @@ export default function DeleteAccountDialog({
       <DialogContent>
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Delete my account</DialogTitle>
+            <DialogTitle>{t("deleteAccountDialog.title")}</DialogTitle>
             <DialogDescription>
-              This will deactivate your account. You will not be able to sign in again. Enter your current password to confirm.
+              {t("deleteAccountDialog.description")}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2 py-4">
-            <Label htmlFor="delete-account-password">Current password</Label>
+            <Label htmlFor="delete-account-password">{t("deleteAccountDialog.passwordLabel")}</Label>
             <Input
               id="delete-account-password"
               type="password"
@@ -74,14 +76,14 @@ export default function DeleteAccountDialog({
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
-              Cancel
+              {t("deleteAccountDialog.cancel")}
             </Button>
             <Button
               type="submit"
               variant="destructive"
               disabled={deleteAccountMutation.isPending || !password.trim()}
             >
-              {deleteAccountMutation.isPending ? "Deactivating..." : "Delete my account"}
+              {deleteAccountMutation.isPending ? t("deleteAccountDialog.submitting") : t("deleteAccountDialog.submit")}
             </Button>
           </DialogFooter>
         </form>

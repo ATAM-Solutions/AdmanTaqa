@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,7 @@ const MOCK_USERS = [
 type UserData = { id: string; fullName: string; email: string; phone: string; role: string; orgName: string; status: string };
 
 function UpdateUserForm({ id, initialUser, onCancel }: { id: string; initialUser: UserData; onCancel: () => void }) {
+    const { t } = useTranslation("users");
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         fullName: initialUser.fullName,
@@ -46,8 +48,7 @@ function UpdateUserForm({ id, initialUser, onCancel }: { id: string; initialUser
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        console.log("Updating user:", formData);
-        toast.success("User updated successfully!");
+        toast.success(t("updateUser.updateSuccess"));
         setTimeout(() => navigate("/users"), 1000);
     };
 
@@ -55,56 +56,56 @@ function UpdateUserForm({ id, initialUser, onCancel }: { id: string; initialUser
         <div className="p-4 md:p-8 max-w-3xl mx-auto space-y-6 animate-in fade-in zoom-in-95 duration-500">
             <Card className="border-none shadow-xl bg-card/70 backdrop-blur-md">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-bold">Update User</CardTitle>
-                    <p className="text-muted-foreground text-sm font-mono">{id}</p>
-                    <p className="text-muted-foreground">Modify user details and permissions.</p>
+                    <CardTitle className="text-2xl font-bold">{t("updateUser.title")}</CardTitle>
+                    <p className="text-muted-foreground text-sm font-mono" dir="ltr">{id}</p>
+                    <p className="text-muted-foreground">{t("updateUser.subtitle")}</p>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="fullName">Full Name</Label>
+                                <Label htmlFor="fullName">{t("updateUser.fullName")}</Label>
                                 <Input id="fullName" name="fullName" value={formData.fullName} onChange={handleChange} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
+                                <Label htmlFor="email">{t("updateUser.email")}</Label>
                                 <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="phone">Phone Number</Label>
+                                <Label htmlFor="phone">{t("updateUser.phone")}</Label>
                                 <Input id="phone" name="phone" value={formData.phone} onChange={handleChange} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="role">System Role</Label>
+                                <Label htmlFor="role">{t("updateUser.systemRole")}</Label>
                                 <Select value={formData.role} onValueChange={(v) => handleSelectChange("role", v)}>
-                                    <SelectTrigger id="role"><SelectValue placeholder="Select role" /></SelectTrigger>
+                                    <SelectTrigger id="role"><SelectValue placeholder={t("updateUser.selectRole")} /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="ADMIN">Administrator</SelectItem>
-                                        <SelectItem value="AUTHORITY">Authority Viewer</SelectItem>
-                                        <SelectItem value="SERVICE_PROVIDER">Service Provider</SelectItem>
-                                        <SelectItem value="BRANCH_MANAGER">Branch Manager</SelectItem>
-                                        <SelectItem value="TECHNICIAN">Technician</SelectItem>
+                                        <SelectItem value="ADMIN">{t("updateUser.roles.ADMIN")}</SelectItem>
+                                        <SelectItem value="AUTHORITY">{t("updateUser.roles.AUTHORITY")}</SelectItem>
+                                        <SelectItem value="SERVICE_PROVIDER">{t("updateUser.roles.SERVICE_PROVIDER")}</SelectItem>
+                                        <SelectItem value="BRANCH_MANAGER">{t("updateUser.roles.BRANCH_MANAGER")}</SelectItem>
+                                        <SelectItem value="TECHNICIAN">{t("updateUser.roles.TECHNICIAN")}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="orgName">Organization</Label>
+                                <Label htmlFor="orgName">{t("updateUser.organization")}</Label>
                                 <Input id="orgName" name="orgName" value={formData.orgName} onChange={handleChange} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="status">Status</Label>
+                                <Label htmlFor="status">{t("updateUser.status")}</Label>
                                 <Select value={formData.status} onValueChange={(v) => handleSelectChange("status", v)}>
-                                    <SelectTrigger id="status"><SelectValue placeholder="Select status" /></SelectTrigger>
+                                    <SelectTrigger id="status"><SelectValue placeholder={t("updateUser.selectStatus")} /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="ACTIVE">Active</SelectItem>
-                                        <SelectItem value="INACTIVE">Inactive</SelectItem>
+                                        <SelectItem value="ACTIVE">{t("updateUser.statuses.ACTIVE")}</SelectItem>
+                                        <SelectItem value="INACTIVE">{t("updateUser.statuses.INACTIVE")}</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
                         </div>
                         <div className="flex gap-4 pt-4">
-                            <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-                            <Button type="submit">Update User</Button>
+                            <Button type="button" variant="outline" onClick={onCancel}>{t("updateUser.cancel")}</Button>
+                            <Button type="submit">{t("updateUser.update")}</Button>
                         </div>
                     </form>
                 </CardContent>
@@ -114,6 +115,7 @@ function UpdateUserForm({ id, initialUser, onCancel }: { id: string; initialUser
 }
 
 export default function UpdateUser() {
+    const { t } = useTranslation("users");
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
@@ -125,11 +127,11 @@ export default function UpdateUser() {
             <div className="p-4 md:p-8 max-w-3xl mx-auto space-y-6 animate-in fade-in duration-300">
                 <Card className="border-none shadow-xl bg-card/70 backdrop-blur-md">
                     <CardHeader>
-                        <CardTitle className="text-xl text-muted-foreground">User not found</CardTitle>
-                        <p className="text-muted-foreground">The user with ID &quot;{id}&quot; could not be found.</p>
+                        <CardTitle className="text-xl text-muted-foreground">{t("updateUser.notFoundTitle")}</CardTitle>
+                        <p className="text-muted-foreground">{t("updateUser.notFoundDescription", { id })}</p>
                     </CardHeader>
                     <CardContent>
-                        <Button variant="outline" onClick={() => navigate("/users")}>Back to Users</Button>
+                        <Button variant="outline" onClick={() => navigate("/users")}>{t("updateUser.backToUsers")}</Button>
                     </CardContent>
                 </Card>
             </div>

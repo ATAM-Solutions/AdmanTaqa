@@ -1,0 +1,261 @@
+{
+  "organizations": {
+    "list": {
+      "title": "المنظمات",
+      "subtitle": "مزودو الخدمة بانتظار الموافقة.",
+      "loading": "جارٍ تحميل المنظمات...",
+      "loadFailed": "فشل تحميل المنظمات."
+    },
+    "rejectedList": {
+      "title": "المنظمات — مرفوضة",
+      "subtitle": "مزودو الخدمة الذين تم رفضهم."
+    },
+    "table": {
+      "searchPlaceholder": "ابحث بالاسم أو المعرف...",
+      "count": "{{count}} منظمة",
+      "columns": {
+        "organization": "المنظمة",
+        "type": "النوع",
+        "status": "الحالة",
+        "createdAt": "تاريخ الإنشاء",
+        "actions": "الإجراءات"
+      },
+      "empty": "لا توجد منظمات مطابقة لبحثك.",
+      "view": "عرض"
+    },
+    "status": {
+      "approved": "معتمدة",
+      "pendingReview": "قيد المراجعة",
+      "rejected": "مرفوضة"
+    },
+    "detail": {
+      "loading": "جارٍ التحميل...",
+      "notFound": "المنظمة غير موجودة.",
+      "back": "رجوع",
+      "managePermissions": "إدارة الصلاحيات",
+      "profileInfo": "معلومات الملف الشخصي",
+      "registrationDate": "تاريخ التسجيل",
+      "approvedAt": "تاريخ الموافقة",
+      "rejectionReason": "سبب الرفض",
+      "spProfile": "ملف مزود الخدمة",
+      "licenseNumber": "رقم الترخيص",
+      "yearsExperience": "سنوات الخبرة",
+      "street": "الشارع",
+      "amount": "المبلغ",
+      "area": "المنطقة",
+      "city": "المدينة",
+      "serviceCategories": "فئات الخدمات",
+      "documents": "المستندات",
+      "documentsSubtitle": "مستندات المنظمة ومستندات مزود الخدمة.",
+      "noDocuments": "لم يتم رفع أي مستندات بعد.",
+      "view": "عرض",
+      "owner": "المالك",
+      "statusCardTitle": "الحالة",
+      "current": "الحالية"
+    },
+    "docTypes": {
+      "LICENSE": "ترخيص",
+      "REGISTRATION": "سجل",
+      "OTHER": "أخرى",
+      "document": "مستند"
+    },
+    "actions": {
+      "approve": "موافقة",
+      "reject": "رفض",
+      "approved": "تمت الموافقة على المنظمة.",
+      "rejected": "تم رفض المنظمة.",
+      "approveFailed": "فشلت الموافقة.",
+      "rejectFailed": "فشل الرفض."
+    },
+    "rejectModal": {
+      "title": "رفض المنظمة",
+      "description": "قدّم سببًا لرفض \"{{name}}\" (مطلوب). قد يُعرض السبب على المنظمة.",
+      "reasonLabel": "السبب (مطلوب)",
+      "reasonPlaceholder": "مثال: مستندات ناقصة، معلومات مفقودة...",
+      "cancel": "إلغاء",
+      "reject": "رفض",
+      "rejecting": "جارٍ الرفض..."
+    },
+    "create": {
+      "title": "تسجيل منظمة",
+      "pendingBadge": "بانتظار الموافقة",
+      "subtitle": "قدّم بيانات منظمتك للمراجعة والموافقة",
+      "cardTitle": "معلومات المنظمة",
+      "cardDescription": "قدّم بيانات دقيقة عن منظمتك",
+      "name": "اسم المنظمة *",
+      "namePlaceholder": "أدخل اسم المنظمة",
+      "type": "نوع المنظمة *",
+      "typePlaceholder": "اختر النوع",
+      "typeFuelStation": "محطة وقود",
+      "typeServiceProvider": "مزود خدمة",
+      "email": "البريد الإلكتروني *",
+      "emailPlaceholder": "organization@example.com",
+      "phone": "رقم الهاتف *",
+      "phonePlaceholder": "+966 50 123 4567",
+      "website": "الموقع الإلكتروني (اختياري)",
+      "websitePlaceholder": "https://www.organization.com",
+      "licenseNumber": "رقم الترخيص *",
+      "licenseNumberPlaceholder": "أدخل رقم الترخيص الرسمي",
+      "addressSection": "معلومات العنوان",
+      "address": "عنوان الشارع *",
+      "addressPlaceholder": "عنوان الشارع",
+      "city": "المدينة *",
+      "cityPlaceholder": "المدينة",
+      "country": "الدولة *",
+      "countryPlaceholder": "اختر الدولة",
+      "countries": {
+        "SA": "السعودية",
+        "AE": "الإمارات العربية المتحدة",
+        "KW": "الكويت",
+        "QA": "قطر",
+        "BH": "البحرين",
+        "OM": "عُمان"
+      },
+      "contactSection": "جهة الاتصال",
+      "contactPerson": "الاسم الكامل *",
+      "contactPersonPlaceholder": "الاسم الكامل لجهة الاتصال الرئيسية",
+      "contactPosition": "المنصب *",
+      "contactPositionPlaceholder": "المسمى الوظيفي أو المنصب",
+      "description": "وصف المنظمة *",
+      "descriptionPlaceholder": "صف منظمتك والخدمات المقدمة وأهدافها التجارية...",
+      "documentsSection": "المستندات المطلوبة",
+      "documentsSubtitle": "ارفع المستندات التالية للتحقق",
+      "licenseUpload": "الرخصة التجارية *",
+      "businessUpload": "السجل التجاري *",
+      "cancel": "إلغاء",
+      "submit": "إرسال للموافقة",
+      "validationError": "يرجى تعبئة جميع الحقول المطلوبة",
+      "submitSuccess": "تم تسجيل المنظمة بنجاح! بانتظار الموافقة.",
+      "guidelinesTitle": "إرشادات التسجيل",
+      "guidelines": {
+        "required": "جميع الحقول المميزة بـ * إلزامية",
+        "clear": "يجب أن تكون المستندات واضحة ومقروءة",
+        "match": "يجب أن تطابق بيانات المنظمة المستندات الرسمية",
+        "reviewTime": "عادةً ما تتم مراجعة طلبات التسجيل خلال 2-3 أيام عمل",
+        "notification": "ستصلك رسالة بريد إلكتروني عند الموافقة"
+      }
+    }
+  },
+  "fuelStations": {
+    "list": {
+      "title": "محطات الوقود",
+      "subtitle": "محطات الوقود المعتمدة.",
+      "loading": "جارٍ تحميل محطات الوقود...",
+      "loadFailed": "فشل تحميل محطات الوقود."
+    },
+    "pendingList": {
+      "title": "محطات الوقود — قيد الانتظار",
+      "subtitle": "محطات الوقود بانتظار الموافقة."
+    },
+    "rejectedList": {
+      "title": "محطات الوقود — مرفوضة",
+      "subtitle": "محطات الوقود التي تم رفضها."
+    },
+    "table": {
+      "searchPlaceholder": "ابحث بالاسم أو المعرف...",
+      "count": "{{count}} محطة",
+      "statusPlaceholder": "الحالة",
+      "statusAll": "الكل",
+      "columns": {
+        "name": "الاسم",
+        "status": "الحالة",
+        "rejectionReason": "سبب الرفض",
+        "created": "تاريخ الإنشاء",
+        "actions": "الإجراءات"
+      },
+      "empty": "لا توجد محطات وقود.",
+      "view": "عرض"
+    }
+  },
+  "externalJobOrders": {
+    "list": {
+      "title": "أوامر العمل الخارجية",
+      "subtitle": "عرض الجهة الرقابية لأوامر عمل الصيانة الخارجية. بدون بيانات مالية.",
+      "export": "تصدير CSV",
+      "exporting": "جارٍ التصدير…",
+      "statusLabel": "الحالة",
+      "statusAll": "الكل",
+      "statuses": {
+        "ACTIVE": "نشط",
+        "IN_PROGRESS": "قيد التنفيذ",
+        "AWAITING_PAYMENT": "بانتظار الدفع",
+        "COMPLETED": "مكتمل",
+        "CLOSED": "مغلق",
+        "CREATED": "تم الإنشاء",
+        "CANCELLED": "ملغى"
+      },
+      "datePresetLabel": "الفترة الزمنية",
+      "datePresets": {
+        "today": "اليوم",
+        "week": "الأسبوع",
+        "month": "الشهر",
+        "custom": "مخصص"
+      },
+      "fromDate": "من تاريخ",
+      "toDate": "إلى تاريخ",
+      "fuelStationSearch": "بحث باسم منظمة محطة الوقود",
+      "fuelStationSearchPlaceholder": "مثال: شركة النفط",
+      "serviceProviderSearch": "بحث باسم منظمة مزود الخدمة",
+      "serviceProviderSearchPlaceholder": "مثال: الصيانة",
+      "totalPage": "الإجمالي: {{total}} | الصفحة: {{page}}",
+      "loading": "جارٍ تحميل أوامر العمل…",
+      "loadFailed": "فشل تحميل أوامر العمل.",
+      "empty": "لا توجد أوامر عمل.",
+      "columns": {
+        "status": "الحالة",
+        "created": "تاريخ الإنشاء",
+        "title": "العنوان",
+        "branch": "الفرع",
+        "actions": "الإجراءات"
+      },
+      "view": "عرض",
+      "previous": "السابق",
+      "next": "التالي",
+      "pageOf": "صفحة {{page}} من {{maxPage}}"
+    },
+    "detail": {
+      "loading": "جارٍ التحميل…",
+      "backToList": "العودة لأوامر العمل الخارجية",
+      "loadFailed": "فشل تحميل أمر العمل.",
+      "title": "أمر عمل خارجي",
+      "detailsCardTitle": "تفاصيل أمر العمل (عرض الجهة الرقابية — بدون بيانات مالية)",
+      "externalRequest": "الطلب الخارجي",
+      "status": "الحالة",
+      "formData": "بيانات النموذج",
+      "formTitle": "العنوان",
+      "priority": "الأولوية",
+      "description": "الوصف",
+      "attachments": "المرفقات",
+      "attachmentsNone": "لا يوجد",
+      "attachmentsCount": "{{count}} ملف",
+      "providerQuote": "عرض سعر المزود (للاطلاع فقط — بدون مبالغ)",
+      "branch": "الفرع",
+      "organization": "المنظمة",
+      "timeline": "المخطط الزمني",
+      "loadingTimeline": "جارٍ تحميل المخطط الزمني…",
+      "timelineFailed": "فشل تحميل المخطط الزمني.",
+      "noTimeline": "لا توجد أحداث.",
+      "localTimezone": "الوقت بتوقيتك المحلي",
+      "reports": "التقارير",
+      "loadingReports": "جارٍ تحميل التقارير…",
+      "reportsFailed": "فشل تحميل التقارير.",
+      "noReports": "لا توجد تقارير.",
+      "dates": "التواريخ",
+      "created": "تاريخ الإنشاء",
+      "updated": "تاريخ التحديث",
+      "report": {
+        "submitted": "أُرسل {{date}}",
+        "by": "بواسطة {{name}}",
+        "findings": "الملاحظات",
+        "actionsTaken": "الإجراءات المتخذة",
+        "recommendations": "التوصيات",
+        "checklist": "قائمة التحقق",
+        "attachments": "المرفقات",
+        "open": "فتح",
+        "reviewed": "تمت المراجعة {{date}}",
+        "reviewNote": "ملاحظة المراجعة:",
+        "rejectionReason": "سبب الرفض:"
+      }
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -22,6 +23,7 @@ import type { UpdateBranchBody } from "@/hooks/Branches/useUpdateBranch";
 const STATUS_OPTIONS = ["APPROVED", "PENDING", "REJECTED", "INACTIVE"];
 
 export default function EditBranch() {
+  const { t } = useTranslation("branches");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: branch, isLoading: loadingBranch, isError, error } = useGetBranchesDetails(id);
@@ -78,14 +80,14 @@ export default function EditBranch() {
 
     try {
       await mutation.mutateAsync(body);
-      toast.success("Branch updated");
+      toast.success(t("toasts.branchUpdated"));
       navigate(`/branches/${id}`, { replace: true });
     } catch (err: unknown) {
       const msg =
         err && typeof err === "object" && "response" in err
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : null;
-      toast.error(msg ?? "Failed to update branch");
+      toast.error(msg ?? t("toasts.branchUpdateFailed"));
     }
   };
 
@@ -95,7 +97,7 @@ export default function EditBranch() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4 text-muted-foreground">
         <Loader2 className="h-10 w-10 animate-spin" />
-        <p className="text-sm font-medium">Loading branch...</p>
+        <p className="text-sm font-medium">{t("details.loading")}</p>
       </div>
     );
   }
@@ -103,9 +105,9 @@ export default function EditBranch() {
   if (isError) {
     return (
       <div className="p-4 md:p-8">
-        <p className="text-destructive">{error instanceof Error ? error.message : "Failed to load branch."}</p>
+        <p className="text-destructive">{error instanceof Error ? error.message : t("details.loadFailed")}</p>
         <Button variant="link" onClick={() => navigate("/branches")}>
-          Back to Branches
+          {t("details.backToBranches")}
         </Button>
       </div>
     );
@@ -114,50 +116,48 @@ export default function EditBranch() {
   return (
     <div className="p-4 md:p-8 space-y-6 animate-in slide-in-from-bottom duration-500">
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Edit Branch</h1>
-        <p className="text-muted-foreground">
-          Update branch information. Only the fields below are sent to the API.
-        </p>
+        <h1 className="text-3xl font-bold tracking-tight">{t("edit.title")}</h1>
+        <p className="text-muted-foreground">{t("edit.subtitle")}</p>
       </div>
       <Card className="p-6 border-none shadow-xl bg-card/60 backdrop-blur-md max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nameEn">Name (EN) *</Label>
+              <Label htmlFor="nameEn">{t("fields.nameEn")}</Label>
               <Input
                 id="nameEn"
                 value={nameEn}
                 onChange={(e) => setNameEn(e.target.value)}
-                placeholder="Updated Name En"
+                placeholder={t("fields.nameEnPlaceholder")}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nameAr">Name (AR) *</Label>
+              <Label htmlFor="nameAr">{t("fields.nameAr")}</Label>
               <Input
                 id="nameAr"
                 value={nameAr}
                 onChange={(e) => setNameAr(e.target.value)}
-                placeholder="اسم محدث"
+                placeholder={t("fields.nameArPlaceholder")}
                 required
               />
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="address">Address *</Label>
+            <Label htmlFor="address">{t("fields.address")}</Label>
             <Input
               id="address"
               value={address}
               onChange={(e) => setAddress(e.target.value)}
-              placeholder="New Address"
+              placeholder={t("fields.addressPlaceholder")}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="status">Status</Label>
+            <Label htmlFor="status">{t("fields.status")}</Label>
             <Select value={status} onValueChange={setStatus}>
               <SelectTrigger id="status">
-                <SelectValue placeholder="Select status" />
+                <SelectValue placeholder={t("fields.selectStatus")} />
               </SelectTrigger>
               <SelectContent>
                 {STATUS_OPTIONS.map((s) => (
@@ -175,13 +175,13 @@ export default function EditBranch() {
               onCheckedChange={(checked) => setIsActive(!!checked)}
             />
             <Label htmlFor="isActive" className="cursor-pointer">
-              Active (isActive)
+              {t("fields.activeCheckboxLabel")}
             </Label>
           </div>
           <div className="space-y-2" ref={fuelTypesSelectRef}>
-            <Label>Fuel Types</Label>
+            <Label>{t("fields.fuelTypes")}</Label>
             {loadingFuelTypes ? (
-              <p className="text-sm text-muted-foreground">Loading fuel types...</p>
+              <p className="text-sm text-muted-foreground">{t("fields.loadingFuelTypes")}</p>
             ) : (
               <div className="relative">
                 <button
@@ -195,7 +195,7 @@ export default function EditBranch() {
                           .filter((ft) => selectedFuelTypeIds.includes(ft.id))
                           .map((ft) => ft.name)
                           .join(", ")
-                      : "Select fuel types"}
+                      : t("fields.selectFuelTypes")}
                   </span>
                   <ChevronDown className="h-4 w-4 opacity-50" />
                 </button>
@@ -208,9 +208,9 @@ export default function EditBranch() {
                         tabIndex={0}
                         onClick={() => toggleFuelType(ft.id)}
                         onKeyDown={(e) => e.key === "Enter" && toggleFuelType(ft.id)}
-                        className="relative flex cursor-pointer select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                        className="relative flex cursor-pointer select-none items-center rounded-sm py-2 ps-8 pe-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
                       >
-                        <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                        <span className="absolute start-2 flex h-3.5 w-3.5 items-center justify-center">
                           {selectedFuelTypeIds.includes(ft.id) ? (
                             <span className="h-4 w-4 rounded border border-primary bg-primary" />
                           ) : (
@@ -232,16 +232,16 @@ export default function EditBranch() {
               onClick={handleCancel}
               disabled={mutation.isPending}
             >
-              Cancel
+              {t("actions.cancel")}
             </Button>
             <Button type="submit" disabled={mutation.isPending}>
               {mutation.isPending ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving...
+                  <Loader2 className="me-2 h-4 w-4 animate-spin" />
+                  {t("actions.saving")}
                 </>
               ) : (
-                "Update Branch"
+                t("actions.updateBranch")
               )}
             </Button>
           </div>

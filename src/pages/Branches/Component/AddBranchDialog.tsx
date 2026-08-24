@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,28 +22,27 @@ export default function AddBranchDialog({
   onOpenChange,
   trigger,
 }: AddBranchDialogProps) {
+  const { t } = useTranslation("branches");
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         {trigger ?? (
           <Button className="gap-2 shadow-sm bg-primary hover:bg-primary/90">
             <Plus className="h-4 w-4" />
-            Add New Branch
+            {t("list.addNewBranch")}
           </Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[560px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Branch</DialogTitle>
-          <DialogDescription>
-            Create a new branch. Fill required fields and optional ones as needed.
-          </DialogDescription>
+          <DialogTitle>{t("dialog.title")}</DialogTitle>
+          <DialogDescription>{t("dialog.description")}</DialogDescription>
         </DialogHeader>
         <AddBranchForm
           onSuccess={() => onOpenChange(false)}
           onCancel={() => onOpenChange(false)}
           showCancel
-          submitLabel="Create Branch"
         />
       </DialogContent>
     </Dialog>

@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -17,17 +18,17 @@ type TableBranchesProps = {
   branches: BranchApiItem[];
 };
 
-function getStatusBadge(status: string, isActive: boolean) {
+function StatusBadge({ status, isActive, activeLabel }: { status: string; isActive: boolean; activeLabel: string }) {
   if (status === "APPROVED" && isActive) {
     return (
-      <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 gap-1 hover:bg-emerald-50 shadow-sm font-medium">
+      <Badge className="bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900 gap-1 hover:bg-emerald-50 dark:hover:bg-emerald-950 shadow-sm font-medium">
         <CheckCircle2 className="h-3 w-3" />
-        Active
+        {activeLabel}
       </Badge>
     );
   }
   return (
-    <Badge className="bg-slate-50 text-slate-700 border-slate-200 gap-1 hover:bg-slate-50 shadow-sm font-medium">
+    <Badge className="bg-muted text-muted-foreground border-border gap-1 hover:bg-muted shadow-sm font-medium">
       <XCircle className="h-3 w-3" />
       {status}
     </Badge>
@@ -35,6 +36,7 @@ function getStatusBadge(status: string, isActive: boolean) {
 }
 
 export default function TableBranches({ branches }: TableBranchesProps) {
+  const { t } = useTranslation("branches");
   const navigate = useNavigate();
 
   return (
@@ -43,13 +45,13 @@ export default function TableBranches({ branches }: TableBranchesProps) {
         <Table>
           <TableHeader className="bg-muted/30">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-[80px] font-bold text-foreground">ID</TableHead>
-              <TableHead className="font-bold text-foreground">Name</TableHead>
-              <TableHead className="font-bold text-foreground">Location</TableHead>
-              <TableHead className="font-bold text-foreground">Station Type</TableHead>
-              <TableHead className="font-bold text-foreground">Fuel Types</TableHead>
-              <TableHead className="font-bold text-foreground">Status</TableHead>
-              <TableHead className="text-right font-bold text-foreground px-6">Actions</TableHead>
+              <TableHead className="w-[80px] font-bold text-foreground">{t("list.table.id")}</TableHead>
+              <TableHead className="font-bold text-foreground">{t("list.table.name")}</TableHead>
+              <TableHead className="font-bold text-foreground">{t("list.table.location")}</TableHead>
+              <TableHead className="font-bold text-foreground">{t("list.table.stationType")}</TableHead>
+              <TableHead className="font-bold text-foreground">{t("list.table.fuelTypes")}</TableHead>
+              <TableHead className="font-bold text-foreground">{t("list.table.status")}</TableHead>
+              <TableHead className="text-end font-bold text-foreground px-6">{t("list.table.actions")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -92,8 +94,10 @@ export default function TableBranches({ branches }: TableBranchesProps) {
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>{getStatusBadge(branch.status, branch.isActive)}</TableCell>
-                  <TableCell className="text-right px-6">
+                  <TableCell>
+                    <StatusBadge status={branch.status} isActive={branch.isActive} activeLabel={t("list.active")} />
+                  </TableCell>
+                  <TableCell className="text-end px-6">
                     <Button
                       variant="ghost"
                       size="sm"
@@ -101,7 +105,7 @@ export default function TableBranches({ branches }: TableBranchesProps) {
                       onClick={() => navigate(`/branches/${branch.id}`)}
                     >
                       <Eye className="h-3.5 w-3.5" />
-                      View Details
+                      {t("list.table.viewDetails")}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -111,7 +115,7 @@ export default function TableBranches({ branches }: TableBranchesProps) {
                 <TableCell colSpan={7} className="h-40 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2 opacity-40">
                     <MapPin className="h-10 w-10" />
-                    <p className="font-medium">No branches found matching your search.</p>
+                    <p className="font-medium">{t("list.table.noResults")}</p>
                   </div>
                 </TableCell>
               </TableRow>

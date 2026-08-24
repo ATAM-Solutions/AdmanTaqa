@@ -1,0 +1,74 @@
+{
+  "page": {
+    "title": "Compliance Inspections",
+    "subtitle": "Plan, conduct, and review regulatory inspections across all organizations.",
+    "newPlan": "New Inspection Plan"
+  },
+  "createDialog": {
+    "title": "Create Inspection Plan",
+    "description": "Schedule a new compliance inspection for an organization or branch.",
+    "targetOrganization": "Target Organization",
+    "selectTarget": "Select target",
+    "assignedInspector": "Assigned Inspector",
+    "selectInspector": "Select inspector",
+    "inspectionType": "Inspection Type",
+    "selectType": "Select type",
+    "types": {
+      "routine": "Routine Inspection",
+      "safety": "Safety Audit",
+      "compliance": "Compliance Review",
+      "followUp": "Follow-up Inspection"
+    },
+    "scheduledDate": "Scheduled Date",
+    "scope": "Inspection Scope",
+    "scopePlaceholder": "Define the scope and focus areas of this inspection...",
+    "notes": "Additional Notes (Optional)",
+    "notesPlaceholder": "Any special instructions or notes...",
+    "cancel": "Cancel",
+    "submit": "Schedule Inspection"
+  },
+  "toasts": {
+    "created": "Inspection plan created successfully!"
+  },
+  "table": {
+    "header": "Inspection Log",
+    "records": "{{count}} records",
+    "searchPlaceholder": "Search targets, inspectors...",
+    "columns": {
+      "id": "Inspection ID",
+      "targetBranch": "Target Organization & Branch",
+      "inspector": "Inspector",
+      "status": "Status",
+      "date": "Date",
+      "actions": "Actions"
+    },
+    "noResults": "No inspections found matching \"{{query}}\"",
+    "reportAction": "Report"
+  },
+  "mock": {
+    "targets": {
+      "alAmal": "Al-Amal Fuel Station",
+      "ecoEnergy": "EcoEnergy Services",
+      "redSea": "Red Sea Petroleum",
+      "mastersMaintenance": "Masters Maintenance"
+    },
+    "branches": {
+      "northRiyadh": "North Riyadh",
+      "mainHub": "Main Hub",
+      "highway10": "Highway 10",
+      "eastZone": "East Zone"
+    },
+    "inspectors": {
+      "mohammedKhalid": "Mohammed Khalid",
+      "sarahAlGhamdi": "Sarah Al-Ghamdi",
+      "ahmedMansour": "Ahmed Mansour",
+      "fatimaHassan": "Fatima Hassan"
+    },
+    "findings": {
+      "safetyEquipment": "Minor issues found in safety equipment storage.",
+      "maintenanceWorkspace": "In-depth review of maintenance workspace.",
+      "annualCompliance": "Annual safety and compliance inspection.",
+      "rescheduled": "Rescheduled due to provider request."
+    }
+  }
+}

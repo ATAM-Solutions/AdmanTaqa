@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Dialog,
   DialogContent,
@@ -19,13 +20,6 @@ export interface LocationFormValues {
   code?: string;
 }
 
-const levelLabels: Record<LocationLevel, string> = {
-  country: "Country",
-  governorate: "Governorate",
-  city: "City",
-  area: "Area",
-};
-
 type LocationFormDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -36,6 +30,13 @@ type LocationFormDialogProps = {
   submitting: boolean;
 };
 
+const LEVEL_PLACEHOLDER_KEYS: Record<LocationLevel, string | null> = {
+  country: "form.placeholders.country",
+  governorate: "form.placeholders.governorate",
+  city: "form.placeholders.city",
+  area: null,
+};
+
 export default function LocationFormDialog({
   open,
   onOpenChange,
@@ -44,17 +45,20 @@ export default function LocationFormDialog({
    onSubmit,
   submitting,
 }: LocationFormDialogProps) {
+  const { t } = useTranslation("locations");
   const [name, setName] = useState("");
   const [code, setCode] = useState("");
- 
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
     onSubmit({ name: name.trim(), code: code.trim() || undefined });
   };
 
-  const label = levelLabels[level];
-  const title = mode === "create" ? `Add ${label}` : `Edit ${label}`;
+  const label = t(`levels.${level}`);
+  const title = mode === "create" ? t("form.add", { level: label }) : t("form.edit", { level: label });
+  const placeholderKey = LEVEL_PLACEHOLDER_KEYS[level];
+  const namePlaceholder = placeholderKey ? t(placeholderKey) : undefined;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -62,36 +66,36 @@ export default function LocationFormDialog({
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
-            {mode === "create" ? `Create a new ${label.toLowerCase()}.` : `Update ${label.toLowerCase()} name and code.`}
+            {mode === "create" ? t("form.createDescription", { level: label }) : t("form.updateDescription", { level: label })}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           <div className="space-y-2">
-            <Label htmlFor="loc-name">Name *</Label>
+            <Label htmlFor="loc-name">{t("form.name")}</Label>
             <Input
               id="loc-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder={label === "Country" ? "Egypt" : label === "Governorate" ? "Cairo" : "Nasr City"}
+              placeholder={namePlaceholder}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="loc-code">Code (optional)</Label>
+            <Label htmlFor="loc-code">{t("form.code")}</Label>
             <Input
               id="loc-code"
               value={code}
               onChange={(e) => setCode(e.target.value)}
-              placeholder="e.g. EG, CAI"
+              placeholder={t("form.codePlaceholder")}
             />
           </div>
           <DialogFooter className="pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
-              Cancel
+              {t("form.cancel")}
             </Button>
             <Button type="submit" disabled={submitting || !name.trim()}>
               {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              {mode === "create" ? "Create" : "Save"}
+              {mode === "create" ? t("form.create") : t("form.save")}
             </Button>
           </DialogFooter>
         </form>

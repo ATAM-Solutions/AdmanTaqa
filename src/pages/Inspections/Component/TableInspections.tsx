@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -29,16 +30,16 @@ type TableInspectionsProps = {
 
 function getStatusBadge(status: string) {
   const variants: Record<string, string> = {
-    COMPLETED: "bg-green-50 text-green-700 border-green-200",
-    IN_PROGRESS: "bg-blue-50 text-blue-700 border-blue-200",
-    SCHEDULED: "bg-amber-50 text-amber-700 border-amber-200",
-    CANCELLED: "bg-slate-50 text-slate-700 border-slate-200",
+    COMPLETED: "bg-green-50 dark:bg-green-950 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900",
+    IN_PROGRESS: "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900",
+    SCHEDULED: "bg-amber-50 dark:bg-amber-950 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900",
+    CANCELLED: "bg-muted text-muted-foreground border-border",
   };
   return (
-    <Badge className={`${variants[status] || "bg-slate-50"} border font-semibold text-[10px] gap-1.5`}>
+    <Badge className={`${variants[status] || "bg-muted"} border font-semibold text-[10px] gap-1.5`}>
       <div
         className={`h-1.5 w-1.5 rounded-full ${
-          status === "COMPLETED" ? "bg-green-500" : status === "IN_PROGRESS" ? "bg-blue-500" : "bg-slate-400"
+          status === "COMPLETED" ? "bg-green-500" : status === "IN_PROGRESS" ? "bg-blue-500" : "bg-muted-foreground"
         }`}
       />
       {status}
@@ -47,24 +48,26 @@ function getStatusBadge(status: string) {
 }
 
 export default function TableInspections({ inspections, searchQuery }: TableInspectionsProps) {
+  const { t } = useTranslation("inspections");
+
   return (
     <CardContent className="p-0">
       <Table>
         <TableHeader className="bg-muted/30 hover:bg-muted/30 transition-none">
           <TableRow className="hover:bg-transparent">
-            <TableHead className="w-[140px] font-bold">Inspection ID</TableHead>
-            <TableHead className="font-bold">Target Organization & Branch</TableHead>
-            <TableHead className="font-bold">Inspector</TableHead>
-            <TableHead className="font-bold">Status</TableHead>
-            <TableHead className="font-bold">Date</TableHead>
-            <TableHead className="text-right font-bold px-6">Actions</TableHead>
+            <TableHead className="w-[140px] font-bold">{t("table.columns.id")}</TableHead>
+            <TableHead className="font-bold">{t("table.columns.targetBranch")}</TableHead>
+            <TableHead className="font-bold">{t("table.columns.inspector")}</TableHead>
+            <TableHead className="font-bold">{t("table.columns.status")}</TableHead>
+            <TableHead className="font-bold">{t("table.columns.date")}</TableHead>
+            <TableHead className="text-end font-bold px-6">{t("table.columns.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {inspections.length === 0 ? (
             <TableRow>
               <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
-                No inspections found matching &quot;{searchQuery}&quot;
+                {t("table.noResults", { query: searchQuery })}
               </TableCell>
             </TableRow>
           ) : (
@@ -80,7 +83,7 @@ export default function TableInspections({ inspections, searchQuery }: TableInsp
                       <Building2 className="h-3.5 w-3.5 text-primary/70" />
                       {ins.target}
                     </span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1 ml-5">
+                    <span className="text-xs text-muted-foreground flex items-center gap-1 ms-5">
                       <MapPin className="h-2.5 w-2.5" />
                       {ins.branch}
                     </span>
@@ -88,7 +91,7 @@ export default function TableInspections({ inspections, searchQuery }: TableInsp
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-rose-100 flex items-center justify-center text-[10px] text-rose-700 font-bold">
+                    <div className="h-6 w-6 rounded-full bg-rose-100 dark:bg-rose-950 flex items-center justify-center text-[10px] text-rose-700 dark:text-rose-400 font-bold">
                       {ins.inspector
                         .split(" ")
                         .map((n) => n[0])
@@ -104,10 +107,10 @@ export default function TableInspections({ inspections, searchQuery }: TableInsp
                     {ins.date}
                   </div>
                 </TableCell>
-                <TableCell className="text-right px-6">
-                  <Button variant="ghost" size="sm" className="h-8 gap-2 hover:bg-rose-50 hover:text-rose-600">
+                <TableCell className="text-end px-6">
+                  <Button variant="ghost" size="sm" className="h-8 gap-2 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-950 dark:hover:text-rose-400">
                     <Eye className="h-3.5 w-3.5" />
-                    Report
+                    {t("table.reportAction")}
                   </Button>
                 </TableCell>
               </TableRow>

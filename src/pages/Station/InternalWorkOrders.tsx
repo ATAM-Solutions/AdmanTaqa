@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import { Link } from "react-router-dom";
 import { Plus } from "lucide-react";
 
 export default function InternalWorkOrders() {
+  const { t } = useTranslation("station");
   const [status, setStatus] = useState<InternalWorkOrderStatus | "all">("all");
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -27,15 +29,13 @@ export default function InternalWorkOrders() {
     <div className="p-4 md:p-8 space-y-6 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Internal Work Orders</h1>
-          <p className="text-muted-foreground">
-            Internal maintenance orders (Fuel Station only). Execute via your own team.
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t("internalWorkOrders.title")}</h1>
+          <p className="text-muted-foreground">{t("internalWorkOrders.subtitle")}</p>
         </div>
         <Button asChild className="gap-2">
           <Link to="/station-requests/create">
             <Plus className="h-4 w-4" />
-            New Maintenance Request
+            {t("internalWorkOrders.newRequest")}
           </Link>
         </Button>
       </div>
@@ -50,32 +50,32 @@ export default function InternalWorkOrders() {
             }}
           >
             <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Status" />
+              <SelectValue placeholder={t("jobOrders.status")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="PENDING">PENDING</SelectItem>
-              <SelectItem value="IN_PROGRESS">IN PROGRESS</SelectItem>
-              <SelectItem value="UNDER_REVIEW">UNDER REVIEW</SelectItem>
-              <SelectItem value="CLOSED">CLOSED</SelectItem>
+              <SelectItem value="all">{t("internalWorkOrders.statusAll")}</SelectItem>
+              <SelectItem value="PENDING">{t("internalWorkOrders.statusPending")}</SelectItem>
+              <SelectItem value="IN_PROGRESS">{t("internalWorkOrders.statusInProgress")}</SelectItem>
+              <SelectItem value="UNDER_REVIEW">{t("internalWorkOrders.statusUnderReview")}</SelectItem>
+              <SelectItem value="CLOSED">{t("internalWorkOrders.statusClosed")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         {isLoading ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-sm text-muted-foreground">{t("loading")}</p>
         ) : items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No internal work orders.</p>
+          <p className="text-sm text-muted-foreground">{t("internalWorkOrders.noOrders")}</p>
         ) : (
           <ul className="space-y-2">
             {items.map((wo) => (
               <li key={wo.id} className="flex items-center justify-between rounded-lg border p-3">
                 <div>
                   <span className="font-medium">{wo.title}</span>
-                  <span className="ml-2 text-xs text-muted-foreground">#{wo.id}</span>
-                  <span className="ml-2 text-xs uppercase">{wo.status}</span>
+                  <span className="ms-2 text-xs text-muted-foreground">#{wo.id}</span>
+                  <span className="ms-2 text-xs uppercase">{wo.status}</span>
                 </div>
                 <Button variant="ghost" size="sm" asChild>
-                  <Link to={`/internal-work-orders/${wo.id}`}>View</Link>
+                  <Link to={`/internal-work-orders/${wo.id}`}>{t("internalWorkOrders.view")}</Link>
                 </Button>
               </li>
             ))}
@@ -89,7 +89,7 @@ export default function InternalWorkOrders() {
               disabled={page <= 1}
               onClick={() => setPage((p) => p - 1)}
             >
-              Previous
+              {t("internalWorkOrders.previous")}
             </Button>
             <Button
               variant="outline"
@@ -97,7 +97,7 @@ export default function InternalWorkOrders() {
               disabled={page * limit >= total}
               onClick={() => setPage((p) => p + 1)}
             >
-              Next
+              {t("internalWorkOrders.next")}
             </Button>
           </div>
         )}

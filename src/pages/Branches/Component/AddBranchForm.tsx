@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -25,15 +26,6 @@ import BranchLocationMap from "./BranchLocationMap";
 import type { CreateBranchBody } from "@/hooks/Branches/useCreateBranch";
 
 const WORKING_DAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
-const dayLabels: Record<(typeof WORKING_DAYS)[number], string> = {
-  sun: "Sunday",
-  mon: "Monday",
-  tue: "Tuesday",
-  wed: "Wednesday",
-  thu: "Thursday",
-  fri: "Friday",
-  sat: "Saturday",
-};
 
 type DayHours = { is24h: boolean; open: string; close: string };
 const defaultDayHours = (): DayHours => ({ is24h: false, open: "", close: "" });
@@ -51,8 +43,9 @@ export default function AddBranchForm({
   onSuccess,
   onCancel,
   showCancel = true,
-  submitLabel = "Create Branch",
+  submitLabel,
 }: AddBranchFormProps) {
+  const { t } = useTranslation("branches");
   const queryClient = useQueryClient();
   const mutation = useCreateBranch();
   const { data: stationTypes = [], isLoading: loadingStationTypes } = useGetFuelStationTypes();
@@ -167,11 +160,11 @@ export default function AddBranchForm({
     const stationTypeIdNum = stationTypeId ? parseInt(stationTypeId, 10) : NaN;
     const areaIdNum = selectedAreaId ? parseInt(selectedAreaId, 10) : NaN;
     if (!selectedAreaId || isNaN(areaIdNum)) {
-      toast.error("Please select Country, Governorate, City and Area.");
+      toast.error(t("toasts.selectLocationRequired"));
       return;
     }
     if (!stationTypeId || isNaN(stationTypeIdNum)) {
-      toast.error("Please select a Station Type.");
+      toast.error(t("toasts.selectStationTypeRequired"));
       return;
     }
 
@@ -190,7 +183,7 @@ export default function AddBranchForm({
     });
 
     if (selectedFuelTypeIds.length === 0) {
-      toast.error("Select at least one Fuel Type.");
+      toast.error(t("toasts.selectFuelTypeRequired"));
       return;
     }
 
@@ -215,7 +208,7 @@ export default function AddBranchForm({
 
     try {
       const result = await mutation.mutateAsync(body);
-      toast.success(result.message ?? "Branch created");
+      toast.success(result.message ?? t("toasts.branchCreated"));
       resetForm();
       onSuccess?.(result.message, result.data?.id);
     } catch (err: unknown) {
@@ -223,7 +216,7 @@ export default function AddBranchForm({
         err && typeof err === "object" && "response" in err
           ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
           : null;
-      toast.error(msg ?? "Failed to create branch");
+      toast.error(msg ?? t("toasts.branchCreateFailed"));
     }
   };
 
@@ -231,45 +224,45 @@ export default function AddBranchForm({
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="nameEn">Name (EN) *</Label>
+          <Label htmlFor="nameEn">{t("fields.nameEn")}</Label>
           <Input
             id="nameEn"
             value={nameEn}
             onChange={(e) => setNameEn(e.target.value)}
-            placeholder="Green Fuel - Main"
+            placeholder={t("fields.nameEnPlaceholder")}
             required
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="nameAr">Name (AR) *</Label>
+          <Label htmlFor="nameAr">{t("fields.nameAr")}</Label>
           <Input
             id="nameAr"
             value={nameAr}
             onChange={(e) => setNameAr(e.target.value)}
-            placeholder="Green Fuel - Main"
+            placeholder={t("fields.nameArPlaceholder")}
             required
           />
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="licenseNumber">License Number</Label>
+          <Label htmlFor="licenseNumber">{t("fields.licenseNumber")}</Label>
           <Input
             id="licenseNumber"
             value={licenseNumber}
             onChange={(e) => setLicenseNumber(e.target.value)}
-            placeholder="FS-2024-001"
+            placeholder={t("fields.licenseNumberPlaceholder")}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="stationTypeId">Station Type *</Label>
+          <Label htmlFor="stationTypeId">{t("fields.stationType")}</Label>
           <Select
             value={stationTypeId}
             onValueChange={setStationTypeId}
             disabled={loadingStationTypes}
           >
             <SelectTrigger id="stationTypeId">
-              <SelectValue placeholder={loadingStationTypes ? "Loading..." : "Select station type"} />
+              <SelectValue placeholder={loadingStationTypes ? t("fields.loading") : t("fields.selectStationType")} />
             </SelectTrigger>
             <SelectContent>
               {stationTypes.map((st) => (
@@ -282,13 +275,11 @@ export default function AddBranchForm({
         </div>
       </div>
       <div className="space-y-2">
-        <Label>Location (Area) *</Label>
-        <p className="text-xs text-muted-foreground">
-          Select country, then governorate, then city, then area.
-        </p>
+        <Label>{t("fields.locationAreaLabel")}</Label>
+        <p className="text-xs text-muted-foreground">{t("fields.locationAreaHint")}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label>Country</Label>
+            <Label>{t("fields.country")}</Label>
             <Select
               value={countryId}
               onValueChange={(v) => {
@@ -299,7 +290,7 @@ export default function AddBranchForm({
               }}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Select country" />
+                <SelectValue placeholder={t("fields.selectCountry")} />
               </SelectTrigger>
               <SelectContent>
                 {countries.map((c) => (
@@ -311,7 +302,7 @@ export default function AddBranchForm({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Governorate</Label>
+            <Label>{t("fields.governorate")}</Label>
             <Select
               value={governorateId}
               onValueChange={(v) => {
@@ -324,7 +315,7 @@ export default function AddBranchForm({
               <SelectTrigger>
                 <SelectValue
                   placeholder={
-                    !countryId ? "Select country first" : loadingGovernorates ? "Loading..." : "Select governorate"
+                    !countryId ? t("fields.selectCountryFirst") : loadingGovernorates ? t("fields.loading") : t("fields.selectGovernorate")
                   }
                 />
               </SelectTrigger>
@@ -338,7 +329,7 @@ export default function AddBranchForm({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>City</Label>
+            <Label>{t("fields.city")}</Label>
             <Select
               value={cityId}
               onValueChange={(v) => {
@@ -350,7 +341,7 @@ export default function AddBranchForm({
               <SelectTrigger>
                 <SelectValue
                   placeholder={
-                    !governorateId ? "Select governorate first" : loadingCities ? "Loading..." : "Select city"
+                    !governorateId ? t("fields.selectGovernorateFirst") : loadingCities ? t("fields.loading") : t("fields.selectCity")
                   }
                 />
               </SelectTrigger>
@@ -364,7 +355,7 @@ export default function AddBranchForm({
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Area *</Label>
+            <Label>{t("fields.area")}</Label>
             <Select
               value={selectedAreaId}
               onValueChange={(v) => {
@@ -376,7 +367,7 @@ export default function AddBranchForm({
               <SelectTrigger>
                 <SelectValue
                   placeholder={
-                    !cityId ? "Select city first" : loadingAreas ? "Loading..." : "Select area"
+                    !cityId ? t("fields.selectCityFirst") : loadingAreas ? t("fields.loading") : t("fields.selectArea")
                   }
                 />
               </SelectTrigger>
@@ -392,30 +383,28 @@ export default function AddBranchForm({
         </div>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="street">Street</Label>
+        <Label htmlFor="street">{t("fields.street")}</Label>
         <Input
           id="street"
           value={street}
           onChange={(e) => setStreet(e.target.value)}
-          placeholder="Main Street"
+          placeholder={t("fields.streetPlaceholder")}
         />
       </div>
-      
+
       <div className="space-y-2">
-        <Label htmlFor="address">Address *</Label>
+        <Label htmlFor="address">{t("fields.address")}</Label>
         <Input
           id="address"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="Nasr City"
+          placeholder={t("fields.addressPlaceholder")}
           required
         />
       </div>
       <div className="space-y-2">
-        <Label>Branch location (Latitude / Longitude)</Label>
-        <p className="text-xs text-muted-foreground">
-          Coordinates are filled automatically when you select an area (if available), or click on the map to set them.
-        </p>
+        <Label>{t("fields.coordinatesLabel")}</Label>
+        <p className="text-xs text-muted-foreground">{t("fields.coordinatesHint")}</p>
         <BranchLocationMap
           latitude={latitude}
           longitude={longitude}
@@ -433,7 +422,7 @@ export default function AddBranchForm({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="latitude">Latitude</Label>
+          <Label htmlFor="latitude">{t("fields.latitude")}</Label>
           <Input
             id="latitude"
             type="number"
@@ -444,7 +433,7 @@ export default function AddBranchForm({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="longitude">Longitude</Label>
+          <Label htmlFor="longitude">{t("fields.longitude")}</Label>
           <Input
             id="longitude"
             type="number"
@@ -456,10 +445,8 @@ export default function AddBranchForm({
         </div>
       </div>
       <div className="space-y-3">
-        <Label>Working Hours</Label>
-        <p className="text-xs text-muted-foreground">
-          Set open and close time for each day, or check 24 hours
-        </p>
+        <Label>{t("fields.workingHours")}</Label>
+        <p className="text-xs text-muted-foreground">{t("fields.workingHoursHint")}</p>
         <div className="rounded-md border p-3 space-y-2 max-h-[220px] overflow-y-auto">
           {WORKING_DAYS.map((day) => {
             const d = workingHoursByDay[day] ?? defaultDayHours();
@@ -468,7 +455,7 @@ export default function AddBranchForm({
                 key={day}
                 className="grid grid-cols-[auto_1fr_1fr_1fr] gap-2 items-center text-sm"
               >
-                <span className="font-medium min-w-[70px]">{dayLabels[day]}</span>
+                <span className="font-medium min-w-[70px]">{t(`days.${day}`)}</span>
                 <div className="flex items-center gap-1">
                   <Checkbox
                     id={`wh-24h-${day}`}
@@ -478,11 +465,11 @@ export default function AddBranchForm({
                     }
                   />
                   <label htmlFor={`wh-24h-${day}`} className="cursor-pointer">
-                    24 hours
+                    {t("fields.twentyFourHours")}
                   </label>
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <Label className="text-xs">Open</Label>
+                  <Label className="text-xs">{t("fields.open")}</Label>
                   <Input
                     type="time"
                     value={d.open}
@@ -492,7 +479,7 @@ export default function AddBranchForm({
                   />
                 </div>
                 <div className="flex flex-col gap-0.5">
-                  <Label className="text-xs">Close</Label>
+                  <Label className="text-xs">{t("fields.close")}</Label>
                   <Input
                     type="time"
                     value={d.close}
@@ -508,16 +495,16 @@ export default function AddBranchForm({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="ownerName">Owner Name</Label>
+          <Label htmlFor="ownerName">{t("fields.ownerName")}</Label>
           <Input
             id="ownerName"
             value={ownerName}
             onChange={(e) => setOwnerName(e.target.value)}
-            placeholder="Ahmed Owner"
+            placeholder={t("fields.ownerNamePlaceholder")}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="ownerEmail">Owner Email</Label>
+          <Label htmlFor="ownerEmail">{t("fields.ownerEmail")}</Label>
           <Input
             id="ownerEmail"
             type="email"
@@ -529,16 +516,16 @@ export default function AddBranchForm({
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="managerName">Manager Name</Label>
+          <Label htmlFor="managerName">{t("fields.managerName")}</Label>
           <Input
             id="managerName"
             value={managerName}
             onChange={(e) => setManagerName(e.target.value)}
-            placeholder="Manager Name"
+            placeholder={t("fields.managerNamePlaceholder")}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="managerEmail">Manager Email</Label>
+          <Label htmlFor="managerEmail">{t("fields.managerEmail")}</Label>
           <Input
             id="managerEmail"
             type="email"
@@ -549,18 +536,19 @@ export default function AddBranchForm({
         </div>
       </div>
       <div className="space-y-2">
-        <Label htmlFor="managerPhone">Manager Phone</Label>
+        <Label htmlFor="managerPhone">{t("fields.managerPhone")}</Label>
         <Input
           id="managerPhone"
+          dir="ltr"
           value={managerPhone}
           onChange={(e) => setManagerPhone(e.target.value)}
           placeholder="+201234567890"
         />
       </div>
       <div className="space-y-2" ref={fuelTypesSelectRef}>
-        <Label>Fuel Types *</Label>
+        <Label>{t("fields.fuelTypes")}</Label>
         {loadingFuelTypes ? (
-          <p className="text-sm text-muted-foreground">Loading fuel types...</p>
+          <p className="text-sm text-muted-foreground">{t("fields.loadingFuelTypes")}</p>
         ) : (
           <div className="relative">
             <button
@@ -574,7 +562,7 @@ export default function AddBranchForm({
                       .filter((ft) => selectedFuelTypeIds.includes(ft.id))
                       .map((ft) => ft.name)
                       .join(", ")
-                  : "Select fuel types"}
+                  : t("fields.selectFuelTypes")}
               </span>
               <ChevronDown className="h-4 w-4 opacity-50" />
             </button>
@@ -587,9 +575,9 @@ export default function AddBranchForm({
                     tabIndex={0}
                     onClick={() => toggleFuelType(ft.id)}
                     onKeyDown={(e) => e.key === "Enter" && toggleFuelType(ft.id)}
-                    className="relative flex cursor-pointer select-none items-center rounded-sm py-2 pl-8 pr-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
+                    className="relative flex cursor-pointer select-none items-center rounded-sm py-2 ps-8 pe-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground"
                   >
-                    <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
+                    <span className="absolute start-2 flex h-3.5 w-3.5 items-center justify-center">
                       {selectedFuelTypeIds.includes(ft.id) ? (
                         <span className="h-4 w-4 rounded border border-primary bg-primary" />
                       ) : (
@@ -603,7 +591,7 @@ export default function AddBranchForm({
             )}
           </div>
         )}
-        <p className="text-xs text-muted-foreground">Select at least one fuel type</p>
+        <p className="text-xs text-muted-foreground">{t("fields.selectAtLeastOneFuelType")}</p>
       </div>
       <div className="flex gap-2 pt-4">
         {showCancel && onCancel && (
@@ -613,17 +601,17 @@ export default function AddBranchForm({
             onClick={onCancel}
             disabled={mutation.isPending}
           >
-            Cancel
+            {t("actions.cancel")}
           </Button>
         )}
         <Button type="submit" disabled={mutation.isPending}>
           {mutation.isPending ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Creating...
+              <Loader2 className="me-2 h-4 w-4 animate-spin" />
+              {t("actions.creating")}
             </>
           ) : (
-            submitLabel
+            submitLabel ?? t("actions.createBranch")
           )}
         </Button>
       </div>

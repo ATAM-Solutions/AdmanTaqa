@@ -1,16 +1,18 @@
 import { useRouteError, isRouteErrorResponse, Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Home, ArrowLeft, AlertTriangle } from "lucide-react";
 
 export default function RouteErrorBoundary() {
+  const { t } = useTranslation();
   const error = useRouteError();
   const navigate = useNavigate();
 
   const message = isRouteErrorResponse(error)
-    ? error.data?.message ?? error.statusText ?? "Something went wrong."
+    ? error.data?.message ?? error.statusText ?? t("routeError.fallbackMessage")
     : error instanceof Error
       ? error.message
-      : "An unexpected error occurred.";
+      : t("routeError.fallbackMessage");
 
   return (
     <div className="min-h-[80vh] flex flex-col items-center justify-center p-4 md:p-8 text-center">
@@ -20,7 +22,7 @@ export default function RouteErrorBoundary() {
             <AlertTriangle className="h-8 w-8 text-destructive" />
           </div>
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">Something went wrong</h1>
+        <h1 className="text-2xl font-bold text-foreground">{t("routeError.title")}</h1>
         <p className="text-muted-foreground">
           {message}
         </p>
@@ -28,7 +30,7 @@ export default function RouteErrorBoundary() {
           <Button asChild size="lg" className="gap-2">
             <Link to="/">
               <Home className="h-4 w-4" />
-              Return Home
+              {t("routeError.returnHome")}
             </Link>
           </Button>
           <Button
@@ -37,8 +39,8 @@ export default function RouteErrorBoundary() {
             className="gap-2"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft className="h-4 w-4" />
-            Go Back
+            <ArrowLeft className="h-4 w-4 rtl:rotate-180" />
+            {t("routeError.goBack")}
           </Button>
         </div>
       </div>

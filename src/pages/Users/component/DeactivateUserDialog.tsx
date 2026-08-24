@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -21,17 +22,18 @@ export default function DeactivateUserDialog({
   onOpenChange,
   user,
 }: DeactivateUserDialogProps) {
+  const { t } = useTranslation("users");
   const deactivateMutation = useDeactivateUser();
 
   const handleDeactivate = () => {
     if (!user) return;
     deactivateMutation.mutate(user.id, {
       onSuccess: () => {
-        toast.success("User deactivated.");
+        toast.success(t("deactivateDialog.success"));
         onOpenChange(false);
       },
       onError: (e) =>
-        toast.error((e as Error)?.message ?? "Failed to deactivate user."),
+        toast.error((e as Error)?.message ?? t("deactivateDialog.error")),
     });
   };
 
@@ -39,21 +41,21 @@ export default function DeactivateUserDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Deactivate User</DialogTitle>
+          <DialogTitle>{t("deactivateDialog.title")}</DialogTitle>
           <DialogDescription>
-            Are you sure you want to deactivate &quot;{user?.fullName}&quot;? They will no longer be able to sign in. This can be reversed by an admin (Edit user → set Active).
+            {t("deactivateDialog.description", { name: user?.fullName })}
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("deactivateDialog.cancel")}
           </Button>
           <Button
             variant="destructive"
             onClick={handleDeactivate}
             disabled={deactivateMutation.isPending}
           >
-            {deactivateMutation.isPending ? "Deactivating..." : "Deactivate"}
+            {deactivateMutation.isPending ? t("deactivateDialog.deactivating") : t("deactivateDialog.deactivate")}
           </Button>
         </DialogFooter>
       </DialogContent>

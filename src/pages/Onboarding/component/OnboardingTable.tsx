@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -35,14 +36,15 @@ export default function OnboardingTable({
   onDelete,
   pagination,
 }: OnboardingTableProps) {
+  const { t } = useTranslation("onboarding");
   return (
     <Card className="border-none shadow-xl bg-card/50 backdrop-blur-sm">
       <CardHeader className="pb-3 px-6 pt-6">
         <div className="relative w-full md:w-96">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Search className="absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search by title or description..."
-            className="pl-10 bg-background/50 border-muted-foreground/20"
+            placeholder={t("table.searchPlaceholder")}
+            className="ps-10 bg-background/50 border-muted-foreground/20"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
           />
@@ -58,19 +60,19 @@ export default function OnboardingTable({
             <Table>
               <TableHeader className="bg-muted/40">
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="font-bold">Title</TableHead>
-                  <TableHead className="font-bold">Description</TableHead>
-                  <TableHead className="font-bold w-[80px]">Order</TableHead>
-                  <TableHead className="font-bold w-[90px]">Status</TableHead>
-                  <TableHead className="font-bold w-[80px]">Image</TableHead>
-                  <TableHead className="text-right font-bold px-6">Actions</TableHead>
+                  <TableHead className="font-bold">{t("table.title")}</TableHead>
+                  <TableHead className="font-bold">{t("table.description")}</TableHead>
+                  <TableHead className="font-bold w-[80px]">{t("table.order")}</TableHead>
+                  <TableHead className="font-bold w-[90px]">{t("table.status")}</TableHead>
+                  <TableHead className="font-bold w-[80px]">{t("table.image")}</TableHead>
+                  <TableHead className="text-end font-bold px-6">{t("table.actions")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {items.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                      No onboarding items yet. Add one to get started.
+                      {t("table.empty")}
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -83,7 +85,7 @@ export default function OnboardingTable({
                       <TableCell>{item.order}</TableCell>
                       <TableCell>
                         <Badge variant={item.isActive ? "default" : "secondary"}>
-                          {item.isActive ? "Active" : "Inactive"}
+                          {item.isActive ? t("table.active") : t("table.inactive")}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -100,13 +102,13 @@ export default function OnboardingTable({
                           </span>
                         )}
                       </TableCell>
-                      <TableCell className="text-right px-6">
+                      <TableCell className="text-end px-6">
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => onView(item)}
                           className="h-8 w-8"
-                          title="View details"
+                          title={t("table.viewDetails")}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>

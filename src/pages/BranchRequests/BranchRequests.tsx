@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,8 +15,11 @@ import PendingApprovalGuard from "@/components/PendingApprovalGuard";
 import useGetBranchRequests from "@/hooks/BranchRequests/useGetBranchRequests";
 import type { BranchRequestStatus } from "@/types/branchRequest";
 import BranchRequestsTable from "./Component/BranchRequestsTable";
+import { PageHeader } from "@/components/patterns/PageHeader";
+import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 
 export default function BranchRequests() {
+  const { t } = useTranslation("branchRequests");
   const navigate = useNavigate();
   const [status, setStatus] = useState<BranchRequestStatus | "all">("all");
   const [page, setPage] = useState(1);
@@ -26,7 +30,7 @@ export default function BranchRequests() {
   const isAuthority = organization?.type === "AUTHORITY";
   const isFuelStation = organization?.type === "FUEL_STATION";
 
-  const { data, isLoading, isError, error } = useGetBranchRequests({
+  const { data, isLoading, error } = useGetBranchRequests({
     status,
     page,
     limit,
@@ -38,24 +42,22 @@ export default function BranchRequests() {
   return (
     <PendingApprovalGuard organization={organization} isLoading={orgLoading}>
       <div className="p-4 md:p-8 space-y-6">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">Branch Requests</h1>
-            <p className="text-muted-foreground">
-              Track and review branch onboarding requests.
-            </p>
-          </div>
-          {isFuelStation && (
-            <Button onClick={() => navigate("/branch-requests/create")}>
-              Submit Branch Request
-            </Button>
-          )}
-        </div>
+        <PageHeader
+          title={t("list.title")}
+          description={t("list.subtitle")}
+          action={
+            isFuelStation ? (
+              <Button onClick={() => navigate("/branch-requests/create")}>
+                {t("list.submitRequest")}
+              </Button>
+            ) : undefined
+          }
+        />
 
         <Card className="border-none shadow-xl bg-card/60 backdrop-blur-md p-4 space-y-4">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
             <div>
-              <p className="text-xs text-muted-foreground mb-1">Status</p>
+              <p className="text-xs text-muted-foreground mb-1">{t("list.statusLabel")}</p>
               <Select
                 value={status}
                 onValueChange={(value: BranchRequestStatus | "all") => {
@@ -64,31 +66,29 @@ export default function BranchRequests() {
                 }}
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="All statuses" />
+                  <SelectValue placeholder={t("list.statusPlaceholder")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="PENDING">PENDING</SelectItem>
-                  <SelectItem value="UNDER_REVIEW">UNDER REVIEW</SelectItem>
-                  <SelectItem value="APPROVED">APPROVED</SelectItem>
-                  <SelectItem value="REJECTED">REJECTED</SelectItem>
+                  <SelectItem value="all">{t("status.all")}</SelectItem>
+                  <SelectItem value="PENDING">{t("status.PENDING")}</SelectItem>
+                  <SelectItem value="UNDER_REVIEW">{t("status.UNDER_REVIEW")}</SelectItem>
+                  <SelectItem value="APPROVED">{t("status.APPROVED")}</SelectItem>
+                  <SelectItem value="REJECTED">{t("status.REJECTED")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <p className="text-xs text-muted-foreground">
-              Total: {data?.total ?? 0} | Page: {data?.page ?? page}
+              {t("list.totalPage", { total: data?.total ?? 0, page: data?.page ?? page })}
             </p>
           </div>
 
-          {isLoading ? (
-            <div className="p-6 text-sm text-muted-foreground">Loading requests...</div>
-          ) : isError ? (
-            <div className="p-6 text-sm text-destructive">
-              {error instanceof Error ? error.message : "Failed to load requests."}
-            </div>
-          ) : (
+          <AsyncBoundary
+            isLoading={isLoading}
+            error={error}
+            loadingFallback={<div className="p-6 text-sm text-muted-foreground">{t("list.loading")}</div>}
+          >
             <BranchRequestsTable items={items} isAuthority={isAuthority} />
-          )}
+          </AsyncBoundary>
 
           <div className="flex items-center justify-end gap-2">
             <Button
@@ -96,15 +96,15 @@ export default function BranchRequests() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
             >
-              Previous
+              {t("list.previous")}
             </Button>
-            <span className="text-sm text-muted-foreground">Page {page}</span>
+            <span className="text-sm text-muted-foreground">{t("list.page", { page })}</span>
             <Button
               variant="outline"
               onClick={() => setPage((p) => (p < maxPage ? p + 1 : p))}
               disabled={page >= maxPage}
             >
-              Next
+              {t("list.next")}
             </Button>
           </div>
         </Card>

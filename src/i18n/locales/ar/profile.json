@@ -1,0 +1,117 @@
+{
+  "page": {
+    "title": "الملف الشخصي للمنظمة",
+    "subtitle": "إدارة الهوية العامة لمنظمتك وإعداداتها"
+  },
+  "menu": {
+    "edit": "تعديل",
+    "delete": "حذف",
+    "deleteAccount": "حذف حسابي"
+  },
+  "pendingBanner": {
+    "title": "منظمتك بانتظار الموافقة.",
+    "description": "الميزات التشغيلية (طلبات الخدمة، عروض الأسعار، أوامر العمل) محدودة حتى تتم الموافقة على منظمتك."
+  },
+  "deleteSpDialog": {
+    "title": "حذف ملف مزود الخدمة",
+    "description": "سيؤدي هذا إلى حذف الملف وجميع المستندات المرتبطة به. لا يمكن التراجع عن هذا الإجراء.",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "deleting": "جارٍ الحذف..."
+  },
+  "toasts": {
+    "spProfileDeleted": "تم حذف ملف مزود الخدمة."
+  },
+  "unified": {
+    "approvedBy": "تمت الموافقة من قِبل {{name}} بتاريخ {{date}}",
+    "documentsHeading": "المستندات",
+    "view": "عرض"
+  },
+  "documentTypes": {
+    "LICENSE": "ترخيص",
+    "REGISTRATION": "سجل",
+    "OTHER": "أخرى",
+    "COMMERCIAL_REGISTRATION": "السجل التجاري",
+    "TAX_CERTIFICATE": "الشهادة الضريبية",
+    "TECHNICAL_CERTIFICATE": "الشهادة الفنية",
+    "INSURANCE_CERTIFICATE": "شهادة التأمين",
+    "document": "مستند"
+  },
+  "orgDetails": {
+    "accountType": "نوع الحساب",
+    "memberSince": "عضو منذ",
+    "owner": "المالك",
+    "fullName": "الاسم الكامل",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "serviceProviderProfile": "ملف مزود الخدمة",
+    "licenseNumber": "رقم الترخيص",
+    "yearsExperience": "سنوات الخبرة",
+    "area": "المنطقة",
+    "city": "المدينة",
+    "street": "الشارع",
+    "serviceCategories": "فئات الخدمات"
+  },
+  "documentsCard": {
+    "title": "المستندات",
+    "description": "رفع وإدارة مستندات المنظمة.",
+    "documentType": "نوع المستند",
+    "upload": "رفع",
+    "uploading": "جارٍ الرفع...",
+    "loading": "جارٍ تحميل المستندات...",
+    "empty": "لم يتم رفع أي مستندات بعد.",
+    "view": "عرض",
+    "uploaded": "تم رفع المستند.",
+    "uploadFailed": "فشل الرفع."
+  },
+  "spProfileCard": {
+    "heading": "مزود الخدمة",
+    "title": "ملف مزود الخدمة",
+    "description": "الترخيص والخبرة والعنوان ومستندات الملف الشخصي.",
+    "createProfile": "إنشاء ملف",
+    "loading": "جارٍ تحميل الملف...",
+    "empty": "لا يوجد ملف مزود خدمة بعد. أنشئ واحدًا لإضافة الترخيص والعنوان والمستندات.",
+    "editDialogTitle": "تعديل الملف",
+    "createDialogTitle": "إنشاء ملف",
+    "editDialogDescription": "تحديث ملف مزود الخدمة الخاص بك.",
+    "createDialogDescription": "أضف الترخيص والخبرة والعنوان (كلها اختيارية).",
+    "cancel": "إلغاء",
+    "save": "حفظ",
+    "create": "إنشاء",
+    "saving": "جارٍ الحفظ...",
+    "creating": "جارٍ الإنشاء...",
+    "update": "تحديث",
+    "profileCreated": "تم إنشاء الملف.",
+    "profileUpdated": "تم تحديث الملف.",
+    "createFailed": "فشل الإنشاء.",
+    "updateFailed": "فشل التحديث."
+  },
+  "spForm": {
+    "licenseNumber": "رقم الترخيص",
+    "licenseNumberPlaceholder": "اختياري",
+    "yearsExperience": "سنوات الخبرة",
+    "yearsExperiencePlaceholder": "اختياري",
+    "country": "الدولة",
+    "governorate": "المحافظة",
+    "city": "المدينة",
+    "area": "المنطقة",
+    "select": "اختر",
+    "street": "الشارع",
+    "streetPlaceholder": "اختياري",
+    "serviceCategories": "فئات الخدمات (مفصولة بفواصل)",
+    "serviceCategoriesPlaceholder": "مثال: صيانة، تفتيش"
+  },
+  "editModal": {
+    "title": "تعديل الملف",
+    "description": "قم بتحديث بيانات منظمتك ومزود الخدمة في مكان واحد.",
+    "orgName": "اسم المنظمة",
+    "orgNamePlaceholder": "أدخل اسم المنظمة",
+    "spSectionTitle": "ملف مزود الخدمة",
+    "cancel": "إلغاء",
+    "saveChanges": "حفظ التغييرات",
+    "saving": "جارٍ الحفظ...",
+    "orgUpdated": "تم تحديث المنظمة بنجاح",
+    "orgUpdateFailed": "فشل التحديث",
+    "orgUpdateError": "حدث خطأ أثناء التحديث"
+  }
+}

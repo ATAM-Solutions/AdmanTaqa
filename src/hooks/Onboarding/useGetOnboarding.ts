@@ -2,6 +2,7 @@ import axiosInstance from '@/api/config';
 import type { OnboardingItem } from '@/types/onboarding';
 import type { PaginatedResponse } from '@/types/pagination';
 import { useQuery } from '@tanstack/react-query';
+import { reportError } from '@/lib/errorReporting';
 
 const getOnboardingPaginated = async (
   page: number,
@@ -24,11 +25,7 @@ const getOnboardingPaginated = async (
       totalPages,
     };
   } catch (error: unknown) {
-    console.error(
-      'Error fetching onboarding:',
-      (error as { response?: { data?: unknown }; message?: string })?.response?.data ||
-        (error as { message?: string })?.message
-    );
+    reportError('Error fetching onboarding:', error);
     throw error;
   }
 };

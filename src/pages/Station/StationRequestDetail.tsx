@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,12 +19,14 @@ import useRejectQuote from "@/hooks/Station/useRejectQuote";
 import useConfirmPaymentSent from "@/hooks/Station/useConfirmPaymentSent";
 import useUploadJobOrderReceipt from "@/hooks/Station/useUploadJobOrderReceipt";
 import { getApiErrorMessage } from "@/lib/utils";
+import { formatDate } from "@/lib/i18n/formatters";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const MAX_RECEIPT_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 export default function StationRequestDetail() {
+  const { t, i18n } = useTranslation("station");
   const { id } = useParams<{ id: string }>();
   const { data: request, isLoading, refetch: refetchRequest } = useStationRequestById(id ?? null);
   const selectQuoteMutation = useSelectQuote();
@@ -61,14 +64,14 @@ export default function StationRequestDetail() {
 
   const handleSelectQuote = () => {
     if (!id || !selectedQuoteId) {
-      toast.error("Select a quote.");
+      toast.error(t("requestDetail.toasts.selectQuoteRequired"));
       return;
     }
     selectQuoteMutation.mutate(
       { requestId: id, providerQuoteId: Number(selectedQuoteId) },
       {
-        onSuccess: () => toast.success("Quote selected."),
-        onError: (e) => toast.error(e instanceof Error ? e.message : "Select quote failed."),
+        onSuccess: () => toast.success(t("requestDetail.toasts.quoteSelected")),
+        onError: (e) => toast.error(e instanceof Error ? e.message : t("requestDetail.toasts.selectQuoteFailed")),
       }
     );
   };
@@ -76,13 +79,13 @@ export default function StationRequestDetail() {
   const handleConfirmPaymentSent = () => {
     if (!awaitingPaymentJob?.id) return;
     if (awaitingPaymentJob.paymentRecord?.status === "STATION_CONFIRMED_SENT") {
-      toast.info("Payment already confirmed for this job order.");
+      toast.info(t("requestDetail.toasts.alreadyConfirmed"));
       return;
     }
     const hasReceipt = !!(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl);
     const hasRef = paymentReferenceNumber.trim().length > 0;
     if (!hasReceipt && !hasRef) {
-      toast.error("Upload a receipt or enter a reference number before confirming.");
+      toast.error(t("requestDetail.toasts.uploadOrRefRequired"));
       return;
     }
     const body: { receiptFileUrl?: string; referenceNumber?: string; amount?: number; method?: string } = {};
@@ -98,12 +101,9 @@ export default function StationRequestDetail() {
       {
         onSuccess: () => {
           refetchRequest();
-          toast.success(
-            "تم تأكيد إرسال المبلغ. المزود يرى أمر العمل في قائمة Provider Job Orders (من حسابه كمزود) ويضغط «تأكيد استلام الدفع» لتفعيل الأمر والبدء.",
-            { duration: 8000 }
-          );
+          toast.success(t("requestDetail.toasts.paymentConfirmed"), { duration: 8000 });
         },
-        onError: (e) => toast.error(getApiErrorMessage(e, "فشل التأكيد.")),
+        onError: (e) => toast.error(getApiErrorMessage(e, t("requestDetail.toasts.confirmFailed"))),
       }
     );
   };
@@ -112,12 +112,12 @@ export default function StationRequestDetail() {
     const file = e.target.files?.[0];
     if (!awaitingPaymentJob?.id || !file) return;
     if (file.size > MAX_RECEIPT_SIZE_BYTES) {
-      toast.error("File size too large. Maximum size is 5MB.");
+      toast.error(t("requestDetail.toasts.fileTooLarge"));
       e.target.value = "";
       return;
     }
     if (awaitingPaymentJob.paymentRecord?.status === "STATION_CONFIRMED_SENT") {
-      toast.info("Payment already confirmed for this job order.");
+      toast.info(t("requestDetail.toasts.alreadyConfirmed"));
       e.target.value = "";
       return;
     }
@@ -127,31 +127,31 @@ export default function StationRequestDetail() {
         onSuccess: (data) => {
           if (data?.receiptFileUrl) {
             setReceiptFileUrl(data.receiptFileUrl);
-            toast.success("تم رفع الإيصال. اضغط «تأكيد إرسال المبلغ» للتأكيد.");
+            toast.success(t("requestDetail.toasts.receiptUploaded"));
           } else {
-            toast.success("Receipt uploaded.");
+            toast.success(t("requestDetail.toasts.receiptUploadedGeneric"));
           }
           e.target.value = "";
         },
-        onError: (err) => toast.error(getApiErrorMessage(err, "Upload failed.")),
+        onError: (err) => toast.error(getApiErrorMessage(err, t("requestDetail.toasts.uploadFailed"))),
       }
     );
   };
 
   const handleRejectQuote = () => {
     if (!id || rejectQuoteId == null || !rejectReason.trim()) {
-      toast.error("Enter a rejection reason.");
+      toast.error(t("requestDetail.toasts.reasonRequired"));
       return;
     }
     rejectQuoteMutation.mutate(
       { requestId: id, providerQuoteId: rejectQuoteId, rejectionReason: rejectReason.trim() },
       {
         onSuccess: () => {
-          toast.success("Quote rejected.");
+          toast.success(t("requestDetail.toasts.quoteRejected"));
           setRejectQuoteId(null);
           setRejectReason("");
         },
-        onError: (e) => toast.error(e instanceof Error ? e.message : "Reject failed."),
+        onError: (e) => toast.error(e instanceof Error ? e.message : t("requestDetail.toasts.rejectFailed")),
       }
     );
   };
@@ -160,30 +160,30 @@ export default function StationRequestDetail() {
     <div className="p-4 md:p-8">
       {isLoading || !id ? (
         <div className="flex items-center justify-center min-h-[200px] text-muted-foreground">
-          Loading...
+          {t("loading")}
         </div>
       ) : !request ? (
         <>
           <Button variant="ghost" asChild>
-            <Link to="/station-requests">Back</Link>
+            <Link to="/station-requests">{t("back")}</Link>
           </Button>
-          <p className="text-destructive">Request not found.</p>
+          <p className="text-destructive">{t("requestDetail.notFound")}</p>
         </>
       ) : (
     <div className="space-y-6">
       <Button variant="ghost" asChild>
         <Link to="/station-requests" className="gap-2">
-          <ChevronLeft className="h-4 w-4" /> Back
+          <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("back")}
         </Link>
       </Button>
 
       {isCancelled && (
-        <Card className="border-amber-200 bg-amber-50/50">
+        <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
           <CardContent className="pt-4">
-            <p className="font-medium text-amber-800">Request cancelled (الطلب ملغى)</p>
-            <p className="text-xs text-muted-foreground">الإلغاء نهائي — لا انتقالات تالية.</p>
+            <p className="font-medium text-amber-800 dark:text-amber-200">{t("requestDetail.cancelledTitle")}</p>
+            <p className="text-xs text-muted-foreground">{t("requestDetail.cancelledNote")}</p>
             {request.cancellationReason && (
-              <p className="text-sm text-amber-700 mt-1">{request.cancellationReason}</p>
+              <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">{request.cancellationReason}</p>
             )}
           </CardContent>
         </Card>
@@ -194,10 +194,8 @@ export default function StationRequestDetail() {
           <CardContent className="pt-4 flex items-start gap-2">
             <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
             <div>
-              <p className="font-medium text-destructive">المزود رفض استلام الدفع (Payment Rejected)</p>
-              <p className="text-sm text-muted-foreground">
-                أمر العمل يبقى في انتظار الدفع ولا يُفعّل — لا يصل إلى ACTIVE.
-              </p>
+              <p className="font-medium text-destructive">{t("requestDetail.paymentRejectedTitle")}</p>
+              <p className="text-sm text-muted-foreground">{t("requestDetail.paymentRejectedNote")}</p>
               {rejectionReason && (
                 <p className="text-sm text-muted-foreground mt-1">{rejectionReason}</p>
               )}
@@ -208,16 +206,16 @@ export default function StationRequestDetail() {
 
       <Card>
         <CardHeader>
-          <CardTitle>{request.title ?? request.formData?.description ?? `Request #${request.id}`}</CardTitle>
+          <CardTitle>{request.title ?? request.formData?.description ?? t("requestDetail.requestFallback", { id: request.id })}</CardTitle>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground mt-1">
             <Badge variant="secondary">{request.status}</Badge>
             {request.formData?.priority && (
-              <span className="capitalize">Priority: {request.formData.priority}</span>
+              <span className="capitalize">{t("requestDetail.priorityLabel", { priority: request.formData.priority })}</span>
             )}
             {request.createdAt && (
               <span className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                {new Date(request.createdAt).toLocaleString()}
+                {formatDate(request.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
               </span>
             )}
           </div>
@@ -229,7 +227,7 @@ export default function StationRequestDetail() {
 
           {request.Branch && (
             <div className="rounded-lg border bg-muted/30 p-4 space-y-2">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Branch</p>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">{t("requestDetail.branchLabel")}</p>
               <div className="flex flex-wrap gap-4 text-sm">
                 <span className="flex items-center gap-1.5 font-medium">
                   <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -246,7 +244,9 @@ export default function StationRequestDetail() {
                   <span className="flex items-center gap-1.5 text-muted-foreground">
                     <Phone className="h-3.5 w-3.5" />
                     {request.Branch.managerName}
-                    {request.Branch.managerPhone && ` · ${request.Branch.managerPhone}`}
+                    {request.Branch.managerPhone && (
+                      <span dir="ltr">{` · ${request.Branch.managerPhone}`}</span>
+                    )}
                   </span>
                 )}
               </div>
@@ -255,7 +255,7 @@ export default function StationRequestDetail() {
 
           {quotes.length > 0 && (
             <div className="space-y-2">
-              <p className="text-sm font-medium">عروض الأسعار / Quotes</p>
+              <p className="text-sm font-medium">{t("requestDetail.quotesHeading")}</p>
               <ul className="space-y-2">
                 {quotes.map((q) => {
                   const isRejected = q.status === "REJECTED";
@@ -270,9 +270,9 @@ export default function StationRequestDetail() {
                       }`}
                     >
                       <span>
-                        Quote #{q.id}
+                        {t("requestDetail.quoteLabel", { id: q.id })}
                         {q.amount != null && ` · ${q.amount}`}
-                        {q.providerOrganizationId != null && ` · Org ${q.providerOrganizationId}`}
+                        {q.providerOrganizationId != null && ` · ${t("requestDetail.orgLabel", { id: q.providerOrganizationId })}`}
                       </span>
                       <div className="flex items-center gap-2 shrink-0">
                         {!isInactive && rejectQuoteId !== q.id && (
@@ -283,18 +283,18 @@ export default function StationRequestDetail() {
                             onClick={() => setRejectQuoteId(q.id)}
                           >
                             <XCircle className="h-3.5 w-3.5" />
-                            Reject
+                            {t("requestDetail.reject")}
                           </Button>
                         )}
                         {showRejectForm && (
                           <div className="flex flex-wrap items-end gap-2">
                             <div className="space-y-1 min-w-[180px]">
                               <Label htmlFor={`reject-reason-${q.id}`} className="text-xs">
-                                Reason (required)
+                                {t("requestDetail.reasonRequired")}
                               </Label>
                               <Input
                                 id={`reject-reason-${q.id}`}
-                                placeholder="Rejection reason"
+                                placeholder={t("requestDetail.reasonPlaceholder")}
                                 value={rejectReason}
                                 onChange={(e) => setRejectReason(e.target.value)}
                                 className="h-8"
@@ -306,7 +306,7 @@ export default function StationRequestDetail() {
                               onClick={handleRejectQuote}
                               disabled={rejectQuoteMutation.isPending || !rejectReason.trim()}
                             >
-                              Submit reject
+                              {t("requestDetail.submitReject")}
                             </Button>
                             <Button
                               size="sm"
@@ -316,7 +316,7 @@ export default function StationRequestDetail() {
                                 setRejectReason("");
                               }}
                             >
-                              Cancel
+                              {t("requestDetail.cancel")}
                             </Button>
                           </div>
                         )}
@@ -332,9 +332,7 @@ export default function StationRequestDetail() {
                 })}
               </ul>
               {quotes.some((q) => q.status === "REJECTED" || q.status === "WITHDRAWN") && (
-                <p className="text-xs text-muted-foreground">
-                  عرض مرفوض أو منسحب — الطلب قد يستمر مع مزود أو عرض آخر. العروض الملغاة أو المرفوضة لا يمكن اختيارها.
-                </p>
+                <p className="text-xs text-muted-foreground">{t("requestDetail.inactiveQuoteNote")}</p>
               )}
             </div>
           )}
@@ -343,16 +341,16 @@ export default function StationRequestDetail() {
             <>
               {selectableQuotes.length > 0 && (
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Select quote</p>
+                  <p className="text-sm font-medium">{t("requestDetail.selectQuoteHeading")}</p>
                   <div className="flex gap-2 items-center">
                     <Select value={selectedQuoteId} onValueChange={setSelectedQuoteId}>
                       <SelectTrigger className="w-[200px]">
-                        <SelectValue placeholder="Choose quote" />
+                        <SelectValue placeholder={t("requestDetail.chooseQuote")} />
                       </SelectTrigger>
                       <SelectContent>
                         {selectableQuotes.map((q) => (
                           <SelectItem key={q.id} value={String(q.id)}>
-                            Quote #{q.id} · {q.amount != null ? `${q.amount}` : ""}
+                            {t("requestDetail.quoteLabel", { id: q.id })} · {q.amount != null ? `${q.amount}` : ""}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -362,7 +360,7 @@ export default function StationRequestDetail() {
                       onClick={handleSelectQuote}
                       disabled={selectQuoteMutation.isPending || !selectedQuoteId}
                     >
-                      Select
+                      {t("requestDetail.select")}
                     </Button>
                   </div>
                 </div>
@@ -371,11 +369,9 @@ export default function StationRequestDetail() {
               {awaitingPaymentJob && !paymentRejected && stationAlreadyConfirmedSent && (
                 <div className="pt-2 border-t space-y-2 rounded-lg border bg-green-50/50 dark:bg-green-950/20 p-3">
                   <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                    تم تأكيد إرسال المبلغ. في انتظار تأكيد المزود.
+                    {t("requestDetail.paymentConfirmedTitle")}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    الخطوة التالية: المزود (صاحب العرض المختار) يدخل من <strong>حسابه كمزود خدمة</strong> → يفتح القائمة <strong>Provider Job Orders</strong> → يفتح أمر العمل → يضغط <strong>«تأكيد استلام الدفع» (Confirm received)</strong> لتفعيل الأمر والبدء في العمل. لو المزود لا يرى الأمر، تأكد أنه مسجّل دخول بحساب منظمة المزود التي قُبل عرضها.
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t("requestDetail.paymentConfirmedNote")}</p>
                   {(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl) && (
                     <a
                       href={(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl) ?? "#"}
@@ -383,22 +379,18 @@ export default function StationRequestDetail() {
                       rel="noreferrer"
                       className="text-sm text-primary underline"
                     >
-                      View bank transfer receipt
+                      {t("requestDetail.viewReceipt")}
                     </a>
                   )}
                 </div>
               )}
               {awaitingPaymentJob && !paymentRejected && !stationAlreadyConfirmedSent && (
                 <div className="pt-2 border-t space-y-3">
-                  <p className="text-sm font-medium">الدفع (Payment)</p>
-                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400">
-                    تأكيد الدفع من هنا — المحطة تؤكد أنها أرسلت المبلغ للمزود.
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    ١) ارفع إيصال التحويل. ٢) (اختياري) رقم التحويل / المبلغ / الطريقة. ٣) اضغط «تأكيد إرسال المبلغ».
-                  </p>
+                  <p className="text-sm font-medium">{t("requestDetail.paymentHeading")}</p>
+                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{t("requestDetail.paymentHint")}</p>
+                  <p className="text-xs text-muted-foreground">{t("requestDetail.paymentSteps")}</p>
                   <div className="space-y-2">
-                    <Label className="text-xs">1. رفع إيصال</Label>
+                    <Label className="text-xs">{t("requestDetail.uploadReceiptLabel")}</Label>
                     <div className="flex flex-wrap items-center gap-2">
                       <input
                         ref={receiptFileInputRef}
@@ -414,7 +406,7 @@ export default function StationRequestDetail() {
                         onClick={() => receiptFileInputRef.current?.click()}
                         disabled={uploadReceiptMutation.isPending}
                       >
-                        <Upload className="h-4 w-4" /> رفع إيصال
+                        <Upload className="h-4 w-4" /> {t("requestDetail.uploadReceipt")}
                       </Button>
                       {(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl) && (
                         <a
@@ -423,43 +415,44 @@ export default function StationRequestDetail() {
                           rel="noreferrer"
                           className="text-sm text-primary underline"
                         >
-                          View receipt
+                          {t("requestDetail.viewReceiptShort")}
                         </a>
                       )}
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div className="space-y-1">
-                      <Label className="text-xs">رقم التحويل (optional)</Label>
+                      <Label className="text-xs">{t("requestDetail.referenceNumber")}</Label>
                       <Input
                         value={paymentReferenceNumber}
                         onChange={(e) => setPaymentReferenceNumber(e.target.value)}
                         placeholder="e.g. TRF-2024-001"
                         className="h-8"
+                        dir="ltr"
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">المبلغ (optional)</Label>
+                      <Label className="text-xs">{t("requestDetail.amount")}</Label>
                       <Input
                         type="number"
                         min={0}
                         value={paymentAmount}
                         onChange={(e) => setPaymentAmount(e.target.value)}
-                        placeholder="Amount"
+                        placeholder="0"
                         className="h-8"
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">طريقة الدفع (optional)</Label>
+                      <Label className="text-xs">{t("requestDetail.method")}</Label>
                       <Select value={paymentMethod || "_"} onValueChange={(v) => setPaymentMethod(v === "_" ? "" : v)}>
                         <SelectTrigger className="h-8">
                           <SelectValue placeholder="—" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="_">—</SelectItem>
-                          <SelectItem value="BANK_TRANSFER">Bank transfer</SelectItem>
-                          <SelectItem value="CASH">Cash</SelectItem>
-                          <SelectItem value="OTHER">Other</SelectItem>
+                          <SelectItem value="BANK_TRANSFER">{t("requestDetail.methodBankTransfer")}</SelectItem>
+                          <SelectItem value="CASH">{t("requestDetail.methodCash")}</SelectItem>
+                          <SelectItem value="OTHER">{t("requestDetail.methodOther")}</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -473,7 +466,7 @@ export default function StationRequestDetail() {
                       (!(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl) && !paymentReferenceNumber.trim())
                     }
                   >
-                    <CheckCircle className="h-4 w-4" /> 2. تأكيد إرسال المبلغ
+                    <CheckCircle className="h-4 w-4" /> {t("requestDetail.confirmPaymentSent")}
                   </Button>
                 </div>
               )}

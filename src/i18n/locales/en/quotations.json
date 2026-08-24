@@ -1,0 +1,116 @@
+{
+  "title": {
+    "authority": "Service offers",
+    "default": "financial offers"
+  },
+  "description": {
+    "authority": "Review and manage service offers for service requests.",
+    "default": "Review and manage financial offers for service requests."
+  },
+  "submitNewOffer": "Submit New Offer",
+  "submitDialog": {
+    "title": "Submit New Offer",
+    "description": "Submit quotation for a service request.",
+    "serviceRequestId": "Service Request ID",
+    "serviceRequestIdPlaceholder": "e.g., 15",
+    "amount": "Amount",
+    "currency": "Currency",
+    "cancel": "Cancel",
+    "send": "Send Offer",
+    "sending": "Submitting..."
+  },
+  "toasts": {
+    "invalidRequestId": "Please enter a valid service request ID.",
+    "invalidAmount": "Please enter a valid amount.",
+    "submitSuccess": "Quotation submitted successfully!",
+    "submitFailed": "Failed to submit quotation."
+  },
+  "statusFilter": {
+    "options": {
+      "all": "All",
+      "DRAFT": "Draft",
+      "SUBMITTED": "Submitted",
+      "REVISED": "Revised",
+      "WITHDRAWN": "Withdrawn",
+      "REJECTED": "Rejected",
+      "SELECTED": "Selected"
+    }
+  },
+  "loading": "Loading quotations...",
+  "loadFailed": "Failed to load quotations.",
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageOf": "Page {{page}} of {{maxPage}}"
+  },
+  "tableHeader": {
+    "recentOffers": "Recent Offers",
+    "summary": "Total: {{total}} | Page: {{page}}"
+  },
+  "table": {
+    "title": "Title",
+    "status": "Status",
+    "version": "Version",
+    "totalCost": "Total cost",
+    "branch": "Branch",
+    "stationOrg": "Station / Org",
+    "created": "Created",
+    "attachments": "Attachments",
+    "actions": "Actions",
+    "yes": "Yes",
+    "view": "View",
+    "noOffers": "No offers found.",
+    "priority": "Priority",
+    "description": "Description",
+    "amount": "Amount",
+    "provider": "Provider",
+    "branchStation": "Branch / Station",
+    "submittedBy": "Submitted by",
+    "noQuotations": "No quotations found.",
+    "orgFallback": "Org #{{id}}",
+    "notAvailable": "N/A"
+  },
+  "detail": {
+    "loading": "Loading...",
+    "backButton": "Back",
+    "notFound": "Quote not found.",
+    "backToOffers": "Back to offers",
+    "quoteHeading": "Quote #{{id}}",
+    "version": "Version {{version}}",
+    "payment": "Payment: {{type}}",
+    "created": "Created {{date}}",
+    "rejection": "Rejection: {{reason}}",
+    "sections": {
+      "requestBranch": "Request / Branch",
+      "requestDetails": "Request details",
+      "pricingDetails": "Pricing details",
+      "paymentTerms": "Payment terms",
+      "attachments": "Attachments",
+      "revisions": "Revisions"
+    },
+    "fields": {
+      "requestId": "Request ID",
+      "branch": "Branch",
+      "address": "Address",
+      "stationOrg": "Station / Org",
+      "asset": "Asset",
+      "area": "Area",
+      "city": "City",
+      "title": "Title",
+      "priority": "Priority",
+      "description": "Description",
+      "attachmentsCount": "{{count}} file(s)",
+      "amount": "Amount",
+      "laborCost": "Labor cost",
+      "materialCost": "Material cost",
+      "timeline": "Timeline",
+      "warranty": "Warranty",
+      "scopeOfWork": "Scope of work",
+      "technicalProposal": "Technical proposal",
+      "notes": "Notes"
+    },
+    "paymentTermRow": "Seq {{sequence}}: {{percent}}% — {{trigger}}",
+    "attachmentFallback": "Attachment",
+    "revisionRow": "Version {{version}} — {{date}}"
+  }
+}
