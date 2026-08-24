@@ -1,6 +1,6 @@
-# TAQA Admin Frontend
+# Servexa Admin Frontend
 
-TAQA Admin is a React + TypeScript admin dashboard used to manage organizations, branches, users, registrations, onboarding, branch requests, work orders, and related authority/provider workflows.
+Servexa Admin is a React + TypeScript admin dashboard used to manage organizations, branches, users, registrations, onboarding, branch requests, work orders, and related authority/provider workflows.
 
 ## Tech Stack
 

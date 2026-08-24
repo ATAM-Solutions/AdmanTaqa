@@ -1,0 +1,36 @@
+{
+  "controlCenter": "مركز التحكم",
+  "organizations": {
+    "group": "المنظمات",
+    "all": "المنظمات",
+    "rejected": "المنظمات (مرفوضة)"
+  },
+  "fuelStations": {
+    "group": "محطات الوقود",
+    "all": "محطات الوقود",
+    "pending": "محطات الوقود (قيد الانتظار)",
+    "rejected": "محطات الوقود (مرفوضة)"
+  },
+  "users": {
+    "group": "المستخدمون",
+    "all": "المستخدمون",
+    "roles": "الأدوار"
+  },
+  "registrations": "طلبات التسجيل",
+  "onboarding": "التأهيل",
+  "profile": "الملف الشخصي",
+  "branches": "الفروع",
+  "branchRequests": "طلبات الفروع",
+  "locations": "المواقع",
+  "serviceCategories": "فئات الخدمات",
+  "externalJobOrders": "أوامر العمل الخارجية",
+  "internalWorkOrders": "أوامر العمل الداخلية",
+  "externalRequests": "الطلبات الخارجية",
+  "stationJobOrders": "أوامر عمل المحطة",
+  "linkedProviders": "مزودو الخدمة المرتبطون",
+  "requestsQuote": "طلبات عروض الأسعار",
+  "providerJobOrders": "أوامر عمل المزود",
+  "financialOffers": "العروض المالية",
+  "auditLog": "سجل التدقيق",
+  "logout": "تسجيل الخروج"
+}

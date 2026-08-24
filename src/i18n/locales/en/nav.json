@@ -1,0 +1,36 @@
+{
+  "controlCenter": "Control Center",
+  "organizations": {
+    "group": "Organizations",
+    "all": "Organizations",
+    "rejected": "Organizations (Rejected)"
+  },
+  "fuelStations": {
+    "group": "Fuel Stations",
+    "all": "Fuel Stations",
+    "pending": "Fuel Stations (Pending)",
+    "rejected": "Fuel Stations (Rejected)"
+  },
+  "users": {
+    "group": "Users",
+    "all": "Users",
+    "roles": "Roles"
+  },
+  "registrations": "Registrations",
+  "onboarding": "Onboarding",
+  "profile": "Profile",
+  "branches": "Branches",
+  "branchRequests": "Branch Requests",
+  "locations": "Locations",
+  "serviceCategories": "Service Categories",
+  "externalJobOrders": "External Job Orders",
+  "internalWorkOrders": "Internal Work Orders",
+  "externalRequests": "External Requests",
+  "stationJobOrders": "Station Job Orders",
+  "linkedProviders": "Linked Providers",
+  "requestsQuote": "Requests quote",
+  "providerJobOrders": "Provider Job Orders",
+  "financialOffers": "financial offers",
+  "auditLog": "Audit Log",
+  "logout": "Logout"
+}

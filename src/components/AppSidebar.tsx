@@ -20,6 +20,8 @@ import {
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
+import { useDirection } from "@radix-ui/react-direction";
 import { useAuth } from "@/context/AuthContext";
 import {
   ROUTE_ACCESS_RULES,
@@ -28,7 +30,8 @@ import {
 } from "@/lib/accessControl";
 
 interface NavItem {
-  label: string;
+  id: string;
+  labelKey: string;
   path?: string;
   icon: React.ComponentType<{ className?: string }>;
   isDropdown?: boolean;
@@ -68,71 +71,76 @@ const FUEL_STATION_HIDDEN_PATHS = new Set([
 
 const navGroups: NavGroup[] = [
   {
-    label: "TAQA ",
+    label: "Servexa",
     items: [],
   },
   {
     items: [
-      { 
-        label: "Organizations", 
+      {
+        id: "organizations",
+        labelKey: "organizations.group",
         icon: Building2,
         isDropdown: true,
         children: [
-          { label: "Organizations", path: "/organizations", icon: Building2 },
-          { label: "Organizations (Rejected)", path: "/organizations/rejected", icon: Building2 },
+          { id: "organizations-all", labelKey: "organizations.all", path: "/organizations", icon: Building2 },
+          { id: "organizations-rejected", labelKey: "organizations.rejected", path: "/organizations/rejected", icon: Building2 },
         ]
       },
       {
-        label: "Fuel Stations",
+        id: "fuelStations",
+        labelKey: "fuelStations.group",
         icon: Fuel,
         isDropdown: true,
         children: [
-          { label: "Fuel Stations", path: "/fuel-stations", icon: Fuel },
-          { label: "Fuel Stations (Pending)", path: "/fuel-stations/pending", icon: Fuel },
-          { label: "Fuel Stations (Rejected)", path: "/fuel-stations/rejected", icon: Fuel },
+          { id: "fuelStations-all", labelKey: "fuelStations.all", path: "/fuel-stations", icon: Fuel },
+          { id: "fuelStations-pending", labelKey: "fuelStations.pending", path: "/fuel-stations/pending", icon: Fuel },
+          { id: "fuelStations-rejected", labelKey: "fuelStations.rejected", path: "/fuel-stations/rejected", icon: Fuel },
         ]
       },
-      { 
-        label: "Users", 
+      {
+        id: "users",
+        labelKey: "users.group",
         icon: Users,
         isDropdown: true,
         children: [
-          { label: "Users", path: "/users", icon: Users },
-          { label: "Roles", path: "/roles", icon: ShieldCheck }
+          { id: "users-all", labelKey: "users.all", path: "/users", icon: Users },
+          { id: "users-roles", labelKey: "users.roles", path: "/roles", icon: ShieldCheck }
         ]
       },
-      { label: "Registrations", path: "/registrations", icon: FileText },
-      { label: "Onboarding", path: "/onboarding", icon: BookOpen },
-      { label: "Profile", path: "/profile", icon: UserCog },
-      
-      { label: "Branches", path: "/branches", icon: GitBranch },
-      { label: "Branch Requests", path: "/branch-requests", icon: GitBranch },
-      { label: "Locations", path: "/locations", icon: MapPin },
-      { label: "Service Categories", path: "/service-categories", icon: Tags },
-      { label: "External Job Orders", path: "/external-job-orders", icon: Briefcase },
-      { label: "Internal Work Orders", path: "/internal-work-orders", icon: Briefcase },
-      { label: "External Requests", path: "/station-requests", icon: Briefcase },
-      { label: "Station Job Orders", path: "/station-job-orders", icon: Briefcase },
-      { label: "Linked Providers", path: "/linked-providers", icon: Briefcase },
-      { label: "Requests quote", path: "/provider-rfqs", icon: Briefcase },
-      { label: "Provider Job Orders", path: "/provider-job-orders", icon: Briefcase },
-      { label: "financial offers", path: "/quotations", icon: FileOutput },
-      
-      // { label: "Inspections", path: "/inspections", icon: SearchCheck },
-      { label: "Audit Log", path: "/audit-log", icon: History },
+      { id: "registrations", labelKey: "registrations", path: "/registrations", icon: FileText },
+      { id: "onboarding", labelKey: "onboarding", path: "/onboarding", icon: BookOpen },
+      { id: "profile", labelKey: "profile", path: "/profile", icon: UserCog },
+
+      { id: "branches", labelKey: "branches", path: "/branches", icon: GitBranch },
+      { id: "branchRequests", labelKey: "branchRequests", path: "/branch-requests", icon: GitBranch },
+      { id: "locations", labelKey: "locations", path: "/locations", icon: MapPin },
+      { id: "serviceCategories", labelKey: "serviceCategories", path: "/service-categories", icon: Tags },
+      { id: "externalJobOrders", labelKey: "externalJobOrders", path: "/external-job-orders", icon: Briefcase },
+      { id: "internalWorkOrders", labelKey: "internalWorkOrders", path: "/internal-work-orders", icon: Briefcase },
+      { id: "externalRequests", labelKey: "externalRequests", path: "/station-requests", icon: Briefcase },
+      { id: "stationJobOrders", labelKey: "stationJobOrders", path: "/station-job-orders", icon: Briefcase },
+      { id: "linkedProviders", labelKey: "linkedProviders", path: "/linked-providers", icon: Briefcase },
+      { id: "requestsQuote", labelKey: "requestsQuote", path: "/provider-rfqs", icon: Briefcase },
+      { id: "providerJobOrders", labelKey: "providerJobOrders", path: "/provider-job-orders", icon: Briefcase },
+      { id: "financialOffers", labelKey: "financialOffers", path: "/quotations", icon: FileOutput },
+
+      // { id: "inspections", labelKey: "inspections", path: "/inspections", icon: SearchCheck },
+      { id: "auditLog", labelKey: "auditLog", path: "/audit-log", icon: History },
     ],
-  }, 
+  },
 ];
 
 export default function AppSidebar() {
+  const { t } = useTranslation("nav");
+  const dir = useDirection();
   const location = useLocation();
   const navigate = useNavigate();
-   
-  // State to manage dropdowns
+
+  // State to manage dropdowns, keyed by stable item id (not the translated label)
   const [openDropdowns, setOpenDropdowns] = useState<Record<string, boolean>>({
-    "Organizations": false,
-    "Fuel Stations": false,
-    "Users": false
+    organizations: false,
+    fuelStations: false,
+    users: false,
   });
 
   const { logout, organization, permissions } = useAuth();
@@ -141,10 +149,10 @@ export default function AppSidebar() {
     navigate("/login");
   };
 
-  const toggleDropdown = (label: string) => {
+  const toggleDropdown = (id: string) => {
     setOpenDropdowns(prev => ({
       ...prev,
-      [label]: !prev[label]
+      [id]: !prev[id]
     }));
   };
 
@@ -180,38 +188,36 @@ export default function AppSidebar() {
     items: group.items.filter((item) => canSeeItem(item)),
   }));
 
-  const getItemLabel = (item: NavItem): string => item.label;
-
   const renderItem = (item: NavItem) => {
     if (item.isDropdown) {
-      const isOpen = openDropdowns[item.label];
+      const isOpen = openDropdowns[item.id];
       const visibleChildren = item.children?.filter((child) => canSeeItem(child)) ?? [];
       return (
-        <SidebarMenuItem key={item.label}>
+        <SidebarMenuItem key={item.id}>
           <SidebarMenuButton
             className="px-4 py-6 hover:bg-primary/5 transition-all group/btn w-full justify-between"
-            onClick={() => toggleDropdown(item.label)}
+            onClick={() => toggleDropdown(item.id)}
           >
             <div className="flex items-center gap-3">
-              <item.icon className="h-4 w-4 text-slate-500" />
-              <span className="font-semibold text-sm">{item.label}</span>
+              <item.icon className="h-4 w-4 text-muted-foreground" />
+              <span className="font-semibold text-sm">{t(item.labelKey)}</span>
             </div>
             {isOpen ? (
-              <ChevronDown className="h-4 w-4 text-slate-500" />
+              <ChevronDown className="h-4 w-4 text-muted-foreground" />
             ) : (
-              <ChevronRight className="h-4 w-4 text-slate-500" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground rtl:rotate-180" />
             )}
           </SidebarMenuButton>
           {isOpen && visibleChildren.length > 0 && (
             <SidebarMenuSub>
               {visibleChildren.map((child) => (
-                <SidebarMenuSubItem key={child.path}>
+                <SidebarMenuSubItem key={child.id}>
                   <SidebarMenuSubButton asChild isActive={isItemActive(child)}>
                     <Link to={child.path!} className="flex items-center gap-3">
                       <child.icon
-                        className={`h-4 w-4 transition-colors ${isItemActive(child) ? "text-primary" : "text-slate-500 group-hover/btn:text-primary"}`}
+                        className={`h-4 w-4 transition-colors ${isItemActive(child) ? "text-primary" : "text-muted-foreground group-hover/btn:text-primary"}`}
                       />
-                      <span className="font-medium text-sm">{child.label}</span>
+                      <span className="font-medium text-sm">{t(child.labelKey)}</span>
                     </Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
@@ -223,17 +229,17 @@ export default function AppSidebar() {
     } else {
       // Only render items with paths
       if (!item.path) return null;
-      
+
       return (
-        <SidebarMenuItem key={item.path}>
+        <SidebarMenuItem key={item.id}>
           <SidebarMenuButton
             className="px-4 py-6 hover:bg-primary/5 transition-all group/btn"
             asChild
             isActive={isItemActive(item)}
           >
             <Link to={item.path} className="flex items-center gap-3">
-              <item.icon className={`h-4 w-4 transition-colors ${isItemActive(item) ? 'text-primary' : 'text-slate-500 group-hover/btn:text-primary'}`} />
-              <span className="font-semibold text-sm">{getItemLabel(item)}</span>
+              <item.icon className={`h-4 w-4 transition-colors ${isItemActive(item) ? 'text-primary' : 'text-muted-foreground group-hover/btn:text-primary'}`} />
+              <span className="font-semibold text-sm">{t(item.labelKey)}</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>
@@ -242,7 +248,7 @@ export default function AppSidebar() {
   };
 
   return (
-    <Sidebar>
+    <Sidebar side={dir === "rtl" ? "right" : "left"}>
       <SidebarContent>
         {visibleGroups.map((group, groupIndex) => (
           <SidebarGroup key={group.label ?? `nav-group-${groupIndex}`}>
@@ -251,14 +257,7 @@ export default function AppSidebar() {
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {group.items.map((item, itemIndex) => {
-                  const el = renderItem(item);
-                  return el != null ? (
-                    <React.Fragment key={item.path ?? item.label ?? `nav-${groupIndex}-${itemIndex}`}>
-                      {el}
-                    </React.Fragment>
-                  ) : null;
-                })}
+                {group.items.map((item) => renderItem(item))}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
@@ -269,7 +268,7 @@ export default function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton onClick={handleLogout} className="text-destructive hover:text-destructive hover:bg-destructive/10">
               <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+              <span>{t('logout')}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -214,7 +214,7 @@ export function useRegisterV2Form() {
 
   return {
     ...form,
-    handleSubmit: form.handleSubmit(onSubmit),
+    submitForm: form.handleSubmit(onSubmit),
     isLoading,
     apiError,
     files,

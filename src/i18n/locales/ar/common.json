@@ -1,0 +1,16 @@
+{
+  "pagination": {
+    "previous": "السابق",
+    "next": "التالي",
+    "morePages": "صفحات أخرى",
+    "ariaLabel": "الصفحات"
+  },
+  "actions": {
+    "toggleLanguage": "تبديل اللغة",
+    "toggleTheme": "تبديل المظهر"
+  },
+  "asyncBoundary": {
+    "error": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
+    "empty": "لا يوجد شيء لعرضه حتى الآن."
+  }
+}

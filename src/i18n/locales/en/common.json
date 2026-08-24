@@ -1,0 +1,16 @@
+{
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next",
+    "morePages": "More pages",
+    "ariaLabel": "pagination"
+  },
+  "actions": {
+    "toggleLanguage": "Toggle language",
+    "toggleTheme": "Toggle theme"
+  },
+  "asyncBoundary": {
+    "error": "Something went wrong. Please try again.",
+    "empty": "Nothing to show yet."
+  }
+}

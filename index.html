@@ -2,9 +2,20 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/jpeg" href="/logo.jpeg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>taqa-admin</title>
+    <title>Servexa Admin</title>
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("app_locale");
+          var lang = (stored || navigator.language || "en").toLowerCase();
+          var isAr = lang.indexOf("ar") === 0;
+          document.documentElement.dir = isAr ? "rtl" : "ltr";
+          document.documentElement.lang = isAr ? "ar" : "en";
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
