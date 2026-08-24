@@ -1,74 +1,53 @@
 {
   "page": {
     "title": "تفتيش الامتثال",
-    "subtitle": "خطط لعمليات التفتيش الرقابي ونفذها وراجعها عبر جميع المنظمات.",
-    "newPlan": "خطة تفتيش جديدة"
+    "subtitle": "مراجعة عمليات تفتيش الامتثال المنفذة عبر محطات الوقود ومزودي الخدمة.",
+    "newPlan": "تفتيش جديد"
+  },
+  "targetType": {
+    "FUEL_STATION": "محطة وقود",
+    "SERVICE_PROVIDER": "مزود خدمة"
   },
   "createDialog": {
-    "title": "إنشاء خطة تفتيش",
-    "description": "جدولة عملية تفتيش امتثال جديدة لمنظمة أو فرع.",
+    "title": "تسجيل تفتيش",
+    "description": "تسجيل عملية تفتيش امتثال لمنظمة أو فرع.",
+    "targetType": "نوع الهدف",
     "targetOrganization": "المنظمة المستهدفة",
     "selectTarget": "اختر الهدف",
-    "assignedInspector": "المفتش المكلّف",
-    "selectInspector": "اختر المفتش",
-    "inspectionType": "نوع التفتيش",
-    "selectType": "اختر النوع",
-    "types": {
-      "routine": "تفتيش روتيني",
-      "safety": "تدقيق سلامة",
-      "compliance": "مراجعة امتثال",
-      "followUp": "تفتيش متابعة"
-    },
-    "scheduledDate": "التاريخ المجدول",
-    "scope": "نطاق التفتيش",
-    "scopePlaceholder": "حدد نطاق ومحاور تركيز هذا التفتيش...",
-    "notes": "ملاحظات إضافية (اختياري)",
-    "notesPlaceholder": "أي تعليمات أو ملاحظات خاصة...",
+    "selectTargetRequired": "يرجى اختيار منظمة مستهدفة.",
+    "branch": "الفرع (اختياري)",
+    "selectBranch": "اختر الفرع",
+    "noBranches": "لا توجد فروع لهذه المحطة.",
+    "findings": "النتائج / الملاحظات",
+    "findingsPlaceholder": "صف نتائج التفتيش...",
     "cancel": "إلغاء",
-    "submit": "جدولة التفتيش"
+    "submit": "تسجيل التفتيش",
+    "submitting": "جارٍ الحفظ..."
   },
   "toasts": {
-    "created": "تم إنشاء خطة التفتيش بنجاح!"
+    "created": "تم تسجيل التفتيش بنجاح!",
+    "createFailed": "فشل تسجيل التفتيش."
   },
   "table": {
     "header": "سجل التفتيش",
     "records": "{{count}} سجل",
     "searchPlaceholder": "ابحث عن الأهداف أو المفتشين...",
+    "loading": "جارٍ تحميل عمليات التفتيش...",
+    "unknownTarget": "منظمة غير معروفة",
+    "unknownInspector": "مفتش غير معروف",
     "columns": {
       "id": "رقم التفتيش",
       "targetBranch": "المنظمة والفرع المستهدف",
       "inspector": "المفتش",
-      "status": "الحالة",
       "date": "التاريخ",
       "actions": "الإجراءات"
     },
     "noResults": "لا توجد عمليات تفتيش مطابقة لـ \"{{query}}\"",
-    "reportAction": "التقرير"
+    "reportAction": "عرض"
   },
-  "mock": {
-    "targets": {
-      "alAmal": "محطة الأمل للوقود",
-      "ecoEnergy": "إيكو إنرجي للخدمات",
-      "redSea": "البحر الأحمر للبترول",
-      "mastersMaintenance": "ماسترز للصيانة"
-    },
-    "branches": {
-      "northRiyadh": "شمال الرياض",
-      "mainHub": "المركز الرئيسي",
-      "highway10": "الطريق السريع 10",
-      "eastZone": "المنطقة الشرقية"
-    },
-    "inspectors": {
-      "mohammedKhalid": "محمد خالد",
-      "sarahAlGhamdi": "سارة الغامدي",
-      "ahmedMansour": "أحمد منصور",
-      "fatimaHassan": "فاطمة حسن"
-    },
-    "findings": {
-      "safetyEquipment": "تم العثور على مشكلات بسيطة في تخزين معدات السلامة.",
-      "maintenanceWorkspace": "مراجعة معمّقة لمساحة عمل الصيانة.",
-      "annualCompliance": "التفتيش السنوي للسلامة والامتثال.",
-      "rescheduled": "تمت إعادة الجدولة بناءً على طلب المزود."
-    }
+  "viewDialog": {
+    "title": "التفتيش رقم {{id}}",
+    "description": "التفاصيل الكاملة لعملية تفتيش الامتثال هذه.",
+    "noFindings": "لا توجد نتائج مسجلة."
   }
 }

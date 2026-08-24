@@ -1,15 +1,19 @@
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Toaster } from '@/components/ui/sonner';
+import { Badge } from '@/components/ui/badge';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import AppSidebar from './AppSidebar';
 import ErrorBoundary from './ErrorBoundary';
 import LanguageSwitcher from './LanguageSwitcher';
 import DarkModeToggle from './DarkModeToggle';
+import NotificationBell from './NotificationBell';
+import { useAuth } from '@/context/AuthContext';
 import logo from '@/assets/logo.jpeg';
 
 export default function Layout() {
   const { t } = useTranslation('nav');
+  const { organization } = useAuth();
 
   return (
     <SidebarProvider>
@@ -25,8 +29,14 @@ export default function Layout() {
                 <span className="font-bold text-base leading-none tracking-tight text-foreground">Servexa Admin</span>
                 <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-0.5">{t('controlCenter')}</span>
               </div>
+              {organization?.type === 'SUPER_ADMIN' ? (
+                <Badge className="ms-2 bg-primary text-primary-foreground px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest">
+                  {t('superAdminBadge')}
+                </Badge>
+              ) : null}
             </div>
             <div className="ms-auto flex items-center gap-1">
+              <NotificationBell />
               <LanguageSwitcher />
               <DarkModeToggle />
             </div>

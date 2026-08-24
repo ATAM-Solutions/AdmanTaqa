@@ -51,7 +51,21 @@
       "view": "View",
       "owner": "Owner",
       "statusCardTitle": "Status",
-      "current": "Current"
+      "current": "Current",
+      "branches": "Branches",
+      "branchesSubtitle": "Branches registered under this organization.",
+      "noBranches": "No branches registered yet.",
+      "branchActive": "Active",
+      "branchInactive": "Inactive",
+      "users": "Users",
+      "usersSubtitle": "People with accounts in this organization.",
+      "noUsers": "No users found.",
+      "userInactive": "Inactive",
+      "approvalHistory": "Approval History",
+      "approvalHistorySubtitle": "Audit trail of registration decisions for this organization.",
+      "noApprovalHistory": "No approval decisions recorded yet.",
+      "reviewedBy": "Reviewed by {{name}}",
+      "unknownReviewer": "Unknown reviewer"
     },
     "docTypes": {
       "LICENSE": "License",

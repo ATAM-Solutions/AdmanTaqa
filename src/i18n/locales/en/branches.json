@@ -19,8 +19,23 @@
       "status": "Status",
       "actions": "Actions",
       "viewDetails": "View Details",
-      "noResults": "No branches found matching your search."
+      "noResults": "No branches found matching your search.",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
     }
+  },
+  "toggleActive": {
+    "activateTitle": "Activate branch",
+    "deactivateTitle": "Deactivate branch",
+    "activateDescription": "Are you sure you want to activate \"{{name}}\"? It will become visible in active workflows again.",
+    "deactivateDescription": "Are you sure you want to deactivate \"{{name}}\"? It will be hidden from active workflows until reactivated.",
+    "cancel": "Cancel",
+    "activateConfirm": "Activate",
+    "deactivateConfirm": "Deactivate",
+    "saving": "Saving...",
+    "activatedSuccess": "\"{{name}}\" activated successfully.",
+    "deactivatedSuccess": "\"{{name}}\" deactivated successfully.",
+    "failed": "Failed to update branch status."
   },
   "dialog": {
     "title": "Add New Branch",
@@ -116,6 +131,8 @@
     "backToBranches": "Back to Branches",
     "notFound": "Branch not found.",
     "backAriaLabel": "Back to branches",
+    "activateBranch": "Activate",
+    "deactivateBranch": "Deactivate",
     "editBranch": "Edit Branch",
     "orgPrefix": "Org #{{id}}",
     "branchInformation": "Branch Information",

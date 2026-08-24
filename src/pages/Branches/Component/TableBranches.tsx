@@ -11,11 +11,12 @@ import {
 import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Eye, CheckCircle2, XCircle } from "lucide-react";
+import { MapPin, Eye, CheckCircle2, XCircle, Power } from "lucide-react";
 import type { BranchApiItem } from "@/hooks/Branches/useGetBranches";
 
 type TableBranchesProps = {
   branches: BranchApiItem[];
+  onToggleActive: (branch: { id: number; name: string; isActive: boolean }) => void;
 };
 
 function StatusBadge({ status, isActive, activeLabel }: { status: string; isActive: boolean; activeLabel: string }) {
@@ -35,7 +36,7 @@ function StatusBadge({ status, isActive, activeLabel }: { status: string; isActi
   );
 }
 
-export default function TableBranches({ branches }: TableBranchesProps) {
+export default function TableBranches({ branches, onToggleActive }: TableBranchesProps) {
   const { t } = useTranslation("branches");
   const navigate = useNavigate();
 
@@ -98,15 +99,36 @@ export default function TableBranches({ branches }: TableBranchesProps) {
                     <StatusBadge status={branch.status} isActive={branch.isActive} activeLabel={t("list.active")} />
                   </TableCell>
                   <TableCell className="text-end px-6">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 gap-2 hover:bg-primary/5 hover:text-primary transition-all rounded-md"
-                      onClick={() => navigate(`/branches/${branch.id}`)}
-                    >
-                      <Eye className="h-3.5 w-3.5" />
-                      {t("list.table.viewDetails")}
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 gap-2 hover:bg-primary/5 hover:text-primary transition-all rounded-md"
+                        onClick={() => navigate(`/branches/${branch.id}`)}
+                      >
+                        <Eye className="h-3.5 w-3.5" />
+                        {t("list.table.viewDetails")}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className={`h-8 gap-2 rounded-md ${
+                          branch.isActive
+                            ? "hover:bg-destructive/5 hover:text-destructive"
+                            : "hover:bg-emerald-50 hover:text-emerald-700 dark:hover:bg-emerald-950 dark:hover:text-emerald-400"
+                        }`}
+                        onClick={() =>
+                          onToggleActive({
+                            id: branch.id,
+                            name: branch.nameEn || branch.nameAr || String(branch.id),
+                            isActive: branch.isActive,
+                          })
+                        }
+                      >
+                        <Power className="h-3.5 w-3.5" />
+                        {branch.isActive ? t("list.table.deactivate") : t("list.table.activate")}
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))

@@ -1,0 +1,45 @@
+{
+  "title": "Operators",
+  "subtitle": "Manage your field operators and their linked user accounts.",
+  "addOperator": "Add Operator",
+  "searchPlaceholder": "Search operators...",
+  "loading": "Loading operators...",
+  "empty": "No operators found.",
+  "edit": "Edit",
+  "delete": "Delete",
+  "noLinkedUser": "No linked user account",
+  "linkedUserInactive": "Inactive",
+  "createDialog": {
+    "title": "Add Operator",
+    "description": "Add a new field operator, optionally linked to a team member account.",
+    "name": "Operator Name",
+    "namePlaceholder": "e.g., Ahmed Al-Otaibi",
+    "nameRequired": "Please enter an operator name.",
+    "linkedUser": "Linked User Account (Optional)",
+    "selectUser": "Select a team member",
+    "noLink": "No linked account",
+    "linkedUserHint": "Linking a user account lets this operator log in and update job status themselves.",
+    "cancel": "Cancel",
+    "submit": "Add Operator",
+    "submitting": "Saving..."
+  },
+  "editDialog": {
+    "title": "Edit Operator",
+    "description": "Update this operator's name or linked user account.",
+    "save": "Save Changes"
+  },
+  "deleteDialog": {
+    "title": "Delete operator",
+    "description": "Are you sure you want to delete \"{{name}}\"? This cannot be undone.",
+    "confirm": "Delete",
+    "deleting": "Deleting..."
+  },
+  "toasts": {
+    "created": "Operator added successfully!",
+    "createFailed": "Failed to add operator.",
+    "updated": "Operator updated successfully!",
+    "updateFailed": "Failed to update operator.",
+    "deleted": "\"{{name}}\" deleted successfully.",
+    "deleteFailed": "Failed to delete operator."
+  }
+}

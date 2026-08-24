@@ -207,6 +207,24 @@ export interface OrganizationByIdServiceProviderProfile {
     ServiceProviderDocuments?: ServiceProviderDocumentItem[];
 }
 
+/** Branch in GET /organizations/:id response (Branches array) */
+export interface OrganizationByIdBranch {
+    id: number;
+    nameEn?: string;
+    nameAr?: string;
+    status?: string;
+    Area?: { id: number; name: string } | null;
+}
+
+/** Approval history entry in GET /organizations/:id response (OrganizationApprovals array) */
+export interface OrganizationByIdApproval {
+    id: number;
+    status: string;
+    rejectionReason?: string | null;
+    createdAt: string;
+    User?: { id: number; fullName: string; email: string } | null;
+}
+
 /** Full organization from GET /api/organizations/:id */
 export interface OrganizationByIdFull {
     id: number;
@@ -221,6 +239,8 @@ export interface OrganizationByIdFull {
     Users?: OrganizationByIdUser[];
     OrganizationDocuments?: OrganizationByIdDocument[];
     ServiceProviderProfile?: OrganizationByIdServiceProviderProfile | null;
+    Branches?: OrganizationByIdBranch[];
+    OrganizationApprovals?: OrganizationByIdApproval[];
     owner?: OrganizationMeFullOwner | null;
 }
 

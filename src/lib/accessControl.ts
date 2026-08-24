@@ -10,40 +10,37 @@ export type AccessRule = {
 
 // Route keys match router child paths without leading slash.
 export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
+  // Every org type with a real dashboard variant (Dashboard.tsx dispatches per type).
+  // Authority deliberately excluded — no dashboard variant exists for it.
+  dashboard: {
+    orgTypes: ["SUPER_ADMIN", "FUEL_STATION", "SERVICE_PROVIDER"],
+  },
   organizations: {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:approve", "organizations:read"],
   },
   "organizations/rejected": {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:approve", "organizations:read"],
   },
   "organizations/:id": {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:approve", "organizations:read"],
   },
   "fuel-stations": {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:approve", "organizations:read"],
   },
   "fuel-stations/pending": {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:approve", "organizations:read"],
   },
   "fuel-stations/rejected": {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:approve", "organizations:read"],
   },
   "fuel-stations/:id": {
-    orgTypes: ["AUTHORITY"],
-    anyPermissions: ["organizations:approve", "organizations:read"],
-  },
-  registrations: {
-    orgTypes: ["AUTHORITY"],
-    anyPermissions: ["organizations:approve", "organizations:read"],
-  },
-  "registrations/:id": {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:approve", "organizations:read"],
   },
   onboarding: {
@@ -55,33 +52,30 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     anyPermissions: ["organizations:approve", "organizations:read"],
   },
   inspections: {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["inspections:read", "inspections:create"],
   },
   "audit-log": {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["audit:read"],
   },
   users: {
-    orgTypes: ["FUEL_STATION","AUTHORITY","SERVICE_PROVIDER", ],
+    orgTypes: ["FUEL_STATION","AUTHORITY","SERVICE_PROVIDER","SUPER_ADMIN", ],
   },
   "users/:id": {
-    orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", ],
-  },
-  "users/:id/edit": {
-    orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", ],
+    orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER","SUPER_ADMIN", ],
   },
   roles: {
-    orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", ],
+    orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", "SUPER_ADMIN", ],
   },
   "roles/create": {
-    orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", ],
+    orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", "SUPER_ADMIN", ],
   },
   "roles/:id": {
-    orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", ],
+    orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", "SUPER_ADMIN", ],
   },
   "roles/:id/edit": {
-    orgTypes: [ "FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER",],
+    orgTypes: [ "FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER","SUPER_ADMIN",],
   },
   branches: {
     orgTypes: ["FUEL_STATION"],
@@ -96,36 +90,39 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     orgTypes: ["FUEL_STATION"],
   },
   locations: {
-    orgTypes: ["AUTHORITY",  "FUEL_STATION"],
+    orgTypes: ["AUTHORITY",  "FUEL_STATION", "SUPER_ADMIN"],
   },
-  "service-Offering": {
-    orgTypes: ["SERVICE_PROVIDER", "AUTHORITY"],
+  "service-offerings": {
+    orgTypes: ["SERVICE_PROVIDER"],
+  },
+  operators: {
+    orgTypes: ["SERVICE_PROVIDER"],
   },
   "service-categories": {
-    orgTypes: ["SERVICE_PROVIDER", "AUTHORITY"],
+    orgTypes: ["SERVICE_PROVIDER", "AUTHORITY", "SUPER_ADMIN"],
   },
   quotations: {
-    orgTypes: ["SERVICE_PROVIDER", "FUEL_STATION"],
+    orgTypes: ["SERVICE_PROVIDER", "FUEL_STATION", "AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["quotations:read", "quotations:submit"],
   },
   "quotations/:id": {
-    orgTypes: ["SERVICE_PROVIDER", "FUEL_STATION"],
+    orgTypes: ["SERVICE_PROVIDER", "FUEL_STATION", "AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["quotations:read", "quotations:submit"],
   },
   "job-orders": {
-    orgTypes: [  "AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["job-orders:read"],
   },
   "job-orders/:id": {
-    orgTypes: [  "AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["job-orders:read"],
   },
   "external-job-orders": {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:read"],
   },
   "external-job-orders/:id": {
-    orgTypes: ["AUTHORITY"],
+    orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:read"],
   },
   "work-orders/:id": {
@@ -137,13 +134,13 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     anyPermissions: ["workorders.approve", "internal_tasks.review"],
   },
   "branch-requests": {
-    orgTypes: ["FUEL_STATION"],
+    orgTypes: ["FUEL_STATION", "SUPER_ADMIN"],
   },
   "branch-requests/create": {
     orgTypes: ["FUEL_STATION"],
   },
   "branch-requests/:id": {
-    orgTypes: ["FUEL_STATION", "AUTHORITY"],
+    orgTypes: ["FUEL_STATION", "AUTHORITY", "SUPER_ADMIN"],
   },
   // Station (Fuel Station): internal work orders, external requests
   "internal-work-orders": {

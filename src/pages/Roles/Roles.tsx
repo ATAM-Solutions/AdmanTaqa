@@ -1,9 +1,10 @@
+import { useState } from "react";
 import RoleCardsGrid from "./Component/RoleCardsGrid";
+import DeleteRoleDialog from "./Component/DeleteRoleDialog";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
-import { toast } from "sonner";
 import useGetRoles from "@/hooks/Roles/useGetRoles";
 import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 import { PageHeader } from "@/components/patterns/PageHeader";
@@ -12,10 +13,7 @@ export default function Roles() {
   const { t } = useTranslation("roles");
   const navigate = useNavigate();
   const { data: roles = [], isLoading, error } = useGetRoles();
-
-  const handleDeleteConfirm = (role: { id: string; name: string }) => {
-    toast.error(t("list.deleteUnavailable", { name: role.name }));
-  };
+  const [deletingRole, setDeletingRole] = useState<{ id: string; name: string } | null>(null);
 
   return (
     <div className="p-4 md:p-8 space-y-6 animate-in slide-in-from-right duration-500">
@@ -46,10 +44,18 @@ export default function Roles() {
             permissionsList: role.permissionsList ?? [],
             userCount: role.userCount ?? 0,
             type: role.type ?? "ORGANIZATION",
+            isSystem: role.isSystem ?? true,
+            organizationType: role.organizationType,
           }))}
-          onDeleteConfirm={handleDeleteConfirm}
+          onDeleteConfirm={setDeletingRole}
         />
       </AsyncBoundary>
+
+      <DeleteRoleDialog
+        open={deletingRole != null}
+        onOpenChange={(open) => !open && setDeletingRole(null)}
+        role={deletingRole}
+      />
     </div>
   );
 }

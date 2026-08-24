@@ -1,5 +1,13 @@
 {
   "controlCenter": "Control Center",
+  "dashboard": "Dashboard",
+  "groups": {
+    "overview": "Overview",
+    "organizations": "Organizations",
+    "peopleAccess": "People & Access",
+    "operations": "Operations",
+    "administration": "Administration"
+  },
   "organizations": {
     "group": "Organizations",
     "all": "Organizations",
@@ -16,21 +24,25 @@
     "all": "Users",
     "roles": "Roles"
   },
-  "registrations": "Registrations",
   "onboarding": "Onboarding",
   "profile": "Profile",
   "branches": "Branches",
   "branchRequests": "Branch Requests",
   "locations": "Locations",
   "serviceCategories": "Service Categories",
+  "serviceOfferings": "Service Offerings",
   "externalJobOrders": "External Job Orders",
+  "inspections": "Inspections",
   "internalWorkOrders": "Internal Work Orders",
   "externalRequests": "External Requests",
   "stationJobOrders": "Station Job Orders",
   "linkedProviders": "Linked Providers",
+  "operators": "Operators",
   "requestsQuote": "Requests quote",
   "providerJobOrders": "Provider Job Orders",
   "financialOffers": "financial offers",
+  "jobOrdersLegacy": "Job Orders (Quotations)",
   "auditLog": "Audit Log",
-  "logout": "Logout"
+  "logout": "Logout",
+  "superAdminBadge": "Super Admin"
 }

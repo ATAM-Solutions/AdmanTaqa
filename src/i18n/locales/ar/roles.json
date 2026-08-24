@@ -4,13 +4,20 @@
     "subtitle": "حدد مستويات الوصول وأسند الصلاحيات لمختلف فئات المستخدمين.",
     "createButton": "إنشاء دور مخصص",
     "loading": "جارٍ تحميل الأدوار...",
-    "deleteUnavailable": "نقطة حذف الدور غير متاحة بعد على /api/roles لـ \"{{name}}\"."
+    "deleteDialogTitle": "حذف الدور",
+    "deleteDialogDescription": "هل أنت متأكد من حذف \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+    "deleteCancel": "إلغاء",
+    "deleteConfirm": "حذف",
+    "deleting": "جارٍ الحذف...",
+    "deleteSuccess": "تم حذف الدور \"{{name}}\" بنجاح.",
+    "deleteFailed": "فشل حذف الدور."
   },
   "card": {
     "activeUsers": "{{count}} مستخدم نشط",
     "permissionsHeading": "الصلاحيات ({{count}})",
     "more": "+{{count}} أخرى",
-    "edit": "تعديل"
+    "edit": "تعديل",
+    "delete": "حذف"
   },
   "create": {
     "title": "إنشاء دور مخصص",

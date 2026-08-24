@@ -51,7 +51,21 @@
       "view": "عرض",
       "owner": "المالك",
       "statusCardTitle": "الحالة",
-      "current": "الحالية"
+      "current": "الحالية",
+      "branches": "الفروع",
+      "branchesSubtitle": "الفروع المسجّلة تحت هذه المنظمة.",
+      "noBranches": "لا توجد فروع مسجّلة بعد.",
+      "branchActive": "نشط",
+      "branchInactive": "غير نشط",
+      "users": "المستخدمون",
+      "usersSubtitle": "الأشخاص الذين لديهم حسابات في هذه المنظمة.",
+      "noUsers": "لم يتم العثور على مستخدمين.",
+      "userInactive": "غير نشط",
+      "approvalHistory": "سجل الموافقات",
+      "approvalHistorySubtitle": "سجل تدقيق قرارات التسجيل لهذه المنظمة.",
+      "noApprovalHistory": "لا توجد قرارات موافقة مسجّلة بعد.",
+      "reviewedBy": "تمت المراجعة بواسطة {{name}}",
+      "unknownReviewer": "مراجع غير معروف"
     },
     "docTypes": {
       "LICENSE": "ترخيص",

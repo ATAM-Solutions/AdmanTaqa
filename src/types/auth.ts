@@ -15,7 +15,7 @@ export interface AuthRole {
 export interface Organization {
     id: number;
     name: string;
-    type: "FUEL_STATION" | "SERVICE_PROVIDER" | "AUTHORITY";
+    type: "FUEL_STATION" | "SERVICE_PROVIDER" | "AUTHORITY" | "SUPER_ADMIN";
     status: "PENDING" | "APPROVED" | "REJECTED";
 }
 

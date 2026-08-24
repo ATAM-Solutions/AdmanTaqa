@@ -7,6 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 /** Extract user-facing message from API error (message or errors.detail). */
 export function getApiErrorMessage(error: unknown, fallback = "An error occurred."): string {
+  if (!error) return fallback;
   const err = error as {
     response?: { data?: { message?: string; errors?: { detail?: string } } };
     message?: string;

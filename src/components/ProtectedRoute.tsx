@@ -5,7 +5,7 @@ interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
-const ALLOWED_ORG_TYPES = ["SERVICE_PROVIDER", "AUTHORITY", "FUEL_STATION"] as const;
+const ALLOWED_ORG_TYPES = ["SERVICE_PROVIDER", "AUTHORITY", "FUEL_STATION", "SUPER_ADMIN"] as const;
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, organization, logout } = useAuth();

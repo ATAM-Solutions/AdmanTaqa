@@ -1,0 +1,23 @@
+{
+  "bell": {
+    "ariaLabel": "Notifications",
+    "title": "Notifications",
+    "markAllRead": "Mark all read",
+    "loading": "Loading notifications...",
+    "empty": "You're all caught up.",
+    "viewAll": "View all notifications"
+  },
+  "page": {
+    "title": "Notifications",
+    "subtitle": "Recent activity and alerts relevant to your account.",
+    "filterAll": "All",
+    "filterUnread": "Unread",
+    "filterRead": "Read"
+  },
+  "priority": {
+    "LOW": "Low",
+    "NORMAL": "Normal",
+    "HIGH": "High",
+    "CRITICAL": "Critical"
+  }
+}

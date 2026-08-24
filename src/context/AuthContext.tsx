@@ -26,7 +26,8 @@ const isOrganizationType = (
 ): value is Organization["type"] =>
   value === "FUEL_STATION" ||
   value === "SERVICE_PROVIDER" ||
-  value === "AUTHORITY";
+  value === "AUTHORITY" ||
+  value === "SUPER_ADMIN";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);

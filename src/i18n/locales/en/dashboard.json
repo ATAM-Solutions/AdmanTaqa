@@ -1,38 +1,161 @@
 {
-  "title": "Operational",
-  "titleHighlight": "Insights",
-  "subtitle": "Real-time status of your energy network and service ecosystem.",
-  "networkOnline": "Network Online",
-  "stats": {
-    "totalOrganizations": "Total Organizations",
-    "activeUsers": "Active Users",
-    "openRequests": "Open Requests",
-    "revenueMtd": "Revenue (MTD)",
-    "vsLastMonth": "vs last month"
+  "superAdmin": {
+    "title": "Super Admin Dashboard",
+    "description": "Platform-wide overview across every organization on Servexa.",
+    "badge": "Super Admin"
   },
-  "chart": {
-    "title": "Energy Output Trend",
-    "subtitle": "Performance analytics across all active stations.",
-    "weekly": "Weekly",
-    "live": "Live",
-    "months": {
-      "jan": "Jan",
-      "feb": "Feb",
-      "mar": "Mar",
-      "apr": "Apr",
-      "may": "May",
-      "jun": "Jun"
+  "kpi": {
+    "organizations": "Organizations",
+    "fuelStations": "Fuel Stations",
+    "serviceProviders": "Service Providers",
+    "activeUsers": "Active Users",
+    "pendingRegistrations": "Pending Registrations",
+    "pendingBranches": "Pending Branches",
+    "openMaintenance": "Open Maintenance Requests",
+    "internalWorkOrders": "Internal Work Orders",
+    "externalRequests": "External Requests",
+    "activeJobs": "Active Jobs",
+    "completedJobs": "Completed Jobs",
+    "pendingQuotations": "Pending Quotations",
+    "awaitingPayment": "Awaiting Payment Confirmation",
+    "recentVisits": "Recent Visits (7d)",
+    "stuckWorkflows": "Stuck Workflows",
+    "newToday": "+{{count}} today",
+    "ofTotal": "of {{total}} total"
+  },
+  "charts": {
+    "empty": "No data yet for this chart.",
+    "error": "Couldn't load dashboard data.",
+    "count": "Count",
+    "external": "External (V2)",
+    "legacyV1": "Legacy (V1)",
+    "jobOrders": "Job Orders",
+    "externalJobOrders": "External Job Orders",
+    "internal": "Internal",
+    "completed": "Completed",
+    "quotesSubmitted": "Quotes submitted",
+    "requestsCreated": "Requests created",
+    "last30Days": "Last 30 days",
+    "requestsOverTime": {
+      "title": "Requests Over Time",
+      "description": "Daily external maintenance requests, last 30 days"
+    },
+    "jobsByStatus": {
+      "title": "Jobs by Status",
+      "description": "Job orders and external job orders, by lifecycle status"
+    },
+    "organizationsByType": {
+      "title": "Organizations by Type"
+    },
+    "registrationsByStatus": {
+      "title": "Registrations by Status"
+    },
+    "internalVsExternal": {
+      "title": "Internal vs External Maintenance"
+    },
+    "jobCompletionTrend": {
+      "title": "Job Completion Trend",
+      "description": "Daily completed/closed jobs, last 30 days"
+    },
+    "serviceProviderActivity": {
+      "title": "Service Provider Activity"
+    },
+    "fuelStationActivity": {
+      "title": "Fuel Station Activity"
     }
   },
-  "activity": {
-    "title": "Live Feed",
-    "active": "Active",
-    "loadHistorical": "Load historical data",
-    "items": {
-      "branchUpdate": { "user": "Ahmed Mansour", "action": "Updated branch details", "target": "North Station", "time": "2 minutes ago" },
-      "newRequest": { "user": "Sarah Al-Ghamdi", "action": "Created new service request", "target": "REQ-2024-081", "time": "15 minutes ago" },
-      "autoApproved": { "user": "System", "action": "Auto-approved quotation", "target": "QUO-9001", "time": "1 hour ago" },
-      "inspectionLogged": { "user": "Mohammed Khalid", "action": "Logged inspection report", "target": "INS-501", "time": "3 hours ago" }
+  "orgType": {
+    "FUEL_STATION": "Fuel Station",
+    "SERVICE_PROVIDER": "Service Provider",
+    "AUTHORITY": "Authority"
+  },
+  "status": {
+    "PENDING": "Pending",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected"
+  },
+  "queues": {
+    "pendingRegistrations": "Pending Registrations",
+    "pendingBranches": "Pending Branch Approvals",
+    "recentActivity": "Recent Activity",
+    "system": "System"
+  },
+  "quickActions": {
+    "title": "Quick Actions",
+    "description": "Jump straight to the screens you use most.",
+    "reviewRegistrations": "Review Registrations",
+    "reviewBranches": "Review Pending Branches",
+    "viewFuelStations": "View Fuel Stations",
+    "viewServiceProviders": "View Service Providers",
+    "viewUsers": "View Users",
+    "viewExternalJobs": "View External Jobs",
+    "viewAuditLog": "View Audit Log",
+    "manageLocations": "Manage Locations",
+    "manageServiceCategories": "Manage Service Categories"
+  },
+  "viewAll": "View all",
+  "retry": "Retry",
+  "station": {
+    "title": "Fuel Station Dashboard",
+    "description": "Your organization's branches, maintenance, and jobs at a glance.",
+    "kpi": {
+      "branches": "Branches",
+      "employees": "Employees",
+      "openMaintenance": "Open Maintenance Issues",
+      "internalWorkOrders": "Internal Work Orders",
+      "externalRequests": "External Requests",
+      "quotesAwaitingDecision": "Quotes Awaiting Decision",
+      "activeJobs": "Active Jobs",
+      "awaitingPayment": "Payment Pending",
+      "completedAwaitingApproval": "Completed, Awaiting Approval",
+      "completedJobs": "Completed Jobs"
+    },
+    "charts": {
+      "requestsOverTime": "Maintenance Requests Over Time",
+      "branchActivity": "Branch Activity",
+      "providerUsage": "Provider Usage"
+    },
+    "quickActions": {
+      "newRequest": "New Maintenance Request",
+      "addBranch": "Add Branch",
+      "addEmployee": "Add Employee",
+      "reviewQuotes": "Review Quotes",
+      "activeJobs": "Active Jobs",
+      "reviewCompleted": "Review Completed Work"
+    }
+  },
+  "provider": {
+    "title": "Service Provider Dashboard",
+    "description": "Your organization's requests, quotes, and jobs at a glance.",
+    "kpi": {
+      "employeesOperators": "Employees / Operators",
+      "operatorsCount": "{{count}} operators",
+      "services": "Services Offered",
+      "incomingRequests": "Incoming Requests",
+      "quotesSubmitted": "Quotes Submitted",
+      "acceptedQuotes": "Accepted Quotes",
+      "activeJobs": "Active Jobs",
+      "awaitingPaymentReceipt": "Awaiting Payment Receipt",
+      "activeVisits": "Active Visits",
+      "awaitingCompletionReport": "Awaiting Completion/Report",
+      "completedJobs": "Completed Jobs"
+    },
+    "charts": {
+      "requestsReceivedOverTime": "Requests Received Over Time",
+      "requestsReceived": "Requests received",
+      "quoteConversion": "Quote Conversion",
+      "conversionRate": "{{rate}}% of submitted quotes accepted",
+      "submitted": "Submitted",
+      "accepted": "Accepted",
+      "quotesByStatus": "Quotes by Status"
+    },
+    "quickActions": {
+      "reviewIncoming": "Review Incoming Requests",
+      "createQuote": "Create/View Quotations",
+      "manageServices": "Manage Services",
+      "addEmployee": "Add Employee/Operator",
+      "activeJobs": "Active Jobs",
+      "paymentConfirmations": "Payment Confirmations"
     }
   }
 }

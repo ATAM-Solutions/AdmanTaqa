@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import BranchesTableHeader from "./Component/BranchesTableHeader";
 import TableBranches from "./Component/TableBranches";
+import ToggleBranchActiveDialog from "./Component/ToggleBranchActiveDialog";
 import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 import useGetBranches from "@/hooks/Branches/useGetBranches";
 import type { BranchApiItem } from "@/hooks/Branches/useGetBranches";
@@ -14,6 +15,7 @@ export default function Branches() {
   const { t } = useTranslation("branches");
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [togglingBranch, setTogglingBranch] = useState<{ id: number; name: string; isActive: boolean } | null>(null);
 
   const { data: branches = [], isLoading, error } = useGetBranches();
 
@@ -63,9 +65,15 @@ export default function Branches() {
             statusFilter={statusFilter}
             onStatusFilterChange={setStatusFilter}
           />
-          <TableBranches branches={filteredBranches} />
+          <TableBranches branches={filteredBranches} onToggleActive={setTogglingBranch} />
         </Card>
       </AsyncBoundary>
+
+      <ToggleBranchActiveDialog
+        open={togglingBranch != null}
+        onOpenChange={(open) => !open && setTogglingBranch(null)}
+        branch={togglingBranch}
+      />
     </div>
   );
 }

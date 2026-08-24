@@ -7,6 +7,8 @@ import NotFound from "./pages/NotFound/NotFound";
 import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import Profile from "./pages/Profile/Profile";
+import Dashboard from "./pages/Dashboard/Dashboard";
+import Notifications from "./pages/Notifications/Notifications";
 
 // ---------- Authority   ----------
 
@@ -16,32 +18,31 @@ import OrganizationsRejected from "./pages/Authority/Organizations/Organizations
 import FuelStations from "./pages/Authority/FuelStations/FuelStations";
 import FuelStationsPending from "./pages/Authority/FuelStations/FuelStationsPending";
 import FuelStationsRejected from "./pages/Authority/FuelStations/FuelStationsRejected";
-import RegistrationsPage from "./pages/Registrations/RegistrationsPage";
-import RegistrationDetailPage from "./pages/Registrations/RegistrationDetailPage";
 import OnboardingPage from "./pages/Onboarding/OnboardingPage";
 import OnboardingDetails from "./pages/Onboarding/OnboardingDetails";
-// import JobOrders from "./pages/JobOrders/JobOrders";
-// import JobOrderDetails from "./pages/JobOrders/JobOrderDetails";
+import JobOrders from "./pages/JobOrders/JobOrders";
+import JobOrderDetails from "./pages/JobOrders/JobOrderDetails";
 import AuthorityExternalJobOrders from "./pages/Authority/ExternalJobOrders/AuthorityExternalJobOrders";
 import AuthorityExternalJobOrderDetail from "./pages/Authority/ExternalJobOrders/AuthorityExternalJobOrderDetail";
-// import Inspections from "./pages/Inspections/Inspections";
+import Inspections from "./pages/Inspections/Inspections";
 import AuditLog from "./pages/AuditLog/AuditLog";
 
 // ---------- Service Provider   ----------
 import Users from "./pages/Users/Users";
 import UserDetails from "./pages/Users/UserDetails";
-import UpdateUser from "./pages/Users/UpdateUser";
 import Roles from "./pages/Roles/Roles";
 import CreateCustomRole from "./pages/Roles/CreateCustomRole";
 import RoleDetails from "./pages/Roles/RoleDetails";
 import EditRole from "./pages/Roles/EditRole";
 import ServiceCategories from "./pages/ServiceCategories/ServiceCategories";
+import ServiceOfferings from "./pages/ServiceOfferings/ServiceOfferings";
 import ProviderRfqs from "./pages/Provider/ProviderRfqs";
 import ProviderRfqDetail from "./pages/Provider/ProviderRfqDetail";
 import ProviderJobOrders from "./pages/Provider/ProviderJobOrders";
 import ProviderJobOrderDetail from "./pages/Provider/ProviderJobOrderDetail";
 import Locations from "./pages/Locations/Locations";
 import LinkedProviders from "./pages/Station/LinkedProviders";
+import Operators from "./pages/Operators/Operators";
 
 // ---------- Fuel Station (محطة الوقود) ----------
 import Branches from "./pages/Branches/Branches";
@@ -90,6 +91,18 @@ export const router = createHashRouter([
       {
         path: "profile",
         element: <Profile />,
+      },
+      {
+        path: "notifications",
+        element: <Notifications />,
+      },
+      {
+        path: "dashboard",
+        element: (
+          <RouteAccessGuard pathKey="dashboard">
+            <Dashboard />
+          </RouteAccessGuard>
+        ),
       },
 
       // ---------- Authority (هيئة) ----------
@@ -150,22 +163,6 @@ export const router = createHashRouter([
         ),
       },
       {
-        path: "registrations",
-        element: (
-          <RouteAccessGuard pathKey="registrations">
-            <RegistrationsPage />
-          </RouteAccessGuard>
-        ),
-      },
-      {
-        path: "registrations/:id",
-        element: (
-          <RouteAccessGuard pathKey="registrations/:id">
-            <RegistrationDetailPage />
-          </RouteAccessGuard>
-        ),
-      },
-      {
         path: "onboarding",
         element: (
           <RouteAccessGuard pathKey="onboarding">
@@ -181,22 +178,22 @@ export const router = createHashRouter([
           </RouteAccessGuard>
         ),
       },
-      // {
-      //   path: "job-orders",
-      //   element: (
-      //     <RouteAccessGuard pathKey="job-orders">
-      //       <JobOrders />
-      //     </RouteAccessGuard>
-      //   ),
-      // },
-      // {
-      //   path: "job-orders/:id",
-      //   element: (
-      //     <RouteAccessGuard pathKey="job-orders/:id">
-      //       <JobOrderDetails />
-      //     </RouteAccessGuard>
-      //   ),
-      // },
+      {
+        path: "job-orders",
+        element: (
+          <RouteAccessGuard pathKey="job-orders">
+            <JobOrders />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "job-orders/:id",
+        element: (
+          <RouteAccessGuard pathKey="job-orders/:id">
+            <JobOrderDetails />
+          </RouteAccessGuard>
+        ),
+      },
       {
         path: "external-job-orders",
         element: (
@@ -213,14 +210,14 @@ export const router = createHashRouter([
           </RouteAccessGuard>
         ),
       },
-      // {
-      //   path: "inspections",
-      //   element: (
-      //     <RouteAccessGuard pathKey="inspections">
-      //       <Inspections />
-      //     </RouteAccessGuard>
-      //   ),
-      // },
+      {
+        path: "inspections",
+        element: (
+          <RouteAccessGuard pathKey="inspections">
+            <Inspections />
+          </RouteAccessGuard>
+        ),
+      },
       {
         path: "audit-log",
         element: (
@@ -244,14 +241,6 @@ export const router = createHashRouter([
         element: (
           <RouteAccessGuard pathKey="users/:id">
             <UserDetails />
-          </RouteAccessGuard>
-        ),
-      },
-      {
-        path: "users/:id/edit",
-        element: (
-          <RouteAccessGuard pathKey="users/:id/edit">
-            <UpdateUser />
           </RouteAccessGuard>
         ),
       },
@@ -292,6 +281,22 @@ export const router = createHashRouter([
         element: (
           <RouteAccessGuard pathKey="service-categories">
             <ServiceCategories />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "service-offerings",
+        element: (
+          <RouteAccessGuard pathKey="service-offerings">
+            <ServiceOfferings />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "operators",
+        element: (
+          <RouteAccessGuard pathKey="operators">
+            <Operators />
           </RouteAccessGuard>
         ),
       },

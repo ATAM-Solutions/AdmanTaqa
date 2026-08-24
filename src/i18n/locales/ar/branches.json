@@ -19,8 +19,23 @@
       "status": "الحالة",
       "actions": "الإجراءات",
       "viewDetails": "عرض التفاصيل",
-      "noResults": "لا توجد فروع مطابقة لبحثك."
+      "noResults": "لا توجد فروع مطابقة لبحثك.",
+      "activate": "تفعيل",
+      "deactivate": "إلغاء التفعيل"
     }
+  },
+  "toggleActive": {
+    "activateTitle": "تفعيل الفرع",
+    "deactivateTitle": "إلغاء تفعيل الفرع",
+    "activateDescription": "هل أنت متأكد من تفعيل \"{{name}}\"؟ سيصبح مرئيًا مرة أخرى في سير العمل النشط.",
+    "deactivateDescription": "هل أنت متأكد من إلغاء تفعيل \"{{name}}\"؟ سيتم إخفاؤه من سير العمل النشط حتى يُعاد تفعيله.",
+    "cancel": "إلغاء",
+    "activateConfirm": "تفعيل",
+    "deactivateConfirm": "إلغاء التفعيل",
+    "saving": "جارٍ الحفظ...",
+    "activatedSuccess": "تم تفعيل \"{{name}}\" بنجاح.",
+    "deactivatedSuccess": "تم إلغاء تفعيل \"{{name}}\" بنجاح.",
+    "failed": "فشل تحديث حالة الفرع."
   },
   "dialog": {
     "title": "إضافة فرع جديد",
@@ -116,6 +131,8 @@
     "backToBranches": "العودة إلى الفروع",
     "notFound": "الفرع غير موجود.",
     "backAriaLabel": "العودة إلى الفروع",
+    "activateBranch": "تفعيل",
+    "deactivateBranch": "إلغاء التفعيل",
     "editBranch": "تعديل الفرع",
     "orgPrefix": "المنظمة رقم {{id}}",
     "branchInformation": "معلومات الفرع",

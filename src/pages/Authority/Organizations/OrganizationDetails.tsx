@@ -16,6 +16,9 @@ import {
   Mail,
   Phone,
   User,
+  MapPin,
+  Users as UsersIcon,
+  History,
 } from "lucide-react";
 import useGetOrganizationById from "@/hooks/Organization/useGetOrganizationById";
 import OrganizationActions from "./Component/OrganizationActions";
@@ -35,6 +38,11 @@ export default function OrganizationDetails() {
   const orgFull = org as OrganizationByIdFull | null | undefined;
   const documents = orgFull?.OrganizationDocuments ?? [];
   const serviceProvider = orgFull?.ServiceProviderProfile;
+  const branches = orgFull?.Branches ?? [];
+  const users = orgFull?.Users ?? [];
+  const approvalHistory = [...(orgFull?.OrganizationApprovals ?? [])].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -290,6 +298,118 @@ export default function OrganizationDetails() {
                   </ul>
                 );
               })()}
+            </CardContent>
+          </Card>
+
+          {org.type === "FUEL_STATION" && (
+            <Card className="border-none shadow-sm">
+              <CardHeader className="border-b bg-muted/50 py-4">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  {t("organizations.detail.branches")}
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {t("organizations.detail.branchesSubtitle")}
+                </p>
+              </CardHeader>
+              <CardContent className="pt-6">
+                {branches.length === 0 ? (
+                  <p className="text-sm text-muted-foreground italic">{t("organizations.detail.noBranches")}</p>
+                ) : (
+                  <ul className="space-y-3">
+                    {branches.map((branch) => (
+                      <li key={branch.id} className="flex items-center justify-between rounded-lg border px-4 py-3">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-semibold">
+                            {branch.nameEn ?? branch.nameAr ?? `#${branch.id}`}
+                          </p>
+                          {branch.Area?.name && (
+                            <p className="text-xs text-muted-foreground mt-1">{branch.Area.name}</p>
+                          )}
+                        </div>
+                        <Badge variant={branch.status === "ACTIVE" || branch.status === "APPROVED" ? "default" : "secondary"} className="shrink-0">
+                          {branch.status === "APPROVED" || branch.status === "ACTIVE"
+                            ? t("organizations.detail.branchActive")
+                            : t("organizations.detail.branchInactive")}
+                        </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          <Card className="border-none shadow-sm">
+            <CardHeader className="border-b bg-muted/50 py-4">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <UsersIcon className="h-5 w-5 text-primary" />
+                {t("organizations.detail.users")}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("organizations.detail.usersSubtitle")}
+              </p>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {users.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">{t("organizations.detail.noUsers")}</p>
+              ) : (
+                <ul className="space-y-3">
+                  {users.map((u) => (
+                    <li key={u.id} className="flex items-center justify-between rounded-lg border px-4 py-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">{u.fullName}</p>
+                        <p className="text-xs text-muted-foreground mt-1" dir="ltr">{u.email}</p>
+                      </div>
+                      {!u.isActive && (
+                        <Badge variant="secondary" className="shrink-0">
+                          {t("organizations.detail.userInactive")}
+                        </Badge>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card className="border-none shadow-sm">
+            <CardHeader className="border-b bg-muted/50 py-4">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <History className="h-5 w-5 text-primary" />
+                {t("organizations.detail.approvalHistory")}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {t("organizations.detail.approvalHistorySubtitle")}
+              </p>
+            </CardHeader>
+            <CardContent className="pt-6">
+              {approvalHistory.length === 0 ? (
+                <p className="text-sm text-muted-foreground italic">{t("organizations.detail.noApprovalHistory")}</p>
+              ) : (
+                <ul className="space-y-3">
+                  {approvalHistory.map((entry) => (
+                    <li key={entry.id} className="flex items-center justify-between rounded-lg border px-4 py-3">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          {getStatusBadge(entry.status)}
+                          <p className="text-xs text-muted-foreground">
+                            {formatDate(entry.createdAt, i18n.language, { dateStyle: "medium" })}
+                          </p>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1.5">
+                          {t("organizations.detail.reviewedBy", {
+                            name: entry.User?.fullName ?? t("organizations.detail.unknownReviewer"),
+                          })}
+                        </p>
+                        {entry.rejectionReason && (
+                          <p className="text-xs text-muted-foreground mt-1">{entry.rejectionReason}</p>
+                        )}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </CardContent>
           </Card>
 

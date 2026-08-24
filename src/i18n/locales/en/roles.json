@@ -4,13 +4,20 @@
     "subtitle": "Define access levels and assign permissions to different user categories.",
     "createButton": "Create Custom Role",
     "loading": "Loading roles...",
-    "deleteUnavailable": "Delete endpoint is not available on /api/roles yet for \"{{name}}\"."
+    "deleteDialogTitle": "Delete role",
+    "deleteDialogDescription": "Are you sure you want to delete \"{{name}}\"? This cannot be undone.",
+    "deleteCancel": "Cancel",
+    "deleteConfirm": "Delete",
+    "deleting": "Deleting...",
+    "deleteSuccess": "Role \"{{name}}\" deleted successfully.",
+    "deleteFailed": "Failed to delete role."
   },
   "card": {
     "activeUsers": "{{count}} Active Users",
     "permissionsHeading": "Permissions ({{count}})",
     "more": "+{{count}} more",
-    "edit": "Edit"
+    "edit": "Edit",
+    "delete": "Delete"
   },
   "create": {
     "title": "Create Custom Role",

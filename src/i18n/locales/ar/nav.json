@@ -1,5 +1,13 @@
 {
   "controlCenter": "مركز التحكم",
+  "dashboard": "لوحة التحكم",
+  "groups": {
+    "overview": "نظرة عامة",
+    "organizations": "المؤسسات",
+    "peopleAccess": "الأشخاص والصلاحيات",
+    "operations": "العمليات",
+    "administration": "الإدارة"
+  },
   "organizations": {
     "group": "المنظمات",
     "all": "المنظمات",
@@ -16,21 +24,25 @@
     "all": "المستخدمون",
     "roles": "الأدوار"
   },
-  "registrations": "طلبات التسجيل",
   "onboarding": "التأهيل",
   "profile": "الملف الشخصي",
   "branches": "الفروع",
   "branchRequests": "طلبات الفروع",
   "locations": "المواقع",
   "serviceCategories": "فئات الخدمات",
+  "serviceOfferings": "عروض الخدمات",
   "externalJobOrders": "أوامر العمل الخارجية",
+  "inspections": "عمليات التفتيش",
   "internalWorkOrders": "أوامر العمل الداخلية",
   "externalRequests": "الطلبات الخارجية",
   "stationJobOrders": "أوامر عمل المحطة",
   "linkedProviders": "مزودو الخدمة المرتبطون",
+  "operators": "المشغّلون",
   "requestsQuote": "طلبات عروض الأسعار",
   "providerJobOrders": "أوامر عمل المزود",
   "financialOffers": "العروض المالية",
+  "jobOrdersLegacy": "أوامر العمل (عروض الأسعار)",
   "auditLog": "سجل التدقيق",
-  "logout": "تسجيل الخروج"
+  "logout": "تسجيل الخروج",
+  "superAdminBadge": "المشرف العام"
 }

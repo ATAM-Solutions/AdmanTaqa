@@ -6,16 +6,19 @@ import {
   ShieldCheck,
   Users,
   Tags,
+  Layers3,
   FileOutput,
   Briefcase,
   // SearchCheck,
   History,
   LogOut,
   UserCog,
-  FileText,
   ChevronDown,
   ChevronRight,
   BookOpen,
+  LayoutDashboard,
+  SearchCheck,
+  Wrench,
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -57,18 +60,6 @@ import {
   SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 
-/** Paths hidden from sidebar for FUEL_STATION only */
-const FUEL_STATION_HIDDEN_PATHS = new Set([
-  "/branches",
-  "/branch-requests",
-  "/locations",
-  "/internal-work-orders",
-  "/station-requests",
-  "/station-job-orders",
-  "/linked-providers",
-  "/quotations",
-]);
-
 const navGroups: NavGroup[] = [
   {
     label: "Servexa",
@@ -76,6 +67,7 @@ const navGroups: NavGroup[] = [
   },
   {
     items: [
+      { id: "dashboard", labelKey: "dashboard", path: "/dashboard", icon: LayoutDashboard },
       {
         id: "organizations",
         labelKey: "organizations.group",
@@ -107,7 +99,6 @@ const navGroups: NavGroup[] = [
           { id: "users-roles", labelKey: "users.roles", path: "/roles", icon: ShieldCheck }
         ]
       },
-      { id: "registrations", labelKey: "registrations", path: "/registrations", icon: FileText },
       { id: "onboarding", labelKey: "onboarding", path: "/onboarding", icon: BookOpen },
       { id: "profile", labelKey: "profile", path: "/profile", icon: UserCog },
 
@@ -115,6 +106,8 @@ const navGroups: NavGroup[] = [
       { id: "branchRequests", labelKey: "branchRequests", path: "/branch-requests", icon: GitBranch },
       { id: "locations", labelKey: "locations", path: "/locations", icon: MapPin },
       { id: "serviceCategories", labelKey: "serviceCategories", path: "/service-categories", icon: Tags },
+      { id: "serviceOfferings", labelKey: "serviceOfferings", path: "/service-offerings", icon: Layers3 },
+      { id: "operators", labelKey: "operators", path: "/operators", icon: Wrench },
       { id: "externalJobOrders", labelKey: "externalJobOrders", path: "/external-job-orders", icon: Briefcase },
       { id: "internalWorkOrders", labelKey: "internalWorkOrders", path: "/internal-work-orders", icon: Briefcase },
       { id: "externalRequests", labelKey: "externalRequests", path: "/station-requests", icon: Briefcase },
@@ -123,8 +116,56 @@ const navGroups: NavGroup[] = [
       { id: "requestsQuote", labelKey: "requestsQuote", path: "/provider-rfqs", icon: Briefcase },
       { id: "providerJobOrders", labelKey: "providerJobOrders", path: "/provider-job-orders", icon: Briefcase },
       { id: "financialOffers", labelKey: "financialOffers", path: "/quotations", icon: FileOutput },
+      { id: "jobOrdersLegacy", labelKey: "jobOrdersLegacy", path: "/job-orders", icon: Briefcase },
 
-      // { id: "inspections", labelKey: "inspections", path: "/inspections", icon: SearchCheck },
+      { id: "inspections", labelKey: "inspections", path: "/inspections", icon: SearchCheck },
+      { id: "auditLog", labelKey: "auditLog", path: "/audit-log", icon: History },
+    ],
+  },
+];
+
+/**
+ * SUPER_ADMIN gets its own logically-grouped nav (Overview / Organizations /
+ * People & Access / Operations / Administration) rather than the single flat
+ * list above — deliberately limited to modules already verified to work
+ * cross-organization (see Phase 2 report for what's intentionally deferred
+ * to the full CRUD sweep: Roles & Permissions, Quotations, Branches, and the
+ * single-org-scoped Station/Provider operational pages).
+ */
+const superAdminNavGroups: NavGroup[] = [
+  { label: "Servexa", items: [] },
+  {
+    label: "groups.overview",
+    items: [{ id: "dashboard", labelKey: "dashboard", path: "/dashboard", icon: LayoutDashboard }],
+  },
+  {
+    label: "groups.organizations",
+    items: [
+      { id: "organizations", labelKey: "organizations.all", path: "/organizations", icon: Building2 },
+      { id: "fuelStations", labelKey: "fuelStations.all", path: "/fuel-stations", icon: Fuel },
+      { id: "branchRequests", labelKey: "branchRequests", path: "/branch-requests", icon: GitBranch },
+    ],
+  },
+  {
+    label: "groups.peopleAccess",
+    items: [
+      { id: "users", labelKey: "users.all", path: "/users", icon: Users },
+      { id: "roles", labelKey: "users.roles", path: "/roles", icon: ShieldCheck },
+    ],
+  },
+  {
+    label: "groups.operations",
+    items: [
+      { id: "externalJobOrders", labelKey: "externalJobOrders", path: "/external-job-orders", icon: Briefcase },
+      { id: "jobOrdersLegacy", labelKey: "jobOrdersLegacy", path: "/job-orders", icon: Briefcase },
+      { id: "inspections", labelKey: "inspections", path: "/inspections", icon: SearchCheck },
+    ],
+  },
+  {
+    label: "groups.administration",
+    items: [
+      { id: "locations", labelKey: "locations", path: "/locations", icon: MapPin },
+      { id: "serviceCategories", labelKey: "serviceCategories", path: "/service-categories", icon: Tags },
       { id: "auditLog", labelKey: "auditLog", path: "/audit-log", icon: History },
     ],
   },
@@ -177,16 +218,17 @@ export default function AppSidebar() {
     if (item.isDropdown && item.children) {
       return item.children.some((child) => canSeeItem(child));
     }
-    if (organization?.type === "FUEL_STATION" && item.path && FUEL_STATION_HIDDEN_PATHS.has(item.path)) {
-      return false;
-    }
     return canSeePath(item.path);
   };
 
-  const visibleGroups = navGroups.map((group) => ({
-    ...group,
-    items: group.items.filter((item) => canSeeItem(item)),
-  }));
+  const activeNavGroups = organization?.type === "SUPER_ADMIN" ? superAdminNavGroups : navGroups;
+
+  const visibleGroups = activeNavGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => canSeeItem(item)),
+    }))
+    .filter((group) => group.items.length > 0 || !group.label || group.label === "Servexa");
 
   const renderItem = (item: NavItem) => {
     if (item.isDropdown) {
@@ -253,7 +295,7 @@ export default function AppSidebar() {
         {visibleGroups.map((group, groupIndex) => (
           <SidebarGroup key={group.label ?? `nav-group-${groupIndex}`}>
             <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest opacity-60 px-4 mt-2">
-              {group.label}
+              {group.label === "Servexa" ? group.label : group.label ? t(group.label) : null}
             </SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>

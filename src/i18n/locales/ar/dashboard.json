@@ -1,38 +1,161 @@
 {
-  "title": "رؤى",
-  "titleHighlight": "تشغيلية",
-  "subtitle": "الحالة الفورية لشبكة الطاقة ومنظومة الخدمات لديك.",
-  "networkOnline": "الشبكة متصلة",
-  "stats": {
-    "totalOrganizations": "إجمالي المنظمات",
-    "activeUsers": "المستخدمون النشطون",
-    "openRequests": "الطلبات المفتوحة",
-    "revenueMtd": "الإيرادات (الشهر الحالي)",
-    "vsLastMonth": "مقارنة بالشهر الماضي"
+  "superAdmin": {
+    "title": "لوحة تحكم المشرف العام",
+    "description": "نظرة عامة على المنصة بالكامل عبر جميع المؤسسات على سيرفكسا.",
+    "badge": "المشرف العام"
   },
-  "chart": {
-    "title": "اتجاه إنتاج الطاقة",
-    "subtitle": "تحليلات الأداء عبر جميع المحطات النشطة.",
-    "weekly": "أسبوعي",
-    "live": "مباشر",
-    "months": {
-      "jan": "يناير",
-      "feb": "فبراير",
-      "mar": "مارس",
-      "apr": "أبريل",
-      "may": "مايو",
-      "jun": "يونيو"
+  "kpi": {
+    "organizations": "المؤسسات",
+    "fuelStations": "محطات الوقود",
+    "serviceProviders": "مزودو الخدمة",
+    "activeUsers": "المستخدمون النشطون",
+    "pendingRegistrations": "طلبات التسجيل المعلّقة",
+    "pendingBranches": "الفروع المعلّقة",
+    "openMaintenance": "طلبات الصيانة المفتوحة",
+    "internalWorkOrders": "أوامر العمل الداخلية",
+    "externalRequests": "الطلبات الخارجية",
+    "activeJobs": "المهام النشطة",
+    "completedJobs": "المهام المكتملة",
+    "pendingQuotations": "عروض الأسعار المعلّقة",
+    "awaitingPayment": "بانتظار تأكيد الدفع",
+    "recentVisits": "الزيارات الأخيرة (٧ أيام)",
+    "stuckWorkflows": "مهام متوقفة",
+    "newToday": "+{{count}} اليوم",
+    "ofTotal": "من إجمالي {{total}}"
+  },
+  "charts": {
+    "empty": "لا توجد بيانات بعد لهذا الرسم البياني.",
+    "error": "تعذّر تحميل بيانات لوحة التحكم.",
+    "count": "العدد",
+    "external": "خارجي (V2)",
+    "legacyV1": "قديم (V1)",
+    "jobOrders": "أوامر العمل",
+    "externalJobOrders": "أوامر العمل الخارجية",
+    "internal": "داخلي",
+    "completed": "مكتمل",
+    "quotesSubmitted": "عروض الأسعار المقدَّمة",
+    "requestsCreated": "الطلبات المُنشأة",
+    "last30Days": "آخر ٣٠ يومًا",
+    "requestsOverTime": {
+      "title": "الطلبات عبر الزمن",
+      "description": "طلبات الصيانة الخارجية اليومية، آخر ٣٠ يومًا"
+    },
+    "jobsByStatus": {
+      "title": "المهام حسب الحالة",
+      "description": "أوامر العمل والأوامر الخارجية حسب حالة دورة الحياة"
+    },
+    "organizationsByType": {
+      "title": "المؤسسات حسب النوع"
+    },
+    "registrationsByStatus": {
+      "title": "طلبات التسجيل حسب الحالة"
+    },
+    "internalVsExternal": {
+      "title": "الصيانة الداخلية مقابل الخارجية"
+    },
+    "jobCompletionTrend": {
+      "title": "اتجاه إنجاز المهام",
+      "description": "المهام المكتملة/المغلقة يوميًا، آخر ٣٠ يومًا"
+    },
+    "serviceProviderActivity": {
+      "title": "نشاط مزودي الخدمة"
+    },
+    "fuelStationActivity": {
+      "title": "نشاط محطات الوقود"
     }
   },
-  "activity": {
-    "title": "البث المباشر",
-    "active": "نشط",
-    "loadHistorical": "تحميل البيانات السابقة",
-    "items": {
-      "branchUpdate": { "user": "أحمد منصور", "action": "تحديث بيانات الفرع", "target": "محطة الشمال", "time": "قبل دقيقتين" },
-      "newRequest": { "user": "سارة الغامدي", "action": "إنشاء طلب خدمة جديد", "target": "REQ-2024-081", "time": "قبل 15 دقيقة" },
-      "autoApproved": { "user": "النظام", "action": "تمت الموافقة التلقائية على عرض السعر", "target": "QUO-9001", "time": "قبل ساعة" },
-      "inspectionLogged": { "user": "محمد خالد", "action": "تسجيل تقرير تفتيش", "target": "INS-501", "time": "قبل 3 ساعات" }
+  "orgType": {
+    "FUEL_STATION": "محطة وقود",
+    "SERVICE_PROVIDER": "مزود خدمة",
+    "AUTHORITY": "الهيئة"
+  },
+  "status": {
+    "PENDING": "معلّق",
+    "APPROVED": "مقبول",
+    "REJECTED": "مرفوض"
+  },
+  "queues": {
+    "pendingRegistrations": "طلبات التسجيل المعلّقة",
+    "pendingBranches": "طلبات الفروع المعلّقة",
+    "recentActivity": "النشاط الأخير",
+    "system": "النظام"
+  },
+  "quickActions": {
+    "title": "إجراءات سريعة",
+    "description": "انتقل مباشرة إلى الشاشات الأكثر استخدامًا.",
+    "reviewRegistrations": "مراجعة طلبات التسجيل",
+    "reviewBranches": "مراجعة الفروع المعلّقة",
+    "viewFuelStations": "عرض محطات الوقود",
+    "viewServiceProviders": "عرض مزودي الخدمة",
+    "viewUsers": "عرض المستخدمين",
+    "viewExternalJobs": "عرض المهام الخارجية",
+    "viewAuditLog": "عرض سجل التدقيق",
+    "manageLocations": "إدارة المواقع",
+    "manageServiceCategories": "إدارة فئات الخدمة"
+  },
+  "viewAll": "عرض الكل",
+  "retry": "إعادة المحاولة",
+  "station": {
+    "title": "لوحة تحكم محطة الوقود",
+    "description": "نظرة سريعة على فروع مؤسستك وصيانتها ومهامها.",
+    "kpi": {
+      "branches": "الفروع",
+      "employees": "الموظفون",
+      "openMaintenance": "مشاكل الصيانة المفتوحة",
+      "internalWorkOrders": "أوامر العمل الداخلية",
+      "externalRequests": "الطلبات الخارجية",
+      "quotesAwaitingDecision": "عروض أسعار بانتظار القرار",
+      "activeJobs": "المهام النشطة",
+      "awaitingPayment": "بانتظار الدفع",
+      "completedAwaitingApproval": "مكتملة بانتظار الموافقة",
+      "completedJobs": "المهام المكتملة"
+    },
+    "charts": {
+      "requestsOverTime": "طلبات الصيانة عبر الزمن",
+      "branchActivity": "نشاط الفروع",
+      "providerUsage": "استخدام مزودي الخدمة"
+    },
+    "quickActions": {
+      "newRequest": "طلب صيانة جديد",
+      "addBranch": "إضافة فرع",
+      "addEmployee": "إضافة موظف",
+      "reviewQuotes": "مراجعة عروض الأسعار",
+      "activeJobs": "المهام النشطة",
+      "reviewCompleted": "مراجعة الأعمال المكتملة"
+    }
+  },
+  "provider": {
+    "title": "لوحة تحكم مزود الخدمة",
+    "description": "نظرة سريعة على طلبات مؤسستك وعروضها ومهامها.",
+    "kpi": {
+      "employeesOperators": "الموظفون / الفنيون",
+      "operatorsCount": "{{count}} فنيين",
+      "services": "الخدمات المقدَّمة",
+      "incomingRequests": "الطلبات الواردة",
+      "quotesSubmitted": "عروض الأسعار المقدَّمة",
+      "acceptedQuotes": "عروض الأسعار المقبولة",
+      "activeJobs": "المهام النشطة",
+      "awaitingPaymentReceipt": "بانتظار استلام الدفع",
+      "activeVisits": "الزيارات النشطة",
+      "awaitingCompletionReport": "بانتظار الإنجاز/التقرير",
+      "completedJobs": "المهام المكتملة"
+    },
+    "charts": {
+      "requestsReceivedOverTime": "الطلبات الواردة عبر الزمن",
+      "requestsReceived": "الطلبات الواردة",
+      "quoteConversion": "تحويل عروض الأسعار",
+      "conversionRate": "{{rate}}% من عروض الأسعار المقدَّمة تم قبولها",
+      "submitted": "مقدَّمة",
+      "accepted": "مقبولة",
+      "quotesByStatus": "عروض الأسعار حسب الحالة"
+    },
+    "quickActions": {
+      "reviewIncoming": "مراجعة الطلبات الواردة",
+      "createQuote": "إنشاء/عرض عروض الأسعار",
+      "manageServices": "إدارة الخدمات",
+      "addEmployee": "إضافة موظف/فني",
+      "activeJobs": "المهام النشطة",
+      "paymentConfirmations": "تأكيدات الدفع"
     }
   }
 }

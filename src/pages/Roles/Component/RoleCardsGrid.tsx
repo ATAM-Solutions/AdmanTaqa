@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShieldCheck, ShieldAlert, Users, Lock, Pencil } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Users, Lock, Pencil, Trash2 } from "lucide-react";
 import type { PermissionItem } from "@/types/role";
 
 export type RoleRow = {
@@ -14,6 +14,8 @@ export type RoleRow = {
   permissionsList: PermissionItem[];
   userCount: number;
   type: string;
+  isSystem: boolean;
+  organizationType?: string;
 };
 
 type RoleCardsGridProps = {
@@ -21,7 +23,7 @@ type RoleCardsGridProps = {
   onDeleteConfirm?: (role: { id: string; name: string }) => void;
 };
 
-export default function RoleCardsGrid({ roles }: RoleCardsGridProps) {
+export default function RoleCardsGrid({ roles, onDeleteConfirm }: RoleCardsGridProps) {
   const { t } = useTranslation("roles");
   const navigate = useNavigate();
 
@@ -48,9 +50,16 @@ export default function RoleCardsGrid({ roles }: RoleCardsGridProps) {
                   <ShieldCheck className="h-5 w-5" />
                 )}
               </div>
-              <Badge variant="secondary" className="font-medium text-[10px] tracking-wider uppercase">
-                {role.type}
-              </Badge>
+              <div className="flex items-center gap-1.5">
+                {role.organizationType && (
+                  <Badge variant="outline" className="font-medium text-[10px] tracking-wider uppercase">
+                    {role.organizationType.replace("_", " ")}
+                  </Badge>
+                )}
+                <Badge variant="secondary" className="font-medium text-[10px] tracking-wider uppercase">
+                  {role.type}
+                </Badge>
+              </div>
             </div>
             <CardTitle className="text-lg group-hover:text-primary transition-colors">{role.name}</CardTitle>
             <CardDescription className="line-clamp-2 text-xs">{role.description}</CardDescription>
@@ -101,6 +110,20 @@ export default function RoleCardsGrid({ roles }: RoleCardsGridProps) {
               <Pencil className="h-3.5 w-3.5 me-2" />
               {t("card.edit")}
             </Button>
+            {!role.isSystem && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-1 justify-center text-xs font-semibold text-destructive hover:bg-destructive/10 hover:text-destructive p-2 h-8"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteConfirm?.({ id: role.id, name: role.name });
+                }}
+              >
+                <Trash2 className="h-3.5 w-3.5 me-2" />
+                {t("card.delete")}
+              </Button>
+            )}
           </CardFooter>
         </Card>
       ))}

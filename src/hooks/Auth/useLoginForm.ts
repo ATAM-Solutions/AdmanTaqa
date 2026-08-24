@@ -40,25 +40,26 @@ export function useLoginForm() {
     try {
       const response = await authService.login(data);
       if (response.success && response.data) {
-        let roles = response.data.roles ?? [];
-        let permissions = response.data.permissions ?? [];
+        // Persist the token first — authService.me() goes through the shared axios
+        // instance, whose request interceptor reads the token from localStorage,
+        // so calling /auth/me before login() writes it there always 401s (the
+        // failure was silently swallowed below, so /auth/me's "freshest" roles/
+        // permissions were never actually being used).
+        login(response.data);
 
-        // Prefer /auth/me as the source of permissions after login.
+        // Prefer /auth/me as the source of permissions once the token is persisted.
         try {
           const me = await authService.me();
           if (me.success && me.data) {
-            roles = me.data.roles ?? roles;
-            permissions = me.data.permissions ?? permissions;
+            login({
+              ...response.data,
+              roles: me.data.roles ?? response.data.roles,
+              permissions: me.data.permissions ?? response.data.permissions,
+            });
           }
         } catch {
-          // Keep login flow alive even if /auth/me fails.
+          // Keep login flow alive even if /auth/me fails — response.data already applied above.
         }
-
-        login({
-          ...response.data,
-          roles,
-          permissions,
-        });
         toast.success("Welcome back! Login successful");
         const from = (location.state as { from?: { pathname?: string } })?.from?.pathname;
         navigate(from || "/", { replace: true });

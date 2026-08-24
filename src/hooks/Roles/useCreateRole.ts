@@ -8,6 +8,7 @@ const ROLES_ENDPOINT_BY_ORG_TYPE: Record<string, string> = {
   AUTHORITY: "roles",
   SERVICE_PROVIDER: "roles",
   FUEL_STATION: "rbac/roles",
+  SUPER_ADMIN: "roles",
 };
 
 const createRole = async (endpoint: string, body: CreateRoleBody) => {

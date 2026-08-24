@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,9 +17,11 @@ import {
   Loader2,
   AlertCircle,
   Pencil,
+  Power,
 } from "lucide-react";
 import useGetBranchesDetails from "@/hooks/Branches/useGetBranchesDetails";
 import BranchLocationMap from "./Component/BranchLocationMap";
+import ToggleBranchActiveDialog from "./Component/ToggleBranchActiveDialog";
 import { formatDate } from "@/lib/i18n/formatters";
 
 export default function BranchDetails() {
@@ -26,6 +29,7 @@ export default function BranchDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: branch, isLoading, isError, error } = useGetBranchesDetails(id);
+  const [togglingActive, setTogglingActive] = useState(false);
 
   const handleBack = () => navigate("/branches");
 
@@ -94,12 +98,23 @@ export default function BranchDetails() {
             </p>
           </div>
         </div>
-        <Button asChild variant="outline" size="sm" className="gap-2 shrink-0">
-          <Link to={`/branches/${branch.id}/edit`}>
-            <Pencil className="h-4 w-4" />
-            {t("details.editBranch")}
-          </Link>
-        </Button>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            className={`gap-2 ${isActive ? "text-destructive hover:text-destructive" : "text-emerald-700 dark:text-emerald-400"}`}
+            onClick={() => setTogglingActive(true)}
+          >
+            <Power className="h-4 w-4" />
+            {isActive ? t("details.deactivateBranch") : t("details.activateBranch")}
+          </Button>
+          <Button asChild variant="outline" size="sm" className="gap-2">
+            <Link to={`/branches/${branch.id}/edit`}>
+              <Pencil className="h-4 w-4" />
+              {t("details.editBranch")}
+            </Link>
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -224,6 +239,11 @@ export default function BranchDetails() {
       </div>
     </div>
       )}
+      <ToggleBranchActiveDialog
+        open={togglingActive}
+        onOpenChange={setTogglingActive}
+        branch={branch ? { id: branch.id, name, isActive: branch.isActive } : null}
+      />
     </div>
   );
 }
