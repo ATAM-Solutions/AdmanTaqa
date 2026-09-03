@@ -44,5 +44,15 @@
   "jobOrdersLegacy": "أوامر العمل (عروض الأسعار)",
   "auditLog": "سجل التدقيق",
   "logout": "تسجيل الخروج",
-  "superAdminBadge": "المشرف العام"
+  "superAdminBadge": "المشرف العام",
+  "companyAdminBadge": "مدير الشركة",
+  "poweredBy": "مدعوم من سيرفكسا",
+  "company": "الشركة",
+  "addCompany": "إضافة شركة",
+  "orgType": {
+    "FUEL_STATION": "محطة وقود",
+    "SERVICE_PROVIDER": "مزود خدمة",
+    "AUTHORITY": "الهيئة",
+    "SUPER_ADMIN": "المنصة"
+  }
 }

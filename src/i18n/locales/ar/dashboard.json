@@ -21,7 +21,9 @@
     "recentVisits": "الزيارات الأخيرة (٧ أيام)",
     "stuckWorkflows": "مهام متوقفة",
     "newToday": "+{{count}} اليوم",
-    "ofTotal": "من إجمالي {{total}}"
+    "ofTotal": "من إجمالي {{total}}",
+    "totalStations": "إجمالي المحطات",
+    "totalUsers": "إجمالي المستخدمين"
   },
   "charts": {
     "empty": "لا توجد بيانات بعد لهذا الرسم البياني.",
@@ -67,7 +69,8 @@
   "orgType": {
     "FUEL_STATION": "محطة وقود",
     "SERVICE_PROVIDER": "مزود خدمة",
-    "AUTHORITY": "الهيئة"
+    "AUTHORITY": "الهيئة",
+    "SUPER_ADMIN": "المنصة"
   },
   "status": {
     "PENDING": "معلّق",
@@ -91,7 +94,11 @@
     "viewExternalJobs": "عرض المهام الخارجية",
     "viewAuditLog": "عرض سجل التدقيق",
     "manageLocations": "إدارة المواقع",
-    "manageServiceCategories": "إدارة فئات الخدمة"
+    "manageServiceCategories": "إدارة فئات الخدمة",
+    "addFuelStation": "إضافة شركة محطة وقود",
+    "addServiceProvider": "إضافة مزود خدمة",
+    "addUser": "إضافة مستخدم",
+    "viewOrganizations": "عرض المنظمات"
   },
   "viewAll": "عرض الكل",
   "retry": "إعادة المحاولة",
@@ -108,7 +115,10 @@
       "activeJobs": "المهام النشطة",
       "awaitingPayment": "بانتظار الدفع",
       "completedAwaitingApproval": "مكتملة بانتظار الموافقة",
-      "completedJobs": "المهام المكتملة"
+      "completedJobs": "المهام المكتملة",
+      "stations": "المحطات",
+      "users": "المستخدمون",
+      "openMaintenanceRequests": "طلبات الصيانة المفتوحة"
     },
     "charts": {
       "requestsOverTime": "طلبات الصيانة عبر الزمن",
@@ -121,7 +131,28 @@
       "addEmployee": "إضافة موظف",
       "reviewQuotes": "مراجعة عروض الأسعار",
       "activeJobs": "المهام النشطة",
-      "reviewCompleted": "مراجعة الأعمال المكتملة"
+      "reviewCompleted": "مراجعة الأعمال المكتملة",
+      "addStation": "إضافة محطة",
+      "addUser": "إضافة مستخدم",
+      "createRequest": "إنشاء طلب صيانة",
+      "viewQuotes": "عرض عروض الأسعار",
+      "viewActiveJobs": "عرض المهام النشطة"
+    },
+    "roleCompanyAdmin": "مدير الشركة",
+    "viewCompanyProfile": "عرض ملف الشركة",
+    "panels": {
+      "stations": "المحطات",
+      "recentActivity": "أحدث نشاط الصيانة",
+      "viewAll": "عرض الكل"
+    },
+    "activity": {
+      "internal": "أمر عمل داخلي",
+      "external": "طلب خارجي",
+      "empty": "لا يوجد نشاط صيانة بعد."
+    },
+    "stations": {
+      "empty": "لا توجد محطات بعد. أضف محطتك الأولى.",
+      "emptyTitle": "لا توجد محطات بعد"
     }
   },
   "provider": {
@@ -157,5 +188,17 @@
       "activeJobs": "المهام النشطة",
       "paymentConfirmations": "تأكيدات الدفع"
     }
+  },
+  "recent": {
+    "organizations": "أحدث المنظمات",
+    "users": "أحدث المستخدمين",
+    "registrations": "أحدث طلبات التسجيل",
+    "empty": "لا يوجد شيء هنا بعد."
+  },
+  "chooseCompany": {
+    "title": "إضافة مستخدم — اختر شركة",
+    "description": "المستخدمون تابعون لشركة. اختر الشركة التي تريد إضافة المستخدم إليها.",
+    "searchPlaceholder": "ابحث في الشركات...",
+    "empty": "لم يتم العثور على شركات."
   }
 }

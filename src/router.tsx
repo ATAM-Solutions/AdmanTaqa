@@ -8,12 +8,17 @@ import Login from "./pages/Auth/Login";
 import Register from "./pages/Auth/Register";
 import Profile from "./pages/Profile/Profile";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import HomeRedirect from "./components/HomeRedirect";
+import CompanyProfile from "./pages/Company/CompanyProfile";
+
+// ---------- SUPER_ADMIN company management ----------
+import OrganizationsEntry from "./pages/Admin/Organizations/OrganizationsEntry";
+import OrganizationDetailEntry from "./pages/Admin/Organizations/OrganizationDetailEntry";
+import CreateCompanyWizard from "./pages/Admin/Organizations/CreateCompanyWizard";
 import Notifications from "./pages/Notifications/Notifications";
 
 // ---------- Authority   ----------
 
-import OrganizationDetails from "./pages/Authority/Organizations/OrganizationDetails";
-import Organizations from "./pages/Authority/Organizations/Organizations";
 import OrganizationsRejected from "./pages/Authority/Organizations/OrganizationsRejected";
 import FuelStations from "./pages/Authority/FuelStations/FuelStations";
 import FuelStationsPending from "./pages/Authority/FuelStations/FuelStationsPending";
@@ -86,11 +91,19 @@ export const router = createHashRouter([
       // ---------- Common (للجميع) ----------
       {
         index: true,
-        element: <Profile />,
+        element: <HomeRedirect />,
       },
       {
         path: "profile",
         element: <Profile />,
+      },
+      {
+        path: "company",
+        element: (
+          <RouteAccessGuard pathKey="company">
+            <CompanyProfile />
+          </RouteAccessGuard>
+        ),
       },
       {
         path: "notifications",
@@ -110,7 +123,15 @@ export const router = createHashRouter([
         path: "organizations",
         element: (
           <RouteAccessGuard pathKey="organizations">
-            <Organizations />
+            <OrganizationsEntry />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "organizations/new",
+        element: (
+          <RouteAccessGuard pathKey="organizations/new">
+            <CreateCompanyWizard />
           </RouteAccessGuard>
         ),
       },
@@ -126,7 +147,7 @@ export const router = createHashRouter([
         path: "organizations/:id",
         element: (
           <RouteAccessGuard pathKey="organizations/:id">
-            <OrganizationDetails />
+            <OrganizationDetailEntry />
           </RouteAccessGuard>
         ),
       },
@@ -158,7 +179,7 @@ export const router = createHashRouter([
         path: "fuel-stations/:id",
         element: (
           <RouteAccessGuard pathKey="fuel-stations/:id">
-            <OrganizationDetails />
+            <OrganizationDetailEntry />
           </RouteAccessGuard>
         ),
       },

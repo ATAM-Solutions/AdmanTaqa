@@ -9,6 +9,10 @@ export interface AdminDashboardKpis {
   totalFuelStations: number;
   totalServiceProviders: number;
   totalActiveUsers: number;
+  /** All stations (branches) across every company. */
+  totalStations: number;
+  /** All users across every company (platform-admin users excluded). */
+  totalUsers: number;
   pendingRegistrations: number;
   newRegistrationsPeriod: PeriodCounts;
   pendingBranchApprovals: number;
@@ -65,9 +69,38 @@ export interface AdminDashboardCharts {
   fuelStationActivity: OrgActivityRow[];
 }
 
+export interface AdminDashboardRecentOrganization {
+  id: number;
+  name: string;
+  nameAr: string | null;
+  type: "FUEL_STATION" | "SERVICE_PROVIDER";
+  status: "PENDING" | "APPROVED" | "REJECTED";
+  logoUrl: string | null;
+  isActive: boolean;
+  createdAt: string;
+}
+
+export interface AdminDashboardRecentUser {
+  id: number;
+  fullName: string;
+  email: string;
+  isActive: boolean;
+  organizationId: number;
+  organizationName: string | null;
+  organizationType: string | null;
+  createdAt: string;
+}
+
+export interface AdminDashboardRecent {
+  organizations: AdminDashboardRecentOrganization[];
+  users: AdminDashboardRecentUser[];
+  registrations: AdminDashboardRecentOrganization[];
+}
+
 export interface AdminDashboardData {
   kpis: AdminDashboardKpis;
   charts: AdminDashboardCharts;
+  recent?: AdminDashboardRecent;
 }
 
 export interface AdminDashboardResponse {

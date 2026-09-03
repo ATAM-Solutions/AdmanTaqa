@@ -1,7 +1,7 @@
 import axios from "axios";
 import axiosInstance from "../config";
 import { apiUrl } from "../config";
-import type { AuthResponse, MeResponse, RegisterV2Response } from "@/types/auth";
+import type { AuthResponse, MeData, MeResponse, RegisterV2Response } from "@/types/auth";
 
 export interface LoginBody {
   email: string;
@@ -62,8 +62,18 @@ export const authService = {
     });
     return data;
   },
+  /**
+   * GET /api/auth/me. The backend answers with a FLAT payload
+   * (`{ user, organization, roles, permissions, scope }`, shared with the mobile app),
+   * so it is normalized into the `{ success, data }` envelope the app expects —
+   * without this, roles/permissions and the organization identity (name, logo)
+   * were silently never applied after login or on refresh.
+   */
   async me(): Promise<MeResponse> {
-    const { data } = await axiosInstance.get<MeResponse>("auth/me");
-    return data;
+    const { data } = await axiosInstance.get<MeResponse | MeData>("auth/me");
+    if (data && typeof data === "object" && "data" in data && (data as MeResponse).data?.user) {
+      return data as MeResponse;
+    }
+    return { success: true, data: data as MeData };
   },
 };

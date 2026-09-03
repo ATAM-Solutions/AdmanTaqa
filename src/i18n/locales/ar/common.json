@@ -36,5 +36,9 @@
   "tablePagination": {
     "noItems": "لا توجد عناصر",
     "showing": "عرض <b>{{start}}</b>–<b>{{end}}</b> من <b>{{total}}</b>"
+  },
+  "confirmDialog": {
+    "confirm": "تأكيد",
+    "cancel": "إلغاء"
   }
 }

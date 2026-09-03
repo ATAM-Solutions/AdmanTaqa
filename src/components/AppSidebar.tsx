@@ -19,6 +19,7 @@ import {
   LayoutDashboard,
   SearchCheck,
   Wrench,
+  PlusCircle,
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -31,6 +32,8 @@ import {
   canAccessByRule,
   normalizePathKey,
 } from "@/lib/accessControl";
+import { CompanyAvatar } from "@/components/company/CompanyAvatar";
+import { getOrganizationDisplayName, isCompanyOrganization } from "@/lib/company";
 
 interface NavItem {
   id: string;
@@ -68,6 +71,8 @@ const navGroups: NavGroup[] = [
   {
     items: [
       { id: "dashboard", labelKey: "dashboard", path: "/dashboard", icon: LayoutDashboard },
+      // Own-company profile/branding page (visibility gated by ROUTE_ACCESS_RULES → company tenants only)
+      { id: "company", labelKey: "company", path: "/company", icon: Building2 },
       {
         id: "organizations",
         labelKey: "organizations.group",
@@ -142,6 +147,7 @@ const superAdminNavGroups: NavGroup[] = [
     label: "groups.organizations",
     items: [
       { id: "organizations", labelKey: "organizations.all", path: "/organizations", icon: Building2 },
+      { id: "addCompany", labelKey: "addCompany", path: "/organizations/new", icon: PlusCircle },
       { id: "fuelStations", labelKey: "fuelStations.all", path: "/fuel-stations", icon: Fuel },
       { id: "branchRequests", labelKey: "branchRequests", path: "/branch-requests", icon: GitBranch },
     ],
@@ -172,7 +178,7 @@ const superAdminNavGroups: NavGroup[] = [
 ];
 
 export default function AppSidebar() {
-  const { t } = useTranslation("nav");
+  const { t, i18n } = useTranslation("nav");
   const dir = useDirection();
   const location = useLocation();
   const navigate = useNavigate();
@@ -185,6 +191,8 @@ export default function AppSidebar() {
   });
 
   const { logout, organization, permissions } = useAuth();
+  const isCompany = isCompanyOrganization(organization?.type);
+  const companyDisplayName = getOrganizationDisplayName(organization, i18n.language);
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -294,9 +302,22 @@ export default function AppSidebar() {
       <SidebarContent>
         {visibleGroups.map((group, groupIndex) => (
           <SidebarGroup key={group.label ?? `nav-group-${groupIndex}`}>
-            <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest opacity-60 px-4 mt-2">
-              {group.label === "Servexa" ? group.label : group.label ? t(group.label) : null}
-            </SidebarGroupLabel>
+            {group.label === "Servexa" && isCompany && organization ? (
+              // Company tenants: their own identity at the top of the sidebar instead of the platform label.
+              <div className="flex items-center gap-2.5 px-3 py-2 mt-1 rounded-lg bg-muted/40 mx-2">
+                <CompanyAvatar logoUrl={organization.logoUrl} name={companyDisplayName} size="xs" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold truncate" dir="auto">{companyDisplayName}</p>
+                  <p className="text-[10px] uppercase tracking-widest text-muted-foreground truncate">
+                    {t(`orgType.${organization.type}`, { defaultValue: organization.type })}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <SidebarGroupLabel className="text-[10px] font-bold uppercase tracking-widest opacity-60 px-4 mt-2">
+                {group.label === "Servexa" ? group.label : group.label ? t(group.label) : null}
+              </SidebarGroupLabel>
+            )}
             <SidebarGroupContent>
               <SidebarMenu>
                 {group.items.map((item) => renderItem(item))}

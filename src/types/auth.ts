@@ -17,6 +17,12 @@ export interface Organization {
     name: string;
     type: "FUEL_STATION" | "SERVICE_PROVIDER" | "AUTHORITY" | "SUPER_ADMIN";
     status: "PENDING" | "APPROVED" | "REJECTED";
+    /** Company branding / profile (present on login + /auth/me since the company-management release). */
+    nameAr?: string | null;
+    logoUrl?: string | null;
+    isActive?: boolean;
+    email?: string | null;
+    phone?: string | null;
 }
 
 export interface AuthData {

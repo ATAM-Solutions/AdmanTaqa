@@ -42,7 +42,7 @@ import { toast } from "sonner";
 
 interface ProfileServiceCategoriesCardProps {
     organizationId: number;
-    organizationType: "FUEL_STATION" | "SERVICE_PROVIDER" | "AUTHORITY";
+    organizationType: "FUEL_STATION" | "SERVICE_PROVIDER" | "AUTHORITY" | "SUPER_ADMIN";
 }
 
 export default function ProfileServiceCategoriesCard({

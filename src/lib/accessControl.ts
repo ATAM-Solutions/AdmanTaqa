@@ -1,4 +1,5 @@
 import type { Organization } from "@/types/auth";
+import { normalizePermissionCode } from "@/lib/permissions";
 
 export type OrgType = Organization["type"];
 
@@ -22,6 +23,10 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   "organizations/rejected": {
     orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:approve", "organizations:read"],
+  },
+  // SUPER_ADMIN company onboarding wizard (create company → stations → company admin).
+  "organizations/new": {
+    orgTypes: ["SUPER_ADMIN"],
   },
   "organizations/:id": {
     orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
@@ -58,6 +63,10 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   "audit-log": {
     orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["audit:read"],
+  },
+  // Own-company profile/branding page for company tenants (never platform overseers).
+  company: {
+    orgTypes: ["FUEL_STATION", "SERVICE_PROVIDER"],
   },
   users: {
     orgTypes: ["FUEL_STATION","AUTHORITY","SERVICE_PROVIDER","SUPER_ADMIN", ],
@@ -199,14 +208,16 @@ export const canAccessByRule = (
 
   // If permissions were loaded, enforce permission checks.
   // If backend returns no permissions for a session, fall back to org-type gating.
-  if (permissions.length > 0 && rule.anyPermissions?.length) {
-    const allowed = rule.anyPermissions.some((code) => permissions.includes(code));
+  // Codes are compared in their canonical dot form (see normalizePermissionCode) so the
+  // legacy colon-style rule keys match the backend's dot-style permission keys.
+  const granted = new Set(permissions.map(normalizePermissionCode));
+  if (granted.size > 0 && rule.anyPermissions?.length) {
+    const allowed = rule.anyPermissions.some((code) => granted.has(normalizePermissionCode(code)));
     if (!allowed) return false;
   }
-  if (permissions.length > 0 && rule.allPermissions?.length) {
-    const allowed = rule.allPermissions.every((code) => permissions.includes(code));
+  if (granted.size > 0 && rule.allPermissions?.length) {
+    const allowed = rule.allPermissions.every((code) => granted.has(normalizePermissionCode(code)));
     if (!allowed) return false;
   }
   return true;
 };
-

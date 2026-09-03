@@ -36,5 +36,9 @@
   "tablePagination": {
     "noItems": "No items",
     "showing": "Showing <b>{{start}}</b>–<b>{{end}}</b> of <b>{{total}}</b>"
+  },
+  "confirmDialog": {
+    "confirm": "Confirm",
+    "cancel": "Cancel"
   }
 }

@@ -11,6 +11,8 @@ interface AuthContextType {
   accessToken: string | null;
   login: (data: AuthData) => void;
   logout: () => void;
+  /** Re-fetch /auth/me and refresh the organization identity (e.g. after a logo upload). */
+  refreshOrganization: () => Promise<void>;
   hasPermission: (code: string) => boolean;
   hasAnyPermission: (codes: string[]) => boolean;
   hasAllPermissions: (codes: string[]) => boolean;
@@ -91,6 +93,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshOrganization = async () => {
+    try {
+      const me = await authService.me();
+      if (me.success && me.data) {
+        setUser(me.data.user);
+        setOrganization(me.data.organization);
+        setRoles(me.data.roles ?? []);
+        setPermissions(me.data.permissions ?? []);
+        localStorage.setItem(ORG_TYPE_STORAGE_KEY, me.data.organization.type);
+      }
+    } catch {
+      // Keep the current in-memory identity if /auth/me is temporarily unavailable.
+    }
+  };
+
   const logout = () => {
     setUser(null);
     setOrganization(null);
@@ -115,6 +132,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         accessToken,
         login,
         logout,
+        refreshOrganization,
         hasPermission,
         hasAnyPermission,
         hasAllPermissions,

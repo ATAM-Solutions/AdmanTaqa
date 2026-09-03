@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
@@ -34,9 +34,11 @@ import {
   AlertTriangle,
   UserPlus,
   Building,
-  ListChecks,
-  Tags,
   ArrowRight,
+  Store,
+  UsersRound,
+  PlusCircle,
+  ClipboardCheck,
 } from "lucide-react";
 import { PageHeader, AsyncBoundary } from "@/components/patterns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -46,25 +48,44 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import useGetAdminDashboard from "@/hooks/AdminDashboard/useGetAdminDashboard";
 import useGetOrganizations from "@/hooks/Organization/useGetOrganizations";
-import useGetBranchRequests from "@/hooks/BranchRequests/useGetBranchRequests";
-import useGetAuditLogs from "@/hooks/Audit/useGetAuditLogs";
 import { useChartColors } from "@/lib/chartColors";
 import { formatDate, formatNumber } from "@/lib/i18n/formatters";
 import { getApiErrorMessage } from "@/lib/utils";
+import { getOrganizationDisplayName } from "@/lib/company";
+import { CompanyAvatar } from "@/components/company/CompanyAvatar";
+import { OrganizationStatusBadge, OrganizationTypeBadge } from "@/components/company/CompanyBadges";
+import { EmptyState } from "@/components/patterns";
 import { KpiCard } from "./components/KpiCard";
 import { ChartCard } from "./components/ChartCard";
+import { ChooseCompanyDialog } from "./components/ChooseCompanyDialog";
+import type { AdminDashboardRecentOrganization } from "@/types/adminDashboard";
 
 export default function SuperAdminDashboard() {
   const { t, i18n } = useTranslation("dashboard");
   const colors = useChartColors();
 
   const { data, isLoading, error, refetch } = useGetAdminDashboard();
+  // Fallback for the registrations panel only when the API predates `recent`.
   const pendingOrgs = useGetOrganizations({ status: "PENDING", limit: 5 });
-  const pendingBranches = useGetBranchRequests({ status: "PENDING", limit: 5 });
-  const recentActivity = useGetAuditLogs(1, 6);
+  const [chooseCompanyOpen, setChooseCompanyOpen] = useState(false);
 
   const kpis = data?.kpis;
   const charts = data?.charts;
+  const recent = data?.recent;
+  const recentRegistrations: AdminDashboardRecentOrganization[] | undefined = recent
+    ? recent.registrations
+    : pendingOrgs.data?.data.items.map((org) => ({
+        id: org.id,
+        name: org.name,
+        nameAr: org.nameAr ?? null,
+        type: org.type === "SERVICE_PROVIDER" ? "SERVICE_PROVIDER" : "FUEL_STATION",
+        status: org.status,
+        logoUrl: org.logoUrl ?? null,
+        isActive: org.isActive ?? true,
+        createdAt: org.createdAt,
+      }));
+  const recentLoading = isLoading || (!recent && pendingOrgs.isLoading);
+  const dateOpts = { month: "short", day: "numeric" } as const;
 
   const orgsByTypeData = useMemo(
     () =>
@@ -155,6 +176,20 @@ export default function SuperAdminDashboard() {
           value={kpis ? formatNumber(kpis.totalServiceProviders, i18n.language) : "—"}
           icon={<Briefcase className="h-5 w-5" />}
           to="/organizations"
+          isLoading={isLoading}
+        />
+        <KpiCard
+          label={t("kpi.totalStations")}
+          value={kpis ? formatNumber(kpis.totalStations ?? 0, i18n.language) : "—"}
+          icon={<Store className="h-5 w-5" />}
+          to="/organizations?type=FUEL_STATION"
+          isLoading={isLoading}
+        />
+        <KpiCard
+          label={t("kpi.totalUsers")}
+          value={kpis ? formatNumber(kpis.totalUsers ?? 0, i18n.language) : "—"}
+          icon={<UsersRound className="h-5 w-5" />}
+          to="/users"
           isLoading={isLoading}
         />
         <KpiCard
@@ -411,11 +446,11 @@ export default function SuperAdminDashboard() {
         </ChartCard>
       </div>
 
-      {/* ── Operational queues ────────────────────────────────────── */}
+      {/* ── Recent ────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-semibold">{t("queues.pendingRegistrations")}</CardTitle>
+            <CardTitle className="text-base font-semibold">{t("recent.organizations")}</CardTitle>
             <Button asChild variant="ghost" size="sm">
               <Link to="/organizations" className="gap-1 text-xs">
                 {t("viewAll")} <ArrowRight className="h-3 w-3 rtl:rotate-180" />
@@ -423,16 +458,54 @@ export default function SuperAdminDashboard() {
             </Button>
           </CardHeader>
           <CardContent>
-            <AsyncBoundary isLoading={pendingOrgs.isLoading} error={pendingOrgs.error} isEmpty={!pendingOrgs.data?.data.items.length}>
-              <ul className="space-y-2">
-                {pendingOrgs.data?.data.items.map((org) => (
+            <AsyncBoundary
+              isLoading={isLoading}
+              error={error}
+              isEmpty={!recent?.organizations.length}
+              emptyFallback={<EmptyState icon={<Building className="h-5 w-5" />} title={t("recent.empty")} className="py-8" />}
+            >
+              <ul className="space-y-1">
+                {recent?.organizations.map((org) => (
                   <li key={org.id}>
-                    <Link to={`/organizations/${org.id}`} className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-muted/60 transition-colors">
-                      <span className="flex items-center gap-2 min-w-0">
-                        <Building className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                        <span className="truncate text-sm">{org.name}</span>
+                    <RecentOrganizationRow org={org} name={getOrganizationDisplayName(org, i18n.language)} date={formatDate(org.createdAt, i18n.language, dateOpts)} />
+                  </li>
+                ))}
+              </ul>
+            </AsyncBoundary>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-base font-semibold">{t("recent.users")}</CardTitle>
+            <Button asChild variant="ghost" size="sm">
+              <Link to="/users" className="gap-1 text-xs">
+                {t("viewAll")} <ArrowRight className="h-3 w-3 rtl:rotate-180" />
+              </Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <AsyncBoundary
+              isLoading={isLoading}
+              error={error}
+              isEmpty={!recent?.users.length}
+              emptyFallback={<EmptyState icon={<Users className="h-5 w-5" />} title={t("recent.empty")} className="py-8" />}
+            >
+              <ul className="space-y-1">
+                {recent?.users.map((user) => (
+                  <li key={user.id}>
+                    <Link
+                      to={`/organizations/${user.organizationId}?tab=users`}
+                      className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-muted/60 transition-colors"
+                    >
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium" dir="auto">{user.fullName}</span>
+                        <span className="block truncate text-xs text-muted-foreground" dir="ltr">{user.email}</span>
+                        {user.organizationName ? (
+                          <span className="block truncate text-xs text-muted-foreground" dir="auto">{user.organizationName}</span>
+                        ) : null}
                       </span>
-                      <Badge variant="outline" className="text-[10px] shrink-0">{t(`status.${org.status}`, { defaultValue: org.status })}</Badge>
+                      <span className="shrink-0 text-xs text-muted-foreground">{formatDate(user.createdAt, i18n.language, dateOpts)}</span>
                     </Link>
                   </li>
                 ))}
@@ -443,52 +516,24 @@ export default function SuperAdminDashboard() {
 
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-semibold">{t("queues.pendingBranches")}</CardTitle>
+            <CardTitle className="text-base font-semibold">{t("recent.registrations")}</CardTitle>
             <Button asChild variant="ghost" size="sm">
-              <Link to="/branch-requests" className="gap-1 text-xs">
+              <Link to="/organizations?status=PENDING" className="gap-1 text-xs">
                 {t("viewAll")} <ArrowRight className="h-3 w-3 rtl:rotate-180" />
               </Link>
             </Button>
           </CardHeader>
           <CardContent>
-            <AsyncBoundary isLoading={pendingBranches.isLoading} error={pendingBranches.error} isEmpty={!pendingBranches.data?.items.length}>
-              <ul className="space-y-2">
-                {pendingBranches.data?.items.map((branch) => (
-                  <li key={branch.id}>
-                    <Link to={`/branch-requests/${branch.id}`} className="flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 hover:bg-muted/60 transition-colors">
-                      <span className="flex items-center gap-2 min-w-0">
-                        <GitBranch className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                        <span className="truncate text-sm">{branch.nameEn || branch.referenceCode}</span>
-                      </span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </AsyncBoundary>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-base font-semibold">{t("queues.recentActivity")}</CardTitle>
-            <Button asChild variant="ghost" size="sm">
-              <Link to="/audit-log" className="gap-1 text-xs">
-                {t("viewAll")} <ArrowRight className="h-3 w-3 rtl:rotate-180" />
-              </Link>
-            </Button>
-          </CardHeader>
-          <CardContent>
-            <AsyncBoundary isLoading={recentActivity.isLoading} error={recentActivity.error} isEmpty={!recentActivity.data?.items.length}>
-              <ul className="space-y-2">
-                {recentActivity.data?.items.map((entry) => (
-                  <li key={entry.id} className="flex items-start gap-2 px-2 py-1.5">
-                    <History className="h-3.5 w-3.5 shrink-0 text-muted-foreground mt-0.5" />
-                    <div className="min-w-0">
-                      <p className="truncate text-sm">{entry.action}</p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {entry.User?.fullName || t("queues.system")} · {formatDate(entry.createdAt, i18n.language, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                      </p>
-                    </div>
+            <AsyncBoundary
+              isLoading={recentLoading}
+              error={error ?? (!recent ? pendingOrgs.error : undefined)}
+              isEmpty={!recentRegistrations?.length}
+              emptyFallback={<EmptyState icon={<FileText className="h-5 w-5" />} title={t("recent.empty")} className="py-8" />}
+            >
+              <ul className="space-y-1">
+                {recentRegistrations?.map((org) => (
+                  <li key={org.id}>
+                    <RecentOrganizationRow org={org} name={getOrganizationDisplayName(org, i18n.language)} date={formatDate(org.createdAt, i18n.language, dateOpts)} />
                   </li>
                 ))}
               </ul>
@@ -503,19 +548,48 @@ export default function SuperAdminDashboard() {
           <CardTitle className="text-base font-semibold">{t("quickActions.title")}</CardTitle>
           <CardDescription>{t("quickActions.description")}</CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          <QuickAction to="/organizations" icon={<UserPlus className="h-4 w-4" />} label={t("quickActions.reviewRegistrations")} />
-          <QuickAction to="/branch-requests" icon={<GitBranch className="h-4 w-4" />} label={t("quickActions.reviewBranches")} />
-          <QuickAction to="/fuel-stations" icon={<Fuel className="h-4 w-4" />} label={t("quickActions.viewFuelStations")} />
-          <QuickAction to="/organizations" icon={<Briefcase className="h-4 w-4" />} label={t("quickActions.viewServiceProviders")} />
-          <QuickAction to="/users" icon={<Users className="h-4 w-4" />} label={t("quickActions.viewUsers")} />
-          <QuickAction to="/external-job-orders" icon={<ListChecks className="h-4 w-4" />} label={t("quickActions.viewExternalJobs")} />
+        <CardContent className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <QuickAction to="/organizations/new?type=FUEL_STATION" icon={<Fuel className="h-4 w-4" />} label={t("quickActions.addFuelStation")} />
+          <QuickAction to="/organizations/new?type=SERVICE_PROVIDER" icon={<PlusCircle className="h-4 w-4" />} label={t("quickActions.addServiceProvider")} />
+          <Button variant="outline" className="h-auto justify-start gap-2 py-3" onClick={() => setChooseCompanyOpen(true)}>
+            <UserPlus className="h-4 w-4" />
+            <span className="text-sm font-medium">{t("quickActions.addUser")}</span>
+          </Button>
+          <QuickAction to="/organizations?status=PENDING" icon={<ClipboardCheck className="h-4 w-4" />} label={t("quickActions.reviewRegistrations")} />
+          <QuickAction to="/organizations" icon={<Building2 className="h-4 w-4" />} label={t("quickActions.viewOrganizations")} />
           <QuickAction to="/audit-log" icon={<History className="h-4 w-4" />} label={t("quickActions.viewAuditLog")} />
-          <QuickAction to="/locations" icon={<MapPinned className="h-4 w-4" />} label={t("quickActions.manageLocations")} />
-          <QuickAction to="/service-categories" icon={<Tags className="h-4 w-4" />} label={t("quickActions.manageServiceCategories")} />
         </CardContent>
       </Card>
+
+      <ChooseCompanyDialog open={chooseCompanyOpen} onOpenChange={setChooseCompanyOpen} />
     </div>
+  );
+}
+
+function RecentOrganizationRow({
+  org,
+  name,
+  date,
+}: {
+  org: AdminDashboardRecentOrganization;
+  name: string;
+  date: string;
+}) {
+  return (
+    <Link
+      to={`/organizations/${org.id}`}
+      className="flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-muted/60 transition-colors"
+    >
+      <CompanyAvatar logoUrl={org.logoUrl} name={name} size="xs" />
+      <span className="flex-1 min-w-0">
+        <span className="block truncate text-sm font-medium" dir="auto">{name}</span>
+        <span className="mt-0.5 flex flex-wrap items-center gap-1">
+          <OrganizationTypeBadge type={org.type} className="text-[10px] px-1.5 py-0" />
+          <OrganizationStatusBadge status={org.status} className="text-[10px] px-1.5 py-0" />
+        </span>
+      </span>
+      <span className="shrink-0 text-xs text-muted-foreground">{date}</span>
+    </Link>
   );
 }
 

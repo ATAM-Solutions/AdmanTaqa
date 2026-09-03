@@ -3,7 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
+import { getHomePath } from "@/lib/navigation";
 import { authService } from "@/api/services/authService";
 import { toast } from "sonner";
 
@@ -25,6 +27,7 @@ function getErrorMessage(err: unknown): string | null {
 export function useLoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const { t } = useTranslation("auth");
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,9 +63,11 @@ export function useLoginForm() {
         } catch {
           // Keep login flow alive even if /auth/me fails — response.data already applied above.
         }
-        toast.success("Welcome back! Login successful");
+        toast.success(t("login.success"));
         const from = (location.state as { from?: { pathname?: string } })?.from?.pathname;
-        navigate(from || "/", { replace: true });
+        // Land every org type on its own dashboard (SUPER_ADMIN / FUEL_STATION / SERVICE_PROVIDER);
+        // Authority has no dashboard variant and keeps landing on its profile.
+        navigate(from || getHomePath(response.data.organization?.type), { replace: true });
       } else {
         const msg = response.message || "Login failed";
         setApiError(msg);

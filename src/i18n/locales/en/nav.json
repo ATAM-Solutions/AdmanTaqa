@@ -44,5 +44,15 @@
   "jobOrdersLegacy": "Job Orders (Quotations)",
   "auditLog": "Audit Log",
   "logout": "Logout",
-  "superAdminBadge": "Super Admin"
+  "superAdminBadge": "Super Admin",
+  "companyAdminBadge": "Company Admin",
+  "poweredBy": "Powered by Servexa",
+  "company": "Company",
+  "addCompany": "Add Company",
+  "orgType": {
+    "FUEL_STATION": "Fuel Station",
+    "SERVICE_PROVIDER": "Service Provider",
+    "AUTHORITY": "Authority",
+    "SUPER_ADMIN": "Platform"
+  }
 }

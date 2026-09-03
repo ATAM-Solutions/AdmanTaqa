@@ -54,3 +54,46 @@ describe("canAccessByRule", () => {
     expect(canAccessByRule(rule, "AUTHORITY", [])).toBe(false);
   });
 });
+
+describe("SUPER_ADMIN company management routes", () => {
+  it("allows only SUPER_ADMIN into the Add Company wizard", () => {
+    const rule = ROUTE_ACCESS_RULES["organizations/new"];
+    expect(canAccessByRule(rule, "SUPER_ADMIN", [])).toBe(true);
+    expect(canAccessByRule(rule, "AUTHORITY", ["organizations:read"])).toBe(false);
+    expect(canAccessByRule(rule, "FUEL_STATION", [])).toBe(false);
+    expect(canAccessByRule(rule, "SERVICE_PROVIDER", [])).toBe(false);
+  });
+
+  it("keeps the organizations list + detail available to SUPER_ADMIN and AUTHORITY only", () => {
+    for (const key of ["organizations", "organizations/:id"]) {
+      const rule = ROUTE_ACCESS_RULES[key];
+      expect(canAccessByRule(rule, "SUPER_ADMIN", ["organizations:read"])).toBe(true);
+      expect(canAccessByRule(rule, "AUTHORITY", ["organizations:read"])).toBe(true);
+      expect(canAccessByRule(rule, "FUEL_STATION", ["organizations:read"])).toBe(false);
+    }
+  });
+
+  it("exposes the company profile page to company tenants only", () => {
+    const rule = ROUTE_ACCESS_RULES["company"];
+    expect(canAccessByRule(rule, "FUEL_STATION", [])).toBe(true);
+    expect(canAccessByRule(rule, "SERVICE_PROVIDER", [])).toBe(true);
+    expect(canAccessByRule(rule, "SUPER_ADMIN", [])).toBe(false);
+    expect(canAccessByRule(rule, "AUTHORITY", [])).toBe(false);
+  });
+
+  it("gives every company type and SUPER_ADMIN a dashboard, but not AUTHORITY", () => {
+    const rule = ROUTE_ACCESS_RULES["dashboard"];
+    expect(canAccessByRule(rule, "SUPER_ADMIN", [])).toBe(true);
+    expect(canAccessByRule(rule, "FUEL_STATION", [])).toBe(true);
+    expect(canAccessByRule(rule, "AUTHORITY", [])).toBe(false);
+  });
+});
+
+describe("permission code normalization", () => {
+  it("accepts the backend's dot-style keys for colon-style route rules", () => {
+    const rule = ROUTE_ACCESS_RULES["organizations"];
+    expect(canAccessByRule(rule, "SUPER_ADMIN", ["organizations.read"])).toBe(true);
+    expect(canAccessByRule(ROUTE_ACCESS_RULES["job-orders"], "SUPER_ADMIN", ["job_orders.read"])).toBe(true);
+    expect(canAccessByRule(rule, "SUPER_ADMIN", ["stations.read"])).toBe(false);
+  });
+});

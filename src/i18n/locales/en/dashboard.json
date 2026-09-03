@@ -21,7 +21,9 @@
     "recentVisits": "Recent Visits (7d)",
     "stuckWorkflows": "Stuck Workflows",
     "newToday": "+{{count}} today",
-    "ofTotal": "of {{total}} total"
+    "ofTotal": "of {{total}} total",
+    "totalStations": "Total Stations",
+    "totalUsers": "Total Users"
   },
   "charts": {
     "empty": "No data yet for this chart.",
@@ -67,7 +69,8 @@
   "orgType": {
     "FUEL_STATION": "Fuel Station",
     "SERVICE_PROVIDER": "Service Provider",
-    "AUTHORITY": "Authority"
+    "AUTHORITY": "Authority",
+    "SUPER_ADMIN": "Platform"
   },
   "status": {
     "PENDING": "Pending",
@@ -91,7 +94,11 @@
     "viewExternalJobs": "View External Jobs",
     "viewAuditLog": "View Audit Log",
     "manageLocations": "Manage Locations",
-    "manageServiceCategories": "Manage Service Categories"
+    "manageServiceCategories": "Manage Service Categories",
+    "addFuelStation": "Add Fuel Station Company",
+    "addServiceProvider": "Add Service Provider",
+    "addUser": "Add User",
+    "viewOrganizations": "View Organizations"
   },
   "viewAll": "View all",
   "retry": "Retry",
@@ -108,7 +115,10 @@
       "activeJobs": "Active Jobs",
       "awaitingPayment": "Payment Pending",
       "completedAwaitingApproval": "Completed, Awaiting Approval",
-      "completedJobs": "Completed Jobs"
+      "completedJobs": "Completed Jobs",
+      "stations": "Stations",
+      "users": "Users",
+      "openMaintenanceRequests": "Open Maintenance Requests"
     },
     "charts": {
       "requestsOverTime": "Maintenance Requests Over Time",
@@ -121,7 +131,28 @@
       "addEmployee": "Add Employee",
       "reviewQuotes": "Review Quotes",
       "activeJobs": "Active Jobs",
-      "reviewCompleted": "Review Completed Work"
+      "reviewCompleted": "Review Completed Work",
+      "addStation": "Add Station",
+      "addUser": "Add User",
+      "createRequest": "Create Maintenance Request",
+      "viewQuotes": "View Quotes",
+      "viewActiveJobs": "View Active Jobs"
+    },
+    "roleCompanyAdmin": "Company Admin",
+    "viewCompanyProfile": "View company profile",
+    "panels": {
+      "stations": "Stations",
+      "recentActivity": "Recent Maintenance Activity",
+      "viewAll": "View all"
+    },
+    "activity": {
+      "internal": "Internal work order",
+      "external": "External request",
+      "empty": "No maintenance activity yet."
+    },
+    "stations": {
+      "empty": "No stations yet. Add your first station.",
+      "emptyTitle": "No stations yet"
     }
   },
   "provider": {
@@ -157,5 +188,17 @@
       "activeJobs": "Active Jobs",
       "paymentConfirmations": "Payment Confirmations"
     }
+  },
+  "recent": {
+    "organizations": "Latest Organizations",
+    "users": "Latest Users",
+    "registrations": "Latest Registrations",
+    "empty": "Nothing here yet."
+  },
+  "chooseCompany": {
+    "title": "Add user — choose a company",
+    "description": "Users belong to a company. Pick the company you want to add the user to.",
+    "searchPlaceholder": "Search companies...",
+    "empty": "No companies found."
   }
 }

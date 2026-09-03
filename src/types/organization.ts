@@ -4,14 +4,23 @@ export interface OrganizationProfile {
     id: number;
     name: string;
     nameEn: string;
-    nameAr: string;
-    type: "FUEL_STATION" | "SERVICE_PROVIDER" | "AUTHORITY";
+    nameAr: string | null;
+    type: "FUEL_STATION" | "SERVICE_PROVIDER" | "AUTHORITY" | "SUPER_ADMIN";
     status: "PENDING" | "APPROVED" | "REJECTED";
     rejectionReason: string | null;
     approvedAt: string | null;
     approvedByUserId: number | null;
     createdAt: string;
     updatedAt: string;
+    /** Company profile / branding fields (nullable, added by the company-management release). */
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    cityId?: number | null;
+    logoUrl?: string | null;
+    isActive?: boolean;
+    City?: { id: number; name: string } | null;
+    FuelStationProfile?: { id: number; organizationId: number; registrationNumber: string | null } | null;
 }
 
 export interface OrganizationResponse {
@@ -132,7 +141,6 @@ export interface OrganizationMeFullData extends OrganizationProfile {
     OrganizationApprovals?: OrganizationMeFullApproval[];
     Roles?: OrganizationMeFullRole[];
     ServiceProviderProfile?: OrganizationMeFullServiceProviderProfile | null;
-    FuelStationProfile?: unknown | null;
     LinkedAsFuelStation?: unknown[];
     LinkedAsServiceProvider?: LinkedAsServiceProviderItem[];
     EmployeeInvitations?: OrganizationMeFullEmployeeInvitation[];
@@ -229,11 +237,19 @@ export interface OrganizationByIdApproval {
 export interface OrganizationByIdFull {
     id: number;
     name: string;
+    nameAr?: string | null;
     type: string;
     status: string;
     rejectionReason?: string | null;
     approvedAt?: string | null;
     approvedByUserId?: number | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    logoUrl?: string | null;
+    isActive?: boolean;
+    City?: { id: number; name: string } | null;
+    FuelStationProfile?: { id: number; organizationId: number; registrationNumber: string | null } | null;
     createdAt: string;
     updatedAt: string;
     Users?: OrganizationByIdUser[];
