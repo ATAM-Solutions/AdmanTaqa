@@ -20,12 +20,15 @@ import useGetNotifications from "@/hooks/Notifications/useGetNotifications";
 import useMarkNotificationRead from "@/hooks/Notifications/useMarkNotificationRead";
 import useMarkAllNotificationsRead from "@/hooks/Notifications/useMarkAllNotificationsRead";
 import type { NotificationItem } from "@/types/notification";
+import { useAuth } from "@/context/AuthContext";
+import { getNotificationText, getNotificationWebPath } from "@/lib/notifications";
 
 const LIMIT = 20;
 
 export default function Notifications() {
   const { t, i18n } = useTranslation("notifications");
   const navigate = useNavigate();
+  const { organization } = useAuth();
   const [page, setPage] = useState(1);
   const [filter, setFilter] = useState<"all" | "unread" | "read">("all");
 
@@ -42,7 +45,8 @@ export default function Notifications() {
 
   const handleItemClick = (item: NotificationItem) => {
     if (!item.isRead) markReadMutation.mutate(item.id);
-    if (item.deepLink) navigate(item.deepLink);
+    const target = getNotificationWebPath(item, organization?.type);
+    if (target) navigate(target);
   };
 
   return (
@@ -95,7 +99,9 @@ export default function Notifications() {
             }
           >
             <div className="divide-y rounded-lg border">
-              {items.map((item) => (
+              {items.map((item) => {
+                const text = getNotificationText(item, i18n.language);
+                return (
                 <button
                   key={item.id}
                   type="button"
@@ -107,20 +113,21 @@ export default function Notifications() {
                   {!item.isRead && <span className="h-2 w-2 rounded-full bg-primary mt-1.5 shrink-0" />}
                   <div className={`min-w-0 flex-1 ${item.isRead ? "ms-5" : ""}`}>
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold">{item.title}</p>
+                      <p className="text-sm font-semibold">{text.title}</p>
                       {item.priority === "CRITICAL" || item.priority === "HIGH" ? (
                         <Badge variant="destructive" className="text-[10px] shrink-0">
                           {t(`priority.${item.priority}`)}
                         </Badge>
                       ) : null}
                     </div>
-                    {item.body && <p className="text-sm text-muted-foreground mt-1">{item.body}</p>}
+                    {text.body && <p className="text-sm text-muted-foreground mt-1">{text.body}</p>}
                     <p className="text-xs text-muted-foreground mt-1.5">
                       {formatDate(item.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
                     </p>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
           </AsyncBoundary>
 

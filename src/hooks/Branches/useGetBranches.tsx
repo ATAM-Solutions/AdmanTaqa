@@ -21,6 +21,8 @@ export interface BranchApiItem {
   managerEmail: string | null;
   managerPhone: string | null;
   managerUserId: number | null;
+  /** Linked manager user (null while the station only has the legacy free-text managerName). */
+  manager?: { id: number; fullName: string; email: string; phone?: string | null; isActive?: boolean } | null;
   status: string;
   isActive: boolean;
   createdAt: string;

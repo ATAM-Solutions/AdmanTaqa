@@ -136,7 +136,9 @@
       "addUser": "إضافة مستخدم",
       "createRequest": "إنشاء طلب صيانة",
       "viewQuotes": "عرض عروض الأسعار",
-      "viewActiveJobs": "عرض المهام النشطة"
+      "viewActiveJobs": "عرض المهام النشطة",
+      "createReport": "رفع بلاغ",
+      "viewReports": "عرض البلاغات"
     },
     "roleCompanyAdmin": "مدير الشركة",
     "viewCompanyProfile": "عرض ملف الشركة",

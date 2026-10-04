@@ -9,6 +9,8 @@ export interface UpdateBranchBody {
   status?: string;
   isActive?: boolean;
   fuelTypeIds?: number[];
+  /** Link/unlink the station manager user (omit = unchanged, null = unlink). */
+  managerUserId?: number | null;
 }
 
 interface UpdateBranchApiResponse {
@@ -35,6 +37,9 @@ export default function useUpdateBranch(branchId: number | string | null | undef
     mutationFn: (body: UpdateBranchBody) => updateBranch(branchId!, body),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["branches"] });
+      // A manager change also changes the manager's station assignment on the user pages.
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["user"] });
       if (branchId != null) {
         queryClient.invalidateQueries({ queryKey: ["branches", String(branchId)] });
       }

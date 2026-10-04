@@ -136,7 +136,9 @@
       "addUser": "Add User",
       "createRequest": "Create Maintenance Request",
       "viewQuotes": "View Quotes",
-      "viewActiveJobs": "View Active Jobs"
+      "viewActiveJobs": "View Active Jobs",
+      "createReport": "Create Report",
+      "viewReports": "View Reports"
     },
     "roleCompanyAdmin": "Company Admin",
     "viewCompanyProfile": "View company profile",

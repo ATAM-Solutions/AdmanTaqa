@@ -156,9 +156,27 @@ export default function BranchDetails() {
                       <Users className="h-3 w-3" />
                       {t("details.manager")}
                     </p>
-                    <p className="text-sm font-bold text-foreground">{branch.managerName ?? "—"}</p>
-                    {branch.managerEmail && (
-                      <p className="text-xs text-muted-foreground mt-1">{branch.managerEmail}</p>
+                    {branch.manager ? (
+                      <>
+                        <p className="text-sm font-bold text-foreground">{branch.manager.fullName}</p>
+                        <p className="text-xs text-muted-foreground mt-1" dir="ltr">{branch.manager.email}</p>
+                        <Link
+                          to={`/users/${branch.manager.id}`}
+                          className="mt-1 inline-block text-xs font-medium text-primary hover:underline"
+                        >
+                          {t("details.managerLinked")}
+                        </Link>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm font-bold text-foreground">{branch.managerName ?? "—"}</p>
+                        {branch.managerEmail && (
+                          <p className="text-xs text-muted-foreground mt-1">{branch.managerEmail}</p>
+                        )}
+                        {branch.managerName && (
+                          <p className="text-[11px] text-amber-600 dark:text-amber-400 mt-1">{t("details.managerNotLinked")}</p>
+                        )}
+                      </>
                     )}
                   </div>
                   <div className="group p-3 rounded-xl hover:bg-muted/50 transition-colors">

@@ -94,7 +94,16 @@
     "selectAtLeastOneFuelType": "اختر نوع وقود واحدًا على الأقل",
     "status": "الحالة",
     "selectStatus": "اختر الحالة",
-    "activeCheckboxLabel": "نشط (isActive)"
+    "activeCheckboxLabel": "نشط (isActive)",
+    "managerUser": "مدير المحطة",
+    "managerUserPlaceholder": "اختر مديراً",
+    "managerUserNone": "بدون مدير",
+    "managerUserLoading": "جارٍ تحميل المديرين…",
+    "managerUserEmpty": "لا يوجد مديرون مؤهلون. أنشئ مستخدماً بدور «مدير المحطة» أولاً.",
+    "managerUserLoadFailed": "تعذّر تحميل قائمة المديرين.",
+    "managerUserRetry": "إعادة المحاولة",
+    "managerUserHint": "يمكن اختيار مستخدمين نشطين من شركتك بدور «مدير المحطة» فقط. الربط يمنح المدير صلاحية الوصول إلى هذه المحطة أيضاً.",
+    "managerLegacyLabel": "الاسم المُدخل سابقاً (غير مرتبط بمستخدم): {{name}}"
   },
   "days": {
     "sun": "الأحد",
@@ -148,7 +157,9 @@
     "status": "الحالة",
     "active": "نشط",
     "yes": "نعم",
-    "no": "لا"
+    "no": "لا",
+    "managerLinked": "المستخدم المرتبط",
+    "managerNotLinked": "غير مرتبط بحساب مستخدم"
   },
   "edit": {
     "title": "تعديل الفرع",

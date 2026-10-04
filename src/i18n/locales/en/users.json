@@ -53,7 +53,14 @@
     "saving": "Saving...",
     "noChanges": "No changes to save.",
     "success": "User updated successfully.",
-    "error": "Failed to update user."
+    "error": "Failed to update user.",
+    "stations": "Assigned stations",
+    "stationsLoading": "Loading stations…",
+    "stationsLoadFailed": "Could not load the stations list.",
+    "stationsRetry": "Retry",
+    "stationsEmpty": "No stations available.",
+    "stationsHint": "Select the stations this user may work with. If you select none, the user gets company-wide access to ALL stations.",
+    "stationsClearWarning": "No station selected: saving will give this user company-wide access to every station."
   },
   "deactivateDialog": {
     "title": "Deactivate User",
@@ -94,7 +101,10 @@
     "emailAddress": "Email Address",
     "contactNumber": "Contact Number",
     "organization": "Organization",
-    "accessLevel": "Access Level"
+    "accessLevel": "Access Level",
+    "stations": "Assigned stations",
+    "allStations": "All stations (company-wide access)",
+    "stationsUnnamed": "+{{count}} more"
   },
   "updateUser": {
     "title": "Update User",

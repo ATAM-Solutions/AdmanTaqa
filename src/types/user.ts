@@ -18,7 +18,18 @@ export interface ApiUser {
   roles?: UserRoleRef[];
   /** @deprecated Prefer roles[].name - kept for backward compatibility if API sometimes returns single role */
   role?: string;
-  organization?: { id: number; name: string };
+  organization?: { id: number; name: string; nameAr?: string | null; type?: string } | null;
+  /** Assigned station ids (UserBranch ∪ role-bound branch). Empty = not branch-limited (organization-wide). */
+  branchIds?: number[];
+  /** Display data for `branchIds` (only the user's own company). */
+  branches?: UserBranchRef[];
+}
+
+/** A station a user is assigned to, as returned in user.branches[] */
+export interface UserBranchRef {
+  id: number;
+  nameEn: string;
+  nameAr: string;
 }
 
 /** Get display label for user roles (API returns roles array) */
@@ -54,4 +65,6 @@ export interface UpdateUserBody {
   phone?: string | null;
   email?: string;
   roleId?: number | null;
+  /** Complete desired station set; [] / null = organization-wide. Omit to leave assignments unchanged. */
+  branchIds?: number[] | null;
 }

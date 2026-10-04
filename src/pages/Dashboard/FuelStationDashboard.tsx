@@ -31,7 +31,9 @@ import { ChartCard } from "./components/ChartCard";
 export default function FuelStationDashboard() {
   const { t, i18n } = useTranslation("dashboard");
   const colors = useChartColors();
-  const { organization, roles } = useAuth();
+  const { organization, roles, hasPermission } = useAuth();
+  const canReadReports = hasPermission("maintenance_issues.read");
+  const canCreateReport = hasPermission("maintenance_issues.create");
   const { data, isLoading, error, refetch } = useGetStationDashboard();
 
   const kpis = data?.kpis;
@@ -110,7 +112,7 @@ export default function FuelStationDashboard() {
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <KpiCard label={t("station.kpi.stations")} value={kpis ? formatNumber(kpis.branches, i18n.language) : "—"} icon={<Store className="h-5 w-5" />} to="/branches" isLoading={isLoading} />
         <KpiCard label={t("station.kpi.users")} value={kpis ? formatNumber(kpis.employees, i18n.language) : "—"} icon={<Users className="h-5 w-5" />} to="/users" isLoading={isLoading} />
-        <KpiCard label={t("station.kpi.openMaintenanceRequests")} value={kpis ? formatNumber(kpis.openMaintenanceIssues, i18n.language) : "—"} icon={<Wrench className="h-5 w-5" />} to="/station-requests" isLoading={isLoading} />
+        <KpiCard label={t("station.kpi.openMaintenanceRequests")} value={kpis ? formatNumber(kpis.openMaintenanceIssues, i18n.language) : "—"} icon={<Wrench className="h-5 w-5" />} to={canReadReports ? "/maintenance-reports" : "/station-requests"} isLoading={isLoading} />
         <KpiCard label={t("station.kpi.internalWorkOrders")} value={kpis ? formatNumber(kpis.internalWorkOrders.open, i18n.language) : "—"} icon={<ClipboardList className="h-5 w-5" />} to="/internal-work-orders" isLoading={isLoading} context={kpis ? t("kpi.ofTotal", { total: formatNumber(kpis.internalWorkOrders.total, i18n.language) }) : undefined} />
         <KpiCard label={t("station.kpi.externalRequests")} value={kpis ? formatNumber(kpis.externalRequests.open, i18n.language) : "—"} icon={<Send className="h-5 w-5" />} to="/station-requests" isLoading={isLoading} context={kpis ? t("kpi.ofTotal", { total: formatNumber(kpis.externalRequests.total, i18n.language) }) : undefined} />
         <KpiCard label={t("station.kpi.quotesAwaitingDecision")} value={kpis ? formatNumber(kpis.quotesAwaitingDecision, i18n.language) : "—"} icon={<FileOutput className="h-5 w-5" />} to="/station-requests" isLoading={isLoading} accent={kpis && kpis.quotesAwaitingDecision > 0 ? "warning" : "default"} />
@@ -129,6 +131,12 @@ export default function FuelStationDashboard() {
         <CardContent className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           <QuickAction to="/branches/create" icon={<GitBranch className="h-4 w-4" />} label={t("station.quickActions.addStation")} />
           <QuickAction to="/users" icon={<UserPlus className="h-4 w-4" />} label={t("station.quickActions.addUser")} />
+          {canCreateReport && (
+            <QuickAction to="/maintenance-reports/create" icon={<ClipboardList className="h-4 w-4" />} label={t("station.quickActions.createReport")} />
+          )}
+          {canReadReports && (
+            <QuickAction to="/maintenance-reports" icon={<ListChecks className="h-4 w-4" />} label={t("station.quickActions.viewReports")} />
+          )}
           <QuickAction to="/station-requests/create" icon={<PlusCircle className="h-4 w-4" />} label={t("station.quickActions.createRequest")} />
           <QuickAction to="/station-requests" icon={<FileOutput className="h-4 w-4" />} label={t("station.quickActions.viewQuotes")} />
           <QuickAction to="/station-job-orders" icon={<ListChecks className="h-4 w-4" />} label={t("station.quickActions.viewActiveJobs")} />

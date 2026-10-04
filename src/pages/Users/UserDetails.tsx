@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import {
 import { useAuth } from "@/context/AuthContext";
 import useGetUserById from "@/hooks/Users/useGetUserById";
 import { getRoleDisplayLabel } from "@/types/user";
+import { getBranchDisplayName, getOrganizationDisplayName } from "@/lib/company";
+import { MapPin } from "lucide-react";
 import EditUserDialog from "./component/EditUserDialog";
 import DeactivateUserDialog from "./component/DeactivateUserDialog";
 import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
@@ -39,7 +41,7 @@ function getRoleBadge(role?: string) {
 }
 
 export default function UserDetails() {
-  const { t } = useTranslation("users");
+  const { t, i18n } = useTranslation("users");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user: currentUser, hasPermission } = useAuth();
@@ -145,7 +147,7 @@ export default function UserDetails() {
                                             <Building2 className="h-3 w-3" />
                                             {t("details.organization")}
                                         </p>
-                                        <p className="text-sm font-bold text-foreground">{user.organization?.name ?? "—"}</p>
+                                        <p className="text-sm font-bold text-foreground">{user.organization ? getOrganizationDisplayName(user.organization, i18n.language) : "—"}</p>
                                     </div>
                                     <div className="group p-3 rounded-xl hover:bg-muted/50 transition-colors">
                                         <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 flex items-center gap-2">
@@ -153,6 +155,30 @@ export default function UserDetails() {
                                             {t("details.accessLevel")}
                                         </p>
                                         <div>{getRoleBadge(getRoleDisplayLabel(user))}</div>
+                                    </div>
+                                    <div className="group p-3 rounded-xl hover:bg-muted/50 transition-colors">
+                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                                            <MapPin className="h-3 w-3" />
+                                            {t("details.stations")}
+                                        </p>
+                                        {(user.branchIds?.length ?? 0) === 0 ? (
+                                            <p className="text-sm font-bold text-foreground">{t("details.allStations")}</p>
+                                        ) : (
+                                            <div className="flex flex-wrap gap-1.5">
+                                                {(user.branches ?? []).map((b) => (
+                                                    <Link key={b.id} to={`/branches/${b.id}`}>
+                                                        <Badge variant="secondary" className="shadow-none font-semibold hover:bg-secondary/70">
+                                                            {getBranchDisplayName(b, i18n.language)}
+                                                        </Badge>
+                                                    </Link>
+                                                ))}
+                                                {(user.branches ?? []).length < (user.branchIds?.length ?? 0) && (
+                                                    <Badge variant="outline" className="shadow-none">
+                                                        {t("details.stationsUnnamed", { count: (user.branchIds?.length ?? 0) - (user.branches ?? []).length })}
+                                                    </Badge>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -172,6 +198,7 @@ export default function UserDetails() {
                 phone: user.phone,
                 email: user.email,
                 roles: user.roles,
+                branchIds: user.branchIds,
               }}
             />
 

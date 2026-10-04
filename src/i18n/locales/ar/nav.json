@@ -54,5 +54,6 @@
     "SERVICE_PROVIDER": "مزود خدمة",
     "AUTHORITY": "الهيئة",
     "SUPER_ADMIN": "المنصة"
-  }
+  },
+  "maintenanceReports": "بلاغات الصيانة"
 }

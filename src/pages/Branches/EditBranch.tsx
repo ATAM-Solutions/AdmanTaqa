@@ -18,6 +18,7 @@ import { Loader2, ChevronDown } from "lucide-react";
 import useGetBranchesDetails from "@/hooks/Branches/useGetBranchesDetails";
 import useUpdateBranch from "@/hooks/Branches/useUpdateBranch";
 import useGetFuelTypes from "@/hooks/Branches/useGetFuelTypes";
+import useGetManagerCandidates from "@/hooks/Branches/useGetManagerCandidates";
 import type { UpdateBranchBody } from "@/hooks/Branches/useUpdateBranch";
 
 const STATUS_OPTIONS = ["APPROVED", "PENDING", "REJECTED", "INACTIVE"];
@@ -29,6 +30,14 @@ export default function EditBranch() {
   const { data: branch, isLoading: loadingBranch, isError, error } = useGetBranchesDetails(id);
   const { data: fuelTypes = [], isLoading: loadingFuelTypes } = useGetFuelTypes();
   const mutation = useUpdateBranch(id);
+  const {
+    data: managerCandidates = [],
+    isLoading: loadingManagers,
+    isError: managersFailed,
+    refetch: refetchManagers,
+  } = useGetManagerCandidates();
+  /** "none" = no linked manager. Initialised from the station's real user link, never from a name. */
+  const [managerUserId, setManagerUserId] = useState<string>("none");
 
   const [nameEn, setNameEn] = useState("");
   const [nameAr, setNameAr] = useState("");
@@ -63,6 +72,7 @@ export default function EditBranch() {
       setStatus(branch.status ?? "APPROVED");
       setIsActive(branch.isActive ?? true);
       setSelectedFuelTypeIds((branch.FuelTypes ?? []).map((ft) => ft.id));
+      setManagerUserId(branch.manager?.id != null ? String(branch.manager.id) : "none");
     }
   }, [branch]);
 
@@ -77,6 +87,11 @@ export default function EditBranch() {
       isActive,
       fuelTypeIds: selectedFuelTypeIds.length > 0 ? selectedFuelTypeIds : undefined,
     };
+    // Only send the manager when it actually changed, so an unrelated edit can never unlink it.
+    const currentManagerId = branch?.manager?.id != null ? String(branch.manager.id) : "none";
+    if (managerUserId !== currentManagerId) {
+      body.managerUserId = managerUserId === "none" ? null : Number(managerUserId);
+    }
 
     try {
       await mutation.mutateAsync(body);
@@ -167,6 +182,46 @@ export default function EditBranch() {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="managerUser">{t("fields.managerUser")}</Label>
+            {loadingManagers ? (
+              <p className="text-sm text-muted-foreground">{t("fields.managerUserLoading")}</p>
+            ) : managersFailed ? (
+              <div className="flex items-center gap-3 text-sm text-destructive">
+                <span>{t("fields.managerUserLoadFailed")}</span>
+                <Button type="button" variant="outline" size="sm" onClick={() => refetchManagers()}>
+                  {t("fields.managerUserRetry")}
+                </Button>
+              </div>
+            ) : (
+              <Select value={managerUserId} onValueChange={setManagerUserId}>
+                <SelectTrigger id="managerUser">
+                  <SelectValue placeholder={t("fields.managerUserPlaceholder")} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">{t("fields.managerUserNone")}</SelectItem>
+                  {/* keep the currently linked manager selectable even if they no longer qualify */}
+                  {branch.manager && !managerCandidates.some((c) => c.id === branch.manager!.id) && (
+                    <SelectItem value={String(branch.manager.id)}>{branch.manager.fullName}</SelectItem>
+                  )}
+                  {managerCandidates.map((c) => (
+                    <SelectItem key={c.id} value={String(c.id)}>
+                      {c.fullName} — {c.email}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {!loadingManagers && !managersFailed && managerCandidates.length === 0 && !branch.manager && (
+              <p className="text-xs text-muted-foreground">{t("fields.managerUserEmpty")}</p>
+            )}
+            {!branch.manager && branch.managerName && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                {t("fields.managerLegacyLabel", { name: branch.managerName })}
+              </p>
+            )}
+            <p className="text-xs text-muted-foreground">{t("fields.managerUserHint")}</p>
           </div>
           <div className="flex items-center gap-2">
             <Checkbox

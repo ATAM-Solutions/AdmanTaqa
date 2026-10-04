@@ -94,7 +94,16 @@
     "selectAtLeastOneFuelType": "Select at least one fuel type",
     "status": "Status",
     "selectStatus": "Select status",
-    "activeCheckboxLabel": "Active (isActive)"
+    "activeCheckboxLabel": "Active (isActive)",
+    "managerUser": "Station manager",
+    "managerUserPlaceholder": "Select a manager",
+    "managerUserNone": "No manager",
+    "managerUserLoading": "Loading managers…",
+    "managerUserEmpty": "No eligible managers found. Create a user with the Station Manager role first.",
+    "managerUserLoadFailed": "Could not load the managers list.",
+    "managerUserRetry": "Retry",
+    "managerUserHint": "Only active users of your company with the Station Manager role can be selected. Linking also gives them access to this station.",
+    "managerLegacyLabel": "Previously entered name (not linked to a user): {{name}}"
   },
   "days": {
     "sun": "Sunday",
@@ -148,7 +157,9 @@
     "status": "Status",
     "active": "Active",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "managerLinked": "Linked user",
+    "managerNotLinked": "Not linked to a user account"
   },
   "edit": {
     "title": "Edit Branch",

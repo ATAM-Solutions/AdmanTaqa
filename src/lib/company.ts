@@ -40,3 +40,14 @@ export function hasCompanyAdminRole(roles: AuthRole[], organization: Organizatio
   if (!organization) return false;
   return roles.some((r) => isCompanyAdminRole(r.name, organization.type));
 }
+
+/** Display name for a station (branch) in the active UI language, falling back to the other language. */
+export function getBranchDisplayName(
+  branch: { nameEn?: string | null; nameAr?: string | null } | null | undefined,
+  language: string
+): string {
+  if (!branch) return "";
+  const ar = (branch.nameAr ?? "").trim();
+  const en = (branch.nameEn ?? "").trim();
+  return language.startsWith("ar") ? ar || en : en || ar;
+}

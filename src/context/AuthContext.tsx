@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useRef } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import type { User, Organization, AuthData, AuthRole } from "../types/auth";
 import { buildPermissionHelpers } from "@/lib/permissions";
 import { authService } from "@/api/services/authService";
@@ -31,7 +32,32 @@ const isOrganizationType = (
   value === "AUTHORITY" ||
   value === "SUPER_ADMIN";
 
+/** Transient failures worth retrying: no response (network), throttling, or a 5xx. 401/403 are final. */
+function isTransientAuthFailure(err: unknown): boolean {
+  const status = (err as { response?: { status?: number } } | null)?.response?.status;
+  return status === undefined || status === 429 || status >= 500;
+}
+
+/**
+ * GET /auth/me with a short bounded retry. Without it a single throttled/dropped response left the
+ * session with an empty permission list and no way to recover until the next full reload.
+ */
+async function fetchMeWithRetry(): Promise<Awaited<ReturnType<typeof authService.me>>> {
+  const delaysMs = [400, 1200];
+  for (let attempt = 0; ; attempt += 1) {
+    try {
+      return await authService.me();
+    } catch (err) {
+      if (attempt >= delaysMs.length || !isTransientAuthFailure(err)) throw err;
+      await new Promise((resolve) => setTimeout(resolve, delaysMs[attempt]));
+    }
+  }
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const queryClient = useQueryClient();
+  /** Who is signed in right now — used to drop cached server data when the identity changes. */
+  const currentUserIdRef = useRef<number | string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [roles, setRoles] = useState<AuthRole[]>([]);
@@ -64,8 +90,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     void (async () => {
       try {
-        const me = await authService.me();
+        const me = await fetchMeWithRetry();
         if (me.success && me.data) {
+          currentUserIdRef.current = me.data.user.id;
           setUser(me.data.user);
           setOrganization(me.data.organization);
           setRoles(me.data.roles ?? []);
@@ -81,6 +108,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = (data: AuthData) => {
+    // A different identity (or a fresh sign-in after the previous session ended without an explicit
+    // logout, e.g. an expired refresh token) must never see the previous user's cached lists.
+    if (currentUserIdRef.current !== data.user.id) queryClient.clear();
+    currentUserIdRef.current = data.user.id;
     setUser(data.user);
     setOrganization(data.organization);
     setRoles(data.roles ?? []);
@@ -109,6 +140,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
+    currentUserIdRef.current = null;
+    queryClient.clear();
     setUser(null);
     setOrganization(null);
     setRoles([]);

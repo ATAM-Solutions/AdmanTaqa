@@ -11,10 +11,13 @@ import useGetNotifications from "@/hooks/Notifications/useGetNotifications";
 import useMarkNotificationRead from "@/hooks/Notifications/useMarkNotificationRead";
 import useMarkAllNotificationsRead from "@/hooks/Notifications/useMarkAllNotificationsRead";
 import type { NotificationItem } from "@/types/notification";
+import { useAuth } from "@/context/AuthContext";
+import { getNotificationText, getNotificationWebPath } from "@/lib/notifications";
 
 export default function NotificationBell() {
   const { t, i18n } = useTranslation("notifications");
   const navigate = useNavigate();
+  const { organization } = useAuth();
 
   const { data: unreadData } = useGetUnreadCount();
   const unreadCount = unreadData?.data?.count ?? 0;
@@ -27,7 +30,8 @@ export default function NotificationBell() {
 
   const handleItemClick = (item: NotificationItem) => {
     if (!item.isRead) markReadMutation.mutate(item.id);
-    if (item.deepLink) navigate(item.deepLink);
+    const target = getNotificationWebPath(item, organization?.type);
+    if (target) navigate(target);
   };
 
   return (
@@ -65,7 +69,9 @@ export default function NotificationBell() {
             <div className="py-8 text-center text-sm text-muted-foreground">{t("bell.empty")}</div>
           ) : (
             <div className="divide-y">
-              {items.map((item) => (
+              {items.map((item) => {
+                const text = getNotificationText(item, i18n.language);
+                return (
                 <button
                   key={item.id}
                   type="button"
@@ -77,9 +83,9 @@ export default function NotificationBell() {
                   <div className="flex items-start gap-2">
                     {!item.isRead && <span className="h-2 w-2 rounded-full bg-primary mt-1.5 shrink-0" />}
                     <div className={`min-w-0 ${item.isRead ? "ms-4" : ""}`}>
-                      <p className="text-sm font-semibold truncate">{item.title}</p>
-                      {item.body && (
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{item.body}</p>
+                      <p className="text-sm font-semibold truncate">{text.title}</p>
+                      {text.body && (
+                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{text.body}</p>
                       )}
                       <p className="text-[10px] text-muted-foreground mt-1">
                         {formatDate(item.createdAt, i18n.language, { dateStyle: "medium", timeStyle: "short" })}
@@ -87,7 +93,8 @@ export default function NotificationBell() {
                     </div>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
           )}
         </ScrollArea>

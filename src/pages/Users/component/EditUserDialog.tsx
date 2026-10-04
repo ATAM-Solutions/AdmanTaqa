@@ -21,6 +21,9 @@ import {
 } from "@/components/ui/select";
 import useUpdateUser from "@/hooks/Users/useUpdateUser";
 import useGetRoles from "@/hooks/Roles/useGetRoles";
+import useGetBranches from "@/hooks/Branches/useGetBranches";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getBranchDisplayName } from "@/lib/company";
 import type { UpdateUserBody, UserRoleRef } from "@/types/user";
 import {
   isValidSaudiPhoneDigits,
@@ -40,6 +43,8 @@ type EditUserDialogProps = {
     phone?: string | null;
     email?: string;
     roles?: UserRoleRef[];
+    /** Currently assigned station ids (empty = organization-wide). */
+    branchIds?: number[];
   };
 };
 
@@ -48,8 +53,14 @@ export default function EditUserDialog({
   onOpenChange,
   user,
 }: EditUserDialogProps) {
-  const { t } = useTranslation("users");
+  const { t, i18n } = useTranslation("users");
   const updateMutation = useUpdateUser();
+  const {
+    data: branches = [],
+    isLoading: branchesLoading,
+    isError: branchesFailed,
+    refetch: refetchBranches,
+  } = useGetBranches();
   const { data: allRoles = [], isLoading: rolesLoading } = useGetRoles();
 
   const assignableRoles = useMemo(
@@ -66,11 +77,17 @@ export default function EditUserDialog({
     phone: "",
     email: "",
     roleId: "" as string,
+    branchIds: [] as number[],
   });
   const [phoneError, setPhoneError] = useState("");
 
   const initialRoleId = user.roles?.[0]?.id ?? null;
   const initialPhoneDigits = parseDisplayToDigits(user.phone);
+  const initialBranchKey = [...(user.branchIds ?? [])].sort((a, b) => a - b).join(",");
+  const initialBranchIds = useMemo(
+    () => (initialBranchKey ? initialBranchKey.split(",").map(Number) : []),
+    [initialBranchKey]
+  );
 
   useEffect(() => {
     if (open) {
@@ -79,6 +96,7 @@ export default function EditUserDialog({
         phone: initialPhoneDigits,
         email: user.email ?? "",
         roleId: initialRoleId != null ? String(initialRoleId) : "",
+        branchIds: [...initialBranchIds],
       });
       setPhoneError("");
     }
@@ -89,6 +107,7 @@ export default function EditUserDialog({
     user.email,
     initialRoleId,
     initialPhoneDigits,
+    initialBranchIds,
   ]);
 
   const handlePhoneChange = (value: string) => {
@@ -120,6 +139,9 @@ export default function EditUserDialog({
       form.roleId === "" ? null : Number(form.roleId);
     const currentRoleId = user.roles?.[0]?.id ?? null;
     if (newRoleId !== currentRoleId) body.roleId = newRoleId;
+    // Stations: only sent when the selection changed (omitted = the server keeps the current set).
+    const selectedKey = [...form.branchIds].sort((a, b) => a - b).join(",");
+    if (selectedKey !== initialBranchKey) body.branchIds = form.branchIds;
 
     if (Object.keys(body).length === 0) {
       toast.info(t("editDialog.noChanges"));
@@ -216,6 +238,47 @@ export default function EditUserDialog({
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>{t("editDialog.stations")}</Label>
+            {branchesLoading ? (
+              <p className="text-sm text-muted-foreground">{t("editDialog.stationsLoading")}</p>
+            ) : branchesFailed ? (
+              <div className="flex items-center gap-3 text-sm text-destructive">
+                <span>{t("editDialog.stationsLoadFailed")}</span>
+                <Button type="button" variant="outline" size="sm" onClick={() => refetchBranches()}>
+                  {t("editDialog.stationsRetry")}
+                </Button>
+              </div>
+            ) : branches.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t("editDialog.stationsEmpty")}</p>
+            ) : (
+              <div className="max-h-44 space-y-1 overflow-y-auto rounded-md border border-input p-2">
+                {branches.map((b) => {
+                  const checked = form.branchIds.includes(b.id);
+                  return (
+                    <label key={b.id} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-muted/50">
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={(v) =>
+                          setForm((p) => ({
+                            ...p,
+                            branchIds: v ? [...p.branchIds, b.id] : p.branchIds.filter((x) => x !== b.id),
+                          }))
+                        }
+                      />
+                      <span>{getBranchDisplayName(b, i18n.language)}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">{t("editDialog.stationsHint")}</p>
+            {form.branchIds.length === 0 && !branchesLoading && !branchesFailed && branches.length > 0 && (
+              <p className="text-xs font-medium text-amber-600 dark:text-amber-400" role="status">
+                {t("editDialog.stationsClearWarning")}
+              </p>
+            )}
           </div>
           <DialogFooter className="pt-4">
             <Button

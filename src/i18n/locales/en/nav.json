@@ -54,5 +54,6 @@
     "SERVICE_PROVIDER": "Service Provider",
     "AUTHORITY": "Authority",
     "SUPER_ADMIN": "Platform"
-  }
+  },
+  "maintenanceReports": "Maintenance reports"
 }

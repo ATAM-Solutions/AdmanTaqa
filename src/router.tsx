@@ -61,6 +61,9 @@ import InternalWorkOrders from "./pages/Station/InternalWorkOrders";
 import InternalWorkOrdersReviewQueue from "./pages/Station/InternalWorkOrdersReviewQueue";
 import InternalWorkOrderDetail from "./pages/Station/InternalWorkOrderDetail";
 import StationRequests from "./pages/Station/StationRequests";
+import MaintenanceReports from "./pages/MaintenanceReports/MaintenanceReports";
+import CreateMaintenanceReport from "./pages/MaintenanceReports/CreateMaintenanceReport";
+import MaintenanceReportDetails from "./pages/MaintenanceReports/MaintenanceReportDetails";
 import CreateMaintenanceRequest from "./pages/Station/CreateMaintenanceRequest";
 import StationRequestDetail from "./pages/Station/StationRequestDetail";
 import StationJobOrders from "./pages/Station/StationJobOrders";
@@ -448,6 +451,30 @@ export const router = createHashRouter([
         element: (
           <RouteAccessGuard pathKey="internal-work-orders/:id">
             <InternalWorkOrderDetail />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "maintenance-reports",
+        element: (
+          <RouteAccessGuard pathKey="maintenance-reports">
+            <MaintenanceReports />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "maintenance-reports/create",
+        element: (
+          <RouteAccessGuard pathKey="maintenance-reports/create">
+            <CreateMaintenanceReport />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "maintenance-reports/:id",
+        element: (
+          <RouteAccessGuard pathKey="maintenance-reports/:id">
+            <MaintenanceReportDetails />
           </RouteAccessGuard>
         ),
       },

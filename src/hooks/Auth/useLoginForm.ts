@@ -6,6 +6,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import { getHomePath } from "@/lib/navigation";
+import { resolvePostLoginPath } from "@/lib/accessControl";
+import { classifyAuthError, retryAfterMinutes } from "@/lib/authErrors";
 import { authService } from "@/api/services/authService";
 import { toast } from "sonner";
 
@@ -15,14 +17,6 @@ const loginSchema = z.object({
 });
 
 export type LoginFormValues = z.infer<typeof loginSchema>;
-
-function getErrorMessage(err: unknown): string | null {
-  if (err && typeof err === "object" && "response" in err) {
-    const res = (err as { response?: { data?: { message?: string } } }).response;
-    return res?.data?.message ?? null;
-  }
-  return null;
-}
 
 export function useLoginForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -51,9 +45,11 @@ export function useLoginForm() {
         login(response.data);
 
         // Prefer /auth/me as the source of permissions once the token is persisted.
+        let sessionPermissions = response.data.permissions ?? [];
         try {
           const me = await authService.me();
           if (me.success && me.data) {
+            sessionPermissions = me.data.permissions ?? sessionPermissions;
             login({
               ...response.data,
               roles: me.data.roles ?? response.data.roles,
@@ -64,17 +60,32 @@ export function useLoginForm() {
           // Keep login flow alive even if /auth/me fails — response.data already applied above.
         }
         toast.success(t("login.success"));
-        const from = (location.state as { from?: { pathname?: string } })?.from?.pathname;
+        const from = (location.state as { from?: { pathname?: string; search?: string } } | null)?.from;
         // Land every org type on its own dashboard (SUPER_ADMIN / FUEL_STATION / SERVICE_PROVIDER);
-        // Authority has no dashboard variant and keeps landing on its profile.
-        navigate(from || getHomePath(response.data.organization?.type), { replace: true });
+        // Authority has no dashboard variant and keeps landing on its profile. A remembered page
+        // is only replayed if THIS user may open it (see resolvePostLoginPath).
+        navigate(
+          resolvePostLoginPath(
+            from,
+            response.data.organization?.type,
+            sessionPermissions,
+            getHomePath(response.data.organization?.type)
+          ),
+          { replace: true }
+        );
       } else {
-        const msg = response.message || "Login failed";
+        const msg = t("login.errors.unknown");
         setApiError(msg);
         toast.error(msg);
       }
     } catch (err) {
-      const msg = getErrorMessage(err) || "An error occurred during login";
+      // Branch on status + the backend's stable `code`, never on English message text.
+      const { kind, retryAfterSeconds } = classifyAuthError(err);
+      const minutes = retryAfterMinutes(retryAfterSeconds);
+      const msg =
+        kind === "rate_limited" && minutes
+          ? t("login.errors.rate_limited_minutes", { count: minutes })
+          : t(`login.errors.${kind}`);
       setApiError(msg);
       toast.error(msg);
     } finally {

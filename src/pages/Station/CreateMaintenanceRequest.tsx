@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { ChevronLeft, Building2 } from "lucide-react";
 import { toast } from "sonner";
-import useGetBranches from "@/hooks/Branches/useGetBranches";
+import BranchSelect from "@/components/BranchSelect";
 import useCreateMaintenanceRequest from "@/hooks/Station/useCreateMaintenanceRequest";
 import useLinkedProviders from "@/hooks/Station/useLinkedProviders";
 import type { MaintenanceMode, MaintenancePriority } from "@/types/station";
@@ -24,7 +24,6 @@ import type { MaintenanceMode, MaintenancePriority } from "@/types/station";
 export default function CreateMaintenanceRequest() {
   const { t } = useTranslation("station");
   const navigate = useNavigate();
-  const { data: branches = [] } = useGetBranches();
   const { data: linkedProviders = [], isLoading: linkedLoading } = useLinkedProviders();
   const createMutation = useCreateMaintenanceRequest();
 
@@ -105,18 +104,7 @@ export default function CreateMaintenanceRequest() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>{t("create.branch")}</Label>
-              <Select value={branchId} onValueChange={setBranchId} required>
-                <SelectTrigger>
-                  <SelectValue placeholder={t("create.selectBranch")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {branches.map((b) => (
-                    <SelectItem key={b.id} value={String(b.id)}>
-                      {b.nameEn ?? b.nameAr ?? t("create.branchFallback", { id: b.id })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <BranchSelect id="branch" value={branchId} onValueChange={setBranchId} placeholder={t("create.selectBranch")} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="title">{t("create.requestTitle")}</Label>
