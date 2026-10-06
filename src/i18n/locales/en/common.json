@@ -45,7 +45,7 @@
     "loading": "Loading branches…",
     "loadFailed": "Could not load your branches.",
     "retry": "Retry",
-    "empty": "No branches are available for your account. Ask your administrator to assign you to a station.",
+    "empty": "No stations are available. Contact your administrator.",
     "placeholder": "Select branch",
     "none": "No branch"
   }

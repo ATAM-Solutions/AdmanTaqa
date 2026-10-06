@@ -58,9 +58,10 @@
     "stationsLoading": "Loading stations…",
     "stationsLoadFailed": "Could not load the stations list.",
     "stationsRetry": "Retry",
-    "stationsEmpty": "No stations available.",
+    "stationsEmpty": "No stations are available. Contact your administrator.",
     "stationsHint": "Select the stations this user may work with. If you select none, the user gets company-wide access to ALL stations.",
-    "stationsClearWarning": "No station selected: saving will give this user company-wide access to every station."
+    "stationsClearWarning": "No station selected: saving will give this user company-wide access to every station.",
+    "stationsUnconfirmed": "Station assignments could not be confirmed"
   },
   "deactivateDialog": {
     "title": "Deactivate User",

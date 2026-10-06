@@ -24,6 +24,7 @@ import useGetRoles from "@/hooks/Roles/useGetRoles";
 import useGetBranches from "@/hooks/Branches/useGetBranches";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getBranchDisplayName } from "@/lib/company";
+import { sameStationSet } from "@/lib/stationAssignment";
 import type { UpdateUserBody, UserRoleRef } from "@/types/user";
 import {
   isValidSaudiPhoneDigits,
@@ -151,7 +152,15 @@ export default function EditUserDialog({
     updateMutation.mutate(
       { id: user.id, body },
       {
-        onSuccess: () => {
+        onSuccess: (res) => {
+          // Safeguard: a 2xx is not proof the stations persisted. Compare the requested set with the
+          // refreshed server state; on mismatch keep the dialog open showing what the server holds.
+          if (body.branchIds && !sameStationSet(body.branchIds, res?.data?.branchIds)) {
+            const serverIds = res?.data?.branchIds;
+            if (Array.isArray(serverIds)) setForm((p) => ({ ...p, branchIds: [...serverIds] }));
+            toast.error(t("editDialog.stationsUnconfirmed"));
+            return;
+          }
           toast.success(t("editDialog.success"));
           onOpenChange(false);
         },
