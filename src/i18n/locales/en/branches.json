@@ -159,7 +159,11 @@
     "yes": "Yes",
     "no": "No",
     "managerLinked": "Linked user",
-    "managerNotLinked": "Not linked to a user account"
+    "managerNotLinked": "Not linked to a user account",
+    "legacyManagerName": "Previously typed name: {{name}}",
+    "accessUsers": "Users with access",
+    "accessNone": "No user is assigned (unassigned users have company-wide access).",
+    "accessNote": "Access is separate from the designated manager."
   },
   "edit": {
     "title": "Edit Branch",

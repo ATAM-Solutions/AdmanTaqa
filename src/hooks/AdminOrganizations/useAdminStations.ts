@@ -11,6 +11,27 @@ export function useGetAdminStations(organizationId: number | string | undefined)
   });
 }
 
+/** Eligible managers of one company (same rule as the company dashboard's manager-candidates). */
+export function useGetManagerCandidates(organizationId: number | string | undefined, enabled = true) {
+  return useQuery({
+    queryKey: ["admin", "organizations", String(organizationId ?? ""), "manager-candidates"],
+    queryFn: () => adminOrganizationsService.listManagerCandidates(organizationId!),
+    enabled: enabled && organizationId != null && organizationId !== "",
+    // Fail fast: the picker has its own retry button and must not sit on a spinner for the default backoff.
+    retry: 1,
+    retryDelay: 400,
+  });
+}
+
+/** One station incl. the users who have access to it (identity only). */
+export function useGetAdminStation(organizationId: number | string | undefined, stationId: number | string | undefined) {
+  return useQuery({
+    queryKey: [...adminOrganizationKeys.stations(organizationId ?? ""), String(stationId ?? "")],
+    queryFn: () => adminOrganizationsService.getStation(organizationId!, stationId!),
+    enabled: organizationId != null && stationId != null,
+  });
+}
+
 function useInvalidateStations() {
   const queryClient = useQueryClient();
   return (organizationId: number | string) => {

@@ -1,4 +1,5 @@
 import axiosInstance from "@/api/config";
+import type { AssignableTechnician } from "@/types/internalWorkOrder";
 import type {
   CreateInternalTaskBody,
   InternalTaskItem,
@@ -249,5 +250,72 @@ export async function uploadInternalTaskAttachment(
     return item;
   } catch (err) {
     throw new Error(getErrorMessage(err, "Failed to upload attachment."));
+  }
+}
+
+/** Error that keeps the server's stable `code` so the UI can translate it. */
+export class AssignmentError extends Error {
+  code: string | null;
+  status: number | null;
+  constructor(message: string, code: string | null, status: number | null) {
+    super(message);
+    this.code = code;
+    this.status = status;
+  }
+}
+
+const toAssignmentError = (err: unknown, fallback: string) => {
+  const r = err as { response?: { status?: number; data?: { message?: string; code?: string } } };
+  return new AssignmentError(
+    r.response?.data?.message ?? (err instanceof Error ? err.message : fallback),
+    typeof r.response?.data?.code === "string" ? r.response.data.code : null,
+    r.response?.status ?? null
+  );
+};
+
+/** Technicians of the order's company who can work at the order's station (server-filtered). */
+export async function fetchAssignableTechnicians(
+  internalWorkOrderId: number | string
+): Promise<AssignableTechnician[]> {
+  try {
+    const response = await axiosInstance.get<{ data?: unknown }>("internal-tasks/assignable-users", {
+      params: { internalWorkOrderId },
+    });
+    const rows = Array.isArray(response.data?.data) ? (response.data.data as unknown[]) : [];
+    return rows
+      .map((r) => r as Record<string, unknown>)
+      .filter((r) => typeof r.id === "number")
+      .map((r) => ({
+        id: r.id as number,
+        fullName: typeof r.fullName === "string" ? r.fullName : `#${r.id}`,
+        email: typeof r.email === "string" ? r.email : null,
+      }));
+  } catch (err) {
+    throw toAssignmentError(err, "Failed to load technicians.");
+  }
+}
+
+/** Create a task on an internal work order and assign it (POST /internal-tasks). */
+export async function assignWorkerToOrder(body: {
+  internalWorkOrderId: number | string;
+  assignedUserId: number;
+  notes?: string;
+}): Promise<void> {
+  try {
+    await axiosInstance.post("internal-tasks", body);
+  } catch (err) {
+    throw toAssignmentError(err, "Failed to assign the worker.");
+  }
+}
+
+/** Move an existing task to another technician (PATCH /internal-tasks/:id/reassign). */
+export async function reassignInternalTask(
+  taskId: number | string,
+  assignedUserId: number
+): Promise<void> {
+  try {
+    await axiosInstance.patch(`internal-tasks/${taskId}/reassign`, { assignedUserId });
+  } catch (err) {
+    throw toAssignmentError(err, "Failed to reassign the task.");
   }
 }

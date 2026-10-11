@@ -25,6 +25,7 @@ import {
 } from "@/hooks/AdminOrganizations/useAdminOrganizations";
 import { getOrganizationDisplayName } from "@/lib/company";
 import { formatDate, formatNumber } from "@/lib/i18n/formatters";
+import { geoPathLabel } from "@/lib/geography";
 import { cn, getApiErrorMessage } from "@/lib/utils";
 import type { AdminOrganizationDetail } from "@/types/adminOrganization";
 import { CompanyLogoUploader } from "../CompanyLogoUploader";
@@ -147,7 +148,7 @@ export function OverviewTab({ organization }: OverviewTabProps) {
               <InfoRow
                 label={t("detail.overview.city")}
                 icon={<MapPin className="h-3.5 w-3.5" />}
-                value={organization.City?.name ?? notSet}
+                value={geoPathLabel([organization.City, organization.City?.Governorate], i18n.language) || notSet}
               />
               <InfoRow
                 label={t("detail.overview.address")}

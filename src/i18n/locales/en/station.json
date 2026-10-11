@@ -43,7 +43,8 @@
         "reviewFailed": "Review failed.",
         "closed": "Order closed.",
         "closeFailed": "Close failed."
-      }
+      },
+      "noAccess": "You don't have access to this work order's station."
     }
   },
   "jobOrders": {
@@ -241,5 +242,64 @@
       "paymentConfirmed": "Payment sent confirmed. Waiting for provider to confirm receipt.",
       "confirmFailed": "Confirmation failed."
     }
+  },
+  "assignWorker": {
+    "open": "Assign worker",
+    "title": "Assign a worker",
+    "reassignTitle": "Reassign task",
+    "description": "Choose a technician who works at this station. They will see the task in My Tasks.",
+    "currentlyAssigned": "Currently assigned to {{name}}. The task restarts as “Assigned” for the new worker.",
+    "workerLabel": "Technician",
+    "select": "Select a technician",
+    "loading": "Loading technicians…",
+    "loadFailed": "Could not load the technicians.",
+    "retry": "Retry",
+    "empty": "No technician is available for this station. Give a technician access to this station first (Users).",
+    "notes": "Notes for the worker (optional)",
+    "cancel": "Cancel",
+    "assign": "Assign",
+    "reassign": "Reassign",
+    "tasksTitle": "Assigned work",
+    "noTasks": "No worker has been assigned yet.",
+    "unassigned": "Unassigned",
+    "toasts": {
+      "assigned": "Worker assigned.",
+      "reassigned": "Task reassigned."
+    },
+    "errors": {
+      "generic": "Could not complete the assignment. Please try again.",
+      "ASSIGNEE_INVALID": "This person can no longer be assigned tasks. The list was refreshed.",
+      "ASSIGNEE_INACTIVE": "This account is deactivated. The list was refreshed.",
+      "ASSIGNEE_OUT_OF_SCOPE": "This person does not have access to this station.",
+      "ALREADY_ASSIGNED": "The task is already assigned to this person.",
+      "TASK_CLOSED": "This task is closed and cannot be reassigned.",
+      "WORK_ORDER_CLOSED": "This work order is closed or cancelled.",
+      "TASK_BRANCH_MISMATCH": "The task's station does not match the work order.",
+      "BRANCH_ACCESS_DENIED": "You do not have access to this station."
+    }
+  },
+  "myTasks": {
+    "title": "My tasks",
+    "subtitle": "Work orders assigned to you.",
+    "listTitle": "Assigned to me",
+    "loadFailed": "Could not load your tasks.",
+    "retry": "Retry",
+    "empty": "No tasks are assigned to you right now.",
+    "untitled": "Task #{{id}}",
+    "assignedBy": "assigned by {{name}}",
+    "openOrder": "Open order",
+    "prev": "Previous",
+    "next": "Next",
+    "mobileNote": "Starting, pausing and completing a task, and requesting spare parts, is done in the mobile app."
+  },
+  "warehouseRequests": {
+    "title": "Warehouse requests",
+    "subtitle": "Spare-parts requests you made for your tasks.",
+    "listTitle": "My requests",
+    "loadFailed": "Could not load the warehouse requests.",
+    "empty": "You have no warehouse requests.",
+    "request": "Request #{{id}}",
+    "items": "{{count}} item(s)",
+    "mobileNote": "Creating and submitting a parts request is done in the mobile app."
   }
 }

@@ -16,6 +16,27 @@ function getErrorMessage(err: unknown, fallback: string): string {
       : fallback;
 }
 
+function normalizeTaskRefs(raw: unknown): InternalWorkOrderItem["tasks"] {
+  if (!Array.isArray(raw)) return undefined;
+  return raw
+    .map((t) => {
+      const o = t as Record<string, unknown> | null;
+      if (!o || typeof o.id !== "number") return null;
+      const au = o.AssignedUser as Record<string, unknown> | null | undefined;
+      return {
+        id: o.id,
+        title: typeof o.title === "string" ? o.title : undefined,
+        status: typeof o.status === "string" ? o.status : undefined,
+        assignedUserId: typeof o.assignedUserId === "number" ? o.assignedUserId : null,
+        assignedUser:
+          au && typeof au.id === "number"
+            ? { id: au.id, fullName: String(au.fullName ?? ""), email: typeof au.email === "string" ? au.email : null }
+            : null,
+      };
+    })
+    .filter((t): t is NonNullable<typeof t> => t !== null);
+}
+
 function normalizeItem(raw: unknown): InternalWorkOrderItem | null {
   if (raw == null || typeof raw !== "object") return null;
   const obj = raw as Record<string, unknown>;
@@ -31,16 +52,11 @@ function normalizeItem(raw: unknown): InternalWorkOrderItem | null {
       obj.priority === "LOW" || obj.priority === "MEDIUM" || obj.priority === "HIGH"
         ? obj.priority
         : undefined,
-    status:
-      obj.status === "PENDING" ||
-      obj.status === "IN_PROGRESS" ||
-      obj.status === "UNDER_REVIEW" ||
-      obj.status === "CLOSED"
-        ? obj.status
-        : "PENDING",
+    // Keep the server's status verbatim (OPEN, MAINTENANCE_CLOSED, CANCELLED… used to collapse to PENDING).
+    status: (typeof obj.status === "string" ? obj.status : "PENDING") as InternalWorkOrderItem["status"],
     createdAt: typeof obj.createdAt === "string" ? obj.createdAt : undefined,
     updatedAt: typeof obj.updatedAt === "string" ? obj.updatedAt : undefined,
-    tasks: Array.isArray(obj.tasks) ? (obj.tasks as InternalWorkOrderItem["tasks"]) : undefined,
+    tasks: normalizeTaskRefs(obj.InternalTasks ?? obj.tasks),
   };
 }
 

@@ -37,6 +37,7 @@ export default function CreateMaintenanceReport() {
   const [priority, setPriority] = useState<MaintenanceReportPriority>("MEDIUM");
   const [location, setLocation] = useState("");
   const [files, setFiles] = useState<File[]>([]);
+  const [branchError, setBranchError] = useState<string | null>(null);
 
   const selectedBranchId = branchId ? Number(branchId) : undefined;
   const {
@@ -51,6 +52,7 @@ export default function CreateMaintenanceReport() {
   const handleBranchChange = (value: string) => {
     setBranchId(value);
     setAssetId("");
+    setBranchError(null);
   };
 
   const handleFiles = (list: FileList | null) => {
@@ -76,6 +78,10 @@ export default function CreateMaintenanceReport() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedBranchId) {
+      setBranchError(t("create.branchRequired"));
+      return;
+    }
     if (!title.trim()) {
       toast.error(t("create.titleRequired"));
       return;
@@ -85,7 +91,7 @@ export default function CreateMaintenanceReport() {
         body: {
           title: title.trim(),
           description: description.trim() || null,
-          branchId: selectedBranchId ?? null,
+          branchId: selectedBranchId,
           assetId: assetId ? Number(assetId) : null,
           category: category || null,
           location: location.trim() || null,
@@ -104,7 +110,19 @@ export default function CreateMaintenanceReport() {
           }
           navigate(`/maintenance-reports/${report.id}`, { replace: true });
         },
-        onError: (err) => toast.error(getApiErrorMessage(err, t("create.error"))),
+        onError: (err) => {
+          const code = (err as { response?: { data?: { code?: string } } })?.response?.data?.code;
+          if (code === "ASSET_BRANCH_MISMATCH") {
+            setAssetId("");
+            toast.error(t("edit.assetMismatch"));
+            return;
+          }
+          if (code === "BRANCH_INACTIVE") {
+            toast.error(t("create.branchInactive"));
+            return;
+          }
+          toast.error(getApiErrorMessage(err, t("create.error")));
+        },
       }
     );
   };
@@ -120,15 +138,14 @@ export default function CreateMaintenanceReport() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <Label htmlFor="report-branch">{t("fields.branch")}</Label>
+                <Label htmlFor="report-branch">{t("fields.branch")} *</Label>
                 <BranchSelect
                   id="report-branch"
                   value={branchId}
                   onValueChange={handleBranchChange}
-                  allowEmpty
-                  emptyLabel={t("fields.noBranch")}
                   placeholder={t("create.selectBranch")}
                 />
+                {branchError ? <p className="text-sm font-medium text-destructive" role="alert">{branchError}</p> : null}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="report-asset">{t("fields.asset")}</Label>

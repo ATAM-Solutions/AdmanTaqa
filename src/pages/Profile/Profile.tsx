@@ -20,7 +20,9 @@ import DeleteAccountDialog from "../Users/component/DeleteAccountDialog";
 
 export default function Profile() {
     const { t } = useTranslation("profile");
-    const { user: currentUser } = useAuth();
+    const { user: currentUser, hasPermission } = useAuth();
+    // The server enforces account.delete_self; the control is only shown to roles that hold it.
+    const canDeleteOwnAccount = hasPermission("account.delete_self");
     const { data: organizationResponse, isLoading } = useGetOrganizationFull();
     const organization = organizationResponse?.data;
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -103,16 +105,18 @@ export default function Profile() {
                                     <Trash2 className="h-4 w-4" /> {t("menu.delete")}
                                 </button>
                             )}
-                            <button
-                                type="button"
-                                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-accent"
-                                onClick={() => {
-                                    setMenuOpen(false);
-                                    setDeleteAccountOpen(true);
-                                }}
-                            >
-                                <UserX className="h-4 w-4" /> {t("menu.deleteAccount")}
-                            </button>
+                            {canDeleteOwnAccount && (
+                                <button
+                                    type="button"
+                                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-accent"
+                                    onClick={() => {
+                                        setMenuOpen(false);
+                                        setDeleteAccountOpen(true);
+                                    }}
+                                >
+                                    <UserX className="h-4 w-4" /> {t("menu.deleteAccount")}
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
@@ -164,7 +168,7 @@ export default function Profile() {
                 </DialogContent>
             </Dialog>
 
-            {currentUser && (
+            {currentUser && canDeleteOwnAccount && (
                 <DeleteAccountDialog
                     open={deleteAccountOpen}
                     onOpenChange={setDeleteAccountOpen}

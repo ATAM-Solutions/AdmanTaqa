@@ -36,6 +36,7 @@ import { getOrganizationDisplayName } from "@/lib/company";
 import { getApiErrorMessage, cn } from "@/lib/utils";
 import { formatNumber } from "@/lib/i18n/formatters";
 import type { AdminOrganizationDetail, AdminUser } from "@/types/adminOrganization";
+import { geoPathLabel } from "@/lib/geography";
 import { CompanyForm, type CompanyFormValues } from "./components/CompanyForm";
 import { toCreateBody } from "./components/companyForm.helpers";
 import { CompanyLogoUploader } from "./components/CompanyLogoUploader";
@@ -307,7 +308,7 @@ export default function CreateCompanyWizard() {
                           <div className="min-w-0 flex-1">
                             <p className="truncate font-medium">{i18n.language.startsWith("ar") ? s.nameAr : s.nameEn}</p>
                             <p className="truncate text-xs text-muted-foreground">
-                              {[s.Area?.name, s.Area?.City?.name].filter(Boolean).join(" · ")}
+                              {geoPathLabel([s.Area, s.Area?.City, s.Area?.City?.Governorate], i18n.language)}
                             </p>
                           </div>
                           {s.licenseNumber ? <Badge variant="outline" dir="ltr">{s.licenseNumber}</Badge> : null}

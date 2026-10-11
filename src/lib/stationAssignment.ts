@@ -11,3 +11,20 @@ export function sameStationSet(requested: readonly number[], refreshed: readonly
   for (const id of a) if (!b.has(id)) return false;
   return true;
 }
+
+/**
+ * Stations whose DESIGNATED manager is this user and which the save would remove from the user's access.
+ * The server clears the manager pointer in exactly this case (a station may not point at a manager who cannot
+ * reach it); the dashboard must warn BEFORE submitting. Pure, so it can be tested.
+ */
+export function designatedStationsLosingAccess<B extends { id: number; managerUserId?: number | null }>(
+  userId: number | string,
+  initialIds: readonly number[],
+  selectedIds: readonly number[],
+  stations: readonly B[],
+): B[] {
+  const selected = new Set(selectedIds.map(Number));
+  const initial = new Set(initialIds.map(Number));
+  const uid = Number(userId);
+  return stations.filter((s) => s.managerUserId === uid && initial.has(s.id) && !selected.has(s.id));
+}

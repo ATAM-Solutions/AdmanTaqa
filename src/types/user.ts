@@ -57,6 +57,8 @@ export interface CreateUserBody {
   password: string;
   phone?: string;
   roleId?: number;
+  /** Complete station set. Omitted/empty = no station restriction (company-wide) for a company-wide caller. */
+  branchIds?: number[];
 }
 
 /** PATCH /api/users/:id - Update user (all fields optional, send only changed) */

@@ -1,0 +1,121 @@
+{
+  "country": "Country",
+  "region": "Region",
+  "city": "City",
+  "district": "District",
+  "levels": {
+    "region": "Regions",
+    "city": "Cities",
+    "district": "Districts"
+  },
+  "levelSingular": {
+    "region": "Region",
+    "city": "City",
+    "district": "District"
+  },
+  "placeholder": {
+    "country": "Select a country",
+    "region": "Select a region",
+    "city": "Select a city",
+    "district": "Select a district"
+  },
+  "selectParentFirst": {
+    "region": "Select a country first",
+    "city": "Select a region first",
+    "district": "Select a city first"
+  },
+  "loading": "Loading…",
+  "retry": "Retry",
+  "loadFailed": {
+    "country": "Could not load countries.",
+    "region": "Could not load regions.",
+    "city": "Could not load cities.",
+    "district": "Could not load districts."
+  },
+  "empty": {
+    "region": "No regions are available for this country.",
+    "city": "No cities are available for this region.",
+    "district": "No districts are available for this city."
+  },
+  "searchPlaceholder": "Search…",
+  "noMatch": "No matches.",
+  "refineSearch": "Showing {{shown}} of {{total}} — type to narrow the list.",
+  "validation": {
+    "region": "Select the region",
+    "city": "Select the city",
+    "district": "Select the district"
+  },
+  "admin": {
+    "title": "Geography",
+    "subtitle": "Manage the regions, cities and districts used by company and station forms.",
+    "search": "Search by Arabic or English name",
+    "parent": {
+      "region": "Country",
+      "city": "Region",
+      "district": "City"
+    },
+    "allParents": "All",
+    "filterRegionForCities": "Filter by region",
+    "filterRegionForDistricts": "Region",
+    "filterCityForDistricts": "City",
+    "status": {
+      "all": "All statuses",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "columns": {
+      "nameAr": "Arabic name",
+      "nameEn": "English name",
+      "parent": "Parent",
+      "children": "Children",
+      "usage": "In use",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "add": "Add {{level}}",
+    "edit": "Edit",
+    "delete": "Delete",
+    "activate": "Activate",
+    "deactivate": "Deactivate",
+    "active": "Active",
+    "inactive": "Inactive",
+    "empty": "Nothing to show yet.",
+    "noResults": "No results match your search.",
+    "loadFailed": "Could not load this list.",
+    "needParent": "Choose a parent above to see and add {{level}}.",
+    "total": "{{count}} total",
+    "page": "Page {{page}} of {{pages}}",
+    "prev": "Previous",
+    "next": "Next",
+    "form": {
+      "createTitle": "Add {{level}}",
+      "editTitle": "Edit {{level}}",
+      "parent": "Belongs to",
+      "nameEn": "English name",
+      "nameAr": "Arabic name",
+      "code": "Code (optional)",
+      "required": "This field is required",
+      "maxLength": "At most {{max}} characters",
+      "save": "Save",
+      "create": "Create",
+      "cancel": "Cancel",
+      "selectParent": "Select a parent"
+    },
+    "delete_": {
+      "title": "Delete {{name}}?",
+      "description": "This permanently removes it. Rows that are in use cannot be deleted — deactivate them instead.",
+      "confirm": "Delete"
+    },
+    "toasts": {
+      "created": "Created.",
+      "updated": "Saved.",
+      "activated": "Activated.",
+      "deactivated": "Deactivated. It is hidden from new selections; existing records keep it.",
+      "deleted": "Deleted.",
+      "error": "Something went wrong.",
+      "inUse": "Cannot delete: it has child items or is referenced by existing data. Deactivate it instead.",
+      "duplicate": "An item with this English name already exists under the same parent."
+    },
+    "legacyNote": "Legacy entries without an Arabic name are shown in English."
+  }
+}

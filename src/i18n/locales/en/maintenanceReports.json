@@ -47,7 +47,11 @@
     "emptyDescription": "Reports filed at your stations will appear here.",
     "view": "View",
     "previous": "Previous",
-    "next": "Next"
+    "next": "Next",
+    "loadFailedUnknown": "The server did not return a reason.",
+    "emptyFilteredTitle": "No reports with status “{{status}}”",
+    "emptyFilteredDescription": "The request succeeded: there are simply no matching reports in your stations.",
+    "clearFilter": "Show all statuses"
   },
   "create": {
     "title": "New maintenance report",
@@ -71,7 +75,9 @@
     "error": "Failed to submit the report.",
     "cancel": "Cancel",
     "submit": "Submit report",
-    "submitting": "Submitting…"
+    "submitting": "Submitting…",
+    "branchRequired": "Select the station this report is about.",
+    "branchInactive": "This station is deactivated and cannot receive new reports."
   },
   "details": {
     "loading": "Loading report…",
@@ -116,5 +122,55 @@
     "reject": "Reject",
     "branchLabel": "Branch for the external request",
     "branchHint": "This report has no branch. Choose the branch where the external maintenance will be carried out."
+  },
+  "workflow": {
+    "title": "Report workflow",
+    "stage": {
+      "submitted": "Submitted",
+      "supervisor": "Supervisor review",
+      "ops": "Operations approval",
+      "decision": "Maintenance decision"
+    },
+    "role": {
+      "station_staff": "Station staff",
+      "regional_supervisor": "Regional Supervisor",
+      "operations_manager": "Operations Manager",
+      "maintenance_manager": "Maintenance Manager"
+    },
+    "state": {
+      "done": "Completed",
+      "current": "Current stage",
+      "upcoming": "Upcoming",
+      "rejected": "Rejected here",
+      "skipped": "Not reached"
+    },
+    "by": "By {{name}}",
+    "awaitingRole": "Responsible: {{role}}",
+    "notRecorded": "Completed — who/when was not recorded",
+    "outcome": {
+      "INTERNAL": "Decided: internal work order",
+      "EXTERNAL": "Decided: sent to external maintenance"
+    },
+    "rejectedAt": "Rejected at: {{stage}}",
+    "summaryWaiting": "Waiting for: {{stage}} ({{role}})",
+    "summaryRejected": "Rejected at the {{stage}} stage",
+    "summaryInternal": "Resolved internally (work order created)",
+    "summaryExternal": "Sent to external maintenance"
+  },
+  "edit": {
+    "button": "Edit report",
+    "title": "Edit report",
+    "description": "You can edit your own report until someone reviews it. The station and the review history cannot be changed.",
+    "stationLocked": "station cannot be changed",
+    "noStationNoAsset": "This older report has no station, so an asset cannot be chosen.",
+    "save": "Save changes",
+    "saved": "Report updated.",
+    "noChanges": "No changes to save.",
+    "failed": "Could not update the report.",
+    "changed": "The report was changed by someone else. It has been reloaded.",
+    "changedWhileReviewing": "The report changed after you opened it. It has been reloaded — review it again.",
+    "notEditable": "This report was already reviewed and can no longer be edited.",
+    "notAllowed": "Only the person who filed the report can edit it.",
+    "assetMismatch": "The selected asset does not belong to this report's station."
   }
 }

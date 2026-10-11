@@ -8,6 +8,12 @@ export type AccessRule = {
   orgTypes?: OrgType[];
   anyPermissions?: string[];
   allPermissions?: string[];
+  /**
+   * Permission requirement that applies ONLY to the listed organization types (other types keep
+   * org-type gating). Used where a shared page is open to every tenant type but, for fuel stations,
+   * must follow the role's real capabilities instead of "any fuel-station user".
+   */
+  orgTypePermissions?: Partial<Record<OrgType, string[]>>;
 };
 
 // Route keys match router child paths without leading slash.
@@ -68,39 +74,52 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   // Own-company profile/branding page for company tenants (never platform overseers).
   company: {
     orgTypes: ["FUEL_STATION", "SERVICE_PROVIDER"],
+    // Not shown to fuel-station roles that have no company/team capability at all (e.g. a technician).
+    orgTypePermissions: { FUEL_STATION: ["organizations.update", "organizations.read", "team.read", "users.read", "roles.read"] },
   },
   users: {
     orgTypes: ["FUEL_STATION","AUTHORITY","SERVICE_PROVIDER","SUPER_ADMIN", ],
+    orgTypePermissions: { FUEL_STATION: ["users.read", "team.read"] },
   },
   "users/:id": {
     orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER","SUPER_ADMIN", ],
+    orgTypePermissions: { FUEL_STATION: ["users.read", "team.read"] },
   },
   roles: {
     orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", "SUPER_ADMIN", ],
+    orgTypePermissions: { FUEL_STATION: ["roles.read"] },
   },
   "roles/create": {
     orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", "SUPER_ADMIN", ],
+    orgTypePermissions: { FUEL_STATION: ["roles.create"] },
   },
   "roles/:id": {
     orgTypes: ["FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER", "SUPER_ADMIN", ],
+    orgTypePermissions: { FUEL_STATION: ["roles.read"] },
   },
   "roles/:id/edit": {
     orgTypes: [ "FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER","SUPER_ADMIN",],
+    orgTypePermissions: { FUEL_STATION: ["roles.update"] },
   },
   branches: {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["branches.read", "stations.read"],
   },
   "branches/create": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["branches.create"],
   },
   "branches/:id": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["branches.read", "stations.read"],
   },
   "branches/:id/edit": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["branches.update"],
   },
+  // Geography management is SUPER_ADMIN-only (the server enforces the same on every write).
   locations: {
-    orgTypes: ["AUTHORITY",  "FUEL_STATION", "SUPER_ADMIN"],
+    orgTypes: ["SUPER_ADMIN"],
   },
   "service-offerings": {
     orgTypes: ["SERVICE_PROVIDER"],
@@ -145,22 +164,36 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   },
   "branch-requests": {
     orgTypes: ["FUEL_STATION", "SUPER_ADMIN"],
+    orgTypePermissions: { FUEL_STATION: ["branch_requests.read", "branch_requests.create"] },
   },
   "branch-requests/create": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["branch_requests.create"],
   },
   "branch-requests/:id": {
     orgTypes: ["FUEL_STATION", "AUTHORITY", "SUPER_ADMIN"],
   },
+  // Technician flows (the same capabilities the mobile app's "My tasks" / "Warehouse requests" use).
+  "my-tasks": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["internal_tasks.update_status"],
+  },
+  "warehouse-requests": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["warehouse_orders.read"],
+  },
   // Station (Fuel Station): internal work orders, external requests
   "internal-work-orders": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["internal_work_orders.read"],
   },
   "internal-work-orders/review-queue": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["internal_work_orders.review"],
   },
   "internal-work-orders/:id": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["internal_work_orders.read"],
   },
   // Maintenance reports (بلاغات = /api/maintenance-issues). Read gates the list/details; create gates the form.
   "maintenance-reports": {
@@ -177,21 +210,27 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   },
   "station-requests": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["station.requests.read"],
   },
   "station-requests/create": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["station.maintenance_requests.create", "external_maintenance_v2.create"],
   },
   "station-requests/:id": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["station.requests.read"],
   },
   "linked-providers": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["station.linked_providers.read", "station.requests.read", "station.requests.send_to_providers", "proposals.read"],
   },
   "station-job-orders": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["station.job_orders.read", "station.job_orders.review", "station.requests.read", "station.job_orders.confirm_sent"],
   },
   "station-job-orders/:id": {
     orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["station.job_orders.read", "station.job_orders.review", "station.requests.read", "station.job_orders.confirm_sent"],
   },
   // Provider (Service Provider): RFQs, job orders
   "provider-rfqs": {
@@ -227,6 +266,11 @@ export const canAccessByRule = (
   const granted = new Set(permissions.map(normalizePermissionCode));
   if (granted.size > 0 && rule.anyPermissions?.length) {
     const allowed = rule.anyPermissions.some((code) => granted.has(normalizePermissionCode(code)));
+    if (!allowed) return false;
+  }
+  const perOrg = organizationType ? rule.orgTypePermissions?.[organizationType] : undefined;
+  if (granted.size > 0 && perOrg?.length) {
+    const allowed = perOrg.some((code) => granted.has(normalizePermissionCode(code)));
     if (!allowed) return false;
   }
   if (granted.size > 0 && rule.allPermissions?.length) {

@@ -61,6 +61,9 @@ export interface MaintenanceReport {
   location?: string | null;
   priority: MaintenanceReportPriority;
   status: MaintenanceReportStatus;
+  /** Edit/approval concurrency counter (send back as `expectedRevision`). */
+  revision?: number;
+  submittedByUserId?: number;
   createdAt: string;
   updatedAt?: string;
   supervisorNote?: string | null;
@@ -93,7 +96,8 @@ export interface MaintenanceReportListPayload {
 export interface CreateMaintenanceReportBody {
   title: string;
   description?: string | null;
-  branchId?: number | null;
+  /** Required for every new report (the server answers 400 otherwise). */
+  branchId: number;
   assetId?: number | null;
   category?: MaintenanceReportCategory | null;
   location?: string | null;

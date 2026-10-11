@@ -103,7 +103,9 @@
     "latitude": "يجب أن يكون خط العرض بين -90 و 90",
     "longitude": "يجب أن يكون خط الطول بين -180 و 180",
     "selectRole": "اختر دورًا",
-    "selectArea": "اختر منطقة المحطة"
+    "selectArea": "اختر حي المحطة",
+    "selectRegion": "اختر منطقة المحطة",
+    "selectCity": "اختر مدينة المحطة"
   },
   "list": {
     "title": "المنظمات",
@@ -162,9 +164,9 @@
       "cityPlaceholder": "اختر المدينة",
       "cityNone": "غير محدد",
       "country": "الدولة",
-      "governorate": "المحافظة",
+      "governorate": "المنطقة",
       "selectCountryFirst": "اختر الدولة أولًا",
-      "selectGovernorateFirst": "اختر المحافظة أولًا",
+      "selectGovernorateFirst": "اختر المنطقة أولًا",
       "rejectionReason": "سبب الرفض"
     },
     "station": {
@@ -182,23 +184,24 @@
       "fuelTypes": "أنواع الوقود",
       "fuelTypesPlaceholder": "اختر أنواع الوقود",
       "country": "الدولة",
-      "governorate": "المحافظة",
+      "governorate": "المنطقة",
       "city": "المدينة",
-      "area": "المنطقة",
+      "area": "الحي",
       "selectPlaceholder": "اختر",
       "selectCountryFirst": "اختر الدولة أولًا",
-      "selectGovernorateFirst": "اختر المحافظة أولًا",
+      "selectGovernorateFirst": "اختر المنطقة أولًا",
       "selectCityFirst": "اختر المدينة أولًا",
       "street": "الشارع",
       "address": "العنوان",
       "latitude": "خط العرض",
       "longitude": "خط الطول",
-      "coordinatesHint": "اختياري. يُملأ تلقائيًا من المنطقة المختارة عند توفره.",
+      "coordinatesHint": "اختياري.",
       "managerName": "اسم المدير",
       "managerEmail": "بريد المدير",
       "managerPhone": "هاتف المدير",
       "status": "الحالة",
-      "active": "المحطة نشطة"
+      "active": "المحطة نشطة",
+      "fuelTypeRetired": "(لم يعد متاحًا)"
     },
     "user": {
       "createTitle": "إضافة مستخدم",
@@ -493,5 +496,26 @@
     "registrationNumber": "السجل التجاري",
     "status": "حالة التسجيل",
     "notSet": "غير محدد"
+  },
+  "manager": {
+    "section": "مدير المحطة",
+    "label": "المدير المعيّن",
+    "none": "بدون مدير",
+    "createFirst": "أنشئ المحطة أولًا ثم اختر مديرها من مديري المحطات في الشركة.",
+    "loading": "جارٍ التحميل…",
+    "loadFailed": "تعذّر تحميل المديرين المؤهلين.",
+    "retry": "إعادة المحاولة",
+    "noCandidates": "لا يوجد مستخدمون مؤهلون بعد: أضف مستخدمًا نشطًا بدور «مدير المحطة» لهذه الشركة.",
+    "notEligibleNow": "لم يعد مؤهلًا",
+    "accessNote": "اختيار المدير يمنحه صلاحية الوصول إلى هذه المحطة، ولا يزيل صلاحية أي مستخدم آخر.",
+    "legacyNotLinked": "يوجد اسم مكتوب يدويًا «{{name}}» محفوظ على هذه المحطة وهو غير مرتبط بحساب مستخدم. اختر مديرًا أعلاه ليحل محله في العرض.",
+    "linkedUser": "المدير المرتبط",
+    "badgeLinked": "مستخدم مرتبط",
+    "badgeLegacy": "اسم مكتوب يدويًا — غير مرتبط بمستخدم",
+    "legacyName": "الاسم المكتوب سابقًا",
+    "legacyHint": "اختر مديرًا عند تعديل المحطة لربط حساب حقيقي.",
+    "accessTitle": "المستخدمون الذين لديهم صلاحية الوصول",
+    "accessNone": "لا يوجد مستخدم مُسند إلى هذه المحطة (المستخدم بلا إسناد لديه صلاحية على كل محطات الشركة).",
+    "accessLoadFailed": "تعذّر تحميل المستخدمين المُسندين."
   }
 }

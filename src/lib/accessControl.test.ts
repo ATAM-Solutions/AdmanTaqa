@@ -149,3 +149,45 @@ describe("resolvePostLoginPath", () => {
     expect(resolvePostLoginPath({ pathname: "/login" }, "FUEL_STATION", [], home)).toBe(home);
   });
 });
+
+describe("fuel-station technician navigation (finding 21)", () => {
+  const technician = ["assets.read", "internal_work_orders.read", "internal_tasks.read", "internal_tasks.update_status", "internal_tasks.upload", "warehouse_orders.read", "warehouse_orders.create"];
+  const can = (key: string, perms: string[], org: "FUEL_STATION" | "SERVICE_PROVIDER" | "SUPER_ADMIN" | "AUTHORITY" = "FUEL_STATION") =>
+    canAccessByRule(ROUTE_ACCESS_RULES[key], org, perms);
+
+  it("gives the technician My tasks, Warehouse requests and the orders they work on", () => {
+    for (const key of ["my-tasks", "warehouse-requests", "internal-work-orders", "internal-work-orders/:id", "dashboard"]) {
+      expect(can(key, technician), key).toBe(true);
+    }
+  });
+
+  it("hides every unrelated fuel-station area from the technician (and blocks direct navigation with the same rule)", () => {
+    for (const key of ["branches", "branches/create", "branch-requests", "station-requests", "station-requests/create", "station-job-orders", "linked-providers", "maintenance-reports", "users", "roles", "company", "internal-work-orders/review-queue"]) {
+      expect(can(key, technician), key).toBe(false);
+    }
+  });
+
+  it("does not remove routes other fuel-station roles need", () => {
+    const manager = ["stations.read", "team.read", "internal_work_orders.read", "station.requests.read", "station.job_orders.read", "maintenance_issues.read", "maintenance_issues.create", "station.maintenance_requests.create", "warehouse_orders.read"];
+    for (const key of ["branches", "users", "company", "internal-work-orders", "station-requests", "station-requests/create", "station-job-orders", "maintenance-reports", "warehouse-requests"]) {
+      expect(can(key, manager), key).toBe(true);
+    }
+    expect(can("my-tasks", manager)).toBe(false); // not a worker
+    const maintenance = ["internal_tasks.read", "internal_tasks.assign", "internal_work_orders.read", "internal_work_orders.review", "team.read", "stations.read"];
+    expect(can("internal-work-orders/review-queue", maintenance)).toBe(true);
+    expect(can("users", maintenance)).toBe(true);
+  });
+
+  it("leaves other organization types untouched by the fuel-station permission rules", () => {
+    for (const org of ["SERVICE_PROVIDER", "AUTHORITY", "SUPER_ADMIN"] as const) {
+      expect(can("users", ["audit:read"], org)).toBe(true);
+      expect(can("roles", ["audit:read"], org)).toBe(true);
+    }
+    expect(can("branch-requests", ["anything.else"], "SUPER_ADMIN")).toBe(true);
+  });
+
+  it("keeps the legacy fallback: a session with no permissions list is gated by organization type only", () => {
+    expect(can("my-tasks", [])).toBe(true);
+    expect(can("my-tasks", [], "SERVICE_PROVIDER")).toBe(false);
+  });
+});

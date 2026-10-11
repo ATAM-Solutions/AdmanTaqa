@@ -35,8 +35,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ConfirmDialog, EmptyState } from "@/components/patterns";
 import { ActiveBadge, StationStatusBadge } from "@/components/company/CompanyBadges";
-import { useGetAdminStations, useUpdateAdminStation } from "@/hooks/AdminOrganizations/useAdminStations";
+import { useGetAdminStation, useGetAdminStations, useUpdateAdminStation } from "@/hooks/AdminOrganizations/useAdminStations";
 import { formatDate } from "@/lib/i18n/formatters";
+import { geoName } from "@/lib/geography";
 import { cn, getApiErrorMessage } from "@/lib/utils";
 import type { AdminOrganizationDetail, AdminStation } from "@/types/adminOrganization";
 import { StationFormDialog } from "../StationFormDialog";
@@ -210,7 +211,7 @@ export function StationsTab({ organization, openCreate, onOpenCreateChange }: St
                       </TableCell>
                       <TableCell>
                         <div className="min-w-0">
-                          <p className="text-sm">{formatLocation(station) || <span className="text-muted-foreground">—</span>}</p>
+                          <p className="text-sm">{formatLocation(station, i18n.language) || <span className="text-muted-foreground">—</span>}</p>
                           {station.address ? (
                             <p className="text-xs text-muted-foreground truncate max-w-[220px]" dir="auto">
                               {station.address}
@@ -312,9 +313,11 @@ export function StationsTab({ organization, openCreate, onOpenCreateChange }: St
   );
 }
 
-function formatLocation(station: AdminStation): string {
-  const parts = [station.Area?.City?.name, station.Area?.name].filter(Boolean);
-  return parts.join(" › ");
+function formatLocation(station: AdminStation, language: string): string {
+  return [station.Area, station.Area?.City, station.Area?.City?.Governorate]
+    .map((g) => geoName(g, language))
+    .filter(Boolean)
+    .join(" › ");
 }
 
 function formatCoordinates(station: AdminStation): string | null {
@@ -331,6 +334,12 @@ function StationDetailsDialog({ station, onClose }: { station: AdminStation | nu
   const notSet = t("detail.stations.fields.notSet");
   const coordinates = station ? formatCoordinates(station) : null;
   const workingHours = station?.workingHours ? Object.entries(station.workingHours) : [];
+  // Single-station read adds the users who have ACCESS (a different concept from the designated manager).
+  const detail = useGetAdminStation(station?.organizationId, station?.id);
+  const full = detail.data ?? station;
+  const linked = full?.manager ?? null;
+  const legacyName = (linked ? full?.legacyManagerName : full?.managerName) ?? null;
+  const assigned = detail.data?.assignedUsers;
 
   return (
     <Dialog open={station !== null} onOpenChange={(open) => (!open ? onClose() : undefined)}>
@@ -386,7 +395,7 @@ function StationDetailsDialog({ station, onClose }: { station: AdminStation | nu
                   {t("form.station.sectionLocation")}
                 </h4>
                 <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
-                  <Field label={t("detail.stations.fields.location")} value={formatLocation(station) || notSet} />
+                  <Field label={t("detail.stations.fields.location")} value={formatLocation(station, i18n.language) || notSet} />
                   <Field label={t("detail.stations.fields.street")} value={station.street ?? notSet} />
                   <Field label={t("detail.stations.fields.address")} value={station.address ?? notSet} className="sm:col-span-2" />
                   <Field
@@ -407,16 +416,62 @@ function StationDetailsDialog({ station, onClose }: { station: AdminStation | nu
                     label={t("detail.stations.fields.ownerEmail")}
                     value={station.ownerEmail ? <span dir="ltr">{station.ownerEmail}</span> : notSet}
                   />
-                  <Field label={t("detail.stations.fields.managerName")} value={station.managerName ?? notSet} />
-                  <Field
-                    label={t("detail.stations.fields.managerEmail")}
-                    value={station.managerEmail ? <span dir="ltr">{station.managerEmail}</span> : notSet}
-                  />
-                  <Field
-                    label={t("detail.stations.fields.managerPhone")}
-                    value={station.managerPhone ? <span dir="ltr">{station.managerPhone}</span> : notSet}
-                  />
                 </dl>
+              </section>
+
+              <section>
+                <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t("manager.section")}
+                </h4>
+                {linked ? (
+                  <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+                    <Field
+                      label={t("manager.linkedUser")}
+                      value={
+                        <span className="flex flex-wrap items-center gap-2">
+                          <span dir="auto">{linked.fullName}</span>
+                          <Badge variant="secondary">{t("manager.badgeLinked")}</Badge>
+                        </span>
+                      }
+                    />
+                    <Field label={t("detail.stations.fields.managerEmail")} value={linked.email ? <span dir="ltr">{linked.email}</span> : notSet} />
+                    <Field label={t("detail.stations.fields.managerPhone")} value={linked.phone ? <span dir="ltr">{linked.phone}</span> : notSet} />
+                    {legacyName ? (
+                      <Field label={t("manager.legacyName")} value={<span dir="auto" className="text-muted-foreground">{legacyName}</span>} />
+                    ) : null}
+                  </dl>
+                ) : legacyName ? (
+                  <div className="space-y-1">
+                    <p className="text-sm font-medium" dir="auto">{legacyName}</p>
+                    <Badge variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-300">{t("manager.badgeLegacy")}</Badge>
+                    <p className="text-xs text-muted-foreground">{t("manager.legacyHint")}</p>
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">{t("manager.none")}</p>
+                )}
+              </section>
+
+              <section>
+                <h4 className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  {t("manager.accessTitle")}
+                </h4>
+                {detail.isLoading ? (
+                  <p className="text-sm text-muted-foreground">{t("manager.loading")}</p>
+                ) : detail.isError ? (
+                  <p className="text-sm text-destructive" role="alert">{t("manager.accessLoadFailed")}</p>
+                ) : (assigned?.length ?? 0) === 0 ? (
+                  <p className="text-sm text-muted-foreground">{t("manager.accessNone")}</p>
+                ) : (
+                  <ul className="flex flex-wrap gap-2 text-sm">
+                    {assigned!.map((u) => (
+                      <li key={u.id} className="rounded-full border px-3 py-1" dir="auto">
+                        {u.fullName}
+                        {linked?.id === u.id ? <span className="ms-1 text-xs text-muted-foreground">· {t("manager.badgeLinked")}</span> : null}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="mt-2 text-xs text-muted-foreground">{t("manager.accessNote")}</p>
               </section>
 
               {workingHours.length > 0 ? (

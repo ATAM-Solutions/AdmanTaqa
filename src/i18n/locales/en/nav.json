@@ -28,7 +28,7 @@
   "profile": "Profile",
   "branches": "Branches",
   "branchRequests": "Branch Requests",
-  "locations": "Locations",
+  "locations": "Geography",
   "serviceCategories": "Service Categories",
   "serviceOfferings": "Service Offerings",
   "externalJobOrders": "External Job Orders",
@@ -55,5 +55,7 @@
     "AUTHORITY": "Authority",
     "SUPER_ADMIN": "Platform"
   },
-  "maintenanceReports": "Maintenance reports"
+  "maintenanceReports": "Maintenance reports",
+  "myTasks": "My tasks",
+  "warehouseRequests": "Warehouse requests"
 }

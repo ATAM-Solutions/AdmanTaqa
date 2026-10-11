@@ -7,6 +7,7 @@ import type {
   AdminOrganizationsListData,
   AdminOrganizationsListParams,
   AdminStation,
+  ManagerCandidate,
   AdminUser,
   ApiEnvelope,
   CreateAdminOrganizationBody,
@@ -71,6 +72,9 @@ export const adminOrganizationsService = {
   // Stations
   listStations(id: number | string) {
     return axiosInstance.get<ApiEnvelope<AdminStation[]>>(`${BASE}/${id}/stations`).then(unwrap);
+  },
+  listManagerCandidates(id: number | string) {
+    return axiosInstance.get<ApiEnvelope<ManagerCandidate[]>>(`${BASE}/${id}/manager-candidates`).then(unwrap);
   },
   getStation(id: number | string, stationId: number | string) {
     return axiosInstance.get<ApiEnvelope<AdminStation>>(`${BASE}/${id}/stations/${stationId}`).then(unwrap);

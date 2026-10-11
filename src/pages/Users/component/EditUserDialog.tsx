@@ -19,12 +19,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useQueryClient } from "@tanstack/react-query";
 import useUpdateUser from "@/hooks/Users/useUpdateUser";
 import useGetRoles from "@/hooks/Roles/useGetRoles";
 import useGetBranches from "@/hooks/Branches/useGetBranches";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getBranchDisplayName } from "@/lib/company";
-import { sameStationSet } from "@/lib/stationAssignment";
+import { designatedStationsLosingAccess, sameStationSet } from "@/lib/stationAssignment";
 import type { UpdateUserBody, UserRoleRef } from "@/types/user";
 import {
   isValidSaudiPhoneDigits,
@@ -56,6 +57,7 @@ export default function EditUserDialog({
 }: EditUserDialogProps) {
   const { t, i18n } = useTranslation("users");
   const updateMutation = useUpdateUser();
+  const queryClient = useQueryClient();
   const {
     data: branches = [],
     isLoading: branchesLoading,
@@ -81,6 +83,8 @@ export default function EditUserDialog({
     branchIds: [] as number[],
   });
   const [phoneError, setPhoneError] = useState("");
+  // Stations whose designated manager is this user and that this save would remove: confirmed before submitting.
+  const [confirmClear, setConfirmClear] = useState<typeof branches>([]);
 
   const initialRoleId = user.roles?.[0]?.id ?? null;
   const initialPhoneDigits = parseDisplayToDigits(user.phone);
@@ -118,8 +122,7 @@ export default function EditUserDialog({
     else setPhoneError(isValidSaudiPhoneDigits(digits) ? "" : SAUDI_PHONE_ERROR_MESSAGE);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = (confirmed: boolean) => {
 
     const body: UpdateUserBody = {};
     if (form.fullName.trim() !== user.fullName)
@@ -149,6 +152,16 @@ export default function EditUserDialog({
       return;
     }
 
+    // Warn BEFORE submitting: removing access from a station this user is the designated manager of also
+    // clears that designation (the server reports it back as managerClearedBranchIds).
+    if (body.branchIds && !confirmed) {
+      const losing = designatedStationsLosingAccess(user.id, initialBranchIds, body.branchIds, branches);
+      if (losing.length > 0) {
+        setConfirmClear(losing);
+        return;
+      }
+    }
+
     updateMutation.mutate(
       { id: user.id, body },
       {
@@ -161,7 +174,18 @@ export default function EditUserDialog({
             toast.error(t("editDialog.stationsUnconfirmed"));
             return;
           }
-          toast.success(t("editDialog.success"));
+          const cleared = (res?.data as { managerClearedBranchIds?: number[] } | undefined)?.managerClearedBranchIds ?? [];
+          if (cleared.length > 0) {
+            const names = cleared
+              .map((id) => branches.find((b) => b.id === id))
+              .map((b, i) => (b ? getBranchDisplayName(b, i18n.language) : `#${cleared[i]}`))
+              .join("، ");
+            toast.warning(t("editDialog.managerCleared", { stations: names }));
+          } else {
+            toast.success(t("editDialog.success"));
+          }
+          queryClient.invalidateQueries({ queryKey: ["branches"] });
+          setConfirmClear([]);
           onOpenChange(false);
         },
         onError: (e) =>
@@ -170,8 +194,13 @@ export default function EditUserDialog({
     );
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submit(false);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(next) => { if (!next) setConfirmClear([]); onOpenChange(next); }}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>{t("editDialog.title")}</DialogTitle>
@@ -289,17 +318,33 @@ export default function EditUserDialog({
               </p>
             )}
           </div>
+          {confirmClear.length > 0 && (
+            <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-200" role="alert">
+              <p className="font-semibold">{t("editDialog.clearManagerTitle")}</p>
+              <p className="mt-1">
+                {t("editDialog.clearManagerBody", {
+                  stations: confirmClear.map((b) => getBranchDisplayName(b, i18n.language)).join("، "),
+                })}
+              </p>
+            </div>
+          )}
           <DialogFooter className="pt-4">
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              onClick={() => (confirmClear.length > 0 ? setConfirmClear([]) : onOpenChange(false))}
             >
-              {t("editDialog.cancel")}
+              {confirmClear.length > 0 ? t("editDialog.clearManagerBack") : t("editDialog.cancel")}
             </Button>
-            <Button type="submit" disabled={updateMutation.isPending}>
-              {updateMutation.isPending ? t("editDialog.saving") : t("editDialog.save")}
-            </Button>
+            {confirmClear.length > 0 ? (
+              <Button type="button" variant="destructive" disabled={updateMutation.isPending} onClick={() => submit(true)}>
+                {updateMutation.isPending ? t("editDialog.saving") : t("editDialog.clearManagerConfirm")}
+              </Button>
+            ) : (
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? t("editDialog.saving") : t("editDialog.save")}
+              </Button>
+            )}
           </DialogFooter>
         </form>
       </DialogContent>

@@ -103,7 +103,9 @@
     "latitude": "Latitude must be between -90 and 90",
     "longitude": "Longitude must be between -180 and 180",
     "selectRole": "Select a role",
-    "selectArea": "Select the station's area"
+    "selectArea": "Select the station's district",
+    "selectRegion": "Select the station's region",
+    "selectCity": "Select the station's city"
   },
   "list": {
     "title": "Organizations",
@@ -162,9 +164,9 @@
       "cityPlaceholder": "Select city",
       "cityNone": "Not set",
       "country": "Country",
-      "governorate": "Governorate",
+      "governorate": "Region",
       "selectCountryFirst": "Select a country first",
-      "selectGovernorateFirst": "Select a governorate first",
+      "selectGovernorateFirst": "Select a region first",
       "rejectionReason": "Rejection reason"
     },
     "station": {
@@ -182,23 +184,24 @@
       "fuelTypes": "Fuel types",
       "fuelTypesPlaceholder": "Select fuel types",
       "country": "Country",
-      "governorate": "Governorate",
+      "governorate": "Region",
       "city": "City",
-      "area": "Area",
+      "area": "District",
       "selectPlaceholder": "Select",
       "selectCountryFirst": "Select a country first",
-      "selectGovernorateFirst": "Select a governorate first",
+      "selectGovernorateFirst": "Select a region first",
       "selectCityFirst": "Select a city first",
       "street": "Street",
       "address": "Address",
       "latitude": "Latitude",
       "longitude": "Longitude",
-      "coordinatesHint": "Optional. Filled automatically from the selected area when available.",
+      "coordinatesHint": "Optional.",
       "managerName": "Manager name",
       "managerEmail": "Manager email",
       "managerPhone": "Manager phone",
       "status": "Status",
-      "active": "Station is active"
+      "active": "Station is active",
+      "fuelTypeRetired": "(no longer offered)"
     },
     "user": {
       "createTitle": "Add user",
@@ -493,5 +496,26 @@
     "registrationNumber": "Commercial registration",
     "status": "Registration status",
     "notSet": "Not set"
+  },
+  "manager": {
+    "section": "Station manager",
+    "label": "Designated manager",
+    "none": "No manager",
+    "createFirst": "Create the station first, then choose its manager from the company's Station Managers.",
+    "loading": "Loading…",
+    "loadFailed": "Could not load the eligible managers.",
+    "retry": "Retry",
+    "noCandidates": "No eligible users yet: add an active user with the Station Manager role to this company.",
+    "notEligibleNow": "no longer eligible",
+    "accessNote": "Choosing a manager gives them access to this station. It does not remove anyone else's access.",
+    "legacyNotLinked": "A hand-typed name \"{{name}}\" is stored on this station. It is not linked to a user account; choose a manager above to replace what is displayed.",
+    "linkedUser": "Linked manager",
+    "badgeLinked": "Linked user",
+    "badgeLegacy": "Typed name — not linked to a user",
+    "legacyName": "Previously typed name",
+    "legacyHint": "Choose a manager when editing the station to link a real account.",
+    "accessTitle": "Users with access",
+    "accessNone": "No user is assigned to this station (users with no assignment have company-wide access).",
+    "accessLoadFailed": "Could not load the assigned users."
   }
 }

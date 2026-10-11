@@ -36,7 +36,14 @@
     "create": "Create User",
     "creating": "Creating...",
     "success": "User created successfully.",
-    "error": "Failed to create user."
+    "error": "Failed to create user.",
+    "stations": "Assigned stations",
+    "stationsLoading": "Loading stations…",
+    "stationsLoadFailed": "Could not load the stations list.",
+    "stationsRetry": "Retry",
+    "stationsEmpty": "No stations are available. Contact your administrator.",
+    "stationsHint": "Select the stations this user may work with. If you select none, the user gets company-wide access to ALL stations.",
+    "stationsNoneWarning": "No station selected: the new user will have company-wide access to every station."
   },
   "editDialog": {
     "title": "Edit User",
@@ -61,7 +68,12 @@
     "stationsEmpty": "No stations are available. Contact your administrator.",
     "stationsHint": "Select the stations this user may work with. If you select none, the user gets company-wide access to ALL stations.",
     "stationsClearWarning": "No station selected: saving will give this user company-wide access to every station.",
-    "stationsUnconfirmed": "Station assignments could not be confirmed"
+    "stationsUnconfirmed": "Station assignments could not be confirmed",
+    "clearManagerTitle": "This will also remove the station manager",
+    "clearManagerBody": "This user is the designated manager of: {{stations}}. Removing their access to these stations also clears the station's manager. Nobody else is changed.",
+    "clearManagerBack": "Back",
+    "clearManagerConfirm": "Remove access and clear manager",
+    "managerCleared": "Saved. The designated manager was cleared on: {{stations}}. Choose a new manager from the station page."
   },
   "deactivateDialog": {
     "title": "Deactivate User",
@@ -90,7 +102,15 @@
     "submitting": "Deactivating...",
     "passwordRequired": "Enter your password to confirm.",
     "success": "Account deactivated successfully.",
-    "error": "Failed to delete account."
+    "error": "Failed to delete account.",
+    "errors": {
+      "notAllowed": "Your role is not allowed to delete its own account. Ask your company administrator.",
+      "lastAdmin": "You are the last active administrator of this company. Assign another administrator first.",
+      "protectedAccount": "This account cannot be deleted from here.",
+      "wrongPassword": "The password is incorrect.",
+      "server": "The server could not process the request. Try again later.",
+      "network": "No connection to the server. Check your internet and try again."
+    }
   },
   "details": {
     "loading": "Loading...",

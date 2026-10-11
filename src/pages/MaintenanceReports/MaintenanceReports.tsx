@@ -11,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import useMaintenanceReports from "@/hooks/MaintenanceReports/useMaintenanceReports";
 import { formatDate, formatNumber } from "@/lib/i18n/formatters";
 import { getBranchDisplayName } from "@/lib/company";
+import { getApiErrorMessage } from "@/lib/utils";
 import { MAINTENANCE_REPORT_STATUSES } from "@/types/maintenanceReport";
 
 const LIMIT = 20;
@@ -24,6 +25,9 @@ export default function MaintenanceReports() {
   const items = data?.items ?? [];
   const total = data?.pagination.total ?? 0;
   const canCreate = hasPermission("maintenance_issues.create");
+  // A failed request is NOT an empty result: HTTP status + server message are surfaced and the count is hidden.
+  const httpStatus = (error as { response?: { status?: number } } | null)?.response?.status;
+  const failed = !!error && !isLoading;
 
   return (
     <div className="p-4 md:p-8 space-y-6">
@@ -67,7 +71,9 @@ export default function MaintenanceReports() {
               </SelectContent>
             </Select>
           </div>
-          <span className="text-sm text-muted-foreground">{t("list.totalCount", { count: total })}</span>
+          {!failed && !isLoading ? (
+            <span className="text-sm text-muted-foreground">{t("list.totalCount", { count: total })}</span>
+          ) : null}
         </div>
 
         <AsyncBoundary
@@ -76,7 +82,13 @@ export default function MaintenanceReports() {
           loadingFallback={<p className="text-sm text-muted-foreground">{t("list.loading")}</p>}
           errorFallback={
             <div className="flex items-center gap-3 text-sm text-destructive" role="alert">
-              <span>{t("list.loadFailed")}</span>
+              <span>
+                {t("list.loadFailed")}
+                <span className="block text-xs opacity-80" dir="auto">
+                  {httpStatus ? `HTTP ${httpStatus} — ` : ""}
+                  {getApiErrorMessage(error, t("list.loadFailedUnknown"))}
+                </span>
+              </span>
               <Button variant="outline" size="sm" onClick={() => refetch()}>
                 {t("list.retry")}
               </Button>
@@ -86,10 +98,14 @@ export default function MaintenanceReports() {
           {items.length === 0 ? (
             <EmptyState
               icon={<ClipboardList className="h-6 w-6" />}
-              title={t("list.emptyTitle")}
-              description={t("list.emptyDescription")}
+              title={status ? t("list.emptyFilteredTitle", { status: t(`status.${status}`) }) : t("list.emptyTitle")}
+              description={status ? t("list.emptyFilteredDescription") : t("list.emptyDescription")}
               action={
-                canCreate ? (
+                status ? (
+                  <Button size="sm" variant="outline" onClick={() => { setStatus(""); setPage(1); }}>
+                    {t("list.clearFilter")}
+                  </Button>
+                ) : canCreate ? (
                   <Button asChild size="sm">
                     <Link to="/maintenance-reports/create">{t("list.newReport")}</Link>
                   </Button>

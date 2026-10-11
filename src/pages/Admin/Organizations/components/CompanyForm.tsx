@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -7,7 +7,6 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Form,
@@ -18,9 +17,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import useGetCountries from "@/hooks/Location/useGetCountries";
-import useGetGovernorates from "@/hooks/Location/useGetGovernorates";
-import useGetCities from "@/hooks/Location/useGetCities";
+import GeographyFields from "@/components/GeographyFields";
 
 export interface CompanyFormValues {
   name: string;
@@ -31,6 +28,8 @@ export interface CompanyFormValues {
   email: string;
   phone: string;
   address: string;
+  /** Region (منطقة) — selection helper only: the server persists `cityId` and verifies it belongs to this region. */
+  regionId: number | null;
   cityId: number | null;
   rejectionReason: string;
 }
@@ -46,6 +45,7 @@ const DEFAULT_VALUES: CompanyFormValues = {
   email: "",
   phone: "",
   address: "",
+  regionId: null,
   cityId: null,
   rejectionReason: "",
 };
@@ -62,6 +62,8 @@ interface CompanyFormProps {
   hideActions?: boolean;
   /** Name of the currently saved city (edit mode) — shown until the user picks a new one. */
   currentCityName?: string | null;
+  /** Name of the currently saved city's region (edit mode). */
+  currentRegionName?: string | null;
 }
 
 export function CompanyForm({
@@ -75,6 +77,7 @@ export function CompanyForm({
   formId = "company-form",
   hideActions = false,
   currentCityName,
+  currentRegionName,
 }: CompanyFormProps) {
   const { t } = useTranslation("adminOrganizations");
 
@@ -94,6 +97,7 @@ export function CompanyForm({
             .refine((v) => v === "" || EMAIL_RE.test(v), { message: t("validation.email") }),
           phone: z.string().trim().max(50, t("validation.maxLength", { max: 50 })),
           address: z.string().trim().max(2000, t("validation.maxLength", { max: 2000 })),
+          regionId: z.number().int().positive().nullable(),
           cityId: z.number().int().positive().nullable(),
           rejectionReason: z.string().trim().max(1000, t("validation.maxLength", { max: 1000 })),
         })
@@ -112,27 +116,11 @@ export function CompanyForm({
 
   const status = form.watch("status");
   const cityId = form.watch("cityId");
-
-  // Location cascade: Country → Governorate → City (city id is what we persist).
-  const [countryId, setCountryId] = useState("");
-  const [governorateId, setGovernorateId] = useState("");
-  const { data: countriesRes } = useGetCountries();
-  const { data: governoratesRes, isLoading: loadingGovernorates } = useGetGovernorates(
-    countryId ? Number(countryId) : null
+  const regionId = form.watch("regionId");
+  const initialLabels = useMemo(
+    () => ({ region: currentRegionName ?? undefined, city: currentCityName ?? undefined }),
+    [currentRegionName, currentCityName]
   );
-  const { data: citiesRes, isLoading: loadingCities } = useGetCities(
-    governorateId ? Number(governorateId) : null
-  );
-  const countries = useMemo(() => countriesRes?.data ?? [], [countriesRes]);
-  const governorates = governoratesRes?.data ?? [];
-  const cities = citiesRes?.data ?? [];
-
-  // A saved city that isn't part of the currently loaded cascade (edit mode).
-  const hasUnresolvedCity = cityId != null && !cities.some((c) => c.id === cityId);
-
-  useEffect(() => {
-    if (countries.length === 1 && !countryId) setCountryId(String(countries[0].id));
-  }, [countries, countryId]);
 
   const typeLocked = !!lockType || mode === "edit";
 
@@ -289,92 +277,16 @@ export function CompanyForm({
               )}
             />
 
-            <div className="space-y-2">
-              <Label>{t("form.company.country")}</Label>
-              <Select
-                value={countryId}
-                onValueChange={(v) => {
-                  setCountryId(v);
-                  setGovernorateId("");
-                  form.setValue("cityId", null, { shouldDirty: true });
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t("form.company.cityPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>{t("form.company.governorate")}</Label>
-              <Select
-                value={governorateId}
-                onValueChange={(v) => {
-                  setGovernorateId(v);
-                  form.setValue("cityId", null, { shouldDirty: true });
-                }}
-                disabled={!countryId || loadingGovernorates}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={!countryId ? t("form.company.selectCountryFirst") : t("form.company.cityPlaceholder")} />
-                </SelectTrigger>
-                <SelectContent>
-                  {governorates.map((g) => (
-                    <SelectItem key={g.id} value={String(g.id)}>
-                      {g.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <FormField
-              control={form.control}
-              name="cityId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{t("form.company.city")}</FormLabel>
-                  <Select
-                    value={field.value != null && cities.some((c) => c.id === field.value) ? String(field.value) : ""}
-                    onValueChange={(v) => field.onChange(v ? Number(v) : null)}
-                    disabled={!governorateId || loadingCities}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={
-                            hasUnresolvedCity && currentCityName
-                              ? currentCityName
-                              : !governorateId
-                                ? t("form.company.selectGovernorateFirst")
-                                : t("form.company.cityPlaceholder")
-                          }
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {cities.map((c) => (
-                        <SelectItem key={c.id} value={String(c.id)}>
-                          {c.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {hasUnresolvedCity && currentCityName ? (
-                    <FormDescription>
-                      {t("form.company.city")}: {currentCityName}
-                    </FormDescription>
-                  ) : null}
-                  <FormMessage />
-                </FormItem>
-              )}
+            {/* Region → City. Optional for companies (no new mandatory field); city is what is persisted. */}
+            <GeographyFields
+              depth="city"
+              className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-3"
+              value={{ regionId, cityId, areaId: null }}
+              initialLabels={initialLabels}
+              onChange={(next) => {
+                form.setValue("regionId", next.regionId, { shouldDirty: true });
+                form.setValue("cityId", next.cityId, { shouldDirty: true });
+              }}
             />
 
             <FormField

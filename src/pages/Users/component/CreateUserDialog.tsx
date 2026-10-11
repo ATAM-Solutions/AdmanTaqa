@@ -23,6 +23,9 @@ import {
 import { UserPlus } from "lucide-react";
 import useCreateUser from "@/hooks/Users/useCreateUser";
 import useGetRoles from "@/hooks/Roles/useGetRoles";
+import useGetBranches from "@/hooks/Branches/useGetBranches";
+import { Checkbox } from "@/components/ui/checkbox";
+import { getBranchDisplayName } from "@/lib/company";
 import type { CreateUserBody } from "@/types/user";
 import {
   isValidSaudiPhoneDigits,
@@ -36,6 +39,7 @@ type CreateUserForm = {
   password: string;
   phone?: string;
   roleId: string;
+  branchIds: number[];
 };
 
 const initialForm: CreateUserForm = {
@@ -44,6 +48,7 @@ const initialForm: CreateUserForm = {
   password: "",
   phone: "",
   roleId: "",
+  branchIds: [],
 };
 
 type CreateUserDialogProps = {
@@ -52,12 +57,18 @@ type CreateUserDialogProps = {
 };
 
 export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
-  const { t } = useTranslation("users");
+  const { t, i18n } = useTranslation("users");
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(initialForm);
   const [phoneError, setPhoneError] = useState("");
   const createMutation = useCreateUser();
   const { data: roles = [], isLoading: rolesLoading } = useGetRoles();
+  const {
+    data: branches = [],
+    isLoading: branchesLoading,
+    isError: branchesFailed,
+    refetch: refetchBranches,
+  } = useGetBranches();
 
   const handlePhoneChange = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 9);
@@ -79,6 +90,8 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
       password: form.password,
       phone: phoneTrimmed ? toFullSaudiPhone(phoneTrimmed) : undefined,
       roleId: form.roleId ? Number(form.roleId) : undefined,
+      // Only sent when stations were chosen; nothing selected keeps the historical company-wide result (warned below).
+      branchIds: form.branchIds.length > 0 ? form.branchIds : undefined,
     };
     createMutation.mutate(body, {
       onSuccess: () => {
@@ -192,6 +205,44 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+          <div className="space-y-2">
+            <Label>{t("createDialog.stations")}</Label>
+            {branchesLoading ? (
+              <p className="text-sm text-muted-foreground">{t("createDialog.stationsLoading")}</p>
+            ) : branchesFailed ? (
+              <div className="flex items-center gap-3 text-sm text-destructive" role="alert">
+                <span>{t("createDialog.stationsLoadFailed")}</span>
+                <Button type="button" variant="outline" size="sm" onClick={() => refetchBranches()}>
+                  {t("createDialog.stationsRetry")}
+                </Button>
+              </div>
+            ) : branches.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t("createDialog.stationsEmpty")}</p>
+            ) : (
+              <div className="max-h-44 space-y-1 overflow-y-auto rounded-md border border-input p-2">
+                {branches.map((b) => (
+                  <label key={b.id} className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-sm hover:bg-muted/50">
+                    <Checkbox
+                      checked={form.branchIds.includes(b.id)}
+                      onCheckedChange={(v) =>
+                        setForm((p) => ({
+                          ...p,
+                          branchIds: v ? [...p.branchIds, b.id] : p.branchIds.filter((x) => x !== b.id),
+                        }))
+                      }
+                    />
+                    <span>{getBranchDisplayName(b, i18n.language)}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+            <p className="text-xs text-muted-foreground">{t("createDialog.stationsHint")}</p>
+            {form.branchIds.length === 0 && !branchesLoading && !branchesFailed && branches.length > 0 && (
+              <p className="text-xs font-medium text-amber-600 dark:text-amber-400" role="status">
+                {t("createDialog.stationsNoneWarning")}
+              </p>
+            )}
           </div>
           <DialogFooter className="pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>

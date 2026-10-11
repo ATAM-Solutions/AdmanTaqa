@@ -1,10 +1,16 @@
 /** Internal Work Orders — GET/PATCH /api/internal/work-orders (Fuel Station only) */
 
+/** Mirrors the backend INTERNAL_WORK_ORDER_STATUS set (unknown future values are kept as-is). */
 export type InternalWorkOrderStatus =
+  | "DRAFT"
+  | "OPEN"
   | "PENDING"
   | "IN_PROGRESS"
   | "UNDER_REVIEW"
-  | "CLOSED";
+  | "MAINTENANCE_CLOSED"
+  | "AWAITING_OPS_CONFIRMATION"
+  | "CLOSED"
+  | "CANCELLED";
 
 export type InternalWorkOrderPriority = "LOW" | "MEDIUM" | "HIGH";
 
@@ -26,6 +32,14 @@ export interface InternalTaskRef {
   title?: string;
   status?: string;
   assignedUserId?: number | null;
+  assignedUser?: { id: number; fullName: string; email?: string | null } | null;
+}
+
+/** A person who can be given a task on a given order's station (GET /internal-tasks/assignable-users). */
+export interface AssignableTechnician {
+  id: number;
+  fullName: string;
+  email?: string | null;
 }
 
 export interface InternalWorkOrderListResponse {

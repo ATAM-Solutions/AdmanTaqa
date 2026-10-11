@@ -14,6 +14,7 @@ import { useUpdateAdminOrganization } from "@/hooks/AdminOrganizations/useAdminO
 import { getOrganizationDisplayName } from "@/lib/company";
 import { getApiErrorMessage } from "@/lib/utils";
 import type { AdminOrganizationDetail } from "@/types/adminOrganization";
+import { geoName } from "@/lib/geography";
 import { CompanyForm, type CompanyFormValues } from "../CompanyForm";
 import { detailToFormValues, toUpdateBody } from "../companyForm.helpers";
 
@@ -56,6 +57,8 @@ export function EditCompanyDialog({ open, onOpenChange, organization }: EditComp
           mode="edit"
           lockType
           defaultValues={detailToFormValues(organization)}
+          currentCityName={geoName(organization.City, i18n.language) || null}
+          currentRegionName={geoName(organization.City?.Governorate, i18n.language) || null}
           formId={FORM_ID}
           hideActions
           isSubmitting={mutation.isPending}

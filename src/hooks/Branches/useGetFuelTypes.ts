@@ -5,6 +5,9 @@ export interface FuelTypeItem {
   id: number;
   name: string;
   code: string;
+  /** Catalogue order (server already returns the list sorted). */
+  sortOrder?: number | null;
+  isActive?: boolean;
 }
 
 interface FuelTypesApiResponse {

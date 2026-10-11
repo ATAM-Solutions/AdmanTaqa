@@ -1,24 +1,21 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useTranslation } from "react-i18next";
-import { Loader2, MapPin } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import useGetCountries from "@/hooks/Location/useGetCountries";
-import useGetGovernorates from "@/hooks/Location/useGetGovernorates";
-import useGetCities from "@/hooks/Location/useGetCities";
-import useGetAreas from "@/hooks/Location/useGetAreas";
-import { getAreaDetails } from "@/hooks/Location/useGetAreaDetails";
+import GeographyFields from "@/components/GeographyFields";
+import { StationManagerPicker } from "./StationManagerPicker";
+import { geoName, geoPathLabel } from "@/lib/geography";
 import useGetFuelStationTypes from "@/hooks/Branches/useGetFuelStationTypes";
 import useGetFuelTypes from "@/hooks/Branches/useGetFuelTypes";
 import { useCreateAdminStation, useUpdateAdminStation } from "@/hooks/AdminOrganizations/useAdminStations";
@@ -30,20 +27,20 @@ interface StationFormValues {
   nameAr: string;
   licenseNumber: string;
   stationTypeId: number | null;
+  regionId: number | null;
+  cityId: number | null;
   areaId: number | null;
   fuelTypeIds: number[];
   street: string;
   address: string;
   latitude: string;
   longitude: string;
-  managerName: string;
-  managerEmail: string;
-  managerPhone: string;
+  /** Designated manager (linked user). Edit mode only — create the station first, then choose the manager. */
+  managerUserId: number | null;
   status: "APPROVED" | "SUSPENDED" | "PENDING";
   isActive: boolean;
 }
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const emptyToNull = (v: string): string | null => (v.trim() === "" ? null : v.trim());
 const toNumberOrNull = (v: string): number | null => (v.trim() === "" ? null : Number(v));
 
@@ -53,15 +50,15 @@ function stationToValues(station: AdminStation | null | undefined): StationFormV
     nameAr: station?.nameAr ?? "",
     licenseNumber: station?.licenseNumber ?? "",
     stationTypeId: station?.stationTypeId ?? null,
+    regionId: station?.Area?.City?.governorateId ?? station?.Area?.City?.Governorate?.id ?? null,
+    cityId: station?.Area?.cityId ?? station?.Area?.City?.id ?? null,
     areaId: station?.areaId ?? null,
     fuelTypeIds: station?.FuelTypes?.map((f) => f.id) ?? [],
     street: station?.street ?? "",
     address: station?.address ?? "",
     latitude: station?.latitude != null ? String(station.latitude) : "",
     longitude: station?.longitude != null ? String(station.longitude) : "",
-    managerName: station?.managerName ?? "",
-    managerEmail: station?.managerEmail ?? "",
-    managerPhone: station?.managerPhone ?? "",
+    managerUserId: station?.managerUserId ?? null,
     status: station?.status ?? "APPROVED",
     isActive: station?.isActive ?? true,
   };
@@ -73,14 +70,13 @@ function valuesToBody(v: StationFormValues): CreateAdminStationBody {
     nameAr: v.nameAr.trim(),
     licenseNumber: emptyToNull(v.licenseNumber),
     stationTypeId: v.stationTypeId ?? null,
+    ...(v.regionId != null ? { regionId: v.regionId } : {}),
+    ...(v.cityId != null ? { cityId: v.cityId } : {}),
     areaId: v.areaId as number,
     street: emptyToNull(v.street),
     address: emptyToNull(v.address),
     latitude: toNumberOrNull(v.latitude),
     longitude: toNumberOrNull(v.longitude),
-    managerName: emptyToNull(v.managerName),
-    managerEmail: emptyToNull(v.managerEmail),
-    managerPhone: emptyToNull(v.managerPhone),
     fuelTypeIds: v.fuelTypeIds,
     status: v.status,
     isActive: v.isActive,
@@ -98,6 +94,14 @@ function diffBody(next: CreateAdminStationBody, station: AdminStation): UpdateAd
       : a !== b;
     if (changed) out[key] = a;
   });
+  // The region/city chain is validation-only: send it with a district change, never on its own.
+  if ("areaId" in out) {
+    out.regionId = next.regionId;
+    out.cityId = next.cityId;
+  } else {
+    delete out.regionId;
+    delete out.cityId;
+  }
   return out as UpdateAdminStationBody;
 }
 
@@ -128,24 +132,16 @@ export function StationFormDialog({ open, onOpenChange, organizationId, station,
       nameAr: z.string().trim().min(1, t("validation.required")).max(255, t("validation.maxLength", { max: 255 })),
       licenseNumber: z.string().trim().max(100, t("validation.maxLength", { max: 100 })),
       stationTypeId: z.number().int().positive().nullable(),
-      areaId: z
-        .number()
-        .int()
-        .positive()
-        .nullable()
-        .refine((v) => v != null, { message: t("validation.selectArea") }),
+      // Region → City → District are all mandatory (the server re-validates the chain).
+      regionId: z.number().int().positive().nullable().refine((v) => v != null, { message: t("validation.selectRegion") }),
+      cityId: z.number().int().positive().nullable().refine((v) => v != null, { message: t("validation.selectCity") }),
+      areaId: z.number().int().positive().nullable().refine((v) => v != null, { message: t("validation.selectArea") }),
       fuelTypeIds: z.array(z.number().int().positive()),
       street: z.string().trim().max(255, t("validation.maxLength", { max: 255 })),
       address: z.string().trim().max(2000, t("validation.maxLength", { max: 2000 })),
       latitude: coord(90, t("validation.latitude")),
       longitude: coord(180, t("validation.longitude")),
-      managerName: z.string().trim().max(255, t("validation.maxLength", { max: 255 })),
-      managerEmail: z
-        .string()
-        .trim()
-        .max(255, t("validation.maxLength", { max: 255 }))
-        .refine((v) => v === "" || EMAIL_RE.test(v), { message: t("validation.email") }),
-      managerPhone: z.string().trim().max(50, t("validation.maxLength", { max: 50 })),
+      managerUserId: z.number().int().positive().nullable(),
       status: z.enum(["APPROVED", "SUSPENDED", "PENDING"]),
       isActive: z.boolean(),
     });
@@ -159,58 +155,50 @@ export function StationFormDialog({ open, onOpenChange, organizationId, station,
   // Reference data
   const { data: stationTypes = [], isLoading: loadingStationTypes } = useGetFuelStationTypes();
   const { data: fuelTypes = [], isLoading: loadingFuelTypes } = useGetFuelTypes();
+  // Selectable (active) types in catalogue order, plus this station's retired/legacy selections so they stay visible
+  // (and can be unchecked) — they can never be newly checked on another station.
+  const fuelOptions = useMemo(() => {
+    const activeIds = new Set(fuelTypes.map((f) => f.id));
+    const legacy = (station?.FuelTypes ?? [])
+      .filter((f) => !activeIds.has(f.id))
+      .map((f) => ({ id: f.id, name: f.name, legacy: true }));
+    return [...fuelTypes.map((f) => ({ id: f.id, name: f.name, legacy: false })), ...legacy];
+  }, [fuelTypes, station]);
 
-  // Location cascade
-  const [countryId, setCountryId] = useState("");
-  const [governorateId, setGovernorateId] = useState("");
-  const [cityId, setCityId] = useState("");
-  const [changeLocation, setChangeLocation] = useState(!isEdit);
-  const { data: countriesRes } = useGetCountries();
-  const { data: governoratesRes, isLoading: loadingGovernorates } = useGetGovernorates(countryId ? Number(countryId) : null);
-  const { data: citiesRes, isLoading: loadingCities } = useGetCities(governorateId ? Number(governorateId) : null);
-  const { data: areasRes, isLoading: loadingAreas } = useGetAreas(cityId ? Number(cityId) : null);
-  const countries = useMemo(() => countriesRes?.data ?? [], [countriesRes]);
-  const governorates = governoratesRes?.data ?? [];
-  const cities = citiesRes?.data ?? [];
-  const areas = areasRes?.data ?? [];
-
+  const { i18n } = useTranslation();
   useEffect(() => {
-    if (open) {
-      form.reset(stationToValues(station));
-      setCountryId("");
-      setGovernorateId("");
-      setCityId("");
-      setChangeLocation(!station);
-    }
+    if (open) form.reset(stationToValues(station));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, station]);
 
-  useEffect(() => {
-    if (countries.length === 1 && !countryId) setCountryId(String(countries[0].id));
-  }, [countries, countryId]);
-
+  const regionId = form.watch("regionId");
+  const cityId = form.watch("cityId");
   const areaId = form.watch("areaId");
+  const geoErrors = form.formState.errors;
+  const initialLabels = useMemo(
+    () => ({
+      region: geoName(station?.Area?.City?.Governorate, i18n.language) || undefined,
+      city: geoName(station?.Area?.City, i18n.language) || undefined,
+      district: geoName(station?.Area, i18n.language) || undefined,
+    }),
+    [station, i18n.language]
+  );
   const currentLocationLabel = station?.Area
-    ? [station.Area.name, station.Area.City?.name].filter(Boolean).join(" · ")
+    ? geoPathLabel([station.Area, station.Area.City, station.Area.City?.Governorate], i18n.language)
     : null;
-
-  const applyAreaCoordinates = (id: number) => {
-    const { latitude, longitude } = form.getValues();
-    if (latitude.trim() !== "" || longitude.trim() !== "") return;
-    getAreaDetails(id)
-      .then((details) => {
-        if (details?.latitude != null && details?.longitude != null) {
-          form.setValue("latitude", String(details.latitude), { shouldDirty: true });
-          form.setValue("longitude", String(details.longitude), { shouldDirty: true });
-        }
-      })
-      .catch(() => {});
-  };
 
   const submit = (values: StationFormValues) => {
     const body = valuesToBody(values);
     if (isEdit && station) {
       const patch = diffBody(body, station);
+      // Designation is sent only when the admin changed it; never with a station edit that didn't touch it.
+      if (values.managerUserId !== (station.managerUserId ?? null)) patch.managerUserId = values.managerUserId;
+      // Legacy (retired) fuel types the admin unchecked must be released explicitly; otherwise the server keeps them.
+      const activeIds = new Set(fuelTypes.map((f) => f.id));
+      const released = (station.FuelTypes ?? [])
+        .map((f) => f.id)
+        .filter((id) => !activeIds.has(id) && !values.fuelTypeIds.includes(id));
+      if (released.length && patch.fuelTypeIds !== undefined) patch.releaseFuelTypeIds = released;
       if (Object.keys(patch).length === 0) {
         toast.info(t("toasts.noChanges"));
         return;
@@ -301,11 +289,11 @@ export function StationFormDialog({ open, onOpenChange, organizationId, station,
                     <FormLabel>{t("form.station.fuelTypes")}</FormLabel>
                     {loadingFuelTypes ? (
                       <p className="text-sm text-muted-foreground">…</p>
-                    ) : fuelTypes.length === 0 ? (
+                    ) : fuelOptions.length === 0 ? (
                       <p className="text-sm text-muted-foreground">{t("form.station.fuelTypesPlaceholder")}</p>
                     ) : (
                       <div className="grid grid-cols-2 gap-2 rounded-lg border p-3 sm:grid-cols-3">
-                        {fuelTypes.map((ft) => {
+                        {fuelOptions.map((ft) => {
                           const checked = field.value.includes(ft.id);
                           return (
                             <label key={ft.id} className="flex cursor-pointer items-center gap-2 text-sm">
@@ -315,7 +303,12 @@ export function StationFormDialog({ open, onOpenChange, organizationId, station,
                                   field.onChange(c ? [...field.value, ft.id] : field.value.filter((id) => id !== ft.id))
                                 }
                               />
-                              <span>{ft.name}</span>
+                              <span>
+                                {ft.name}
+                                {ft.legacy ? (
+                                  <span className="ms-1 text-xs text-muted-foreground">{t("form.station.fuelTypeRetired")}</span>
+                                ) : null}
+                              </span>
                             </label>
                           );
                         })}
@@ -330,72 +323,27 @@ export function StationFormDialog({ open, onOpenChange, organizationId, station,
             {/* Location */}
             <section className="space-y-4">
               <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("form.station.sectionLocation")}</h3>
-              {isEdit && !changeLocation ? (
-                <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2 text-sm">
-                  <span className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-muted-foreground" />
-                    <span>{currentLocationLabel ?? t("form.station.area")}</span>
-                  </span>
-                  <Button type="button" variant="ghost" size="sm" onClick={() => setChangeLocation(true)}>
-                    {t("logo.change")}
-                  </Button>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>{t("form.station.country")}</Label>
-                    <Select value={countryId} onValueChange={(v) => { setCountryId(v); setGovernorateId(""); setCityId(""); form.setValue("areaId", null); }}>
-                      <SelectTrigger><SelectValue placeholder={t("form.station.selectPlaceholder")} /></SelectTrigger>
-                      <SelectContent>
-                        {countries.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t("form.station.governorate")}</Label>
-                    <Select value={governorateId} onValueChange={(v) => { setGovernorateId(v); setCityId(""); form.setValue("areaId", null); }} disabled={!countryId || loadingGovernorates}>
-                      <SelectTrigger><SelectValue placeholder={!countryId ? t("form.station.selectCountryFirst") : t("form.station.selectPlaceholder")} /></SelectTrigger>
-                      <SelectContent>
-                        {governorates.map((g) => <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{t("form.station.city")}</Label>
-                    <Select value={cityId} onValueChange={(v) => { setCityId(v); form.setValue("areaId", null); }} disabled={!governorateId || loadingCities}>
-                      <SelectTrigger><SelectValue placeholder={!governorateId ? t("form.station.selectGovernorateFirst") : t("form.station.selectPlaceholder")} /></SelectTrigger>
-                      <SelectContent>
-                        {cities.map((c) => <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <FormField control={form.control} name="areaId" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t("form.station.area")} *</FormLabel>
-                      <Select
-                        value={field.value != null && areas.some((a) => a.id === field.value) ? String(field.value) : ""}
-                        onValueChange={(v) => {
-                          const id = v ? Number(v) : null;
-                          field.onChange(id);
-                          if (id) applyAreaCoordinates(id);
-                        }}
-                        disabled={!cityId || loadingAreas}
-                      >
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder={!cityId ? t("form.station.selectCityFirst") : t("form.station.selectPlaceholder")} /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {areas.map((a) => <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                      {isEdit && areaId === station?.areaId && currentLocationLabel ? (
-                        <FormDescription>{currentLocationLabel}</FormDescription>
-                      ) : null}
-                      <FormMessage />
-                    </FormItem>
-                  )} />
-                </div>
-              )}
+              {/* Region → City → District, each filtered by its parent; changing a parent clears its children. */}
+              <GeographyFields
+                depth="district"
+                required
+                className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                value={{ regionId, cityId, areaId }}
+                initialLabels={initialLabels}
+                errors={{
+                  region: geoErrors.regionId?.message,
+                  city: geoErrors.cityId?.message,
+                  district: geoErrors.areaId?.message,
+                }}
+                onChange={(next) => {
+                  form.setValue("regionId", next.regionId, { shouldDirty: true, shouldValidate: form.formState.isSubmitted });
+                  form.setValue("cityId", next.cityId, { shouldDirty: true, shouldValidate: form.formState.isSubmitted });
+                  form.setValue("areaId", next.areaId, { shouldDirty: true, shouldValidate: form.formState.isSubmitted });
+                }}
+              />
+              {isEdit && currentLocationLabel ? (
+                <p className="text-xs text-muted-foreground">{currentLocationLabel}</p>
+              ) : null}
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField control={form.control} name="street" render={({ field }) => (
                   <FormItem>
@@ -429,32 +377,19 @@ export function StationFormDialog({ open, onOpenChange, organizationId, station,
               </div>
             </section>
 
-            {/* Contacts */}
-            <section className="space-y-4">
-              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("form.station.sectionContact")}</h3>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-                <FormField control={form.control} name="managerName" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("form.station.managerName")}</FormLabel>
-                    <FormControl><Input {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="managerEmail" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("form.station.managerEmail")}</FormLabel>
-                    <FormControl><Input type="email" dir="ltr" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-                <FormField control={form.control} name="managerPhone" render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t("form.station.managerPhone")}</FormLabel>
-                    <FormControl><Input type="tel" dir="ltr" {...field} /></FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )} />
-              </div>
+            {/* Manager: create the station first, then link an existing eligible user (no hand-typed contact data). */}
+            <section className="space-y-3">
+              <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t("manager.section")}</h3>
+              {isEdit && station ? (
+                <StationManagerPicker
+                  organizationId={organizationId}
+                  station={station}
+                  value={form.watch("managerUserId")}
+                  onChange={(id) => form.setValue("managerUserId", id, { shouldDirty: true })}
+                />
+              ) : (
+                <p className="rounded-md border border-dashed px-3 py-2 text-sm text-muted-foreground">{t("manager.createFirst")}</p>
+              )}
             </section>
 
             {isEdit ? (

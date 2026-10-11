@@ -23,6 +23,11 @@ export interface BranchApiItem {
   managerUserId: number | null;
   /** Linked manager user (null while the station only has the legacy free-text managerName). */
   manager?: { id: number; fullName: string; email: string; phone?: string | null; isActive?: boolean } | null;
+  managerSource?: "USER" | "LEGACY_TEXT" | null;
+  /** Stored hand-typed manager name (only when a linked manager overlays managerName). */
+  legacyManagerName?: string | null;
+  /** Users with ACCESS to this station (identity only; single-station GET, callers with users.read). */
+  assignedUsers?: { id: number; fullName: string; isActive: boolean }[];
   status: string;
   isActive: boolean;
   createdAt: string;

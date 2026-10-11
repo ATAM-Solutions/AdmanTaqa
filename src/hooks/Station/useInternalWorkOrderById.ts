@@ -6,5 +6,10 @@ export default function useInternalWorkOrderById(id: number | string | null | un
     queryKey: ["internal-work-order", id],
     queryFn: () => fetchInternalWorkOrderById(id!),
     enabled: id != null && id !== "",
+    // 403/404 are answers, not transient failures — show them immediately.
+    retry: (count, err) => {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      return (status == null || status >= 500) && count < 2;
+    },
   });
 }

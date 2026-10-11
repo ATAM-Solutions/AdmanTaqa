@@ -1,5 +1,7 @@
 import axiosInstance from "../config";
 import type {
+  MaintenanceReportCategory,
+  MaintenanceReportPriority,
   CreateMaintenanceReportBody,
   MaintenanceReport,
   MaintenanceReportListPayload,
@@ -58,13 +60,13 @@ export async function uploadMaintenanceReportAttachment(
 }
 
 /** PATCH /api/maintenance-issues/:id/supervisor-review */
-export async function supervisorReviewReport(id: number | string, body: { action: "approve" | "reject"; note?: string }) {
+export async function supervisorReviewReport(id: number | string, body: { action: "approve" | "reject"; note?: string; expectedRevision?: number }) {
   const { data } = await axiosInstance.patch<Envelope<MaintenanceReport>>(`maintenance-issues/${id}/supervisor-review`, body);
   return data.data;
 }
 
 /** PATCH /api/maintenance-issues/:id/ops-approve */
-export async function opsApproveReport(id: number | string, body: { action: "approve" | "reject"; note?: string }) {
+export async function opsApproveReport(id: number | string, body: { action: "approve" | "reject"; note?: string; expectedRevision?: number }) {
   const { data } = await axiosInstance.patch<Envelope<MaintenanceReport>>(`maintenance-issues/${id}/ops-approve`, body);
   return data.data;
 }
@@ -72,8 +74,24 @@ export async function opsApproveReport(id: number | string, body: { action: "app
 /** PATCH /api/maintenance-issues/:id/decide — `branchId` is required only for EXTERNAL on a report with no branch. */
 export async function decideReport(
   id: number | string,
-  body: { decision: ReportDecision; note?: string; branchId?: number }
+  body: { decision: ReportDecision; note?: string; branchId?: number; expectedRevision?: number }
 ) {
   const { data } = await axiosInstance.patch<Envelope<MaintenanceReport>>(`maintenance-issues/${id}/decide`, body);
+  return data.data;
+}
+
+export interface UpdateReportBody {
+  title?: string;
+  description?: string | null;
+  category?: MaintenanceReportCategory | null;
+  location?: string | null;
+  priority?: MaintenanceReportPriority;
+  assetId?: number | null;
+  expectedRevision?: number;
+}
+
+/** PATCH /api/maintenance-issues/:id — descriptive fields of the caller's own, not-yet-reviewed report. */
+export async function updateReport(id: number | string, body: UpdateReportBody) {
+  const { data } = await axiosInstance.patch<Envelope<MaintenanceReport>>(`maintenance-issues/${id}`, body);
   return data.data;
 }

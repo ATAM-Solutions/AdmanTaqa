@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { decideReport, opsApproveReport, supervisorReviewReport } from "@/api/services/maintenanceReportService";
+import { decideReport, opsApproveReport, supervisorReviewReport, updateReport, type UpdateReportBody } from "@/api/services/maintenanceReportService";
 import type { ReportDecision } from "@/types/maintenanceReport";
 
 function useInvalidate() {
@@ -15,7 +15,7 @@ function useInvalidate() {
 export function useSupervisorReview(id: number | string) {
   const invalidate = useInvalidate();
   return useMutation({
-    mutationFn: (body: { action: "approve" | "reject"; note?: string }) => supervisorReviewReport(id, body),
+    mutationFn: (body: { action: "approve" | "reject"; note?: string; expectedRevision?: number }) => supervisorReviewReport(id, body),
     onSuccess: invalidate,
   });
 }
@@ -23,7 +23,7 @@ export function useSupervisorReview(id: number | string) {
 export function useOpsApprove(id: number | string) {
   const invalidate = useInvalidate();
   return useMutation({
-    mutationFn: (body: { action: "approve" | "reject"; note?: string }) => opsApproveReport(id, body),
+    mutationFn: (body: { action: "approve" | "reject"; note?: string; expectedRevision?: number }) => opsApproveReport(id, body),
     onSuccess: invalidate,
   });
 }
@@ -31,7 +31,15 @@ export function useOpsApprove(id: number | string) {
 export function useDecideReport(id: number | string) {
   const invalidate = useInvalidate();
   return useMutation({
-    mutationFn: (body: { decision: ReportDecision; note?: string; branchId?: number }) => decideReport(id, body),
+    mutationFn: (body: { decision: ReportDecision; note?: string; branchId?: number; expectedRevision?: number }) => decideReport(id, body),
+    onSuccess: invalidate,
+  });
+}
+
+export function useUpdateReport(id: number | string) {
+  const invalidate = useInvalidate();
+  return useMutation({
+    mutationFn: (body: UpdateReportBody) => updateReport(id, body),
     onSuccess: invalidate,
   });
 }

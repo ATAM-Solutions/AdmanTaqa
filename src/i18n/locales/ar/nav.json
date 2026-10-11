@@ -28,7 +28,7 @@
   "profile": "الملف الشخصي",
   "branches": "الفروع",
   "branchRequests": "طلبات الفروع",
-  "locations": "المواقع",
+  "locations": "المناطق والمدن",
   "serviceCategories": "فئات الخدمات",
   "serviceOfferings": "عروض الخدمات",
   "externalJobOrders": "أوامر العمل الخارجية",
@@ -55,5 +55,7 @@
     "AUTHORITY": "الهيئة",
     "SUPER_ADMIN": "المنصة"
   },
-  "maintenanceReports": "بلاغات الصيانة"
+  "maintenanceReports": "بلاغات الصيانة",
+  "myTasks": "مهامي",
+  "warehouseRequests": "طلبات المستودع"
 }

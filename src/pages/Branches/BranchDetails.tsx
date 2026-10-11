@@ -166,6 +166,11 @@ export default function BranchDetails() {
                         >
                           {t("details.managerLinked")}
                         </Link>
+                        {branch.legacyManagerName && (
+                          <p className="text-[11px] text-muted-foreground mt-1" dir="auto">
+                            {t("details.legacyManagerName", { name: branch.legacyManagerName })}
+                          </p>
+                        )}
                       </>
                     ) : (
                       <>
@@ -179,6 +184,28 @@ export default function BranchDetails() {
                       </>
                     )}
                   </div>
+                  {branch.assignedUsers && (
+                    <div className="group p-3 rounded-xl hover:bg-muted/50 transition-colors">
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 flex items-center gap-2">
+                        <Users className="h-3 w-3" />
+                        {t("details.accessUsers")}
+                      </p>
+                      {branch.assignedUsers.length === 0 ? (
+                        <p className="text-xs text-muted-foreground">{t("details.accessNone")}</p>
+                      ) : (
+                        <ul className="flex flex-wrap gap-1.5">
+                          {branch.assignedUsers.map((u) => (
+                            <li key={u.id}>
+                              <Link to={`/users/${u.id}`} className="rounded-full border px-2.5 py-0.5 text-xs hover:bg-muted" dir="auto">
+                                {u.fullName}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                      <p className="text-[11px] text-muted-foreground mt-1.5">{t("details.accessNote")}</p>
+                    </div>
+                  )}
                   <div className="group p-3 rounded-xl hover:bg-muted/50 transition-colors">
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5 flex items-center gap-2">
                       <Calendar className="h-3 w-3" />

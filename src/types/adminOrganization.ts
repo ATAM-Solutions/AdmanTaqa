@@ -2,6 +2,15 @@
  * SUPER_ADMIN company management — /api/admin/organizations/*
  */
 
+/** City with its region (Governorate table == region/منطقة). */
+export interface GeoCity {
+  id: number;
+  name: string;
+  nameAr?: string | null;
+  governorateId?: number;
+  Governorate?: { id: number; name: string; nameAr?: string | null } | null;
+}
+
 export type AdminOrganizationType = "FUEL_STATION" | "SERVICE_PROVIDER";
 export type OrganizationStatus = "PENDING" | "APPROVED" | "REJECTED";
 
@@ -22,7 +31,7 @@ export interface AdminOrganization {
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  City?: { id: number; name: string } | null;
+  City?: GeoCity | null;
   /** Present on list rows and detail. */
   stationsCount?: number;
   usersCount?: number;
@@ -105,6 +114,8 @@ export interface CreateAdminOrganizationBody {
   phone?: string | null;
   address?: string | null;
   cityId?: number | null;
+  /** Validation-only: must be the parent region of `cityId`. */
+  regionId?: number | null;
   registrationNumber?: string | null;
 }
 
@@ -117,6 +128,7 @@ export interface UpdateAdminOrganizationBody {
   phone?: string | null;
   address?: string | null;
   cityId?: number | null;
+  regionId?: number | null;
   registrationNumber?: string | null;
   rejectionReason?: string | null;
 }
@@ -143,11 +155,21 @@ export interface AdminStation {
   managerEmail: string | null;
   managerPhone: string | null;
   managerUserId: number | null;
+  /** Linked user who is the DESIGNATED manager (null when none). Distinct from users who merely have access. */
+  manager?: { id: number; fullName: string; email?: string | null; phone?: string | null; isActive: boolean } | null;
+  /** 'USER' = linked account; 'LEGACY_TEXT' = only a hand-typed name; null = no manager. */
+  managerSource?: "USER" | "LEGACY_TEXT" | null;
+  /** Stored hand-typed values (only present when a linked manager overlays managerName/Email/Phone). */
+  legacyManagerName?: string | null;
+  legacyManagerEmail?: string | null;
+  legacyManagerPhone?: string | null;
+  /** Users with ACCESS to this station (identity only; single-station GET only). */
+  assignedUsers?: { id: number; fullName: string; isActive: boolean }[];
   status: StationStatus;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
-  Area?: { id: number; name: string; code?: string | null; cityId?: number; City?: { id: number; name: string } | null } | null;
+  Area?: { id: number; name: string; nameAr?: string | null; code?: string | null; cityId?: number; City?: GeoCity | null } | null;
   FuelStationType?: { id: number; name: string; code?: string } | null;
   FuelTypes?: { id: number; name: string; code?: string }[];
 }
@@ -157,6 +179,10 @@ export interface CreateAdminStationBody {
   nameAr: string;
   licenseNumber?: string | null;
   stationTypeId?: number | null;
+  /** Region (منطقة) and city (مدينة): required on create, validated against `areaId`'s parents by the server. */
+  regionId?: number;
+  cityId?: number;
+  /** District (حي) — the persisted link. */
   areaId: number;
   street?: string | null;
   address?: string | null;
@@ -168,11 +194,24 @@ export interface CreateAdminStationBody {
   managerEmail?: string | null;
   managerPhone?: string | null;
   fuelTypeIds?: number[];
+  /** Retired (legacy) fuel types currently linked that the admin explicitly unchecked. */
+  releaseFuelTypeIds?: number[];
   status?: StationStatus;
   isActive?: boolean;
 }
 
-export type UpdateAdminStationBody = Partial<CreateAdminStationBody>;
+/** Eligible station manager (active, same company, Station Manager role). */
+export interface ManagerCandidate {
+  id: number;
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+}
+
+export type UpdateAdminStationBody = Partial<CreateAdminStationBody> & {
+  /** Designate (id) or clear (null) the station's linked manager. Never changes anyone's access. */
+  managerUserId?: number | null;
+};
 
 // ── Roles + Users ───────────────────────────────────────────────────────────
 export interface AdminAssignableRole {

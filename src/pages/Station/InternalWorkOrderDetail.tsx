@@ -3,7 +3,10 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, CheckCircle, XCircle, Lock } from "lucide-react";
+import { ChevronLeft, CheckCircle, XCircle, Lock, UserPlus, UserCog } from "lucide-react";
+import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import AssignWorkerDialog from "./AssignWorkerDialog";
 import { toast } from "sonner";
 import useInternalWorkOrderById from "@/hooks/Station/useInternalWorkOrderById";
 import useReviewInternalWorkOrder from "@/hooks/Station/useReviewInternalWorkOrder";
@@ -13,9 +16,12 @@ export default function InternalWorkOrderDetail() {
   const { t } = useTranslation("station");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: order, isLoading } = useInternalWorkOrderById(id ?? null);
+  const { data: order, isLoading, error } = useInternalWorkOrderById(id ?? null);
+  const forbidden = (error as { response?: { status?: number } } | null)?.response?.status === 403;
   const reviewMutation = useReviewInternalWorkOrder();
   const closeMutation = useCloseInternalWorkOrder();
+  const { hasPermission } = useAuth();
+  const [assignTarget, setAssignTarget] = useState<{ taskId: number | null; assignedUserId?: number | null; name?: string | null } | null>(null);
 
   const handleReview = (decision: "APPROVE" | "REJECT") => {
     if (!id) return;
@@ -38,6 +44,8 @@ export default function InternalWorkOrderDetail() {
 
   const canReview = order?.status === "UNDER_REVIEW";
   const canClose = order?.status !== "CLOSED";
+  const orderOpenForWork = order != null && order.status !== "CLOSED" && order.status !== "CANCELLED";
+  const canAssign = orderOpenForWork && hasPermission("internal_tasks.assign");
 
   return (
     <div className="p-4 md:p-8">
@@ -50,7 +58,9 @@ export default function InternalWorkOrderDetail() {
           <Button variant="ghost" onClick={() => navigate("/internal-work-orders")} className="mb-4">
             <ChevronLeft className="h-4 w-4 me-2 rtl:rotate-180" /> {t("back")}
           </Button>
-          <p className="text-destructive">{t("internalWorkOrders.detail.notFound")}</p>
+          <p className="text-destructive" role="alert">
+            {forbidden ? t("internalWorkOrders.detail.noAccess") : t("internalWorkOrders.detail.notFound")}
+          </p>
         </>
       ) : (
     <div className="space-y-6">
@@ -89,6 +99,11 @@ export default function InternalWorkOrderDetail() {
                 </Button>
               </>
             )}
+            {canAssign && (
+              <Button size="sm" onClick={() => setAssignTarget({ taskId: null })} className="gap-1">
+                <UserPlus className="h-4 w-4" /> {t("assignWorker.open")}
+              </Button>
+            )}
             {canClose && (
               <Button
                 size="sm"
@@ -106,6 +121,59 @@ export default function InternalWorkOrderDetail() {
           {order.description && <p className="text-sm">{order.description}</p>}
         </CardContent>
       </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("assignWorker.tasksTitle")}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {!order.tasks || order.tasks.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("assignWorker.noTasks")}</p>
+          ) : (
+            <ul className="divide-y">
+              {order.tasks.map((task) => (
+                <li key={task.id} className="flex flex-wrap items-center justify-between gap-3 py-3" data-testid="order-task">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium" dir="auto">
+                      {task.assignedUser?.fullName ?? t("assignWorker.unassigned")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      #{task.id} · <Badge variant="outline">{task.status ?? "—"}</Badge>
+                    </p>
+                  </div>
+                  {canAssign && task.status !== "CLOSED" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-1"
+                      onClick={() =>
+                        setAssignTarget({
+                          taskId: task.id,
+                          assignedUserId: task.assignedUserId ?? null,
+                          name: task.assignedUser?.fullName ?? null,
+                        })
+                      }
+                    >
+                      <UserCog className="h-4 w-4" />
+                      {task.assignedUserId ? t("assignWorker.reassign") : t("assignWorker.assign")}
+                    </Button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+      {assignTarget && (
+        <AssignWorkerDialog
+          key={assignTarget.taskId ?? "new"}
+          orderId={order.id}
+          task={assignTarget.taskId != null ? { id: assignTarget.taskId, assignedUserId: assignTarget.assignedUserId, assigneeName: assignTarget.name } : null}
+          open
+          onOpenChange={(o) => {
+            if (!o) setAssignTarget(null);
+          }}
+        />
+      )}
     </div>
       )}
     </div>

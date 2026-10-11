@@ -45,7 +45,7 @@ import ProviderRfqs from "./pages/Provider/ProviderRfqs";
 import ProviderRfqDetail from "./pages/Provider/ProviderRfqDetail";
 import ProviderJobOrders from "./pages/Provider/ProviderJobOrders";
 import ProviderJobOrderDetail from "./pages/Provider/ProviderJobOrderDetail";
-import Locations from "./pages/Locations/Locations";
+import GeographyManagement from "./pages/Geography/GeographyManagement";
 import LinkedProviders from "./pages/Station/LinkedProviders";
 import Operators from "./pages/Operators/Operators";
 
@@ -60,6 +60,8 @@ import BranchRequestDetails from "./pages/BranchRequests/BranchRequestDetails";
 import InternalWorkOrders from "./pages/Station/InternalWorkOrders";
 import InternalWorkOrdersReviewQueue from "./pages/Station/InternalWorkOrdersReviewQueue";
 import InternalWorkOrderDetail from "./pages/Station/InternalWorkOrderDetail";
+import MyTasks from "./pages/Technician/MyTasks";
+import WarehouseRequests from "./pages/Technician/WarehouseRequests";
 import StationRequests from "./pages/Station/StationRequests";
 import MaintenanceReports from "./pages/MaintenanceReports/MaintenanceReports";
 import CreateMaintenanceReport from "./pages/MaintenanceReports/CreateMaintenanceReport";
@@ -360,7 +362,7 @@ export const router = createHashRouter([
         path: "locations",
         element: (
           <RouteAccessGuard pathKey="locations">
-            <Locations />
+            <GeographyManagement />
           </RouteAccessGuard>
         ),
       },
@@ -427,6 +429,22 @@ export const router = createHashRouter([
         element: (
           <RouteAccessGuard pathKey="branch-requests/:id">
             <BranchRequestDetails />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "my-tasks",
+        element: (
+          <RouteAccessGuard pathKey="my-tasks">
+            <MyTasks />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "warehouse-requests",
+        element: (
+          <RouteAccessGuard pathKey="warehouse-requests">
+            <WarehouseRequests />
           </RouteAccessGuard>
         ),
       },

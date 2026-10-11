@@ -13,6 +13,7 @@ export function toCreateBody(v: CompanyFormValues): CreateAdminOrganizationBody 
     phone: emptyToNull(v.phone),
     address: emptyToNull(v.address),
     cityId: v.cityId ?? null,
+    ...(v.cityId != null && v.regionId != null ? { regionId: v.regionId } : {}),
     registrationNumber: emptyToNull(v.registrationNumber),
   };
 }
@@ -26,6 +27,7 @@ export function toUpdateBody(v: CompanyFormValues): UpdateAdminOrganizationBody 
     phone: emptyToNull(v.phone),
     address: emptyToNull(v.address),
     cityId: v.cityId ?? null,
+    ...(v.cityId != null && v.regionId != null ? { regionId: v.regionId } : {}),
     registrationNumber: emptyToNull(v.registrationNumber),
     rejectionReason: v.status === "REJECTED" ? emptyToNull(v.rejectionReason) : null,
   };
@@ -41,6 +43,7 @@ export function detailToFormValues(org: AdminOrganizationDetail): CompanyFormVal
     email: org.email ?? "",
     phone: org.phone ?? "",
     address: org.address ?? "",
+    regionId: org.City?.governorateId ?? null,
     cityId: org.cityId ?? null,
     rejectionReason: org.rejectionReason ?? "",
   };
