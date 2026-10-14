@@ -51,7 +51,7 @@ export default function Quotations() {
   const [webStatus, setWebStatus] = useState<QuotationsWebStatus | "">("");
   const [serviceRequestId, setServiceRequestId] = useState("");
   const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState("SAR");
   const { data: orgResponse, isLoading: orgLoading } = useGetOrganization();
   const { permissions, organization: authOrg } = useAuth();
   const organization = orgResponse?.data ?? authOrg;
@@ -99,7 +99,7 @@ export default function Quotations() {
       {
         serviceRequestId: requestIdNum,
         amount: amountNum,
-        currency: currency || "USD",
+        currency: currency || "SAR",
       },
       {
         onSuccess: () => {
@@ -107,7 +107,7 @@ export default function Quotations() {
           setIsCreateModalOpen(false);
           setServiceRequestId("");
           setAmount("");
-          setCurrency("USD");
+          setCurrency("SAR");
         },
         onError: (err) => {
           toast.error(err instanceof Error ? err.message : t("toasts.submitFailed"));
@@ -206,7 +206,7 @@ export default function Quotations() {
                         id="currency"
                         value={currency}
                         onChange={(e) => setCurrency(e.target.value)}
-                        placeholder="USD"
+                        placeholder="SAR"
                         required
                       />
                     </div>

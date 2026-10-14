@@ -30,12 +30,12 @@ export default function EditServiceOfferingDialog({
   const { t } = useTranslation("serviceOfferings");
   const updateMutation = useUpdateServiceOffering();
   const [amount, setAmount] = useState("");
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState("SAR");
 
   useEffect(() => {
     if (!offering) return;
     setAmount(String(offering.amount));
-    setCurrency(offering.currency || "USD");
+    setCurrency(offering.currency || "SAR");
   }, [offering]);
 
   const handleUpdate = () => {
