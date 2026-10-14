@@ -171,7 +171,9 @@
       "awaitingPaymentReceipt": "بانتظار استلام الدفع",
       "activeVisits": "الزيارات النشطة",
       "awaitingCompletionReport": "بانتظار الإنجاز/التقرير",
-      "completedJobs": "المهام المكتملة"
+      "completedJobs": "المهام المكتملة",
+      "awaitingMyQuote": "بانتظار عرض سعرك",
+      "draftQuotes": "مسودات عروض الأسعار"
     },
     "charts": {
       "requestsReceivedOverTime": "الطلبات الواردة عبر الزمن",
@@ -188,8 +190,16 @@
       "manageServices": "إدارة الخدمات",
       "addEmployee": "إضافة موظف/فني",
       "activeJobs": "المهام النشطة",
-      "paymentConfirmations": "تأكيدات الدفع"
-    }
+      "paymentConfirmations": "تأكيدات الدفع",
+      "draftQuotes": "إكمال مسودات عروض الأسعار"
+    },
+    "unavailable": "غير متاح حاليًا",
+    "partial_zero": "تعذّر تحميل {{count}} من الأرقام.",
+    "partial_one": "تعذّر تحميل رقم واحد وهو معروض كغير متاح.",
+    "partial_two": "تعذّر تحميل رقمين وهما معروضان كغير متاحين.",
+    "partial_few": "تعذّر تحميل {{count}} أرقام وهي معروضة كغير متاحة.",
+    "partial_many": "تعذّر تحميل {{count}} رقمًا وهي معروضة كغير متاحة.",
+    "partial_other": "تعذّر تحميل {{count}} رقم وهي معروضة كغير متاحة."
   },
   "recent": {
     "organizations": "أحدث المنظمات",

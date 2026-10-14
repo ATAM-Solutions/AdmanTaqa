@@ -1,0 +1,55 @@
+{
+  "title": "Payment schedule",
+  "loading": "Loading…",
+  "loadFailed": "Could not load the payment schedule.",
+  "empty": "This job has no payment schedule.",
+  "saved": "Saved.",
+  "currencyUnknown": "currency not recorded",
+  "reference": "Reference",
+  "openReceipt": "Open receipt",
+  "referenceNumber": "Transfer reference",
+  "receipt": "Receipt (image / PDF)",
+  "reportSent": "Report payment sent",
+  "confirmReceived": "Confirm payment received",
+  "evidenceHint": "A reference number or a receipt is required.",
+  "stage": {
+    "DUE_LATER": "Not due yet",
+    "AWAITING_REPORT": "Awaiting payment report",
+    "AWAITING_RECEIPT_CONFIRMATION": "Awaiting provider confirmation",
+    "SETTLED": "Settled",
+    "DISPUTED": "Disputed"
+  },
+  "stageHint": {
+    "DUE_LATER": "This installment becomes payable later in the job.",
+    "AWAITING_REPORT": "The station reports the payment once it is sent.",
+    "AWAITING_RECEIPT_CONFIRMATION": "Waiting for the provider to confirm receipt.",
+    "DISPUTED": "This installment is disputed."
+  },
+  "trigger": {
+    "ON_APPROVAL": "On approval",
+    "ON_JOB_START": "On job start",
+    "ON_COMPLETION_SUBMITTED": "When completion is submitted",
+    "ON_JOB_CLOSED": "When the job is closed"
+  },
+  "why": {
+    "WRONG_ACTOR": "Only the other party can take this step.",
+    "MILESTONE_NOT_DUE": "Not due yet — this installment becomes payable later in the job.",
+    "MILESTONE_SEQUENCE_BLOCKED": "An earlier installment must be settled first.",
+    "MILESTONE_ALREADY_SENT": "Already reported — waiting for the provider to confirm receipt.",
+    "MILESTONE_ALREADY_CONFIRMED": "Already settled.",
+    "MILESTONE_DISPUTED": "This installment is disputed.",
+    "PAYMENT_NOT_SENT_YET": "The station has not reported this payment yet."
+  },
+  "errors": {
+    "generic": "The action could not be completed.",
+    "PAYMENT_EVIDENCE_REQUIRED": "Enter a transfer reference or attach a receipt.",
+    "MILESTONE_NOT_DUE": "This installment is not due yet.",
+    "MILESTONE_SEQUENCE_BLOCKED": "An earlier installment must be settled first.",
+    "MILESTONE_ALREADY_SENT": "This payment was already reported. The page was refreshed.",
+    "MILESTONE_ALREADY_CONFIRMED": "This payment was already confirmed. The page was refreshed.",
+    "MILESTONE_DISPUTED": "This installment is disputed.",
+    "PAYMENT_NOT_SENT_YET": "The station has not reported this payment yet.",
+    "UNSAFE_MEDIA_URL": "The receipt link is not valid.",
+    "INSUFFICIENT_PERMISSIONS": "You do not have permission for this action."
+  }
+}

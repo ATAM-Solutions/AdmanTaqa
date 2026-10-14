@@ -5,8 +5,21 @@
     "titleLabel": "Title",
     "titlePlaceholder": "Search by title...",
     "priorityLabel": "Priority",
-    "priorityOptions": { "all": "All", "high": "High", "medium": "Medium", "low": "Low" },
-    "table": { "title": "Title", "priority": "Priority", "branch": "Branch", "organization": "Organization", "area": "Area", "created": "Created", "actions": "Actions" },
+    "priorityOptions": {
+      "all": "All",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "table": {
+      "title": "Title",
+      "priority": "Priority",
+      "branch": "Branch",
+      "organization": "Organization",
+      "area": "Area",
+      "created": "Created",
+      "actions": "Actions"
+    },
     "branchFallback": "Branch {{id}}",
     "loading": "Loading...",
     "empty": "No RFQs.",
@@ -37,7 +50,13 @@
     "empty": "No job orders.",
     "emptyHint": "Job orders appear here when the station selects your quote and confirms payment. Make sure you are logged in with the <strong>service provider organization</strong> that owns the selected quote, not the station account.",
     "emptyAwaitingPayment": "No job orders currently awaiting payment confirmation. AWAITING_PAYMENT orders appear when the station selects your quote and confirms payment — then open \"View\" to find the \"Confirm payment received\" block.",
-    "table": { "status": "Status", "title": "Title", "priority": "Priority", "description": "Description", "actions": "Actions" },
+    "table": {
+      "status": "Status",
+      "title": "Title",
+      "priority": "Priority",
+      "description": "Description",
+      "actions": "Actions"
+    },
     "view": "View",
     "awaitingPaymentHint": "To find an order in <strong>AWAITING_PAYMENT</strong> (payment confirmation): use the \"AWAITING_PAYMENT\" filter or open View on the order to see the confirm payment received section on the detail page.",
     "previous": "Previous",
@@ -65,7 +84,12 @@
     "noQuotesYet": "No quotes yet.",
     "pricingDetails": "Pricing details",
     "paymentTermsInstallments": "Payment terms (installments)",
-    "table": { "sequence": "#", "percent": "Percent", "whenDue": "When due", "attachments": "Attachments" },
+    "table": {
+      "sequence": "#",
+      "percent": "Percent",
+      "whenDue": "When due",
+      "attachments": "Attachments"
+    },
     "noPaymentTerms": "No payment terms",
     "fields": {
       "amount": "Amount",
@@ -78,7 +102,12 @@
       "notes": "Notes"
     },
     "validUntil": "Valid until {{date}}",
-    "status": { "rejected": "Rejected", "withdrawn": "Withdrawn", "accepted": "Accepted", "selected": "Selected" },
+    "status": {
+      "rejected": "Rejected",
+      "withdrawn": "Withdrawn",
+      "accepted": "Accepted",
+      "selected": "Selected"
+    },
     "attachment": "Attachment",
     "installmentsInfo_one": "Payment is made in {{count}} installment. The fuel station confirms \"payment sent\" for each milestone; you then confirm \"received\" (or reject with a reason). Until both confirm, the job stays in AWAITING_PAYMENT.",
     "installmentsInfo_other": "Payment is made in {{count}} installments. The fuel station confirms \"payment sent\" for each milestone; you then confirm \"received\" (or reject with a reason). Until both confirm, the job stays in AWAITING_PAYMENT.",
@@ -115,5 +144,53 @@
     "actionsTaken": "Actions taken:",
     "recommendations": "Recommendations:",
     "checklist": "Checklist"
+  },
+  "quoteForm": {
+    "title": "Submit a quotation",
+    "submit": "Submit quotation",
+    "submitted": "Quotation submitted.",
+    "loading": "Loading…",
+    "chooseCurrency": "Choose a currency",
+    "currenciesFailed": "Could not load the currency list.",
+    "retry": "Retry",
+    "attach": "Attach files (PDF / images)",
+    "removeFile": "Remove file",
+    "closed": "This request is no longer open for quotations.",
+    "alreadyExists": "Your company has already submitted a quotation for this request.",
+    "unavailable": "A quotation cannot be submitted for this request.",
+    "draftTitle": "Your draft quotation",
+    "draftHint": "Add attachments if needed, then submit the quotation to the station.",
+    "submitDraft": "Submit quotation",
+    "fields": {
+      "amount": "Total amount",
+      "currency": "Currency",
+      "laborCost": "Labor cost",
+      "materialCost": "Materials cost",
+      "timeline": "Duration",
+      "warranty": "Warranty",
+      "scopeOfWork": "Scope of work",
+      "technicalProposal": "Technical offer",
+      "notes": "Notes"
+    },
+    "terms": {
+      "title": "Payment schedule",
+      "percent": "Percent",
+      "when": "Due when",
+      "add": "Add installment",
+      "remove": "Remove installment",
+      "sum": "Total: {{sum}}% (must be 100%)"
+    },
+    "errors": {
+      "generic": "The quotation could not be submitted.",
+      "QUOTING_CLOSED": "This request is no longer open for quotations.",
+      "QUOTE_ALREADY_EXISTS": "Your company already has a quotation for this request.",
+      "RFQ_NOT_ASSIGNED": "This request was not sent to your company.",
+      "CURRENCY_UNSUPPORTED": "The selected currency is not supported.",
+      "CURRENCY_REQUIRED": "Choose a currency.",
+      "QUOTE_PRICING_INVALID": "Check these fields: {{fields}}.",
+      "QUOTE_NOT_DRAFT": "This quotation was already submitted.",
+      "QUOTE_ATTACHMENT_LIMIT": "Too many attachments."
+    },
+    "noAttachments": "No attachments yet."
   }
 }

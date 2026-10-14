@@ -1,0 +1,153 @@
+{
+  "back": "Back",
+  "loading": "Loading…",
+  "loadFailed": "Could not load this request.",
+  "notFound": "This request was not found.",
+  "noAccess": "You do not have access to this request.",
+  "request": "Warehouse request #{{id}}",
+  "activity": "Activity",
+  "noActivity": "No activity yet.",
+  "actionsTitle": "Actions",
+  "chooseWarehouse": "Choose the warehouse for this request",
+  "chooseWarehousePlaceholder": "Select a warehouse",
+  "warehousesUnavailable": "The warehouse list could not be loaded.",
+  "rejectReason": "Reason for rejection",
+  "status": {
+    "DRAFT": "Draft",
+    "SUBMITTED": "Submitted",
+    "MAINTENANCE_APPROVED": "Maintenance approved",
+    "UNDER_REVIEW": "Under warehouse review",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "ISSUED": "Issued",
+    "DELIVERED": "Delivered",
+    "PARTIAL_RETURN": "Partial return",
+    "RETURN_SUBMITTED": "Return submitted",
+    "WAREHOUSE_CONFIRMATION": "Awaiting warehouse confirmation",
+    "RETURNED": "Returned",
+    "CLOSED": "Closed",
+    "CANCELLED": "Cancelled"
+  },
+  "fields": {
+    "station": "Station",
+    "warehouse": "Warehouse",
+    "notChosen": "Not chosen yet",
+    "requestedBy": "Requested by",
+    "notes": "Notes",
+    "rejectionReason": "Rejection reason"
+  },
+  "actors": {
+    "REQUESTER": "the requester (technician)",
+    "MAINTENANCE_MANAGER": "the Maintenance Manager",
+    "WAREHOUSE_MANAGER": "the Warehouse Manager",
+    "TECHNICIAN": "the technician",
+    "NONE": "nobody"
+  },
+  "nextStep": {
+    "title": "Next step"
+  },
+  "actions": {
+    "submit": "Submit request",
+    "maintenanceApprove": "Maintenance approval",
+    "review": "Start warehouse review",
+    "approve": "Approve",
+    "reject": "Reject",
+    "issue": "Issue parts",
+    "deliver": "Confirm delivery",
+    "submitReturn": "Send return to warehouse",
+    "acknowledgeReturn": "Acknowledge return",
+    "confirmReturn": "Confirm returned parts",
+    "close": "Close request",
+    "cancel": "Cancel request"
+  },
+  "reasons": {
+    "WRONG_STATE": "Not available now — {{actor}} acts at this stage.",
+    "MISSING_PERMISSION": "You do not have permission for this step.",
+    "NOT_REQUESTER": "Only the person who raised the request can do this.",
+    "ORDER_HAS_NO_ITEMS": "The request has no items yet — add at least one part first.",
+    "ORDER_WAREHOUSE_NOT_SET": "No warehouse is set for this request.",
+    "ORDER_FINISHED": "This request is finished.",
+    "ITEM_NOT_MAPPED": "Map every approved line to an inventory item first."
+  },
+  "items": {
+    "title": "Requested parts",
+    "part": "Part",
+    "qty": "Quantity",
+    "approved": "Approved",
+    "issued": "Issued",
+    "status": "Status",
+    "empty": "This request has no items.",
+    "emptyDraft": "This draft has no parts yet. The technician adds the needed parts and submits it; it cannot be approved while empty.",
+    "add": "Add part",
+    "remove": "Remove",
+    "save": "Save parts",
+    "cancelEdit": "Cancel",
+    "edit": "Edit parts"
+  },
+  "return": {
+    "title": "Return unused parts",
+    "record": "Record return"
+  },
+  "errors": {
+    "generic": "The action could not be completed.",
+    "ORDER_STATUS_TRANSITION_INVALID": "This step is not available for the request's current state. The page was refreshed.",
+    "ORDER_NOT_EDITABLE": "Parts can only be edited while the request is a draft.",
+    "ORDER_HAS_NO_ITEMS": "The request has no items.",
+    "ORDER_NOT_REQUESTER": "Only the requester can edit the parts.",
+    "ITEM_WAREHOUSE_MISMATCH": "A selected part is stocked in a different warehouse or station.",
+    "ITEM_NOT_FOUND": "A selected part was not found in your inventory.",
+    "INSUFFICIENT_STOCK": "There is not enough stock to issue this request.",
+    "WAREHOUSE_BRANCH_MISMATCH": "That warehouse belongs to another station.",
+    "WAREHOUSE_SELECTION_REQUIRED": "More than one warehouse can serve this request. Choose one.",
+    "NO_WAREHOUSE_AVAILABLE": "No warehouse is available for this station. Ask an administrator to create one.",
+    "ORDER_WAREHOUSE_NOT_SET": "This request has no warehouse.",
+    "BRANCH_ACCESS_DENIED": "You do not have access to this station.",
+    "ITEM_NOT_MAPPED": "Every approved line must be mapped to an inventory item before issuing.",
+    "ORDER_NOT_MAPPABLE": "Lines can only be mapped during warehouse review or after approval.",
+    "REQUESTED_ITEM_INVALID": "One of the requested parts is not valid for your company."
+  },
+  "inventory": {
+    "title": "Inventory",
+    "subtitle": "Parts stocked in your warehouses.",
+    "warehouse": "Warehouse",
+    "choose": "Choose a warehouse",
+    "chooseHint": "Choose a warehouse to see its stock.",
+    "companyLevel": "Company level",
+    "stock": "Stock",
+    "code": "Code",
+    "empty": "This warehouse has no parts yet.",
+    "noPermission": "You do not have permission to view warehouses.",
+    "stockForbidden": "You do not have access to this warehouse's stock.",
+    "loadFailed": "Could not load inventory.",
+    "noWarehouseCompany": "Your company has no warehouse yet. A company administrator can create one.",
+    "noWarehouseLimited": "No warehouse is available for your stations. Company-level warehouses are visible to company-wide users only.",
+    "limitedNote": "You see the warehouses of your own stations only.",
+    "added": "Part added.",
+    "addItem": "Add part",
+    "cannotAdd": "You are not allowed to add parts. Ask the company owner to enable it for you."
+  },
+  "capability": {
+    "title": "Can add inventory items",
+    "description": "Allow this person — and only this person — to add parts to the warehouses they can access. Their role and other users on the same role are not changed.",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "enable": "Enable for this person",
+    "disable": "Disable for this person",
+    "reset": "Back to role default",
+    "saved": "Saved.",
+    "loadFailed": "Could not load this setting.",
+    "source": {
+      "role": "given by the person's role",
+      "grant": "enabled by the owner for this person",
+      "deny": "disabled by the owner for this person",
+      "none": "not part of the person's role"
+    }
+  },
+  "mapping": {
+    "title": "Map lines to inventory",
+    "hint": "Stock is only issued against catalogue items. Choose the inventory item for each free-text line.",
+    "choose": "Choose an item",
+    "map": "Map",
+    "catalogueFailed": "Could not load this warehouse's items."
+  }
+}

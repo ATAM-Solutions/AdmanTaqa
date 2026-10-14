@@ -57,5 +57,6 @@
   },
   "maintenanceReports": "Maintenance reports",
   "myTasks": "My tasks",
-  "warehouseRequests": "Warehouse requests"
+  "warehouseRequests": "Warehouse requests",
+  "warehouseInventory": "Inventory"
 }

@@ -5,8 +5,21 @@
     "titleLabel": "العنوان",
     "titlePlaceholder": "ابحث حسب العنوان...",
     "priorityLabel": "الأولوية",
-    "priorityOptions": { "all": "الكل", "high": "عالية", "medium": "متوسطة", "low": "منخفضة" },
-    "table": { "title": "العنوان", "priority": "الأولوية", "branch": "الفرع", "organization": "المنظمة", "area": "المنطقة", "created": "تاريخ الإنشاء", "actions": "الإجراءات" },
+    "priorityOptions": {
+      "all": "الكل",
+      "high": "عالية",
+      "medium": "متوسطة",
+      "low": "منخفضة"
+    },
+    "table": {
+      "title": "العنوان",
+      "priority": "الأولوية",
+      "branch": "الفرع",
+      "organization": "المنظمة",
+      "area": "المنطقة",
+      "created": "تاريخ الإنشاء",
+      "actions": "الإجراءات"
+    },
     "branchFallback": "الفرع {{id}}",
     "loading": "جارٍ التحميل...",
     "empty": "لا توجد طلبات عروض أسعار.",
@@ -37,7 +50,13 @@
     "empty": "لا توجد أوامر عمل.",
     "emptyHint": "تظهر أوامر العمل هنا عندما تختار المحطة عرضك وتؤكد الدفع. تأكد من تسجيل الدخول باستخدام <strong>منظمة مزود الخدمة</strong> المالكة للعرض المختار، وليس حساب المحطة.",
     "emptyAwaitingPayment": "لا توجد أوامر عمل حاليًا بانتظار تأكيد الدفع. تظهر أوامر AWAITING_PAYMENT عندما تختار المحطة عرضك وتؤكد الدفع — ثم افتح \"عرض\" للعثور على قسم \"تأكيد استلام الدفع\".",
-    "table": { "status": "الحالة", "title": "العنوان", "priority": "الأولوية", "description": "الوصف", "actions": "الإجراءات" },
+    "table": {
+      "status": "الحالة",
+      "title": "العنوان",
+      "priority": "الأولوية",
+      "description": "الوصف",
+      "actions": "الإجراءات"
+    },
     "view": "عرض",
     "awaitingPaymentHint": "للعثور على أمر بحالة <strong>AWAITING_PAYMENT</strong> (تأكيد الدفع): استخدم عامل تصفية \"AWAITING_PAYMENT\" أو افتح عرض على الأمر لرؤية قسم تأكيد استلام الدفع في صفحة التفاصيل.",
     "previous": "السابق",
@@ -65,7 +84,12 @@
     "noQuotesYet": "لا توجد عروض بعد.",
     "pricingDetails": "تفاصيل التسعير",
     "paymentTermsInstallments": "شروط الدفع (الأقساط)",
-    "table": { "sequence": "#", "percent": "النسبة", "whenDue": "تاريخ الاستحقاق", "attachments": "المرفقات" },
+    "table": {
+      "sequence": "#",
+      "percent": "النسبة",
+      "whenDue": "تاريخ الاستحقاق",
+      "attachments": "المرفقات"
+    },
     "noPaymentTerms": "لا توجد شروط دفع",
     "fields": {
       "amount": "المبلغ",
@@ -78,7 +102,12 @@
       "notes": "ملاحظات"
     },
     "validUntil": "صالح حتى {{date}}",
-    "status": { "rejected": "مرفوض", "withdrawn": "مسحوب", "accepted": "مقبول", "selected": "مختار" },
+    "status": {
+      "rejected": "مرفوض",
+      "withdrawn": "مسحوب",
+      "accepted": "مقبول",
+      "selected": "مختار"
+    },
     "attachment": "مرفق",
     "installmentsInfo_one": "يتم الدفع على قسط واحد. تؤكد المحطة \"تم إرسال الدفع\" لكل مرحلة؛ ثم تؤكد أنت \"تم الاستلام\" (أو ترفض مع ذكر السبب). إلى أن يؤكد الطرفان، يبقى الأمر بحالة AWAITING_PAYMENT.",
     "installmentsInfo_other": "يتم الدفع على {{count}} أقساط. تؤكد المحطة \"تم إرسال الدفع\" لكل مرحلة؛ ثم تؤكد أنت \"تم الاستلام\" (أو ترفض مع ذكر السبب). إلى أن يؤكد الطرفان، يبقى الأمر بحالة AWAITING_PAYMENT.",
@@ -115,5 +144,53 @@
     "actionsTaken": "الإجراءات المتخذة:",
     "recommendations": "التوصيات:",
     "checklist": "قائمة التحقق"
+  },
+  "quoteForm": {
+    "title": "تقديم عرض سعر",
+    "submit": "تقديم عرض السعر",
+    "submitted": "تم تقديم عرض السعر.",
+    "loading": "جارٍ التحميل…",
+    "chooseCurrency": "اختر العملة",
+    "currenciesFailed": "تعذّر تحميل قائمة العملات.",
+    "retry": "إعادة المحاولة",
+    "attach": "إرفاق ملفات (PDF / صور)",
+    "removeFile": "إزالة الملف",
+    "closed": "لم يعد هذا الطلب مفتوحاً لعروض الأسعار.",
+    "alreadyExists": "لقد قدّمت شركتك عرض سعر لهذا الطلب بالفعل.",
+    "unavailable": "لا يمكن تقديم عرض سعر لهذا الطلب.",
+    "draftTitle": "مسودة عرض السعر",
+    "draftHint": "أضف المرفقات عند الحاجة ثم قدّم عرض السعر للمحطة.",
+    "submitDraft": "تقديم عرض السعر",
+    "fields": {
+      "amount": "المبلغ الإجمالي",
+      "currency": "العملة",
+      "laborCost": "تكلفة العمالة",
+      "materialCost": "تكلفة المواد",
+      "timeline": "المدة الزمنية",
+      "warranty": "الضمان",
+      "scopeOfWork": "نطاق العمل",
+      "technicalProposal": "العرض الفني",
+      "notes": "ملاحظات"
+    },
+    "terms": {
+      "title": "جدول الدفع",
+      "percent": "النسبة",
+      "when": "موعد الاستحقاق",
+      "add": "إضافة دفعة",
+      "remove": "إزالة الدفعة",
+      "sum": "المجموع: {{sum}}% (يجب أن يكون 100%)"
+    },
+    "errors": {
+      "generic": "تعذّر تقديم عرض السعر.",
+      "QUOTING_CLOSED": "لم يعد هذا الطلب مفتوحاً لعروض الأسعار.",
+      "QUOTE_ALREADY_EXISTS": "لدى شركتك عرض سعر لهذا الطلب بالفعل.",
+      "RFQ_NOT_ASSIGNED": "لم يُرسل هذا الطلب إلى شركتك.",
+      "CURRENCY_UNSUPPORTED": "العملة المختارة غير مدعومة.",
+      "CURRENCY_REQUIRED": "اختر العملة.",
+      "QUOTE_PRICING_INVALID": "تحقق من هذه الحقول: {{fields}}.",
+      "QUOTE_NOT_DRAFT": "تم تقديم عرض السعر بالفعل.",
+      "QUOTE_ATTACHMENT_LIMIT": "عدد المرفقات كبير جداً."
+    },
+    "noAttachments": "لا توجد مرفقات بعد."
   }
 }

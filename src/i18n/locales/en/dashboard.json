@@ -171,7 +171,9 @@
       "awaitingPaymentReceipt": "Awaiting Payment Receipt",
       "activeVisits": "Active Visits",
       "awaitingCompletionReport": "Awaiting Completion/Report",
-      "completedJobs": "Completed Jobs"
+      "completedJobs": "Completed Jobs",
+      "awaitingMyQuote": "Awaiting your quote",
+      "draftQuotes": "Draft quotations"
     },
     "charts": {
       "requestsReceivedOverTime": "Requests Received Over Time",
@@ -188,8 +190,12 @@
       "manageServices": "Manage Services",
       "addEmployee": "Add Employee/Operator",
       "activeJobs": "Active Jobs",
-      "paymentConfirmations": "Payment Confirmations"
-    }
+      "paymentConfirmations": "Payment Confirmations",
+      "draftQuotes": "Finish draft quotations"
+    },
+    "unavailable": "Unavailable right now",
+    "partial_one": "{{count}} figure could not be loaded and is shown as unavailable.",
+    "partial_other": "{{count}} figures could not be loaded and are shown as unavailable."
   },
   "recent": {
     "organizations": "Latest Organizations",

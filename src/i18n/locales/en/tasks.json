@@ -1,0 +1,102 @@
+{
+  "back": "Back",
+  "loading": "Loading…",
+  "loadFailed": "Could not load this task.",
+  "notFound": "This task was not found.",
+  "noAccess": "You do not have access to this task.",
+  "untitled": "Task #{{id}}",
+  "status": {
+    "PENDING_ASSIGNMENT": "Pending assignment",
+    "ASSIGNED": "Assigned",
+    "ACCEPTED": "Accepted",
+    "IN_PROGRESS": "In progress (on site)",
+    "INSPECTING": "Inspecting",
+    "PAUSED": "Paused",
+    "WAITING_PARTS": "Waiting for parts",
+    "PENDING_APPROVAL": "Awaiting manager approval",
+    "UNDER_REVIEW": "Under review",
+    "COMPLETED": "Work completed",
+    "RETURNING_MATERIALS": "Returning materials",
+    "CLOSED": "Closed"
+  },
+  "fields": {
+    "station": "Station",
+    "assignee": "Assigned technician",
+    "assignedBy": "Assigned by",
+    "order": "Work order",
+    "notes": "Notes",
+    "completionReport": "Completion report",
+    "reopenReason": "Reason it was sent back",
+    "none": "—"
+  },
+  "fieldLabels": {
+    "inspectionNotes": "Inspection notes",
+    "message": "Which parts are needed?",
+    "completionReport": "Completion report",
+    "returnReportProblem": "Problem found",
+    "returnReportWorkPerformed": "Work performed"
+  },
+  "progress": {
+    "title": "Progress",
+    "unavailable": "Progress is not available for this task.",
+    "awaitingApproval": "Awaiting manager approval",
+    "noRecord": "No record",
+    "inProgress": "Now",
+    "pendingBanner": "Waiting for the manager to approve “{{stage}}”. The task stays at its current stage until then.",
+    "pendingBannerGeneric": "Waiting for the manager's approval.",
+    "substate": "Current state: {{status}}",
+    "stages": {
+      "assigned": "Assigned",
+      "accepted": "Accepted",
+      "on_site": "On site",
+      "parts": "Spare parts",
+      "completed": "Work completed",
+      "under_review": "Under review",
+      "closed": "Closed"
+    }
+  },
+  "actions": {
+    "title": "Actions",
+    "waitingManager": "Your update was sent and is waiting for the manager's approval.",
+    "accept": "Accept task",
+    "arrive": "I arrived on site / start work",
+    "inspect": "Record inspection",
+    "inspectSubmit": "Send inspection",
+    "parts": "Request spare parts",
+    "partsSubmit": "Send parts request",
+    "pause": "Pause",
+    "resume": "Resume work",
+    "complete": "Mark work completed",
+    "completeSubmit": "Send completion",
+    "submitReview": "Submit for review",
+    "returnMaterials": "Return materials",
+    "returnMaterialsSubmit": "Send return report"
+  },
+  "review": {
+    "pendingPrompt": "The technician asked to move this task to “{{stage}}”. Approve or reject the update.",
+    "submittedPrompt": "The technician submitted this task for review.",
+    "alreadyApproved": "This task was already approved.",
+    "note": "Note (optional)",
+    "approve": "Approve",
+    "reject": "Reject"
+  },
+  "attachments": {
+    "title": "Attachments",
+    "add": "Add attachment",
+    "empty": "No attachments have been added yet."
+  },
+  "activity": {
+    "title": "Activity",
+    "empty": "No activity has been recorded yet."
+  },
+  "errors": {
+    "generic": "The action could not be completed.",
+    "TASK_ALREADY_APPROVED": "This task was already approved. The page was refreshed.",
+    "TASK_NOT_PENDING_APPROVAL": "Someone already decided on this update. The page was refreshed.",
+    "TASK_NOT_REVIEWABLE": "This task is no longer waiting for review. The page was refreshed.",
+    "TASK_ALREADY_CLOSED": "This task is already closed.",
+    "BRANCH_ACCESS_DENIED": "You do not have access to this station.",
+    "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this."
+  },
+  "open": "Open task"
+}

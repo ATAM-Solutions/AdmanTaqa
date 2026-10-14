@@ -43,7 +43,10 @@
     "stationsRetry": "Retry",
     "stationsEmpty": "No stations are available. Contact your administrator.",
     "stationsHint": "Select the stations this user may work with. If you select none, the user gets company-wide access to ALL stations.",
-    "stationsNoneWarning": "No station selected: the new user will have company-wide access to every station."
+    "stationsNoneWarning": "No station selected: the new user will have company-wide access to every station.",
+    "allStations": "Access to all company stations",
+    "allStationsHint": "A Warehouse Manager serves every station, so no station selection is needed. The account is company-wide and automatically covers stations added later.",
+    "limitedCreatorHint": "You can only give this role the stations you manage. Choose at least one."
   },
   "editDialog": {
     "title": "Edit User",

@@ -1,0 +1,55 @@
+{
+  "title": "جدول الدفع",
+  "loading": "جارٍ التحميل…",
+  "loadFailed": "تعذّر تحميل جدول الدفع.",
+  "empty": "لا يوجد جدول دفع لهذا العمل.",
+  "saved": "تم الحفظ.",
+  "currencyUnknown": "العملة غير مسجّلة",
+  "reference": "المرجع",
+  "openReceipt": "فتح الإيصال",
+  "referenceNumber": "رقم مرجع التحويل",
+  "receipt": "الإيصال (صورة / PDF)",
+  "reportSent": "الإبلاغ بإرسال الدفعة",
+  "confirmReceived": "تأكيد استلام الدفعة",
+  "evidenceHint": "يلزم رقم مرجع أو إيصال.",
+  "stage": {
+    "DUE_LATER": "لم يحن موعدها",
+    "AWAITING_REPORT": "بانتظار الإبلاغ بالدفع",
+    "AWAITING_RECEIPT_CONFIRMATION": "بانتظار تأكيد المزود",
+    "SETTLED": "تمت التسوية",
+    "DISPUTED": "محل نزاع"
+  },
+  "stageHint": {
+    "DUE_LATER": "تصبح هذه الدفعة مستحقة لاحقاً أثناء العمل.",
+    "AWAITING_REPORT": "تبلّغ المحطة بالدفع عند إرساله.",
+    "AWAITING_RECEIPT_CONFIRMATION": "بانتظار تأكيد المزود للاستلام.",
+    "DISPUTED": "هذه الدفعة محل نزاع."
+  },
+  "trigger": {
+    "ON_APPROVAL": "عند الموافقة",
+    "ON_JOB_START": "عند بدء العمل",
+    "ON_COMPLETION_SUBMITTED": "عند تسليم الإنجاز",
+    "ON_JOB_CLOSED": "عند إغلاق العمل"
+  },
+  "why": {
+    "WRONG_ACTOR": "هذه الخطوة للطرف الآخر فقط.",
+    "MILESTONE_NOT_DUE": "لم يحن موعدها بعد — تصبح الدفعة مستحقة لاحقاً أثناء العمل.",
+    "MILESTONE_SEQUENCE_BLOCKED": "يجب تسوية الدفعة السابقة أولاً.",
+    "MILESTONE_ALREADY_SENT": "تم الإبلاغ بالفعل — بانتظار تأكيد المزود للاستلام.",
+    "MILESTONE_ALREADY_CONFIRMED": "تمت التسوية بالفعل.",
+    "MILESTONE_DISPUTED": "هذه الدفعة محل نزاع.",
+    "PAYMENT_NOT_SENT_YET": "لم تُبلّغ المحطة بهذه الدفعة بعد."
+  },
+  "errors": {
+    "generic": "تعذّر تنفيذ الإجراء.",
+    "PAYMENT_EVIDENCE_REQUIRED": "أدخل رقم مرجع التحويل أو أرفق إيصالاً.",
+    "MILESTONE_NOT_DUE": "لم يحن موعد هذه الدفعة بعد.",
+    "MILESTONE_SEQUENCE_BLOCKED": "يجب تسوية الدفعة السابقة أولاً.",
+    "MILESTONE_ALREADY_SENT": "تم الإبلاغ عن هذه الدفعة بالفعل. تم تحديث الصفحة.",
+    "MILESTONE_ALREADY_CONFIRMED": "تم تأكيد هذه الدفعة بالفعل. تم تحديث الصفحة.",
+    "MILESTONE_DISPUTED": "هذه الدفعة محل نزاع.",
+    "PAYMENT_NOT_SENT_YET": "لم تُبلّغ المحطة بهذه الدفعة بعد.",
+    "UNSAFE_MEDIA_URL": "رابط الإيصال غير صالح.",
+    "INSUFFICIENT_PERMISSIONS": "ليست لديك صلاحية لهذا الإجراء."
+  }
+}

@@ -1,0 +1,102 @@
+{
+  "back": "رجوع",
+  "loading": "جارٍ التحميل…",
+  "loadFailed": "تعذّر تحميل هذه المهمة.",
+  "notFound": "لم يتم العثور على هذه المهمة.",
+  "noAccess": "ليس لديك صلاحية الوصول إلى هذه المهمة.",
+  "untitled": "مهمة #{{id}}",
+  "status": {
+    "PENDING_ASSIGNMENT": "بانتظار الإسناد",
+    "ASSIGNED": "مُسندة",
+    "ACCEPTED": "مقبولة",
+    "IN_PROGRESS": "قيد التنفيذ (في الموقع)",
+    "INSPECTING": "قيد المعاينة",
+    "PAUSED": "متوقفة مؤقتاً",
+    "WAITING_PARTS": "بانتظار قطع الغيار",
+    "PENDING_APPROVAL": "بانتظار موافقة المدير",
+    "UNDER_REVIEW": "قيد المراجعة",
+    "COMPLETED": "اكتمل العمل",
+    "RETURNING_MATERIALS": "إرجاع المواد",
+    "CLOSED": "مغلقة"
+  },
+  "fields": {
+    "station": "المحطة",
+    "assignee": "الفني المسؤول",
+    "assignedBy": "أُسندت بواسطة",
+    "order": "أمر العمل",
+    "notes": "ملاحظات",
+    "completionReport": "تقرير الإنجاز",
+    "reopenReason": "سبب إعادتها",
+    "none": "—"
+  },
+  "fieldLabels": {
+    "inspectionNotes": "ملاحظات المعاينة",
+    "message": "ما هي القطع المطلوبة؟",
+    "completionReport": "تقرير الإنجاز",
+    "returnReportProblem": "المشكلة التي وُجدت",
+    "returnReportWorkPerformed": "العمل المنفّذ"
+  },
+  "progress": {
+    "title": "التقدّم",
+    "unavailable": "التقدّم غير متاح لهذه المهمة.",
+    "awaitingApproval": "بانتظار موافقة المدير",
+    "noRecord": "لا يوجد سجل",
+    "inProgress": "الآن",
+    "pendingBanner": "بانتظار موافقة المدير على «{{stage}}». تبقى المهمة في مرحلتها الحالية حتى ذلك الحين.",
+    "pendingBannerGeneric": "بانتظار موافقة المدير.",
+    "substate": "الحالة الحالية: {{status}}",
+    "stages": {
+      "assigned": "مُسندة",
+      "accepted": "مقبولة",
+      "on_site": "في الموقع",
+      "parts": "قطع الغيار",
+      "completed": "اكتمل العمل",
+      "under_review": "قيد المراجعة",
+      "closed": "مغلقة"
+    }
+  },
+  "actions": {
+    "title": "الإجراءات",
+    "waitingManager": "تم إرسال تحديثك وهو بانتظار موافقة المدير.",
+    "accept": "قبول المهمة",
+    "arrive": "وصلت إلى الموقع / بدء العمل",
+    "inspect": "تسجيل المعاينة",
+    "inspectSubmit": "إرسال المعاينة",
+    "parts": "طلب قطع غيار",
+    "partsSubmit": "إرسال طلب القطع",
+    "pause": "إيقاف مؤقت",
+    "resume": "استئناف العمل",
+    "complete": "تأكيد اكتمال العمل",
+    "completeSubmit": "إرسال الإنجاز",
+    "submitReview": "إرسال للمراجعة",
+    "returnMaterials": "إرجاع المواد",
+    "returnMaterialsSubmit": "إرسال تقرير الإرجاع"
+  },
+  "review": {
+    "pendingPrompt": "طلب الفني نقل هذه المهمة إلى «{{stage}}». وافق على التحديث أو ارفضه.",
+    "submittedPrompt": "أرسل الفني هذه المهمة للمراجعة.",
+    "alreadyApproved": "تمت الموافقة على هذه المهمة مسبقاً.",
+    "note": "ملاحظة (اختياري)",
+    "approve": "موافقة",
+    "reject": "رفض"
+  },
+  "attachments": {
+    "title": "المرفقات",
+    "add": "إضافة مرفق",
+    "empty": "لم تتم إضافة أي مرفقات بعد."
+  },
+  "activity": {
+    "title": "النشاط",
+    "empty": "لم يتم تسجيل أي نشاط بعد."
+  },
+  "errors": {
+    "generic": "تعذّر تنفيذ الإجراء.",
+    "TASK_ALREADY_APPROVED": "تمت الموافقة على هذه المهمة مسبقاً. تم تحديث الصفحة.",
+    "TASK_NOT_PENDING_APPROVAL": "تم اتخاذ قرار بشأن هذا التحديث بالفعل. تم تحديث الصفحة.",
+    "TASK_NOT_REVIEWABLE": "لم تعد هذه المهمة بانتظار المراجعة. تم تحديث الصفحة.",
+    "TASK_ALREADY_CLOSED": "هذه المهمة مغلقة بالفعل.",
+    "BRANCH_ACCESS_DENIED": "ليس لديك صلاحية الوصول إلى هذه المحطة.",
+    "INSUFFICIENT_PERMISSIONS": "ليس لديك صلاحية تنفيذ هذا الإجراء."
+  },
+  "open": "فتح المهمة"
+}

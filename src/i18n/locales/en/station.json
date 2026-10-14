@@ -36,7 +36,7 @@
       "notFound": "Internal work order not found.",
       "approve": "Approve",
       "reject": "Reject",
-      "close": "Close",
+      "close": "Confirm closure",
       "toasts": {
         "approved": "Order approved.",
         "rejected": "Order rejected.",
@@ -95,6 +95,37 @@
       "addFailed": "Failed to add.",
       "removed": "Provider removed.",
       "removeFailed": "Failed to remove."
+    },
+    "directory": {
+      "searchPlaceholder": "Search providers by name",
+      "filterLabel": "Filter providers",
+      "loadFailed": "Could not load providers.",
+      "retry": "Retry",
+      "empty": "No providers match.",
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{total}}",
+      "filter": {
+        "ALL": "All",
+        "AVAILABLE": "Available",
+        "LINKED": "Linked",
+        "LINK_INACTIVE": "Link inactive",
+        "INACTIVE": "Inactive",
+        "INELIGIBLE": "Not eligible"
+      },
+      "class": {
+        "AVAILABLE": "Available",
+        "LINKED": "Linked",
+        "LINK_INACTIVE": "Link inactive",
+        "INACTIVE": "Inactive",
+        "INELIGIBLE": "Not eligible"
+      },
+      "reason": {
+        "ORG_NOT_APPROVED": "Not approved yet",
+        "ORG_INACTIVE": "Organization inactive",
+        "SERVICE_CATEGORY_NOT_OFFERED": "Does not offer this service",
+        "GOVERNORATE_NOT_COVERED": "Does not cover this region"
+      }
     }
   },
   "create": {
@@ -135,6 +166,26 @@
       "createdPendingSend": "Request created (SUBMITTED_BY_STATION). Send to providers from the request detail.",
       "created": "Maintenance request created.",
       "createFailed": "Failed to create request."
+    },
+    "audience": {
+      "label": "Who receives this request",
+      "selectAtLeastOne": "Select at least one linked provider.",
+      "LATER": {
+        "title": "Decide later",
+        "hint": "Create the request now and send it to providers afterwards (or keep your selection below to send to just those linked providers)."
+      },
+      "ALL_ELIGIBLE": {
+        "title": "All eligible providers",
+        "hint": "Every approved, active provider that matches the request — including providers not linked to your station."
+      },
+      "LINKED_ELIGIBLE": {
+        "title": "All eligible linked providers",
+        "hint": "Every approved, active provider linked to your station."
+      },
+      "SELECTED_LINKED": {
+        "title": "Selected linked providers",
+        "hint": "Only the linked providers you tick below. Providers that are not eligible are rejected, never added silently."
+      }
     }
   },
   "requestDetail": {

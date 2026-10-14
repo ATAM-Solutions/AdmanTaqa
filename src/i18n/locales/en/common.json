@@ -48,5 +48,12 @@
     "empty": "No stations are available. Contact your administrator.",
     "placeholder": "Select branch",
     "none": "No branch"
+  },
+  "rateLimited": {
+    "message": "Too many requests. Please wait {{seconds}} seconds and try again.",
+    "messageMinutes": "Too many requests. Please try again in {{count}} minute(s).",
+    "retryIn": "Retry in {{seconds}}s",
+    "retry": "Retry",
+    "keptPrevious": "Showing the last data that loaded. It may be out of date."
   }
 }
