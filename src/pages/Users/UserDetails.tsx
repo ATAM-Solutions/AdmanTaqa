@@ -1,3 +1,4 @@
+import UserCapabilityCard from "@/components/UserCapabilityCard";
 import { useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -188,6 +189,8 @@ export default function UserDetails() {
                 </div>
 
             </div>
+
+            <UserCapabilityCard userId={user.id} />
 
             <EditUserDialog
               open={editOpen}

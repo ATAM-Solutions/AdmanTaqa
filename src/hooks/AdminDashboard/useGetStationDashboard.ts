@@ -13,8 +13,9 @@ const getStationDashboard = async (): Promise<StationDashboardData> => {
   }
 };
 
-export default function useGetStationDashboard() {
+export default function useGetStationDashboard(enabled = true) {
   return useQuery({
+    enabled,
     queryKey: ["station", "dashboard"],
     queryFn: getStationDashboard,
     staleTime: 30_000,

@@ -34,6 +34,8 @@ export default function CreateMaintenanceRequest() {
   const [maintenanceMode, setMaintenanceMode] = useState<MaintenanceMode>("INTERNAL");
   const [firstTaskNotes, setFirstTaskNotes] = useState("");
   const [selectedProviderIds, setSelectedProviderIds] = useState<number[]>([]);
+  // "" = legacy behaviour (selection → linked subset; nothing selected → request waits to be sent later)
+  const [audience, setAudience] = useState<"" | "ALL_ELIGIBLE" | "LINKED_ELIGIBLE" | "SELECTED_LINKED">("");
 
   const toggleProvider = (orgId: number) => {
     setSelectedProviderIds((prev) =>
@@ -52,6 +54,10 @@ export default function CreateMaintenanceRequest() {
       toast.error(t("create.toasts.descriptionRequired"));
       return;
     }
+    if (maintenanceMode === "EXTERNAL" && audience === "SELECTED_LINKED" && selectedProviderIds.length === 0) {
+      toast.error(t("create.audience.selectAtLeastOne"));
+      return;
+    }
     createMutation.mutate(
       {
         branchId: bid!,
@@ -63,14 +69,15 @@ export default function CreateMaintenanceRequest() {
           maintenanceMode === "INTERNAL" && firstTaskNotes.trim()
             ? { notes: firstTaskNotes.trim() }
             : undefined,
+        providerAudience: maintenanceMode === "EXTERNAL" && audience ? audience : undefined,
         providerOrganizationIds:
-          maintenanceMode === "EXTERNAL" && selectedProviderIds.length > 0
+          maintenanceMode === "EXTERNAL" && (audience === "" || audience === "SELECTED_LINKED") && selectedProviderIds.length > 0
             ? selectedProviderIds
             : undefined,
       },
       {
         onSuccess: (data) => {
-          if (maintenanceMode === "EXTERNAL" && selectedProviderIds.length === 0 && data?.externalRequest?.id) {
+          if (maintenanceMode === "EXTERNAL" && !audience && selectedProviderIds.length === 0 && data?.externalRequest?.id) {
             toast.success(t("create.toasts.createdPendingSend"));
           } else {
             toast.success(t("create.toasts.created"));
@@ -176,7 +183,25 @@ export default function CreateMaintenanceRequest() {
               <div className="space-y-2 rounded-lg border bg-muted/20 p-4">
                 <Label className="text-base font-semibold">{t("create.providersHeading")}</Label>
                 <p className="text-sm text-muted-foreground">{t("create.providersDescription")}</p>
-                {linkedLoading ? (
+                <div className="space-y-2" role="radiogroup" aria-label={t("create.audience.label")}>
+                  {(["", "ALL_ELIGIBLE", "LINKED_ELIGIBLE", "SELECTED_LINKED"] as const).map((a) => (
+                    <label key={a || "later"} className="flex cursor-pointer items-start gap-3 rounded-md border bg-background px-3 py-2">
+                      <input
+                        type="radio"
+                        name="providerAudience"
+                        className="mt-1"
+                        checked={audience === a}
+                        onChange={() => setAudience(a)}
+                        data-testid={`audience-${a || "later"}`}
+                      />
+                      <span>
+                        <span className="block text-sm font-medium">{t(`create.audience.${a || "LATER"}.title`)}</span>
+                        <span className="block text-xs text-muted-foreground">{t(`create.audience.${a || "LATER"}.hint`)}</span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                {audience === "ALL_ELIGIBLE" || audience === "LINKED_ELIGIBLE" ? null : linkedLoading ? (
                   <p className="text-sm text-muted-foreground">{t("create.loadingProviders")}</p>
                 ) : linkedProviders.length === 0 ? (
                   <p className="text-sm text-amber-600 dark:text-amber-400">

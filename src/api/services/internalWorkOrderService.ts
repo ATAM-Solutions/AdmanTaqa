@@ -1,3 +1,4 @@
+import type { TaskProgress } from "@/api/services/taskDetailService";
 import axiosInstance from "@/api/config";
 import type {
   InternalWorkOrderItem,
@@ -28,6 +29,7 @@ function normalizeTaskRefs(raw: unknown): InternalWorkOrderItem["tasks"] {
         title: typeof o.title === "string" ? o.title : undefined,
         status: typeof o.status === "string" ? o.status : undefined,
         assignedUserId: typeof o.assignedUserId === "number" ? o.assignedUserId : null,
+        progress: o.progress && typeof o.progress === "object" ? (o.progress as TaskProgress) : null,
         assignedUser:
           au && typeof au.id === "number"
             ? { id: au.id, fullName: String(au.fullName ?? ""), email: typeof au.email === "string" ? au.email : null }

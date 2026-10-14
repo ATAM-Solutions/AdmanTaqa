@@ -9,6 +9,9 @@ export interface MyTaskRow {
   orderTitle: string | null;
   orderPriority: string | null;
   assignedBy: string | null;
+  stationName: string | null;
+  stationAddress: string | null;
+  pendingStatus: string | null;
 }
 
 export interface WarehouseRequestRow {
@@ -67,6 +70,9 @@ export async function fetchMyTasks(page = 1, limit = 20): Promise<Paged<MyTaskRo
         orderTitle: str(iwo?.title) ?? str(wo?.title),
         orderPriority: str(iwo?.priority),
         assignedBy: str(by?.fullName),
+        stationName: str(obj(r.Branch)?.nameEn) ?? str(obj(r.Branch)?.nameAr),
+        stationAddress: str(obj(r.Branch)?.address),
+        pendingStatus: str(r.pendingStatus),
       };
     });
   return { items, total, page: p, limit: l || limit };

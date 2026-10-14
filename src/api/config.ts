@@ -1,4 +1,13 @@
 import axios from "axios";
+import i18n from "@/i18n/config";
+import {
+  formatRateLimitMessage,
+  getRateLimitInfo,
+  makeCooldownError,
+  rateLimitCooldownRemainingSeconds,
+  sessionKeyFromToken,
+  startRateLimitCooldown,
+} from "@/lib/rateLimit";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -11,6 +20,13 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use((config) => {
+  // While the backend's rate limiter has answered 429, fail locally instead of re-hitting it (credentials
+  // endpoints are separate buckets on the server and stay reachable).
+  // The cooldown is keyed by the session that received the 429, so another account is never blocked by it.
+  const sessionKey = sessionKeyFromToken(localStorage.getItem("access_token"));
+  if (rateLimitCooldownRemainingSeconds(sessionKey) > 0 && !/auth\/(login|refresh)/.test(config.url ?? "")) {
+    return Promise.reject(makeCooldownError(config.url, sessionKey));
+  }
   const token = localStorage.getItem("access_token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -34,6 +50,18 @@ axiosInstance.interceptors.response.use(
     const data = error?.response?.data;
 
     // For any error response, use API message/detail so UI shows it instead of "Request failed with status code 500"
+    const rateLimit = getRateLimitInfo(error);
+    if (rateLimit && !error?.isRateLimitCooldown) {
+      // Key by the identity the request was SENT with (the user may have switched account meanwhile).
+      const sentToken = String(error?.config?.headers?.Authorization ?? "").replace(/^Bearer /, "");
+      startRateLimitCooldown(rateLimit.retryAfterSeconds, sessionKeyFromToken(sentToken || null));
+    }
+    if (rateLimit && error instanceof Error) {
+      // Pages that print error.message get the localized sentence, not the server's English text.
+      error.message = formatRateLimitMessage(rateLimit.retryAfterSeconds, (key, options) => i18n.t(key, options) as string);
+      return Promise.reject(error);
+    }
+
     const apiMessage =
       typeof data?.message === "string"
         ? data.message

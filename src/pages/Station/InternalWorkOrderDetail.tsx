@@ -7,6 +7,7 @@ import { ChevronLeft, CheckCircle, XCircle, Lock, UserPlus, UserCog } from "luci
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import AssignWorkerDialog from "./AssignWorkerDialog";
+import TaskProgress from "@/components/TaskProgress";
 import { toast } from "sonner";
 import useInternalWorkOrderById from "@/hooks/Station/useInternalWorkOrderById";
 import useReviewInternalWorkOrder from "@/hooks/Station/useReviewInternalWorkOrder";
@@ -14,6 +15,7 @@ import useCloseInternalWorkOrder from "@/hooks/Station/useCloseInternalWorkOrder
 
 export default function InternalWorkOrderDetail() {
   const { t } = useTranslation("station");
+  const { t: tTasks } = useTranslation("tasks");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: order, isLoading, error } = useInternalWorkOrderById(id ?? null);
@@ -43,7 +45,9 @@ export default function InternalWorkOrderDetail() {
   };
 
   const canReview = order?.status === "UNDER_REVIEW";
-  const canClose = order?.status !== "CLOSED";
+  // Closing an order IS the operations confirmation: only for holders of ops_confirm, only once the order is
+  // awaiting it. It is never a substitute for a technician completing their task (Report 3 finding 2).
+  const canClose = order?.status === "AWAITING_OPS_CONFIRMATION" && hasPermission("internal_work_orders.ops_confirm");
   const orderOpenForWork = order != null && order.status !== "CLOSED" && order.status !== "CANCELLED";
   const canAssign = orderOpenForWork && hasPermission("internal_tasks.assign");
 
@@ -139,7 +143,17 @@ export default function InternalWorkOrderDetail() {
                     <p className="text-xs text-muted-foreground">
                       #{task.id} · <Badge variant="outline">{task.status ?? "—"}</Badge>
                     </p>
+                    {task.progress ? (
+                      <div className="mt-2 max-w-xl">
+                        <TaskProgress progress={task.progress} compact />
+                      </div>
+                    ) : null}
                   </div>
+                  {hasPermission("internal_tasks.read") && (
+                    <Button asChild size="sm" variant="outline" className="gap-1">
+                      <Link to={`/internal-tasks/${task.id}`} data-testid="open-task">{tTasks("open")}</Link>
+                    </Button>
+                  )}
                   {canAssign && task.status !== "CLOSED" && (
                     <Button
                       size="sm"

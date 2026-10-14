@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -50,7 +51,9 @@ export default function WarehouseRequests() {
               {data.items.map((row) => (
                 <li key={row.id} className="space-y-1 py-3">
                   <p className="text-sm font-medium" dir="auto">
-                    {t("warehouseRequests.request", { id: row.id })}
+                    <Link className="underline" to={`/warehouse-requests/${row.id}`} data-testid="open-request">
+                      {t("warehouseRequests.request", { id: row.id })}
+                    </Link>
                     {row.workOrderTitle ? ` — ${row.workOrderTitle}` : ""}
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -77,7 +80,6 @@ export default function WarehouseRequests() {
               </Button>
             </div>
           ) : null}
-          <p className="mt-4 text-xs text-muted-foreground">{t("warehouseRequests.mobileNote")}</p>
         </CardContent>
       </Card>
     </div>

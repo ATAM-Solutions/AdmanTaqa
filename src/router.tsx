@@ -60,6 +60,9 @@ import BranchRequestDetails from "./pages/BranchRequests/BranchRequestDetails";
 import InternalWorkOrders from "./pages/Station/InternalWorkOrders";
 import InternalWorkOrdersReviewQueue from "./pages/Station/InternalWorkOrdersReviewQueue";
 import InternalWorkOrderDetail from "./pages/Station/InternalWorkOrderDetail";
+import WarehouseRequestDetail from "./pages/Warehouse/WarehouseRequestDetail";
+import WarehouseInventory from "./pages/Warehouse/WarehouseInventory";
+import TaskDetail from "./pages/Tasks/TaskDetail";
 import MyTasks from "./pages/Technician/MyTasks";
 import WarehouseRequests from "./pages/Technician/WarehouseRequests";
 import StationRequests from "./pages/Station/StationRequests";
@@ -437,6 +440,30 @@ export const router = createHashRouter([
         element: (
           <RouteAccessGuard pathKey="my-tasks">
             <MyTasks />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "internal-tasks/:id",
+        element: (
+          <RouteAccessGuard pathKey="internal-tasks/:id">
+            <TaskDetail />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "warehouse-requests/:id",
+        element: (
+          <RouteAccessGuard pathKey="warehouse-requests/:id">
+            <WarehouseRequestDetail />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "warehouse-inventory",
+        element: (
+          <RouteAccessGuard pathKey="warehouse-inventory">
+            <WarehouseInventory />
           </RouteAccessGuard>
         ),
       },

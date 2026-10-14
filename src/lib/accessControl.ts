@@ -14,6 +14,30 @@ export type AccessRule = {
    * must follow the role's real capabilities instead of "any fuel-station user".
    */
   orgTypePermissions?: Partial<Record<OrgType, string[]>>;
+  /**
+   * Hide the page from "executor-only" sessions: they can update task status (a technician) but hold no
+   * order/task management permission. They work through My tasks; the order pages are not their workspace
+   * (Report 3 finding 1). The server applies the same rule to the order APIs (isExecutorOnly).
+   */
+  excludeExecutorOnly?: boolean;
+};
+
+/** Mirrors enrgy-BE `isExecutorOnly` — keep the two lists in sync. */
+const MANAGEMENT_PERMISSIONS = [
+  "internal_work_orders.create",
+  "internal_work_orders.update",
+  "internal_work_orders.review",
+  "internal_work_orders.close",
+  "internal_work_orders.warehouse_return",
+  "internal_work_orders.ops_confirm",
+  "internal_tasks.assign",
+  "internal_tasks.review",
+  "internal_tasks.close",
+];
+
+export const isExecutorOnly = (permissions: string[]): boolean => {
+  const granted = new Set(permissions.map(normalizePermissionCode));
+  return granted.has("internal_tasks.update_status") && !MANAGEMENT_PERMISSIONS.some((p) => granted.has(p));
 };
 
 // Route keys match router child paths without leading slash.
@@ -182,10 +206,20 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["warehouse_orders.read"],
   },
+  "warehouse-requests/:id": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["warehouse_orders.read"],
+  },
+  // Stock per warehouse. Reads need warehouse.read; a person delegated "add inventory items" may open it too.
+  "warehouse-inventory": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["warehouse.read", "warehouse_items.create"],
+  },
   // Station (Fuel Station): internal work orders, external requests
   "internal-work-orders": {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["internal_work_orders.read"],
+    excludeExecutorOnly: true,
   },
   "internal-work-orders/review-queue": {
     orgTypes: ["FUEL_STATION"],
@@ -194,6 +228,13 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   "internal-work-orders/:id": {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["internal_work_orders.read"],
+    excludeExecutorOnly: true,
+  },
+  // One task (details, progress, attachments, activity, execution and review). Reachable from My tasks and
+  // from the order page. The server still enforces assignee / permission / station on every call.
+  "internal-tasks/:id": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["internal_tasks.read"],
   },
   // Maintenance reports (بلاغات = /api/maintenance-issues). Read gates the list/details; create gates the form.
   "maintenance-reports": {
@@ -273,6 +314,7 @@ export const canAccessByRule = (
     const allowed = perOrg.some((code) => granted.has(normalizePermissionCode(code)));
     if (!allowed) return false;
   }
+  if (granted.size > 0 && rule.excludeExecutorOnly && isExecutorOnly(permissions)) return false;
   if (granted.size > 0 && rule.allPermissions?.length) {
     const allowed = rule.allPermissions.every((code) => granted.has(normalizePermissionCode(code)));
     if (!allowed) return false;

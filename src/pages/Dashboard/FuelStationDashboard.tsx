@@ -1,3 +1,4 @@
+import { DashboardLoadError } from "@/components/DashboardLoadError";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -8,12 +9,11 @@ import {
 import {
   GitBranch, Users, Wrench, ClipboardList, Send, FileOutput, CircleCheck,
   CreditCard, ClipboardCheck, PlusCircle, UserPlus, ListChecks, ArrowRight,
-  Store, Activity, ExternalLink, AlertCircle,
+  Store, Activity, ExternalLink,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AsyncBoundary, EmptyState } from "@/components/patterns";
 import { CompanyAvatar } from "@/components/company/CompanyAvatar";
@@ -22,19 +22,23 @@ import { useAuth } from "@/context/AuthContext";
 import useGetStationDashboard from "@/hooks/AdminDashboard/useGetStationDashboard";
 import { useChartColors } from "@/lib/chartColors";
 import { formatDate, formatNumber } from "@/lib/i18n/formatters";
-import { getApiErrorMessage } from "@/lib/utils";
 import { getOrganizationDisplayName, hasCompanyAdminRole } from "@/lib/company";
 import type { StationDashboardActivityItem, StationDashboardRecentStation } from "@/types/stationDashboard";
+import { isExecutorOnly } from "@/lib/accessControl";
 import { KpiCard } from "./components/KpiCard";
 import { ChartCard } from "./components/ChartCard";
 
 export default function FuelStationDashboard() {
   const { t, i18n } = useTranslation("dashboard");
+  const { t: tNav } = useTranslation("nav");
   const colors = useChartColors();
-  const { organization, roles, hasPermission } = useAuth();
+  const { organization, roles, hasPermission, permissions } = useAuth();
   const canReadReports = hasPermission("maintenance_issues.read");
   const canCreateReport = hasPermission("maintenance_issues.create");
-  const { data, isLoading, error, refetch } = useGetStationDashboard();
+  // A technician (executor-only session) works from My tasks: the company KPI cards and quick actions link to
+  // pages they cannot open, so they get a focused landing instead (Report 3 finding 1).
+  const executorOnly = isExecutorOnly(permissions);
+  const { data, isLoading, error, refetch } = useGetStationDashboard(!executorOnly);
 
   const kpis = data?.kpis;
   const charts = data?.charts;
@@ -81,26 +85,44 @@ export default function FuelStationDashboard() {
           <p className="mt-1 text-sm text-muted-foreground">{t("station.description")}</p>
         </div>
       </div>
-      <Button asChild variant="outline" size="sm" className="self-start md:self-center">
-        <Link to="/company" className="gap-1.5">
-          <ExternalLink className="h-3.5 w-3.5" />
-          {t("station.viewCompanyProfile")}
-        </Link>
-      </Button>
+      {!executorOnly ? (
+        <Button asChild variant="outline" size="sm" className="self-start md:self-center">
+          <Link to="/company" className="gap-1.5">
+            <ExternalLink className="h-3.5 w-3.5" />
+            {t("station.viewCompanyProfile")}
+          </Link>
+        </Button>
+      ) : null}
     </div>
   );
 
-  if (error) {
+  // First load failed (nothing to show): header + banner. A failed REFRESH keeps the data on screen and
+  // shows the banner above it (Report 3 finding 21).
+  if (executorOnly) {
     return (
       <div className="space-y-6 p-6">
         {header}
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between gap-4">
-            <span>{getApiErrorMessage(error, t("charts.error"))}</span>
-            <Button size="sm" variant="outline" onClick={() => refetch()}>{t("retry")}</Button>
-          </AlertDescription>
-        </Alert>
+        <div className="grid gap-4 sm:grid-cols-2" data-testid="technician-landing">
+          {hasPermission("internal_tasks.update_status") ? (
+            <Button asChild variant="outline" className="h-auto justify-start gap-3 p-4">
+              <Link to="/my-tasks"><ListChecks className="h-5 w-5" /> {tNav("myTasks")}</Link>
+            </Button>
+          ) : null}
+          {hasPermission("warehouse_orders.read") ? (
+            <Button asChild variant="outline" className="h-auto justify-start gap-3 p-4">
+              <Link to="/warehouse-requests"><Wrench className="h-5 w-5" /> {tNav("warehouseRequests")}</Link>
+            </Button>
+          ) : null}
+        </div>
+      </div>
+    );
+  }
+
+  if (error && !data) {
+    return (
+      <div className="space-y-6 p-6">
+        {header}
+        <DashboardLoadError error={error} fallbackMessage={t("charts.error")} onRetry={() => refetch()} />
       </div>
     );
   }
@@ -108,6 +130,8 @@ export default function FuelStationDashboard() {
   return (
     <div className="space-y-6 p-6">
       {header}
+
+      {error ? <DashboardLoadError error={error} fallbackMessage={t("charts.error")} onRetry={() => refetch()} hasPreviousData /> : null}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         <KpiCard label={t("station.kpi.stations")} value={kpis ? formatNumber(kpis.branches, i18n.language) : "—"} icon={<Store className="h-5 w-5" />} to="/branches" isLoading={isLoading} />

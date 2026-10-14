@@ -119,6 +119,7 @@ const navGroups: NavGroup[] = [
       { id: "externalJobOrders", labelKey: "externalJobOrders", path: "/external-job-orders", icon: Briefcase },
       { id: "myTasks", labelKey: "myTasks", path: "/my-tasks", icon: ListChecks },
       { id: "warehouseRequests", labelKey: "warehouseRequests", path: "/warehouse-requests", icon: PackageOpen },
+      { id: "warehouseInventory", labelKey: "warehouseInventory", path: "/warehouse-inventory", icon: PackageOpen },
       { id: "internalWorkOrders", labelKey: "internalWorkOrders", path: "/internal-work-orders", icon: Briefcase },
       { id: "maintenanceReports", labelKey: "maintenanceReports", path: "/maintenance-reports", icon: ClipboardList },
       { id: "externalRequests", labelKey: "externalRequests", path: "/station-requests", icon: Briefcase },

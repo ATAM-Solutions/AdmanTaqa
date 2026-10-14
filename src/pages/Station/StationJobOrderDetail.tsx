@@ -1,3 +1,4 @@
+import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, Link } from "react-router-dom";
@@ -362,6 +363,8 @@ export default function StationJobOrderDetail() {
           </CardContent>
         </Card>
       )}
+
+      <PaymentMilestonesCard side="station" jobOrderId={order.id} />
 
       {reports.length > 0 && (
         <Card>

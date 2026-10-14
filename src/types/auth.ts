@@ -30,6 +30,8 @@ export interface AuthData {
     organization: Organization;
     roles?: AuthRole[];
     permissions?: string[];
+    /** Station scope of the signed-in user: company-wide (`isOrgWide`) or limited to `allowedBranchIds`. */
+    scope?: { isOrgWide: boolean; allowedBranchIds: number[] | null };
     accessToken: string;
     refreshToken: string;
     expiresIn: string;
@@ -54,6 +56,8 @@ export interface MeData {
     organization: Organization;
     roles?: AuthRole[];
     permissions?: string[];
+    /** Station scope of the signed-in user: company-wide (`isOrgWide`) or limited to `allowedBranchIds`. */
+    scope?: { isOrgWide: boolean; allowedBranchIds: number[] | null };
 }
 
 export interface MeResponse {

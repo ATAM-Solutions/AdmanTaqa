@@ -7,20 +7,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchMyTasks } from "@/api/services/technicianService";
-import { useAuth } from "@/context/AuthContext";
 
 const PAGE_SIZE = 20;
 
 export default function MyTasks() {
   const { t } = useTranslation("station");
-  const { hasPermission } = useAuth();
+  const { t: tt } = useTranslation("tasks");
   const [page, setPage] = useState(1);
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["my-tasks", page],
     queryFn: () => fetchMyTasks(page, PAGE_SIZE),
     retry: false,
   });
-  const canOpenOrder = hasPermission("internal_work_orders.read");
   const pages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
 
   return (
@@ -58,20 +56,24 @@ export default function MyTasks() {
                       {task.orderTitle ?? t("myTasks.untitled", { id: task.id })}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      #{task.id} · <Badge variant="outline">{task.status}</Badge>
+                      #{task.id} · <Badge variant="outline">{tt(`status.${task.status}`, { defaultValue: task.status })}</Badge>
                       {task.assignedBy ? <> · {t("myTasks.assignedBy", { name: task.assignedBy })}</> : null}
                     </p>
+                    {task.stationName ? (
+                      <p className="text-xs text-muted-foreground" dir="auto" data-testid="task-row-station">
+                        {task.stationName}
+                        {task.stationAddress ? ` · ${task.stationAddress}` : ""}
+                      </p>
+                    ) : null}
                     {task.notes ? (
                       <p className="text-xs text-muted-foreground" dir="auto">
                         {task.notes}
                       </p>
                     ) : null}
                   </div>
-                  {canOpenOrder && task.orderId != null ? (
-                    <Button asChild size="sm" variant="outline">
-                      <Link to={`/internal-work-orders/${task.orderId}`}>{t("myTasks.openOrder")}</Link>
-                    </Button>
-                  ) : null}
+                  <Button asChild size="sm" variant="outline">
+                    <Link to={`/internal-tasks/${task.id}`} data-testid="open-task">{tt("open")}</Link>
+                  </Button>
                 </li>
               ))}
             </ul>
@@ -89,7 +91,6 @@ export default function MyTasks() {
               </Button>
             </div>
           ) : null}
-          <p className="mt-4 text-xs text-muted-foreground">{t("myTasks.mobileNote")}</p>
         </CardContent>
       </Card>
     </div>

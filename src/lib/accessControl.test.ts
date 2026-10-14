@@ -155,10 +155,20 @@ describe("fuel-station technician navigation (finding 21)", () => {
   const can = (key: string, perms: string[], org: "FUEL_STATION" | "SERVICE_PROVIDER" | "SUPER_ADMIN" | "AUTHORITY" = "FUEL_STATION") =>
     canAccessByRule(ROUTE_ACCESS_RULES[key], org, perms);
 
-  it("gives the technician My tasks, Warehouse requests and the orders they work on", () => {
-    for (const key of ["my-tasks", "warehouse-requests", "internal-work-orders", "internal-work-orders/:id", "dashboard"]) {
+  it("gives the technician My tasks, the task page and Warehouse requests", () => {
+    for (const key of ["my-tasks", "internal-tasks/:id", "warehouse-requests", "dashboard"]) {
       expect(can(key, technician), key).toBe(true);
     }
+  });
+
+  it("does not offer the technician the internal-order pages (finding 1) — nor a custom executor role", () => {
+    for (const key of ["internal-work-orders", "internal-work-orders/:id"]) {
+      expect(can(key, technician), key).toBe(false);
+      expect(can(key, ["internal_work_orders.read", "internal_tasks.read", "internal_tasks.update_status"]), key).toBe(false);
+    }
+    // read-only observers (no task execution) and managers keep the pages
+    expect(can("internal-work-orders", ["internal_work_orders.read"])).toBe(true);
+    expect(can("internal-work-orders/:id", ["internal_work_orders.read", "internal_tasks.update_status", "internal_tasks.assign"])).toBe(true);
   });
 
   it("hides every unrelated fuel-station area from the technician (and blocks direct navigation with the same rule)", () => {

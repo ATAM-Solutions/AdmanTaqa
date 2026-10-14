@@ -1,3 +1,4 @@
+import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
 import { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -127,6 +128,8 @@ export default function ProviderJobOrderDetail() {
           <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("jobOrderDetail.back")}
         </Link>
       </Button>
+
+      <PaymentMilestonesCard side="provider" jobOrderId={order.id} />
 
       {isCancelled && (
         <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30">

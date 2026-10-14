@@ -15,20 +15,32 @@ import {
 import { ChevronLeft, Building2, UserPlus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import useLinkedProviders from "@/hooks/Station/useLinkedProviders";
-import useAvailableProviders from "@/hooks/Station/useAvailableProviders";
+import useProviderDirectory from "@/hooks/Station/useProviderDirectory";
+import { Input } from "@/components/ui/input";
+import type { ProviderClassification } from "@/api/services/stationService";
 import useAddLinkedProvider from "@/hooks/Station/useAddLinkedProvider";
 import useRemoveLinkedProvider from "@/hooks/Station/useRemoveLinkedProvider";
 
 export default function LinkedProviders() {
   const { t } = useTranslation("station");
   const { data: linked = [], isLoading } = useLinkedProviders();
-  const { data: available = [] } = useAvailableProviders();
+  const [search, setSearch] = useState("");
+  const [classification, setClassification] = useState<ProviderClassification | "ALL">("ALL");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 20;
+  const directory = useProviderDirectory({
+    page,
+    limit: PAGE_SIZE,
+    search,
+    classification: classification === "ALL" ? undefined : classification,
+  });
   const addMutation = useAddLinkedProvider();
   const removeMutation = useRemoveLinkedProvider();
   const [removeTarget, setRemoveTarget] = useState<{ linkId: number; name: string } | null>(null);
 
-  const linkedOrgIds = new Set(linked.map((p) => p.organizationId));
-  const canAdd = available.filter((p) => !linkedOrgIds.has(p.organizationId));
+  const items = directory.data?.items ?? [];
+  const totalPages = Math.max(1, Math.ceil((directory.data?.total ?? 0) / PAGE_SIZE));
+  const FILTERS: Array<ProviderClassification | "ALL"> = ["ALL", "AVAILABLE", "LINKED", "LINK_INACTIVE", "INACTIVE", "INELIGIBLE"];
 
   const handleAdd = (orgId: number) => {
     addMutation.mutate(
@@ -126,38 +138,74 @@ export default function LinkedProviders() {
           <p className="text-sm text-muted-foreground">{t("linkedProviders.availableDescription")}</p>
         </CardHeader>
         <CardContent>
-          {canAdd.length === 0 ? (
-            <p className="text-sm text-muted-foreground">{t("linkedProviders.noAvailable")}</p>
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <Input
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              placeholder={t("linkedProviders.directory.searchPlaceholder")}
+              aria-label={t("linkedProviders.directory.searchPlaceholder")}
+              className="sm:max-w-xs"
+            />
+            <div className="flex flex-wrap gap-2" role="group" aria-label={t("linkedProviders.directory.filterLabel")}>
+              {FILTERS.map((f) => (
+                <Button
+                  key={f}
+                  type="button"
+                  size="sm"
+                  variant={classification === f ? "default" : "outline"}
+                  onClick={() => { setClassification(f); setPage(1); }}
+                >
+                  {t(`linkedProviders.directory.filter.${f}`)}
+                  {f !== "ALL" && directory.data?.counts?.[f] != null ? ` (${directory.data.counts[f]})` : ""}
+                </Button>
+              ))}
+            </div>
+          </div>
+          {directory.isLoading ? (
+            <p className="text-sm text-muted-foreground">{t("loading")}</p>
+          ) : directory.isError ? (
+            <div className="flex items-center gap-3 text-sm text-destructive" role="alert">
+              <span>{t("linkedProviders.directory.loadFailed")}</span>
+              <Button type="button" size="sm" variant="outline" onClick={() => directory.refetch()}>
+                {t("linkedProviders.directory.retry")}
+              </Button>
+            </div>
+          ) : items.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t("linkedProviders.directory.empty")}</p>
           ) : (
             <ul className="space-y-2">
-              {canAdd.map((p) => (
-                <li
-                  key={p.organizationId}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div className="flex items-center gap-2">
+              {items.map((p) => (
+                <li key={p.id} className="flex items-center justify-between rounded-lg border p-3" data-testid={`provider-row-${p.id}`}>
+                  <div className="flex flex-wrap items-center gap-2">
                     <Building2 className="h-4 w-4 text-muted-foreground" />
-                    <span className="font-medium">
-                      {p.organizationName ?? t("linkedProviders.organizationFallback", { id: p.organizationId })}
-                    </span>
-                    {p.status && (
-                      <Badge variant="secondary" className="text-xs">
-                        {p.status}
-                      </Badge>
-                    )}
+                    <span className="font-medium">{p.name}</span>
+                    <Badge variant={p.classification === "AVAILABLE" || p.classification === "LINKED" ? "secondary" : "outline"} className="text-xs">
+                      {t(`linkedProviders.directory.class.${p.classification}`)}
+                    </Badge>
+                    {p.reasons.map((r) => (
+                      <span key={r} className="text-xs text-muted-foreground">{t(`linkedProviders.directory.reason.${r}`, { defaultValue: r })}</span>
+                    ))}
                   </div>
-                  <Button
-                    size="sm"
-                    className="gap-1"
-                    onClick={() => handleAdd(p.organizationId)}
-                    disabled={addMutation.isPending}
-                  >
-                    <UserPlus className="h-4 w-4" />
-                    {t("linkedProviders.add")}
-                  </Button>
+                  {(p.classification === "AVAILABLE" || p.classification === "LINK_INACTIVE") && (
+                    <Button size="sm" className="gap-1" onClick={() => handleAdd(p.id)} disabled={addMutation.isPending}>
+                      <UserPlus className="h-4 w-4" />
+                      {t("linkedProviders.add")}
+                    </Button>
+                  )}
                 </li>
               ))}
             </ul>
+          )}
+          {totalPages > 1 && (
+            <div className="mt-4 flex items-center justify-between text-sm">
+              <Button type="button" size="sm" variant="outline" disabled={page <= 1} onClick={() => setPage((n) => n - 1)}>
+                {t("linkedProviders.directory.prev")}
+              </Button>
+              <span>{t("linkedProviders.directory.pageOf", { page, total: totalPages })}</span>
+              <Button type="button" size="sm" variant="outline" disabled={page >= totalPages} onClick={() => setPage((n) => n + 1)}>
+                {t("linkedProviders.directory.next")}
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

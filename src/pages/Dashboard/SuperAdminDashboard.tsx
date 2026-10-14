@@ -1,3 +1,4 @@
+import { DashboardLoadError } from "@/components/DashboardLoadError";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -44,13 +45,10 @@ import { PageHeader, AsyncBoundary } from "@/components/patterns";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
 import useGetAdminDashboard from "@/hooks/AdminDashboard/useGetAdminDashboard";
 import useGetOrganizations from "@/hooks/Organization/useGetOrganizations";
 import { useChartColors } from "@/lib/chartColors";
 import { formatDate, formatNumber } from "@/lib/i18n/formatters";
-import { getApiErrorMessage } from "@/lib/utils";
 import { getOrganizationDisplayName } from "@/lib/company";
 import { CompanyAvatar } from "@/components/company/CompanyAvatar";
 import { OrganizationStatusBadge, OrganizationTypeBadge } from "@/components/company/CompanyBadges";
@@ -121,19 +119,11 @@ export default function SuperAdminDashboard() {
     return colors.categorical[0];
   };
 
-  if (error) {
+  if (error && !data) {
     return (
       <div className="space-y-6">
         <PageHeader title={t("superAdmin.title")} description={t("superAdmin.description")} />
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription className="flex items-center justify-between gap-4">
-            <span>{getApiErrorMessage(error, t("charts.error"))}</span>
-            <Button size="sm" variant="outline" onClick={() => refetch()}>
-              {t("retry")}
-            </Button>
-          </AlertDescription>
-        </Alert>
+        <DashboardLoadError error={error} fallbackMessage={t("charts.error")} onRetry={() => refetch()} />
       </div>
     );
   }
@@ -149,6 +139,8 @@ export default function SuperAdminDashboard() {
           </Badge>
         }
       />
+
+      {error ? <DashboardLoadError error={error} fallbackMessage={t("charts.error")} onRetry={() => refetch()} hasPreviousData /> : null}
 
       {/* ── KPI cards ─────────────────────────────────────────────── */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

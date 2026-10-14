@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { clearRateLimitCooldown } from "@/lib/rateLimit";
 import type { User, Organization, AuthData, AuthRole } from "../types/auth";
 import { buildPermissionHelpers } from "@/lib/permissions";
 import { authService } from "@/api/services/authService";
@@ -9,6 +10,8 @@ interface AuthContextType {
   organization: Organization | null;
   roles: AuthRole[];
   permissions: string[];
+  /** null until loaded; `isOrgWide` = company-wide access (no station limit). */
+  scope: { isOrgWide: boolean; allowedBranchIds: number[] | null } | null;
   accessToken: string | null;
   login: (data: AuthData) => void;
   logout: () => void;
@@ -62,6 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [organization, setOrganization] = useState<Organization | null>(null);
   const [roles, setRoles] = useState<AuthRole[]>([]);
   const [permissions, setPermissions] = useState<string[]>([]);
+  const [scope, setScope] = useState<AuthContextType["scope"]>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -97,6 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setOrganization(me.data.organization);
           setRoles(me.data.roles ?? []);
           setPermissions(me.data.permissions ?? []);
+          setScope(me.data.scope ?? null);
           localStorage.setItem(ORG_TYPE_STORAGE_KEY, me.data.organization.type);
         }
       } catch {
@@ -116,7 +121,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setOrganization(data.organization);
     setRoles(data.roles ?? []);
     setPermissions(data.permissions ?? []);
+    setScope(data.scope ?? null);
     setAccessToken(data.accessToken);
+    clearRateLimitCooldown(); // a new sign-in never inherits another session's lock-out
     localStorage.setItem("access_token", data.accessToken);
     localStorage.setItem(ORG_TYPE_STORAGE_KEY, data.organization.type);
     if (data.refreshToken) {
@@ -132,6 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setOrganization(me.data.organization);
         setRoles(me.data.roles ?? []);
         setPermissions(me.data.permissions ?? []);
+        setScope(me.data.scope ?? null);
         localStorage.setItem(ORG_TYPE_STORAGE_KEY, me.data.organization.type);
       }
     } catch {
@@ -146,7 +154,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setOrganization(null);
     setRoles([]);
     setPermissions([]);
+    setScope(null);
     setAccessToken(null);
+    clearRateLimitCooldown();
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem(ORG_TYPE_STORAGE_KEY);
@@ -162,6 +172,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         organization,
         roles,
         permissions,
+        scope,
         accessToken,
         login,
         logout,

@@ -32,6 +32,8 @@ export interface InternalTaskRef {
   title?: string;
   status?: string;
   assignedUserId?: number | null;
+  /** Server-computed progress (same payload the mobile app uses). */
+  progress?: import("@/api/services/taskDetailService").TaskProgress | null;
   assignedUser?: { id: number; fullName: string; email?: string | null } | null;
 }
 

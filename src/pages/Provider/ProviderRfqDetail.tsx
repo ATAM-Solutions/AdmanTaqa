@@ -16,6 +16,7 @@ import useProviderRfqById from "@/hooks/Provider/useProviderRfqById";
 import { getQuotePaymentTerms } from "@/types/provider";
 import { formatDate as formatDateShared } from "@/lib/i18n/formatters";
 import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
+import QuotationForm from "./QuotationForm";
 
 /** Resolve pricing details from quote: either pricingDetails (flattened API) or latest ProviderQuoteRevision.pricingJson. */
 function getQuotePricingDetails(q: {
@@ -186,7 +187,17 @@ export default function ProviderRfqDetail() {
                 </div>
               )}
 
-              <div className="pt-4 border-t">
+              <div className="pt-4 border-t space-y-4">
+                <QuotationForm
+                  rfqId={rfq.id}
+                  quoting={(rfq as { quoting?: { open?: boolean; canSubmit?: boolean; reason?: string | null } }).quoting}
+                  draft={(() => {
+                    const d = quotes.find((x: { status?: string }) => x.status === "DRAFT") as
+                      | { id: number; attachments?: { id?: number; fileName?: string; fileUrl?: string }[] }
+                      | undefined;
+                    return d ? { id: d.id, attachments: d.attachments } : null;
+                  })()}
+                />
                 <p className="text-sm font-medium mb-2">{t("rfqDetail.yourQuotes")}</p>
                 {quotes.length === 0 ? (
                   <div className="rounded border border-muted/50 px-3 py-4 text-sm text-muted-foreground space-y-4">

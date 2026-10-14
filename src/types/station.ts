@@ -45,6 +45,7 @@ export interface MaintenanceRequestBody {
   attachments?: unknown[];
   firstTask?: FirstTaskInput | null;
   providerOrganizationIds?: number[];
+  providerAudience?: "ALL_ELIGIBLE" | "LINKED_ELIGIBLE" | "SELECTED_LINKED";
 }
 
 export interface InternalWorkOrderRef {

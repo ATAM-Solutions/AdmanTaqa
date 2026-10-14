@@ -23,6 +23,7 @@ import {
 import { UserPlus } from "lucide-react";
 import useCreateUser from "@/hooks/Users/useCreateUser";
 import useGetRoles from "@/hooks/Roles/useGetRoles";
+import { useAuth } from "@/context/AuthContext";
 import useGetBranches from "@/hooks/Branches/useGetBranches";
 import { Checkbox } from "@/components/ui/checkbox";
 import { getBranchDisplayName } from "@/lib/company";
@@ -62,6 +63,7 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
   const [form, setForm] = useState(initialForm);
   const [phoneError, setPhoneError] = useState("");
   const createMutation = useCreateUser();
+  const { scope } = useAuth();
   const { data: roles = [], isLoading: rolesLoading } = useGetRoles();
   const {
     data: branches = [],
@@ -69,6 +71,15 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
     isError: branchesFailed,
     refetch: refetchBranches,
   } = useGetBranches();
+
+  // A Warehouse Manager serves every station: a company-wide administrator does not pick stations (the account is
+  // company-wide by default, using the platform's organization-wide scope — no per-station links are created).
+  // A station-limited creator can only hand out their own stations, so for them the picker stays and is required.
+  const selectedRole = roles.find((r) => String(r.id) === form.roleId);
+  const isWarehouseManager = selectedRole?.name === "Warehouse Manager";
+  const callerCompanyWide = scope?.isOrgWide === true;
+  const companyWideDefault = isWarehouseManager && callerCompanyWide;
+  const stationRequired = isWarehouseManager && !callerCompanyWide;
 
   const handlePhoneChange = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 9);
@@ -91,7 +102,7 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
       phone: phoneTrimmed ? toFullSaudiPhone(phoneTrimmed) : undefined,
       roleId: form.roleId ? Number(form.roleId) : undefined,
       // Only sent when stations were chosen; nothing selected keeps the historical company-wide result (warned below).
-      branchIds: form.branchIds.length > 0 ? form.branchIds : undefined,
+      branchIds: !companyWideDefault && form.branchIds.length > 0 ? form.branchIds : undefined,
     };
     createMutation.mutate(body, {
       onSuccess: () => {
@@ -206,8 +217,17 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
               </SelectContent>
             </Select>
           </div>
+          {companyWideDefault ? (
+            <div className="space-y-1 rounded-md border border-input bg-muted/30 p-3" data-testid="all-stations-notice">
+              <p className="text-sm font-medium">{t("createDialog.allStations")}</p>
+              <p className="text-xs text-muted-foreground">{t("createDialog.allStationsHint")}</p>
+            </div>
+          ) : (
           <div className="space-y-2">
             <Label>{t("createDialog.stations")}</Label>
+            {stationRequired ? (
+              <p className="text-xs text-muted-foreground" data-testid="limited-creator-notice">{t("createDialog.limitedCreatorHint")}</p>
+            ) : null}
             {branchesLoading ? (
               <p className="text-sm text-muted-foreground">{t("createDialog.stationsLoading")}</p>
             ) : branchesFailed ? (
@@ -244,11 +264,12 @@ export default function CreateUserDialog({ trigger }: CreateUserDialogProps) {
               </p>
             )}
           </div>
+          )}
           <DialogFooter className="pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               {t("createDialog.cancel")}
             </Button>
-            <Button type="submit" disabled={createMutation.isPending}>
+            <Button type="submit" disabled={createMutation.isPending || (stationRequired && form.branchIds.length === 0)}>
               {createMutation.isPending ? t("createDialog.creating") : t("createDialog.create")}
             </Button>
           </DialogFooter>

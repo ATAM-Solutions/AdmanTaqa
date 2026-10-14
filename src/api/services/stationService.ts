@@ -82,13 +82,20 @@ export async function fetchStationRequestById(
   };
 }
 
+export type ProviderAudience = "ALL_ELIGIBLE" | "LINKED_ELIGIBLE" | "SELECTED_LINKED";
+
 export async function sendStationRequestToProviders(
   requestId: number | string,
-  body: { providerOrganizationIds: number[] }
+  body: { providerOrganizationIds?: number[]; providerAudience?: ProviderAudience }
 ): Promise<unknown> {
+  // The API field is `providerOrgIds` (the previous `providerOrganizationIds` was ignored by the server, so a
+  // partial selection silently went to EVERY linked provider).
   const response = await axiosInstance.post(
     `station/requests/${requestId}/send-to-providers`,
-    body
+    {
+      ...(body.providerOrganizationIds ? { providerOrgIds: body.providerOrganizationIds } : {}),
+      ...(body.providerAudience ? { providerAudience: body.providerAudience } : {}),
+    }
   );
   return response.data;
 }
@@ -325,4 +332,35 @@ export async function rejectReport(
 ): Promise<unknown> {
   const response = await axiosInstance.post(`station/reports/${reportId}/reject`, body ?? {});
   return response.data;
+}
+
+export type ProviderClassification = "LINKED" | "LINK_INACTIVE" | "AVAILABLE" | "INACTIVE" | "INELIGIBLE";
+export interface ProviderDirectoryItem {
+  id: number;
+  name: string;
+  nameAr: string | null;
+  classification: ProviderClassification;
+  eligible: boolean;
+  reasons: string[];
+  linkStatus: "ACTIVE" | "INACTIVE" | null;
+}
+export interface ProviderDirectoryPage {
+  items: ProviderDirectoryItem[];
+  total: number;
+  page: number;
+  limit: number;
+  counts: Partial<Record<ProviderClassification, number>>;
+}
+
+/** GET /api/station/linked-providers/directory — every provider org, paginated + searchable, with a classification. */
+export async function fetchProviderDirectory(params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  classification?: ProviderClassification;
+}): Promise<ProviderDirectoryPage> {
+  const response = await axiosInstance.get<{ data: ProviderDirectoryPage }>("station/linked-providers/directory", {
+    params: { ...params, search: params.search?.trim() || undefined },
+  });
+  return response.data.data;
 }
