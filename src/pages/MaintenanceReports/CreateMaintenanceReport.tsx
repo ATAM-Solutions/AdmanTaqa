@@ -19,10 +19,11 @@ import {
   type MaintenanceReportCategory,
   type MaintenanceReportPriority,
 } from "@/types/maintenanceReport";
+import { REPORT_ACCEPTED_TYPES, REPORT_MAX_FILES, REPORT_MAX_FILE_BYTES } from "@/lib/reportAttachments";
 
-const MAX_FILES = 5;
-const MAX_FILE_BYTES = 5 * 1024 * 1024;
-const ACCEPTED = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf"];
+const MAX_FILES = REPORT_MAX_FILES;
+const MAX_FILE_BYTES = REPORT_MAX_FILE_BYTES;
+const ACCEPTED = REPORT_ACCEPTED_TYPES;
 
 export default function CreateMaintenanceReport() {
   const { t } = useTranslation("maintenanceReports");

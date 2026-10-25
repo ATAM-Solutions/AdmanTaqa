@@ -101,7 +101,14 @@
     "tlOps": "Approved by operations",
     "tlDecidedInternal": "Decision: internal maintenance",
     "tlDecidedExternal": "Decision: external maintenance",
-    "tlRejected": "Rejected"
+    "tlRejected": "Rejected",
+    "addFiles": "Add files",
+    "addFilesHint": "You can add {{count}} more file(s) (JPG, PNG, GIF, WebP or PDF, max 5 MB each) until the report is reviewed.",
+    "filesLimitReached": "The limit of {{count}} files has been reached.",
+    "uploading": "Uploading…",
+    "filesAdded": "{{count}} file(s) added.",
+    "filesAddFailed": "Could not add the files.",
+    "filesLocked": "Files can no longer be added or changed because the report has been reviewed."
   },
   "actions": {
     "supervisorApprove": "Approve (supervisor)",

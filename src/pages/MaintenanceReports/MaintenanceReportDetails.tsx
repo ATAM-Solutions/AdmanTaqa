@@ -18,6 +18,8 @@ import {
 import { AsyncBoundary } from "@/components/patterns";
 import BranchSelect from "@/components/BranchSelect";
 import ReportAttachmentTile from "@/components/ReportAttachmentTile";
+import useUploadReportAttachments from "@/hooks/MaintenanceReports/useUploadReportAttachments";
+import { checkReportFile, REPORT_ACCEPTED_TYPES, REPORT_MAX_FILES } from "@/lib/reportAttachments";
 import { ReportPriorityBadge, ReportStatusBadge } from "@/components/MaintenanceReportBadges";
 import { useAuth } from "@/context/AuthContext";
 import useMaintenanceReportById from "@/hooks/MaintenanceReports/useMaintenanceReportById";
@@ -54,6 +56,36 @@ export default function MaintenanceReportDetails() {
   const [stepDialog, setStepDialog] = useState<null | { kind: "supervisor" | "ops"; action: StepAction }>(null);
   const [decideOpen, setDecideOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const uploadFiles = useUploadReportAttachments(id ?? "");
+
+  const attachmentCount = (report?.MaintenanceIssueAttachments ?? []).length;
+  // Mirrors the server rule: only the person who filed the report, only until it is reviewed.
+  const canAddFiles =
+    report?.status === "SUBMITTED" &&
+    report.submittedByUserId != null &&
+    report.submittedByUserId === currentUser?.id &&
+    hasPermission("maintenance_issues.create");
+
+  const handleAddFiles = (list: FileList | null) => {
+    if (!list || list.length === 0) return;
+    const accepted: File[] = [];
+    for (const file of Array.from(list)) {
+      const problem = checkReportFile(file, attachmentCount + accepted.length);
+      if (problem === "type") toast.error(t("create.fileTypeRejected", { name: file.name }));
+      else if (problem === "size") toast.error(t("create.fileTooLarge", { name: file.name }));
+      else if (problem === "limit") toast.error(t("create.tooManyFiles", { count: REPORT_MAX_FILES }));
+      else accepted.push(file);
+    }
+    if (accepted.length === 0) return;
+    uploadFiles.mutate(accepted, {
+      onSuccess: ({ uploaded, failed }) => {
+        if (uploaded > 0) toast.success(t("details.filesAdded", { count: uploaded }));
+        failed.forEach((f) => toast.error(`${f.name}: ${f.message}`));
+        refetch();
+      },
+      onError: (err) => toast.error(getApiErrorMessage(err, t("details.filesAddFailed"))),
+    });
+  };
 
   const when = (value?: string | null) =>
     value ? formatDate(value, i18n.language, { dateStyle: "medium", timeStyle: "short" }) : "—";
@@ -166,6 +198,30 @@ export default function MaintenanceReportDetails() {
                         ))}
                       </div>
                     )}
+                    {canAddFiles ? (
+                      <div className="mt-4 space-y-2 border-t pt-4">
+                        <Label htmlFor="report-add-files">{t("details.addFiles")}</Label>
+                        <Input
+                          id="report-add-files"
+                          type="file"
+                          multiple
+                          accept={REPORT_ACCEPTED_TYPES.join(",")}
+                          disabled={uploadFiles.isPending || attachmentCount >= REPORT_MAX_FILES}
+                          onChange={(e) => {
+                            handleAddFiles(e.target.files);
+                            e.target.value = "";
+                          }}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {attachmentCount >= REPORT_MAX_FILES
+                            ? t("details.filesLimitReached", { count: REPORT_MAX_FILES })
+                            : t("details.addFilesHint", { count: REPORT_MAX_FILES - attachmentCount })}
+                        </p>
+                        {uploadFiles.isPending && <p className="text-xs text-muted-foreground">{t("details.uploading")}</p>}
+                      </div>
+                    ) : report.status !== "SUBMITTED" && (report.MaintenanceIssueAttachments ?? []).length > 0 ? (
+                      <p className="mt-4 border-t pt-3 text-xs text-muted-foreground">{t("details.filesLocked")}</p>
+                    ) : null}
                   </CardContent>
                 </Card>
 

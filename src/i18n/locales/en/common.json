@@ -55,5 +55,13 @@
     "retryIn": "Retry in {{seconds}}s",
     "retry": "Retry",
     "keptPrevious": "Showing the last data that loaded. It may be out of date."
+  },
+  "sourceReport": {
+    "title": "Report attachments",
+    "hint": "Files attached to the report this request was created from. They are read-only.",
+    "none": "The report has no attachments.",
+    "download": "Download",
+    "loadFailed": "Could not load the file",
+    "fileLabel": "File #{{id}}"
   }
 }

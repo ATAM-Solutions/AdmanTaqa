@@ -101,7 +101,14 @@
     "tlOps": "وافق عليه مدير التشغيل",
     "tlDecidedInternal": "القرار: صيانة داخلية",
     "tlDecidedExternal": "القرار: صيانة خارجية",
-    "tlRejected": "تم الرفض"
+    "tlRejected": "تم الرفض",
+    "addFiles": "إضافة ملفات",
+    "addFilesHint": "يمكنك إضافة {{count}} ملف(ات) إضافية (JPG أو PNG أو GIF أو WebP أو PDF، بحد أقصى 5 ميجابايت للملف) حتى تتم مراجعة البلاغ.",
+    "filesLimitReached": "تم بلوغ الحد الأقصى وهو {{count}} ملفات.",
+    "uploading": "جارٍ الرفع…",
+    "filesAdded": "تمت إضافة {{count}} ملف(ات).",
+    "filesAddFailed": "تعذّرت إضافة الملفات.",
+    "filesLocked": "لا يمكن إضافة الملفات أو تغييرها بعد مراجعة البلاغ."
   },
   "actions": {
     "supervisorApprove": "موافقة (المشرف)",

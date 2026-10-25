@@ -39,6 +39,12 @@ function normalizeTaskRefs(raw: unknown): InternalWorkOrderItem["tasks"] {
     .filter((t): t is NonNullable<typeof t> => t !== null);
 }
 
+function normalizeSourceReport(raw: unknown): InternalWorkOrderItem["sourceReport"] {
+  const r = raw as { id?: number; attachments?: unknown } | null | undefined;
+  if (!r || typeof r !== "object" || !Array.isArray(r.attachments)) return null;
+  return { id: r.id, attachments: r.attachments as NonNullable<InternalWorkOrderItem["sourceReport"]>["attachments"] };
+}
+
 function normalizeItem(raw: unknown): InternalWorkOrderItem | null {
   if (raw == null || typeof raw !== "object") return null;
   const obj = raw as Record<string, unknown>;
@@ -59,6 +65,7 @@ function normalizeItem(raw: unknown): InternalWorkOrderItem | null {
     createdAt: typeof obj.createdAt === "string" ? obj.createdAt : undefined,
     updatedAt: typeof obj.updatedAt === "string" ? obj.updatedAt : undefined,
     tasks: normalizeTaskRefs(obj.InternalTasks ?? obj.tasks),
+    sourceReport: normalizeSourceReport(obj.sourceReport),
   };
 }
 

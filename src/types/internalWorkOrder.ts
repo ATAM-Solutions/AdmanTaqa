@@ -25,6 +25,8 @@ export interface InternalWorkOrderItem {
   createdAt?: string;
   updatedAt?: string;
   tasks?: InternalTaskRef[];
+  /** Files of the report this order was created from (read-only); null when it has no source report. */
+  sourceReport?: import("@/types/sourceReport").SourceReport | null;
 }
 
 export interface InternalTaskRef {

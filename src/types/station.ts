@@ -113,6 +113,8 @@ export interface ProviderQuoteSummary {
 }
 
 export interface StationRequestDetail extends StationRequestItem {
+  /** Files of the report this request was created from (read-only); null when it has no source report. */
+  sourceReport?: import("@/types/sourceReport").SourceReport | null;
   jobOrders?: ExternalJobOrderSummary[];
   /** For external requests, backend may return a single ExternalJobOrder when a quote is selected */
   ExternalJobOrder?: ExternalJobOrderSummary;

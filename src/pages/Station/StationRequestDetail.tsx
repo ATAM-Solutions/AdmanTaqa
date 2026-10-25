@@ -22,11 +22,13 @@ import { getApiErrorMessage } from "@/lib/utils";
 import { formatDate } from "@/lib/i18n/formatters";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import SourceReportAttachments from "@/components/SourceReportAttachments";
 
 const MAX_RECEIPT_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 export default function StationRequestDetail() {
   const { t, i18n } = useTranslation("station");
+  const { t: tCommon } = useTranslation("common");
   const { id } = useParams<{ id: string }>();
   const { data: request, isLoading, refetch: refetchRequest } = useStationRequestById(id ?? null);
   const selectQuoteMutation = useSelectQuote();
@@ -250,6 +252,17 @@ export default function StationRequestDetail() {
                   </span>
                 )}
               </div>
+            </div>
+          )}
+
+          {request.sourceReport && (
+            <div className="space-y-2" data-testid="request-source-report">
+              <p className="text-sm font-medium">{tCommon("sourceReport.title")}</p>
+              {request.sourceReport.attachments.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{tCommon("sourceReport.none")}</p>
+              ) : (
+                <SourceReportAttachments attachments={request.sourceReport.attachments} />
+              )}
             </div>
           )}
 
