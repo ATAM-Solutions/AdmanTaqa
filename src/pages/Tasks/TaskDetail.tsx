@@ -99,7 +99,11 @@ export default function TaskDetail() {
   });
   const task = taskQuery.data;
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey });
+  // a status change or review also changes the task's activity: reload both so the new entry (with its parts) shows at once
+  const refresh = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["activity"] });
+    await queryClient.invalidateQueries({ queryKey });
+  };
 
   // the warehouse catalogue is fetched only when the technician opens the parts request
   const catalogue = useQuery({
