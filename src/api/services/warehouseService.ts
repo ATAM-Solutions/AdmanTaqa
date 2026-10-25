@@ -173,6 +173,10 @@ export interface OrderLine {
   quantity: number;
   approvedQuantity: number | null;
   issuedQuantity: number | null;
+  /** What the technician confirmed receiving (null until receipt, and for requests handed over before the two-step flow). */
+  receivedQuantity: number | null;
+  /** Issued but not yet confirmed by the technician (only while the request awaits receipt). */
+  pendingReceiptQuantity: number;
   usedQuantity: number | null;
   returnedQuantity: number | null;
   /** Proposed by the technician, not yet answered by the warehouse. */
@@ -183,7 +187,8 @@ export interface OrderLine {
   sparePartId: number | null;
   unit: string | null;
 }
-export interface WorkflowAction { allowed: boolean; reason: string | null; actor: string }
+/** `legacy` = an obsolete intermediate step (review / approve / issue / deliver): kept for older apps, hidden here. */
+export interface WorkflowAction { allowed: boolean; reason: string | null; actor: string; legacy?: boolean }
 export interface OrderDetail {
   id: number;
   status: string;
@@ -195,10 +200,17 @@ export interface OrderDetail {
   warehouse: { id: number; name: string } | null;
   taskId: number | null;
   rejectionReason: string | null;
+  approvedAt: string | null;
+  issuedAt: string | null;
+  receivedAt: string | null;
+  issuedBy: string | null;
+  receivedBy: string | null;
   items: OrderLine[];
   updates: { id: number; message: string | null; newStatus: string | null; by: string | null; createdAt: string }[];
   workflow: {
     status: string;
+    /** AWAITING_TECHNICIAN_RECEIPT (issued, not yet confirmed) | RECEIVED | null. */
+    phase?: "AWAITING_TECHNICIAN_RECEIPT" | "RECEIVED" | null;
     terminal: boolean;
     nextStep: { actor: string; action: string } | null;
     warehouseAssigned: boolean;
@@ -225,6 +237,11 @@ export function normalizeOrder(raw: unknown): OrderDetail | null {
     warehouse: wh && typeof wh.id === "number" ? { id: wh.id as number, name: str(wh.name) ?? `#${wh.id}` } : null,
     taskId: num(r.internalTaskId),
     rejectionReason: str(r.rejectionReason),
+    approvedAt: str(r.approvedAt),
+    issuedAt: str(r.issuedAt),
+    receivedAt: str(r.receivedAt),
+    issuedBy: str(obj(r.WarehouseManager)?.fullName),
+    receivedBy: str(obj(r.ReceivedByUser)?.fullName),
     items: arr(r.WarehouseOrderItems)
       .map(obj)
       .filter((i): i is Record<string, unknown> => !!i && typeof i.id === "number")
@@ -235,6 +252,8 @@ export function normalizeOrder(raw: unknown): OrderDetail | null {
         quantity: Number(i.quantity ?? 0),
         approvedQuantity: num(i.approvedQuantity),
         issuedQuantity: num(i.issuedQuantity),
+        receivedQuantity: num(i.receivedQuantity),
+        pendingReceiptQuantity: num(i.pendingReceiptQuantity) ?? 0,
         usedQuantity: num(i.usedQuantity),
         returnedQuantity: num(i.returnedQuantity),
         pendingReturnQuantity: num(i.pendingReturnQuantity) ?? 0,
@@ -273,6 +292,8 @@ export type OrderAction =
   | { kind: "approve"; decisions?: LineDecision[] }
   | { kind: "reject"; reason: string }
   | { kind: "issue"; quantities?: { itemId: number; quantity: number }[] }
+  | { kind: "approveAndIssue"; quantities?: { itemId: number; quantity: number }[]; note?: string }
+  | { kind: "receive"; received?: { itemId: number; quantity: number }[]; note?: string }
   | { kind: "deliver" }
   | { kind: "partialReturn"; items: { itemId: number; quantity: number }[] }
   | { kind: "submitReturn" }
@@ -294,6 +315,8 @@ export async function runOrderAction(id: number | string, a: OrderAction): Promi
       case "approve": await axiosInstance.patch(`${base}/approve`, a.decisions?.length ? { itemDecisions: a.decisions } : {}); break;
       case "reject": await axiosInstance.patch(`${base}/reject`, { reason: a.reason }); break;
       case "issue": await axiosInstance.patch(`${base}/issue`, a.quantities?.length ? { itemIssuedQuantities: a.quantities } : {}); break;
+      case "approveAndIssue": await axiosInstance.patch(`${base}/approve-and-issue`, { ...(a.quantities?.length ? { itemIssuedQuantities: a.quantities } : {}), ...(a.note ? { note: a.note } : {}) }); break;
+      case "receive": await axiosInstance.patch(`${base}/receive`, { ...(a.received?.length ? { itemReceivedQuantities: a.received } : {}), ...(a.note ? { note: a.note } : {}) }); break;
       case "deliver": await axiosInstance.patch(`${base}/deliver`, {}); break;
       case "partialReturn": await axiosInstance.patch(`${base}/return/partial`, { items: a.items }); break;
       case "submitReturn": await axiosInstance.patch(`${base}/return/submit`, {}); break;

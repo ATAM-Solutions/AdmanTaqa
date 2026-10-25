@@ -34,7 +34,9 @@
     "notChosen": "Not chosen yet",
     "requestedBy": "Requested by",
     "notes": "Notes",
-    "rejectionReason": "Rejection reason"
+    "rejectionReason": "Rejection reason",
+    "issued": "Issued",
+    "received": "Received"
   },
   "actors": {
     "REQUESTER": "the requester (technician)",
@@ -59,7 +61,9 @@
     "confirmReturn": "Confirm returned parts",
     "close": "Close request",
     "cancel": "Cancel request",
-    "rejectReturn": "Send back to technician"
+    "rejectReturn": "Send back to technician",
+    "approveAndIssue": "Approve & Issue Parts",
+    "receive": "Confirm Receipt"
   },
   "reasons": {
     "WRONG_STATE": "Not available now — {{actor}} acts at this stage.",
@@ -86,7 +90,9 @@
     "edit": "Edit parts",
     "used": "Used",
     "returned": "Returned",
-    "available": "In stock"
+    "available": "In stock",
+    "received": "Received",
+    "pendingReceipt": "{{count}} awaiting receipt"
   },
   "return": {
     "title": "Return unused parts",
@@ -114,7 +120,19 @@
     "ITEM_NOT_MAPPED": "Every approved line must be mapped to an inventory item before issuing.",
     "ORDER_NOT_MAPPABLE": "Lines can only be mapped during warehouse review or after approval.",
     "REQUESTED_ITEM_INVALID": "One of the requested parts is not valid for your company.",
-    "ORDER_STOCK_ISSUED": "Parts were already issued for this request. Return them through the return steps instead of cancelling."
+    "ORDER_STOCK_ISSUED": "Parts were already issued for this request. Return them through the return steps instead of cancelling.",
+    "ISSUED_EXCEEDS_APPROVED": "You cannot issue more than the approved quantity.",
+    "NOTHING_TO_ISSUE": "Every quantity is zero. Issue at least one part, or reject the request.",
+    "INVALID_QUANTITY": "Quantities must be whole numbers, zero or more.",
+    "INVALID_ITEM": "One of the lines does not belong to this request.",
+    "DUPLICATE_ITEM": "A line was listed twice.",
+    "ORDER_ALREADY_RECEIVED": "Receipt was already confirmed for this request.",
+    "ORDER_NOT_ISSUED": "The parts have not been issued yet.",
+    "NOT_ASSIGNED_TECHNICIAN": "Only the technician assigned to this request can confirm receipt.",
+    "NO_ASSIGNED_TECHNICIAN": "This request has no assigned technician, so receipt cannot be confirmed.",
+    "INVALID_RECEIVED_QUANTITY": "The received quantity must be between 0 and the issued quantity.",
+    "INVALID_USED_QUANTITY": "The used quantity cannot exceed the received quantity.",
+    "RECEIPT_NOTE_REQUIRED": "Add a note explaining why less than the issued quantity was received."
   },
   "inventory": {
     "title": "Inventory",
@@ -304,5 +322,22 @@
       "ASSIGNMENT_IMPACT_CONFIRMATION_REQUIRED": "The impact changed. Review it and confirm again.",
       "COMPANY_ADMIN_REQUIRED": "Only the company administrator can do this."
     }
+  },
+  "phase": {
+    "AWAITING_TECHNICIAN_RECEIPT": "Awaiting technician receipt",
+    "RECEIVED": "Received by technician"
+  },
+  "approveIssue": {
+    "title": "Approve & issue parts",
+    "hint": "Choose how many of each part to issue from stock. Approval and issue happen together and stock is deducted once. Issue less than requested to issue partially.",
+    "note": "Note (optional)",
+    "exceedsStock": "Only {{count}} in stock — issue that many or fewer."
+  },
+  "receive": {
+    "title": "Confirm receipt of the parts",
+    "hint": "Check the parts you collected. Confirm the quantity you actually received for each part.",
+    "issued": "issued {{count}}",
+    "range": "Enter 0 to {{max}}.",
+    "noteRequired": "You received less than was issued — explain why."
   }
 }
