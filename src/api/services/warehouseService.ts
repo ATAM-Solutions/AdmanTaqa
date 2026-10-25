@@ -160,6 +160,12 @@ export interface OrderLine {
   quantity: number;
   approvedQuantity: number | null;
   issuedQuantity: number | null;
+  usedQuantity: number | null;
+  returnedQuantity: number | null;
+  /** Proposed by the technician, not yet answered by the warehouse. */
+  pendingReturnQuantity: number;
+  /** Current stock of the catalogue item; only sent to people who may read the warehouse (null for free-text lines). */
+  availableQuantity: number | null;
   status: string;
   sparePartId: number | null;
   unit: string | null;
@@ -216,6 +222,10 @@ export function normalizeOrder(raw: unknown): OrderDetail | null {
         quantity: Number(i.quantity ?? 0),
         approvedQuantity: num(i.approvedQuantity),
         issuedQuantity: num(i.issuedQuantity),
+        usedQuantity: num(i.usedQuantity),
+        returnedQuantity: num(i.returnedQuantity),
+        pendingReturnQuantity: num(i.pendingReturnQuantity) ?? 0,
+        availableQuantity: num(i.availableQuantity),
         status: str(i.status) ?? "REQUESTED",
         sparePartId: num(i.sparePartId),
         unit: str(i.unit),
@@ -239,19 +249,23 @@ export async function fetchOrder(id: number | string): Promise<OrderDetail> {
   }
 }
 
+/** One line of a partial approval: approve (with a quantity up to the requested one) or mark it not available. */
+export interface LineDecision { itemId: number; status: "APPROVED" | "NOT_AVAILABLE"; approvedQuantity?: number }
+
 export type OrderAction =
   | { kind: "editItems"; items: { partName: string; quantity: number; sparePartId?: number | null; unit?: string }[] }
   | { kind: "submit"; warehouseId?: number }
   | { kind: "maintenanceApprove"; decision: "APPROVE" | "REJECT"; reason?: string }
   | { kind: "review" }
-  | { kind: "approve" }
+  | { kind: "approve"; decisions?: LineDecision[] }
   | { kind: "reject"; reason: string }
-  | { kind: "issue" }
+  | { kind: "issue"; quantities?: { itemId: number; quantity: number }[] }
   | { kind: "deliver" }
   | { kind: "partialReturn"; items: { itemId: number; quantity: number }[] }
   | { kind: "submitReturn" }
   | { kind: "acknowledgeReturn" }
   | { kind: "confirmReturn" }
+  | { kind: "rejectReturn"; reason: string }
   | { kind: "close" }
   | { kind: "cancel" }
   | { kind: "mapItem"; itemId: number; sparePartId: number };
@@ -264,14 +278,15 @@ export async function runOrderAction(id: number | string, a: OrderAction): Promi
       case "submit": await axiosInstance.patch(`${base}/submit`, a.warehouseId ? { warehouseId: a.warehouseId } : {}); break;
       case "maintenanceApprove": await axiosInstance.patch(`${base}/maintenance-approve`, { decision: a.decision, reason: a.reason }); break;
       case "review": await axiosInstance.patch(`${base}/review`, {}); break;
-      case "approve": await axiosInstance.patch(`${base}/approve`, {}); break;
+      case "approve": await axiosInstance.patch(`${base}/approve`, a.decisions?.length ? { itemDecisions: a.decisions } : {}); break;
       case "reject": await axiosInstance.patch(`${base}/reject`, { reason: a.reason }); break;
-      case "issue": await axiosInstance.patch(`${base}/issue`, {}); break;
+      case "issue": await axiosInstance.patch(`${base}/issue`, a.quantities?.length ? { itemIssuedQuantities: a.quantities } : {}); break;
       case "deliver": await axiosInstance.patch(`${base}/deliver`, {}); break;
       case "partialReturn": await axiosInstance.patch(`${base}/return/partial`, { items: a.items }); break;
       case "submitReturn": await axiosInstance.patch(`${base}/return/submit`, {}); break;
       case "acknowledgeReturn": await axiosInstance.patch(`${base}/return/acknowledge`, {}); break;
       case "confirmReturn": await axiosInstance.patch(`${base}/return/confirm`, {}); break;
+      case "rejectReturn": await axiosInstance.patch(`${base}/return/reject-submission`, { reason: a.reason }); break;
       case "close": await axiosInstance.patch(`${base}/close`, {}); break;
       case "cancel": await axiosInstance.patch(`${base}/cancel`, {}); break;
       case "mapItem": await axiosInstance.patch(`${base}/items/${a.itemId}/map`, { sparePartId: a.sparePartId }); break;

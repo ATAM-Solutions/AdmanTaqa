@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DashboardLoadError } from "@/components/DashboardLoadError";
+import ActivityTimeline from "@/components/ActivityTimeline";
 import { useAuth } from "@/context/AuthContext";
 import { getApiErrorMessage } from "@/lib/utils";
 import {
@@ -21,13 +22,14 @@ import {
   runOrderAction,
   type OrderAction,
   type OrderDetail,
+  type OrderLine,
 } from "@/api/services/warehouseService";
 
 const KNOWN_CODES = [
   "ITEM_NOT_MAPPED", "ORDER_NOT_MAPPABLE", "REQUESTED_ITEM_INVALID",
   "ORDER_STATUS_TRANSITION_INVALID", "ORDER_NOT_EDITABLE", "ORDER_HAS_NO_ITEMS", "ORDER_NOT_REQUESTER",
   "ITEM_WAREHOUSE_MISMATCH", "ITEM_NOT_FOUND", "INSUFFICIENT_STOCK", "WAREHOUSE_BRANCH_MISMATCH",
-  "WAREHOUSE_SELECTION_REQUIRED", "NO_WAREHOUSE_AVAILABLE", "ORDER_WAREHOUSE_NOT_SET", "BRANCH_ACCESS_DENIED",
+  "WAREHOUSE_SELECTION_REQUIRED", "NO_WAREHOUSE_AVAILABLE", "ORDER_WAREHOUSE_NOT_SET", "BRANCH_ACCESS_DENIED", "ORDER_STOCK_ISSUED",
 ] as const;
 
 type Draft = { partName: string; quantity: string };
@@ -44,6 +46,11 @@ export default function WarehouseRequestDetail() {
   const [returnQty, setReturnQty] = useState<Record<number, string>>({});
   const [candidates, setCandidates] = useState<{ id: number; name: string }[] | null>(null);
   const [chosenWarehouse, setChosenWarehouse] = useState("");
+  // partial approval / issue quantities, keyed by line id; empty = the default (all of it)
+  const [approveQty, setApproveQty] = useState<Record<number, string>>({});
+  const [unavailable, setUnavailable] = useState<Record<number, boolean>>({});
+  const [issueQty, setIssueQty] = useState<Record<number, string>>({});
+  const [returnReason, setReturnReason] = useState("");
 
   const q = useQuery<OrderDetail, WarehouseApiError>({
     queryKey: key, queryFn: () => fetchOrder(id as string), enabled: !!id, retry: false, refetchOnWindowFocus: false,
@@ -68,6 +75,7 @@ export default function WarehouseRequestDetail() {
     },
     onSuccess: async () => {
       setLines(null); setReason(""); setReturnQty({}); setCandidates(null); setChosenWarehouse("");
+      setApproveQty({}); setUnavailable({}); setIssueQty({}); setReturnReason("");
       await qc.invalidateQueries({ queryKey: key });
       await qc.invalidateQueries({ queryKey: ["warehouse-requests"] });
     },
@@ -92,6 +100,12 @@ export default function WarehouseRequestDetail() {
   const act = (k: string) => wf?.actions?.[k];
   const stationName = order?.station ? (i18n.language.startsWith("ar") ? order.station.ar ?? order.station.en : order.station.en ?? order.station.ar) : null;
   const isRequester = !!order && order.requestedByUserId === user?.id;
+  const showStock = !!order && order.items.some((i) => i.availableQuantity != null);
+  const awaitingApproval = order?.items.filter((i) => i.status === "REQUESTED") ?? [];
+  const approvedLines = order?.items.filter((i) => i.status === "APPROVED") ?? [];
+  /** What can still be proposed for return: issued − used − already returned − proposed and waiting. */
+  const returnableOf = (i: OrderLine) => Math.max(0, (i.issuedQuantity ?? 0) - (i.usedQuantity ?? i.issuedQuantity ?? 0) - (i.returnedQuantity ?? 0) - i.pendingReturnQuantity);
+  const asInt = (v: string | undefined) => (v === undefined || v === "" ? null : Math.floor(Number(v)));
 
   const reasonText = (r: string | null | undefined, actor: string | undefined) => {
     if (!r) return "";
@@ -167,13 +181,14 @@ export default function WarehouseRequestDetail() {
               {!editing && order.items.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm" data-testid="items-table">
-                    <thead><tr className="text-start text-xs text-muted-foreground"><th className="py-1 text-start">{t("items.part")}</th><th className="text-start">{t("items.qty")}</th><th className="text-start">{t("items.approved")}</th><th className="text-start">{t("items.issued")}</th><th className="text-start">{t("items.status")}</th></tr></thead>
+                    <thead><tr className="text-start text-xs text-muted-foreground"><th className="py-1 text-start">{t("items.part")}</th><th className="text-start">{t("items.qty")}</th><th className="text-start">{t("items.approved")}</th><th className="text-start">{t("items.issued")}</th><th className="text-start">{t("items.used")}</th><th className="text-start">{t("items.returned")}</th>{showStock ? <th className="text-start">{t("items.available")}</th> : null}<th className="text-start">{t("items.status")}</th></tr></thead>
                     <tbody>
                       {order.items.map((i) => (
                         <tr key={i.id} className="border-t">
                           <td className="py-2" dir="auto">{i.partName}{i.partCode ? <span className="text-xs text-muted-foreground"> · {i.partCode}</span> : null}</td>
-                          <td>{i.quantity}</td><td>{i.approvedQuantity ?? "—"}</td><td>{i.issuedQuantity ?? "—"}</td>
-                          <td><Badge variant="outline">{i.status}</Badge></td>
+                          <td>{i.quantity}</td><td>{i.approvedQuantity ?? "—"}</td><td>{i.issuedQuantity ?? "—"}</td><td>{i.usedQuantity ?? "—"}</td><td>{i.returnedQuantity ?? "—"}</td>
+                          {showStock ? <td data-testid="line-available">{i.availableQuantity ?? "—"}</td> : null}
+                          <td><Badge variant="outline">{t(`itemStatus.${i.status}`, { defaultValue: i.status })}</Badge></td>
                         </tr>
                       ))}
                     </tbody>
@@ -228,7 +243,40 @@ export default function WarehouseRequestDetail() {
               ) : null}
               <Row k="maintenanceApprove" label={t("actions.maintenanceApprove")} onClick={() => run.mutate({ kind: "maintenanceApprove", decision: "APPROVE" })} />
               <Row k="review" label={t("actions.review")} onClick={() => run.mutate({ kind: "review" })} />
-              <Row k="approve" label={t("actions.approve")} onClick={() => run.mutate({ kind: "approve" })} />
+              {act("approve")?.allowed && order.status === "UNDER_REVIEW" && awaitingApproval.length > 0 ? (
+                <div className="space-y-2 rounded-md border p-3" data-testid="approve-panel">
+                  <p className="text-sm font-medium">{t("approve.title")}</p>
+                  <p className="text-xs text-muted-foreground">{t("approve.hint")}</p>
+                  {awaitingApproval.map((i) => {
+                    const qty = asInt(approveQty[i.id]) ?? i.quantity;
+                    const invalid = !unavailable[i.id] && (!(qty >= 1) || qty > i.quantity);
+                    const short = !unavailable[i.id] && i.availableQuantity != null && qty > i.availableQuantity;
+                    return (
+                      <div key={i.id} className="flex flex-wrap items-center gap-2" data-testid="approve-row">
+                        <span className="min-w-0 flex-1 text-sm" dir="auto">{i.partName} <span className="text-xs text-muted-foreground">({t("approve.requested", { count: i.quantity })}{i.availableQuantity != null ? ` · ${t("approve.inStock", { count: i.availableQuantity })}` : ""})</span></span>
+                        <label className="flex items-center gap-1 text-xs">
+                          <input type="checkbox" checked={!!unavailable[i.id]} onChange={(e) => setUnavailable((p) => ({ ...p, [i.id]: e.target.checked }))} data-testid="approve-unavailable" />
+                          {t("approve.notAvailable")}
+                        </label>
+                        <Input className="w-24" type="number" min={1} max={i.quantity} disabled={!!unavailable[i.id]} aria-label={t("items.approved")} value={approveQty[i.id] ?? String(i.quantity)}
+                          onChange={(e) => setApproveQty((p) => ({ ...p, [i.id]: e.target.value }))} data-testid="approve-qty" />
+                        {invalid ? <span className="text-xs text-destructive" role="alert">{t("approve.range", { max: i.quantity })}</span> : null}
+                        {short ? <span className="text-xs text-amber-600" data-testid="approve-short">{t("approve.short")}</span> : null}
+                      </div>
+                    );
+                  })}
+                  <Button size="sm" disabled={busy || awaitingApproval.some((i) => { const q = asInt(approveQty[i.id]) ?? i.quantity; return !unavailable[i.id] && (!(q >= 1) || q > i.quantity); })} data-testid="action-approve"
+                    onClick={() => {
+                      const decisions = awaitingApproval.map((i) => unavailable[i.id]
+                        ? { itemId: i.id, status: "NOT_AVAILABLE" as const }
+                        : { itemId: i.id, status: "APPROVED" as const, approvedQuantity: asInt(approveQty[i.id]) ?? i.quantity });
+                      const isFull = decisions.every((d, n) => d.status === "APPROVED" && d.approvedQuantity === awaitingApproval[n].quantity);
+                      run.mutate({ kind: "approve", decisions: isFull ? undefined : decisions });
+                    }}>
+                    {t("actions.approve")}
+                  </Button>
+                </div>
+              ) : <Row k="approve" label={t("actions.approve")} onClick={() => run.mutate({ kind: "approve" })} />}
               {unmapped.length > 0 && canListWarehouses ? (
                 <div className="space-y-2 rounded-md border p-3" data-testid="map-panel">
                   <p className="text-sm font-medium">{t("mapping.title")}</p>
@@ -247,18 +295,49 @@ export default function WarehouseRequestDetail() {
                   ))}
                 </div>
               ) : null}
-              <Row k="issue" label={t("actions.issue")} onClick={() => run.mutate({ kind: "issue" })} />
+              {act("issue")?.allowed && order.status === "APPROVED" && approvedLines.length > 0 ? (
+                <div className="space-y-2 rounded-md border p-3" data-testid="issue-panel">
+                  <p className="text-sm font-medium">{t("issue.title")}</p>
+                  {approvedLines.map((i) => {
+                    const max = i.approvedQuantity ?? i.quantity;
+                    const qty = asInt(issueQty[i.id]) ?? max;
+                    const invalid = !(qty >= 0) || qty > max;
+                    const short = i.availableQuantity != null && qty > i.availableQuantity;
+                    return (
+                      <div key={i.id} className="flex flex-wrap items-center gap-2" data-testid="issue-row">
+                        <span className="min-w-0 flex-1 text-sm" dir="auto">{i.partName} <span className="text-xs text-muted-foreground">({t("issue.approved", { count: max })}{i.availableQuantity != null ? ` · ${t("approve.inStock", { count: i.availableQuantity })}` : ""})</span></span>
+                        <Input className="w-24" type="number" min={0} max={max} aria-label={t("items.issued")} value={issueQty[i.id] ?? String(max)} onChange={(e) => setIssueQty((p) => ({ ...p, [i.id]: e.target.value }))} data-testid="issue-qty" />
+                        {invalid ? <span className="text-xs text-destructive" role="alert">{t("issue.range", { max })}</span> : null}
+                        {short && !invalid ? <span className="text-xs text-amber-600" data-testid="issue-short">{t("approve.short")}</span> : null}
+                      </div>
+                    );
+                  })}
+                  <Button size="sm" disabled={busy || approvedLines.some((i) => { const q = asInt(issueQty[i.id]) ?? (i.approvedQuantity ?? i.quantity); return !(q >= 0) || q > (i.approvedQuantity ?? i.quantity); })} data-testid="action-issue"
+                    onClick={() => {
+                      const quantities = approvedLines.map((i) => ({ itemId: i.id, quantity: asInt(issueQty[i.id]) ?? (i.approvedQuantity ?? i.quantity) }));
+                      const isFull = quantities.every((q, n) => q.quantity === (approvedLines[n].approvedQuantity ?? approvedLines[n].quantity));
+                      run.mutate({ kind: "issue", quantities: isFull ? undefined : quantities });
+                    }}>
+                    {t("actions.issue")}
+                  </Button>
+                </div>
+              ) : <Row k="issue" label={t("actions.issue")} onClick={() => run.mutate({ kind: "issue" })} />}
               <Row k="deliver" label={t("actions.deliver")} onClick={() => run.mutate({ kind: "deliver" })} />
-              {act("submitReturn")?.allowed && order.status === "DELIVERED" ? (
+              {act("submitReturn")?.allowed && (order.status === "DELIVERED" || order.status === "PARTIAL_RETURN") ? (
                 <div className="space-y-2 rounded-md border p-3" data-testid="return-form">
                   <p className="text-sm font-medium">{t("return.title")}</p>
-                  {order.items.filter((i) => i.status === "DELIVERED").map((i) => (
-                    <div key={i.id} className="flex items-center gap-2">
-                      <span className="min-w-0 flex-1 text-sm" dir="auto">{i.partName} ({i.issuedQuantity ?? i.quantity})</span>
-                      <Input className="w-24" type="number" min={0} value={returnQty[i.id] ?? ""} onChange={(e) => setReturnQty((p) => ({ ...p, [i.id]: e.target.value }))} />
-                    </div>
-                  ))}
-                  <Button size="sm" disabled={busy || !Object.values(returnQty).some((v) => Number(v) > 0)} data-testid="record-return"
+                    <p className="text-xs text-muted-foreground">{t("return.hint")}</p>
+                  {order.items.filter((i) => i.status === "DELIVERED").map((i) => {
+                    const returnable = returnableOf(i);
+                    return (
+                      <div key={i.id} className="flex flex-wrap items-center gap-2" data-testid="return-row">
+                        <span className="min-w-0 flex-1 text-sm" dir="auto">{i.partName} <span className="text-xs text-muted-foreground">({t("return.returnable", { count: returnable })}{i.pendingReturnQuantity > 0 ? ` · ${t("return.pending", { count: i.pendingReturnQuantity })}` : ""})</span></span>
+                        <Input className="w-24" type="number" min={0} max={returnable} disabled={returnable === 0} aria-label={t("items.returned")} value={returnQty[i.id] ?? ""} onChange={(e) => setReturnQty((p) => ({ ...p, [i.id]: e.target.value }))} data-testid="return-qty" />
+                        {Number(returnQty[i.id]) > returnable ? <span className="text-xs text-destructive" role="alert">{t("return.range", { max: returnable })}</span> : null}
+                      </div>
+                    );
+                  })}
+                  <Button size="sm" disabled={busy || !Object.values(returnQty).some((v) => Number(v) > 0) || order.items.some((i) => Number(returnQty[i.id]) > returnableOf(i))} data-testid="record-return"
                     onClick={() => run.mutate({ kind: "partialReturn", items: Object.entries(returnQty).filter(([, v]) => Number(v) > 0).map(([k, v]) => ({ itemId: Number(k), quantity: Math.floor(Number(v)) })) })}>
                     {t("return.record")}
                   </Button>
@@ -272,6 +351,13 @@ export default function WarehouseRequestDetail() {
               ) : null}
               {act("confirmReturn")?.allowed && order.status === "WAREHOUSE_CONFIRMATION" ? (
                 <Button size="sm" disabled={busy} data-testid="action-confirmReturn" onClick={() => run.mutate({ kind: "confirmReturn" })}>{t("actions.confirmReturn")}</Button>
+              ) : null}
+              {act("confirmReturn")?.allowed && (order.status === "RETURN_SUBMITTED" || order.status === "WAREHOUSE_CONFIRMATION") ? (
+                <div className="space-y-2 rounded-md border p-3" data-testid="reject-return-panel">
+                  <Label htmlFor="return-reason">{t("return.rejectReason")}</Label>
+                  <Textarea id="return-reason" dir="auto" value={returnReason} onChange={(e) => setReturnReason(e.target.value)} />
+                  <Button size="sm" variant="destructive" disabled={busy || !returnReason.trim()} data-testid="action-rejectReturn" onClick={() => run.mutate({ kind: "rejectReturn", reason: returnReason.trim() })}>{t("actions.rejectReturn")}</Button>
+                </div>
               ) : null}
               <Row k="close" label={t("actions.close")} onClick={() => run.mutate({ kind: "close" })} />
               <Row k="cancel" label={t("actions.cancel")} destructive onClick={() => run.mutate({ kind: "cancel" })} />
@@ -301,6 +387,12 @@ export default function WarehouseRequestDetail() {
               )}
             </CardContent>
           </Card>
+          {order.taskId && hasPermission("internal_tasks.read") ? (
+            <Card>
+              <CardHeader><CardTitle className="text-base">{t("taskTimeline")}</CardTitle></CardHeader>
+              <CardContent><ActivityTimeline root="task" id={order.taskId} defaultOrder="desc" /></CardContent>
+            </Card>
+          ) : null}
         </>
       ) : null}
     </div>

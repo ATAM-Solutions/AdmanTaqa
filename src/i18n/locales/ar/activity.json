@@ -79,7 +79,9 @@
       "WAITING_PARTS_REQUESTED": "بانتظار قطع الغيار",
       "VISIT_COMPLETED": "اكتملت الزيارة",
       "JOB_SUBMITTED_FOR_REVIEW": "قُدّم للمراجعة"
-    }
+    },
+    "WAREHOUSE_RETURN_PROPOSED": "اقتراح إرجاع قطع",
+    "WAREHOUSE_RETURN_RESOLVED": "الرد على إرجاع القطع"
   },
   "status": {
     "SUBMITTED": "مقدَّم",
@@ -108,7 +110,12 @@
     "ISSUED": "مصروف",
     "DELIVERED": "مُسلَّم",
     "SELECTED": "مختار",
-    "SUBMITTED_BY_STATION": "مقدَّم"
+    "SUBMITTED_BY_STATION": "مقدَّم",
+    "PARTIAL_RETURN": "الإرجاع قيد التنفيذ",
+    "RETURN_SUBMITTED": "تم تقديم الإرجاع",
+    "WAREHOUSE_CONFIRMATION": "المستودع يتحقق من الإرجاع",
+    "RETURNED": "تم الإرجاع",
+    "CONFIRMED": "مؤكد"
   },
   "actorLabels": {
     "UNRECORDED": "غير مسجَّل (سجل أقدم)",
@@ -116,5 +123,13 @@
     "STATION": "المحطة",
     "PROVIDER": "المزوّد",
     "SYSTEM": "النظام"
+  },
+  "parts": {
+    "quantity": "الكمية",
+    "requested": "المطلوبة",
+    "approved": "المعتمدة",
+    "issued": "المصروفة",
+    "used": "المستخدمة",
+    "returned": "المرتجعة"
   }
 }

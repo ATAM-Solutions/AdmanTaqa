@@ -67,6 +67,27 @@ async function render(opts: { pages?: ActivityPage[]; lng?: "en" | "ar"; order?:
 }
 const has = (html: string, id: string) => html.includes(`data-testid="${id}"`);
 
+describe("warehouse events", () => {
+  const ev = (over: Partial<ActivityEvent>): ActivityEvent => ({
+    id: "w1", kind: "WAREHOUSE_STATUS_CHANGED", category: "WAREHOUSE", occurredAt: "2026-10-01T10:00:00.000Z", actor: { id: 1, name: "Wafa" }, actorLabel: null, side: "STATION",
+    from: "UNDER_REVIEW", to: "APPROVED", message: null, important: false, attachments: [], related: { warehouseOrderId: 4 }, meta: {}, ...over,
+  });
+  it("shows the part, its quantities and who did it (English)", async () => {
+    const html = await render({ pages: [page([ev({ meta: { lines: [{ partName: "Oil filter", requested: 5, approved: 3 }] } })])] });
+    expect(has(html, "activity-parts-w1")).toBe(true);
+    expect(html).toContain("Oil filter");
+    expect(html).toContain("Requested");
+    expect(html).toContain("Approved");
+    expect(html).toContain("Wafa");
+  });
+  it("Arabic labels, and a rejected return reads as a rejection with its reason", async () => {
+    const html = await render({ lng: "ar", pages: [page([ev({ kind: "WAREHOUSE_RETURN_RESOLVED", from: null, to: "REJECTED", message: "عدّ مرة أخرى", meta: { part: { partName: "فلتر", quantity: 2 } } })])] });
+    expect(html).toContain('data-emphasis="rejection"');
+    expect(html).toContain("عدّ مرة أخرى");
+    expect(html).toContain("الكمية");
+  });
+});
+
 describe("states", () => {
   it("loading: skeleton, no events", async () => {
     const html = await render();
@@ -192,7 +213,7 @@ describe("Arabic RTL", () => {
   it("every event kind the backend can emit has a title in both languages", () => {
     const BACKEND_KINDS = ["REPORT_SUBMITTED", "REPORT_ATTACHMENT_ADDED", "REPORT_SUPERVISOR_APPROVED", "REPORT_OPS_APPROVED", "REPORT_DECIDED_INTERNAL", "REPORT_DECIDED_EXTERNAL", "REPORT_REJECTED",
       "WORK_ORDER_CREATED", "WORK_ORDER_REVIEWED", "WORK_ORDER_REVIEW_REJECTED", "WORK_ORDER_WAREHOUSE_RETURN", "WORK_ORDER_OPS_CONFIRMED", "TASK_ASSIGNED", "TASK_REASSIGNED", "TASK_STATUS_CHANGED", "TASK_COMMENT",
-      "TASK_CLOSED", "TASK_ATTACHMENT_ADDED", "WAREHOUSE_REQUEST_CREATED", "WAREHOUSE_STATUS_CHANGED", "WAREHOUSE_COMMENT", "EXTERNAL_REQUEST_CREATED", "EXTERNAL_SENT_TO_PROVIDER", "EXTERNAL_QUOTE_SUBMITTED",
+      "TASK_CLOSED", "TASK_ATTACHMENT_ADDED", "WAREHOUSE_REQUEST_CREATED", "WAREHOUSE_STATUS_CHANGED", "WAREHOUSE_COMMENT", "WAREHOUSE_RETURN_PROPOSED", "WAREHOUSE_RETURN_RESOLVED", "EXTERNAL_REQUEST_CREATED", "EXTERNAL_SENT_TO_PROVIDER", "EXTERNAL_QUOTE_SUBMITTED",
       "EXTERNAL_QUOTE_REJECTED", "EXTERNAL_QUOTE_SELECTED", "EXTERNAL_JOB_CREATED", "EXTERNAL_JOB_EVENT", "EXTERNAL_REPORT_SUBMITTED", "EXTERNAL_REPORT_REVIEWED", "EXTERNAL_REPORT_REJECTED"];
     for (const k of BACKEND_KINDS) {
       expect((enActivity.kinds as Record<string, unknown>)[k], `en ${k}`).toBeTruthy();

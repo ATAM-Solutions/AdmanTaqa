@@ -42,6 +42,7 @@ const REJECTIONS = new Set(["REPORT_REJECTED", "WORK_ORDER_REVIEW_REJECTED", "EX
 /** Decisions and rejections stand out; everything else is a plain entry. */
 export function emphasisOf(e: ActivityEvent): Emphasis {
   if (REJECTIONS.has(e.kind)) return "rejection";
+  if (e.kind === "WAREHOUSE_RETURN_RESOLVED" && e.to === "REJECTED") return "rejection";
   return e.important ? "decision" : "normal";
 }
 

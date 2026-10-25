@@ -7,15 +7,23 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchWarehouseRequests } from "@/api/services/technicianService";
+import { useAuth } from "@/context/AuthContext";
+
+const STATUSES = ["DRAFT", "SUBMITTED", "MAINTENANCE_APPROVED", "UNDER_REVIEW", "APPROVED", "ISSUED", "DELIVERED", "PARTIAL_RETURN", "RETURN_SUBMITTED", "WAREHOUSE_CONFIRMATION", "RETURNED", "CLOSED", "REJECTED", "CANCELLED"] as const;
+const MANAGER_PERMISSIONS = ["warehouse_orders.maintenance_approve", "warehouse_orders.review", "warehouse_orders.approve", "warehouse_orders.issue", "warehouse_orders.close"];
 
 const PAGE_SIZE = 20;
 
 export default function WarehouseRequests() {
   const { t } = useTranslation("station");
+  const { t: tw } = useTranslation("warehouse");
+  const { hasPermission } = useAuth();
+  const isManager = MANAGER_PERMISSIONS.some((p) => hasPermission(p));
   const [page, setPage] = useState(1);
+  const [status, setStatus] = useState("");
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
-    queryKey: ["warehouse-requests", page],
-    queryFn: () => fetchWarehouseRequests(page, PAGE_SIZE),
+    queryKey: ["warehouse-requests", page, status],
+    queryFn: () => fetchWarehouseRequests(page, PAGE_SIZE, status || undefined),
     retry: false,
   });
   const pages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
@@ -24,11 +32,18 @@ export default function WarehouseRequests() {
     <div className="space-y-6 p-4 md:p-8">
       <div>
         <h1 className="text-2xl font-bold">{t("warehouseRequests.title")}</h1>
-        <p className="text-sm text-muted-foreground">{t("warehouseRequests.subtitle")}</p>
+        <p className="text-sm text-muted-foreground">{isManager ? t("warehouseRequests.subtitleManager") : t("warehouseRequests.subtitle")}</p>
       </div>
       <Card>
-        <CardHeader>
-          <CardTitle className="text-base">{t("warehouseRequests.listTitle")}</CardTitle>
+        <CardHeader className="flex flex-row flex-wrap items-center justify-between gap-3">
+          <CardTitle className="text-base">{isManager ? t("warehouseRequests.listTitleManager") : t("warehouseRequests.listTitle")}</CardTitle>
+          <label className="flex items-center gap-2 text-sm">
+            <span className="text-muted-foreground">{t("warehouseRequests.filter")}</span>
+            <select className="h-9 rounded-md border bg-background px-2 text-sm" value={status} onChange={(e) => { setStatus(e.target.value); setPage(1); }} data-testid="status-filter">
+              <option value="">{t("warehouseRequests.allStatuses")}</option>
+              {STATUSES.map((s) => <option key={s} value={s}>{tw(`status.${s}`)}</option>)}
+            </select>
+          </label>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -57,7 +72,7 @@ export default function WarehouseRequests() {
                     {row.workOrderTitle ? ` — ${row.workOrderTitle}` : ""}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    <Badge variant="outline">{row.status}</Badge>
+                    <Badge variant="outline">{tw(`status.${row.status}`, { defaultValue: row.status })}</Badge>
                     {" · "}
                     {t("warehouseRequests.items", { count: row.itemCount })}
                     {row.stationName ? <> · <span dir="auto">{row.stationName}</span></> : null}

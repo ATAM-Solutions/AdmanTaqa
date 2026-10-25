@@ -58,7 +58,8 @@
     "acknowledgeReturn": "Acknowledge return",
     "confirmReturn": "Confirm returned parts",
     "close": "Close request",
-    "cancel": "Cancel request"
+    "cancel": "Cancel request",
+    "rejectReturn": "Send back to technician"
   },
   "reasons": {
     "WRONG_STATE": "Not available now — {{actor}} acts at this stage.",
@@ -82,11 +83,19 @@
     "remove": "Remove",
     "save": "Save parts",
     "cancelEdit": "Cancel",
-    "edit": "Edit parts"
+    "edit": "Edit parts",
+    "used": "Used",
+    "returned": "Returned",
+    "available": "In stock"
   },
   "return": {
     "title": "Return unused parts",
-    "record": "Record return"
+    "record": "Record return",
+    "hint": "Only parts that were not used can be returned. The warehouse confirms the return before stock is restored.",
+    "returnable": "can return {{count}}",
+    "range": "At most {{max}} can be returned.",
+    "rejectReason": "Reason for sending the return back",
+    "pending": "proposed {{count}}, waiting for the warehouse"
   },
   "errors": {
     "generic": "The action could not be completed.",
@@ -104,7 +113,8 @@
     "BRANCH_ACCESS_DENIED": "You do not have access to this station.",
     "ITEM_NOT_MAPPED": "Every approved line must be mapped to an inventory item before issuing.",
     "ORDER_NOT_MAPPABLE": "Lines can only be mapped during warehouse review or after approval.",
-    "REQUESTED_ITEM_INVALID": "One of the requested parts is not valid for your company."
+    "REQUESTED_ITEM_INVALID": "One of the requested parts is not valid for your company.",
+    "ORDER_STOCK_ISSUED": "Parts were already issued for this request. Return them through the return steps instead of cancelling."
   },
   "inventory": {
     "title": "Inventory",
@@ -149,5 +159,27 @@
     "choose": "Choose an item",
     "map": "Map",
     "catalogueFailed": "Could not load this warehouse's items."
+  },
+  "taskTimeline": "Maintenance activity for this task",
+  "itemStatus": {
+    "REQUESTED": "Requested",
+    "APPROVED": "Approved",
+    "NOT_AVAILABLE": "Not available",
+    "ISSUED": "Issued",
+    "DELIVERED": "Delivered"
+  },
+  "approve": {
+    "title": "Approve quantities",
+    "hint": "Approve each part in full, approve a smaller quantity, or mark it as not available. Nothing leaves the stock until the parts are issued.",
+    "requested": "requested {{count}}",
+    "inStock": "in stock {{count}}",
+    "notAvailable": "Not available",
+    "range": "Enter 1 to {{max}}.",
+    "short": "More than the current stock — issuing will be refused until stock is added."
+  },
+  "issue": {
+    "title": "Issue quantities",
+    "approved": "approved {{count}}",
+    "range": "Enter 0 to {{max}}."
   }
 }

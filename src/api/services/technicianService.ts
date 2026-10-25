@@ -79,8 +79,8 @@ export async function fetchMyTasks(page = 1, limit = 20): Promise<Paged<MyTaskRo
 }
 
 /** The signed-in user's warehouse (spare-parts) requests. Technicians only ever receive their own. */
-export async function fetchWarehouseRequests(page = 1, limit = 20): Promise<Paged<WarehouseRequestRow>> {
-  const res = await axiosInstance.get("warehouse-orders", { params: { page, limit } });
+export async function fetchWarehouseRequests(page = 1, limit = 20, status?: string): Promise<Paged<WarehouseRequestRow>> {
+  const res = await axiosInstance.get("warehouse-orders", { params: { page, limit, ...(status ? { status } : {}) } });
   const { rows, total, page: p, limit: l } = unwrap(res.data);
   const items = rows
     .map((r) => obj(r))

@@ -79,7 +79,9 @@
       "WAITING_PARTS_REQUESTED": "Waiting for parts",
       "VISIT_COMPLETED": "Visit completed",
       "JOB_SUBMITTED_FOR_REVIEW": "Submitted for review"
-    }
+    },
+    "WAREHOUSE_RETURN_PROPOSED": "Parts return proposed",
+    "WAREHOUSE_RETURN_RESOLVED": "Parts return answered"
   },
   "status": {
     "SUBMITTED": "Submitted",
@@ -108,7 +110,12 @@
     "ISSUED": "Issued",
     "DELIVERED": "Delivered",
     "SELECTED": "Selected",
-    "SUBMITTED_BY_STATION": "Submitted"
+    "SUBMITTED_BY_STATION": "Submitted",
+    "PARTIAL_RETURN": "Return in progress",
+    "RETURN_SUBMITTED": "Return submitted",
+    "WAREHOUSE_CONFIRMATION": "Warehouse checking return",
+    "RETURNED": "Returned",
+    "CONFIRMED": "Confirmed"
   },
   "actorLabels": {
     "UNRECORDED": "Not recorded (older record)",
@@ -116,5 +123,13 @@
     "STATION": "The station",
     "PROVIDER": "The provider",
     "SYSTEM": "System"
+  },
+  "parts": {
+    "quantity": "Quantity",
+    "requested": "Requested",
+    "approved": "Approved",
+    "issued": "Issued",
+    "used": "Used",
+    "returned": "Returned"
   }
 }

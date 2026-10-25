@@ -84,6 +84,35 @@ function Attachments({ event }: { event: ActivityEvent }) {
   );
 }
 
+interface PartLine { partName?: string | null; partCode?: string | null; unit?: string | null; requested?: number | null; approved?: number | null; issued?: number | null; used?: number | null; returned?: number | null }
+const QTY_FIELDS = ["requested", "approved", "issued", "used", "returned"] as const;
+
+/** The parts a warehouse event is about: each part with the quantities that matter at that step. */
+function PartLines({ event }: { event: ActivityEvent }) {
+  const { t } = useTranslation("activity");
+  const lines = Array.isArray(event.meta?.lines) ? (event.meta.lines as PartLine[]) : [];
+  const single = event.meta?.part as { partName?: string | null; quantity?: number } | undefined;
+  if (lines.length === 0 && !single) return null;
+  return (
+    <ul className="mt-2 space-y-1 rounded-md border bg-background/60 px-3 py-2 text-xs" data-testid={`activity-parts-${event.id}`}>
+      {single ? (
+        <li className="flex flex-wrap items-baseline gap-x-3" data-testid="activity-part">
+          <span className="font-medium" dir="auto">{single.partName ?? "—"}</span>
+          <span>{t("parts.quantity")}: <bdi dir="ltr">{single.quantity ?? "—"}</bdi></span>
+        </li>
+      ) : null}
+      {lines.map((l, i) => (
+        <li key={i} className="flex flex-wrap items-baseline gap-x-3" data-testid="activity-part">
+          <span className="font-medium" dir="auto">{l.partName ?? "—"}{l.partCode ? <span className="text-muted-foreground"> · {l.partCode}</span> : null}</span>
+          {QTY_FIELDS.filter((f) => f in l).map((f) => (
+            <span key={f}>{t(`parts.${f}`)}: <bdi dir="ltr">{l[f] ?? "—"}</bdi></span>
+          ))}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 function EventItem({ event }: { event: ActivityEvent }) {
   const { t, i18n } = useTranslation("activity");
   const { organization, permissions } = useAuth();
@@ -131,6 +160,7 @@ function EventItem({ event }: { event: ActivityEvent }) {
             <p className="whitespace-pre-wrap text-sm" dir="auto">{event.message}</p>
           </div>
         ) : null}
+        <PartLines event={event} />
         <Attachments event={event} />
         {tasks.length > 0 && event.kind !== "TASK_COMMENT" && event.kind !== "TASK_STATUS_CHANGED" ? (
           <p className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
