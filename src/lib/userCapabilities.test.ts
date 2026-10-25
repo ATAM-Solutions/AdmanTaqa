@@ -22,8 +22,10 @@ describe("who sees / may edit the card", () => {
   it("hidden (nothing rendered or requested) without team.assign_roles", () => {
     expect(editMode(ctx({ viewerHasAssignRoles: false })).mode).toBe("hidden");
   });
-  it("hidden for any organization that is not a Fuel Station (assets are Fuel Station only)", () => {
-    for (const type of ["SERVICE_PROVIDER", "AUTHORITY", "SUPER_ADMIN", undefined]) expect(editMode(ctx({ viewerOrganizationType: type })).mode, String(type)).toBe("hidden");
+  it("hidden for the platform tenants and unknown organizations; company types (Fuel Station, Service Provider) may manage their people", () => {
+    for (const type of ["AUTHORITY", "SUPER_ADMIN", undefined]) expect(editMode(ctx({ viewerOrganizationType: type })).mode, String(type)).toBe("hidden");
+    expect(editMode(ctx({ viewerOrganizationType: "SERVICE_PROVIDER" })).mode).toBe("edit");
+    expect(editMode(ctx({ viewerOrganizationType: "SERVICE_PROVIDER", targetRoleNames: ["Provider Owner"] }))).toEqual({ mode: "readonly", reason: "protected" });
   });
   it("own account: read-only, whichever id type is used", () => {
     expect(editMode(ctx({ targetUserId: 1 }))).toEqual({ mode: "readonly", reason: "self" });
@@ -41,9 +43,14 @@ describe("who sees / may edit the card", () => {
 });
 
 describe("which capabilities are shown", () => {
-  it("only the two known ones, assets first; unknown codes are ignored", () => {
-    const list = [cap({ code: "warehouse_items.create" }), cap({ code: "something.else" }), cap({ code: "assets.create" })];
-    expect(visibleCapabilities(list).map((c) => c.code)).toEqual(["assets.create", "warehouse_items.create"]);
+  it("everything the API returns is shown, in the platform's module order; unknown modules last", () => {
+    const list = [
+      cap({ code: "warehouse_items.create", module: "warehouse" }),
+      cap({ code: "something.else" }),
+      cap({ code: "assets.create", module: "assets" }),
+      cap({ code: "maintenance_issues.decide", module: "maintenance_decision" }),
+    ];
+    expect(visibleCapabilities(list).map((c) => c.code)).toEqual(["maintenance_issues.decide", "warehouse_items.create", "assets.create", "something.else"]);
   });
   it("a company without asset delegation (API omits assets.create) shows only the warehouse capability", () => {
     expect(visibleCapabilities([cap({ code: "warehouse_items.create" })]).map((c) => c.code)).toEqual(["warehouse_items.create"]);

@@ -5,8 +5,12 @@ import { I18nextProvider, initReactI18next } from "react-i18next";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import enUsers from "@/i18n/locales/en/users.json";
 import arUsers from "@/i18n/locales/ar/users.json";
+import enCatalog from "@/i18n/locales/en/permissionCatalog.json";
+import arCatalog from "@/i18n/locales/ar/permissionCatalog.json";
 import type { CapabilityState } from "@/api/services/warehouseService";
-import { capabilityQueryKey } from "@/lib/userCapabilities";
+import { capabilityQueryKey, classifyCapabilityError } from "@/lib/userCapabilities";
+/** Mirrors enrgy-BE src/constants/permissionCatalog.js: a code added there must be translated here. */
+const BACKEND_CATALOG_CODES = ["maintenance_issues.create", "maintenance_issues.read", "maintenance_issues.supervisor_review", "maintenance_issues.ops_approve", "maintenance_issues.decide", "station.maintenance_requests.create", "external_maintenance_v2.create", "workorders.create", "internal_tasks.read", "internal_tasks.assign", "internal_tasks.update_status", "internal_tasks.upload", "internal_tasks.review", "internal_tasks.close", "internal_work_orders.read", "internal_work_orders.create", "internal_work_orders.update", "internal_work_orders.review", "internal_work_orders.close", "internal_work_orders.warehouse_return", "internal_work_orders.ops_confirm", "station.requests.read", "station.requests.send_to_providers", "station.requests.select_quote", "station.job_orders.read", "station.job_orders.review", "external_maintenance_v2.read", "external_maintenance_v2.maintenance_review", "external_maintenance_v2.ops_closure", "warehouse.read", "warehouse.manage", "warehouse_items.create", "warehouse_orders.read", "warehouse_orders.create", "warehouse_orders.submit", "warehouse_orders.maintenance_approve", "warehouse_orders.review", "warehouse_orders.approve", "warehouse_orders.reject", "warehouse_orders.issue", "warehouse_orders.deliver", "warehouse_orders.close", "warehouse_orders.upload", "warehouse_orders.assign", "warehouse_orders.update_status", "assets.create", "assets.update", "assets.delete", "provider.rfqs.read", "provider.quotes.create", "provider.quotes.revise", "provider.quotes.withdraw", "provider.job_orders.read", "provider.job_orders.assign_operator", "provider.job_orders.update_status", "provider.job_orders.upload", "provider.jobs.execute", "provider.jobs.submit_review", "provider.visits.checkin", "provider.visits.upload", "provider.reports.create", "provider.reports.submit", "provider_job_v2.assign_technician", "provider_job_v2.execute", "provider_job_v2.review_report", "provider.payments.confirm_received", "operators.read", "operators.create", "operators.update", "provider_warehouse.read", "provider_warehouse.create", "provider_warehouse.approve", "provider_warehouse.issue", "provider.profile.manage", "provider.offerings.manage", "provider.categories.manage", "organizations.update", "team.read", "team.invite", "team.deactivate"];
 // sources read through Vite (`?raw`): no Node typings needed, stays inside the app's tsc project
 import cardSource from "./UserCapabilityCard.tsx?raw";
 import userDetailsSource from "../pages/Users/UserDetails.tsx?raw";
@@ -112,7 +116,7 @@ describe("platform (Super Admin) restriction", () => {
     expect(disabled(tag(html, "capability-grant-assets.create"))).toBe(true);
     expect(disabled(tag(html, "capability-deny-assets.create"))).toBe(false);
     expect(has(html, "capability-restricted-assets.create")).toBe(true);
-    expect(html).toContain("The platform administrator has restricted asset creation for this person&#x27;s role");
+    expect(html).toContain("The platform administrator has not allowed this person&#x27;s Job Title to hold this permission");
     expect(html).toMatch(/opacity-60[^>]*data-testid="capability-state-assets.create"|data-testid="capability-state-assets.create"[^>]*opacity-60|opacity-60[^"]*"[^>]*data-testid="capability-state-assets.create"/);
     expect(html).toMatch(/capability-state-assets.create"[^>]*>Not allowed</);
   });
@@ -147,7 +151,7 @@ describe("failures are shown per capability, translated", () => {
   it.each([
     ["selfChange", "can&#x27;t change your own"],
     ["protectedUser", "protected administrator"],
-    ["roleNotEligible", "has not allowed this person&#x27;s role to create assets"],
+    ["roleNotEligible", "has not allowed this person&#x27;s Job Title to hold this permission"],
     ["unavailable", "can&#x27;t be verified right now"],
     ["network", "Could not reach the server. Nothing was changed."],
     ["server", "Something went wrong. Nothing was changed."],
@@ -166,7 +170,7 @@ describe("Arabic RTL / English LTR", () => {
     expect(html).toContain('dir="rtl"');
     expect(html).toContain("إنشاء الأصول");
     expect(html).toContain("إنشاء أصناف المستودع");
-    expect(html).toContain("قام مسؤول المنصة بتقييد إنشاء الأصول");
+    expect(html).toContain("لم يسمح مسؤول المنصة للمسمّى الوظيفي");
     expect(html).toContain("السماح لهذا الشخص");
     expect(html).toContain("مسموح لهذا الشخص");
     expect(html).not.toContain("Create assets");
@@ -204,8 +208,9 @@ describe("the card (container): visibility, company isolation", () => {
   it("a user without team.assign_roles sees nothing at all", async () => {
     expect(await renderCard({ permissions: ["users.read", "assets.read"] })).toBe("");
   });
-  it("a non-Fuel-Station organization sees nothing (assets are Fuel Station only)", async () => {
-    for (const type of ["SERVICE_PROVIDER", "AUTHORITY", "SUPER_ADMIN"]) expect(await renderCard({ org: { id: 1, type } }), type).toBe("");
+  it("platform tenants see nothing; a Service Provider administrator sees the card (providers have delegable permissions too)", async () => {
+    for (const type of ["AUTHORITY", "SUPER_ADMIN"]) expect(await renderCard({ org: { id: 1, type } }), type).toBe("");
+    expect(has(await renderCard({ org: { id: 1, type: "SERVICE_PROVIDER" } }), "capability-card")).toBe(true);
   });
   it("own account: card shown read-only", async () => {
     const html = await renderCard({ viewerId: 2, target: 2 });
@@ -245,5 +250,93 @@ describe("source conventions and page compatibility", () => {
     expect(successToasts.length).toBe(1);
     expect(cardSource.indexOf("toast.success")).toBeGreaterThan(cardSource.indexOf("onSuccess:"));
     expect(cardSource.indexOf("toast.success")).toBeLessThan(cardSource.indexOf("onError:"));
+  });
+});
+
+// ── D3: every module, grouped, with reasons ─────────────────────────────────────────────────────────────────────
+describe("dynamic permissions: modules, labels, reasons", () => {
+  const rows: CapabilityState[] = [
+    { code: "maintenance_issues.decide", effective: true, byRole: true, override: null, eligible: true, eligibilityReason: null, module: "maintenance_decision", decisionKind: "formal_decision", sensitive: true },
+    { code: "station.maintenance_requests.create", effective: false, byRole: false, override: null, eligible: false, eligibilityReason: "NOT_GRANTABLE", module: "maintenance_decision", decisionKind: "direct_request" },
+    { code: "internal_tasks.assign", effective: false, byRole: false, override: null, eligible: false, eligibilityReason: "ROLE_NOT_ELIGIBLE", module: "internal_tasks", restrictedByPlatform: true },
+    { code: "warehouse_orders.approve", effective: false, byRole: false, override: null, eligible: false, eligibilityReason: "NO_JOB_TITLE", module: "warehouse" },
+    { code: "internal_tasks.read", effective: true, byRole: false, override: "GRANT", eligible: true, eligibilityReason: null, module: "internal_tasks" },
+  ];
+  async function renderCatalog(lng: "en" | "ar" = "en", list: CapabilityState[] = rows) {
+    auth.state = { permissions: ["team.assign_roles"], org: { id: 1, type: "FUEL_STATION" }, viewer: { id: 1 } };
+    const qc = new QueryClient();
+    qc.setQueryData(capabilityQueryKey(1, 2), list);
+    const i = createInstance();
+    await i.use(initReactI18next).init({
+      lng, fallbackLng: "en", ns: ["users", "permissionCatalog"], defaultNS: "users",
+      resources: { en: { users: enUsers, permissionCatalog: enCatalog }, ar: { users: arUsers, permissionCatalog: arCatalog } }, interpolation: { escapeValue: false },
+    });
+    return renderToStaticMarkup(
+      <QueryClientProvider client={qc}>
+        <I18nextProvider i18n={i}>
+          <div dir={lng === "ar" ? "rtl" : "ltr"}><UserCapabilityCard userId={2} roleNames={["Quality Lead"]} /></div>
+        </I18nextProvider>
+      </QueryClientProvider>,
+    );
+  }
+  it("groups permissions by module in the platform order and names them from the catalog", async () => {
+    const html = await renderCatalog();
+    expect(has(html, "capability-module-maintenance_decision") && has(html, "capability-module-internal_tasks") && has(html, "capability-module-warehouse")).toBe(true);
+    expect(html.indexOf("capability-module-maintenance_decision")).toBeLessThan(html.indexOf("capability-module-internal_tasks"));
+    expect(html.indexOf("capability-module-internal_tasks")).toBeLessThan(html.indexOf("capability-module-warehouse"));
+    expect(html).toContain("Internal / external decision");
+    expect(html).toContain("Maintenance decision on a report");
+    expect(html).toContain("Assign technicians");
+    expect(html).toMatch(/1 allowed of 2/);
+  });
+  it("separates the formal decision from direct request-type selection and flags sensitive permissions", async () => {
+    const html = await renderCatalog();
+    expect(html).toContain("Formal decision");
+    expect(html).toContain("Request-type selection");
+    expect(html).toContain("Sensitive");
+    expect(html).toContain("This is request-type selection, not the formal decision.");
+  });
+  it("explains why each permission is unavailable, with a different message per reason", async () => {
+    const html = await renderCatalog();
+    expect(has(html, "capability-unavailable-station.maintenance_requests.create")).toBe(true);
+    expect(html).toContain("has not made this permission available to allow per person");
+    expect(html).toContain("has not allowed this person&#x27;s Job Title to hold this permission");
+    expect(html).toContain("This person has no Job Title");
+    expect(disabled(tag(html, "capability-grant-internal_tasks.assign"))).toBe(true);
+    expect(disabled(tag(html, "capability-grant-warehouse_orders.approve"))).toBe(true);
+    expect(disabled(tag(html, "capability-deny-warehouse_orders.approve"))).toBe(false); // tightening is always offered
+  });
+  it("offers filters (all / allowed / can be allowed / unavailable)", async () => {
+    const html = await renderCatalog();
+    for (const f of ["all", "allowed", "available", "unavailable"]) expect(has(html, `capability-filter-${f}`)).toBe(true);
+    expect(html).toContain("Unavailable");
+    expect(html).toContain("without signing in again");
+  });
+  it("Arabic: same structure, translated modules, names and reasons", async () => {
+    const html = await renderCatalog("ar");
+    expect(html).toContain('dir="rtl"');
+    expect(html).toContain("قرار الصيانة داخلي / خارجي");
+    expect(html).toContain("قرار الصيانة على البلاغ");
+    expect(html).toContain("هذا الشخص بلا مسمّى وظيفي");
+    expect(html).toContain("اختيار نوع الطلب");
+    expect(html).not.toContain("Maintenance decision on a report");
+  });
+  it("English and Arabic define the same catalog keys, and every backend catalog code is translated", () => {
+    const keys = (o: unknown, prefix = ""): string[] =>
+      Object.entries(o as Record<string, unknown>).flatMap(([k, v]) => (v && typeof v === "object" ? keys(v, `${prefix}${k}.`) : [`${prefix}${k}`]));
+    expect(keys(arCatalog).sort()).toEqual(keys(enCatalog).sort());
+    for (const code of BACKEND_CATALOG_CODES) {
+      const k = code.replace(/\./g, "_");
+      expect((enCatalog.codes as Record<string, { name?: string }>)[k]?.name, `en ${code}`).toBeTruthy();
+      expect((arCatalog.codes as Record<string, { name?: string }>)[k]?.name, `ar ${code}`).toBeTruthy();
+    }
+  });
+  it("new failure kinds are classified by code and translated", () => {
+    expect(classifyCapabilityError({ response: { status: 409, data: { code: "NO_JOB_TITLE" } } })).toBe("noJobTitle");
+    expect(classifyCapabilityError({ response: { status: 409, data: { code: "CAPABILITY_NOT_GRANTABLE" } } })).toBe("notGrantable");
+    for (const kind of ["noJobTitle", "notGrantable"]) {
+      expect((enUsers.capabilities.errors as Record<string, string>)[kind]).toBeTruthy();
+      expect((arUsers.capabilities.errors as Record<string, string>)[kind]).toBeTruthy();
+    }
   });
 });
