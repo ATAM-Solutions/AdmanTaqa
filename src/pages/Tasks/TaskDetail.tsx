@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import SparePartsPicker from "@/components/SparePartsPicker";
-import { isSelectionValid, selectionToItems, type PartSelection } from "@/lib/spareParts";
+import { isSelectionValid, partsFormState, selectionToItems, type PartSelection } from "@/lib/spareParts";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import TaskProgress from "@/components/TaskProgress";
 import { DashboardLoadError } from "@/components/DashboardLoadError";
 import { useAuth } from "@/context/AuthContext";
@@ -110,7 +111,10 @@ export default function TaskDetail() {
   });
   const catalogueWarehouses = (catalogue.data ?? []).filter((w) => w.items.length > 0);
   // no catalogue to pick from (no warehouse or no parts yet, or it could not be loaded): the written request still works
-  const pickerUsable = catalogue.isSuccess && catalogueWarehouses.length > 0;
+  const [partsManual, setPartsManual] = useState(false);
+  const partsState = partsFormState(catalogue, catalogueWarehouses.length, partsManual);
+  const pickerUsable = partsState === "picker";
+  const catalogueStatus = catalogue.error instanceof TaskActionError ? catalogue.error.status : null;
 
   /** One guarded runner for every mutation: no double submit, stale-state errors become a refresh. */
   const run = useMutation({
@@ -283,7 +287,25 @@ export default function TaskDetail() {
                       .filter((a) => a.field && openAction === a.id)
                       .map((a) => (
                         <div key={a.id} className="space-y-3 rounded-md border p-3" data-testid={`form-${a.id}`}>
-                          {a.id === "parts" && catalogue.isLoading ? <p className="text-sm text-muted-foreground" role="status">{t("partsPicker.loading")}</p> : null}
+                          {a.id === "parts" && partsState === "loading" ? <p className="text-sm text-muted-foreground" role="status" data-testid="parts-loading">{t("partsPicker.loading")}</p> : null}
+                          {a.id === "parts" && partsState === "error" ? (
+                            <Alert variant="destructive" data-testid="parts-error">
+                              <AlertTitle>{t("partsPicker.errorTitle")}</AlertTitle>
+                              <AlertDescription className="space-y-2">
+                                <p>{catalogueStatus === 401 || catalogueStatus === 403 ? t("partsPicker.noAccess") : t("partsPicker.loadFailed")}</p>
+                                <div className="flex flex-wrap gap-2">
+                                  <Button type="button" size="sm" variant="outline" onClick={() => void catalogue.refetch()} disabled={catalogue.isFetching} data-testid="parts-retry">{t("partsPicker.retry")}</Button>
+                                  <Button type="button" size="sm" variant="ghost" onClick={() => setPartsManual(true)} data-testid="parts-write-instead">{t("partsPicker.writeInstead")}</Button>
+                                </div>
+                              </AlertDescription>
+                            </Alert>
+                          ) : null}
+                          {a.id === "parts" && partsState === "empty" ? (
+                            <Alert data-testid="parts-empty-catalogue">
+                              <AlertTitle>{t("partsPicker.emptyTitle")}</AlertTitle>
+                              <AlertDescription>{t("partsPicker.emptyCatalogue")}</AlertDescription>
+                            </Alert>
+                          ) : null}
                           {a.id === "parts" && pickerUsable ? (
                             <SparePartsPicker
                               warehouses={catalogueWarehouses}
@@ -293,9 +315,7 @@ export default function TaskDetail() {
                               onWarehouseChange={setPartsWarehouse}
                             />
                           ) : null}
-                          {a.id === "parts" && catalogue.isSuccess && !pickerUsable ? <p className="text-xs text-muted-foreground" data-testid="parts-empty-catalogue">{t("partsPicker.emptyCatalogue")}</p> : null}
-                          {a.id === "parts" && catalogue.isError ? <p className="text-xs text-muted-foreground" role="alert">{t("partsPicker.loadFailed")}</p> : null}
-                          {[a.field, a.extraField].filter(Boolean).map((f) => (
+                          {[a.field, a.extraField].filter(Boolean).filter(() => a.id !== "parts" || partsState === "picker" || partsState === "empty" || partsState === "manual").map((f) => (
                             <div key={f!.name} className="space-y-1">
                               <Label htmlFor={`${a.id}-${f!.name}`}>{a.id === "parts" && pickerUsable ? t("partsPicker.note") : t(`fieldLabels.${f!.name}`)}</Label>
                               <Textarea
@@ -311,7 +331,7 @@ export default function TaskDetail() {
                             size="sm"
                             disabled={
                               busy ||
-                              (a.id === "parts" && (catalogue.isLoading || (pickerUsable ? !isSelectionValid(partsSelection) : !(fields["parts.message"] ?? "").trim()))) ||
+                              (a.id === "parts" && (partsState === "loading" || partsState === "error" || (pickerUsable ? !isSelectionValid(partsSelection) : !(fields["parts.message"] ?? "").trim()))) ||
                               [a.field, a.extraField].some((f) => f?.required && !(fields[`${a.id}.${f.name}`] ?? "").trim())
                             }
                             onClick={() => doStatus(a)}

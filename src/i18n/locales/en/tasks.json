@@ -111,7 +111,12 @@
     "quantityInvalid": "Enter a whole number, 1 or more.",
     "note": "Note for the manager (optional)",
     "loading": "Loading the warehouse parts…",
-    "emptyCatalogue": "No parts are listed for your station's warehouse yet. Describe the parts you need instead.",
-    "loadFailed": "The parts list could not be loaded. Describe the parts you need instead."
+    "emptyCatalogue": "No warehouse or no parts are set up for this station yet, so the parts cannot be chosen from a list. Describe the parts you need below, and ask your company administrator to add the warehouse parts.",
+    "loadFailed": "Check your connection and try again.",
+    "errorTitle": "The warehouse parts could not be loaded",
+    "noAccess": "You do not have access to the warehouse parts list for this task. Ask your manager.",
+    "retry": "Retry",
+    "writeInstead": "Describe the parts in writing instead",
+    "emptyTitle": "No warehouse parts to choose from"
   }
 }
