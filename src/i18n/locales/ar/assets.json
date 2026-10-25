@@ -1,0 +1,443 @@
+{
+  "title": "الأصول",
+  "subtitle": "المعدات والتركيبات في محطاتك، مع مستنداتها وضماناتها وفحوصاتها وصيانتها.",
+  "status": {
+    "ACTIVE": "نشط",
+    "UNDER_MAINTENANCE": "تحت الصيانة",
+    "INACTIVE": "غير نشط",
+    "DECOMMISSIONED": "خارج الخدمة"
+  },
+  "maintenanceType": {
+    "INTERNAL": "داخلية",
+    "EXTERNAL": "خارجية"
+  },
+  "list": {
+    "addAsset": "إضافة أصل",
+    "searchPlaceholder": "ابحث بالاسم أو الرقم التسلسلي أو الشركة المصنعة أو الطراز",
+    "searchLabel": "البحث في الأصول",
+    "stationLabel": "المحطة",
+    "allStations": "كل المحطات",
+    "loading": "جارٍ تحميل الأصول…",
+    "loadFailed": "تعذّر تحميل الأصول.",
+    "retry": "إعادة المحاولة",
+    "emptyTitle": "لا توجد أصول بعد",
+    "emptyDescription": "ستظهر هنا الأصول التي تضيفها.",
+    "noMatchTitle": "لا توجد أصول تطابق عوامل التصفية",
+    "noMatchDescription": "جرّب بحثًا آخر أو محطة أخرى.",
+    "clearFilters": "مسح عوامل التصفية",
+    "columns": {
+      "name": "الأصل",
+      "serialNumber": "الرقم التسلسلي",
+      "station": "المحطة",
+      "details": "النوع / الطراز",
+      "status": "الحالة",
+      "maintenance": "الصيانة",
+      "warranty": "انتهاء الضمان"
+    },
+    "viewAsset": "عرض {{name}}",
+    "refreshing": "جارٍ التحديث…"
+  },
+  "form": {
+    "createTitle": "إضافة أصل",
+    "createSubtitle": "سجّل أصلًا جديدًا في إحدى محطاتك.",
+    "editTitle": "تعديل الأصل",
+    "editSubtitle": "حدّث معلومات هذا الأصل.",
+    "sections": {
+      "basic": "المعلومات الأساسية",
+      "details": "تفاصيل المعدة",
+      "purchase": "الشراء والضمان"
+    },
+    "fields": {
+      "branchId": "المحطة",
+      "name": "اسم الأصل",
+      "maintenanceType": "نوع الصيانة",
+      "status": "الحالة",
+      "description": "الوصف",
+      "type": "النوع",
+      "manufacturer": "الشركة المصنعة",
+      "model": "الطراز",
+      "serialNumber": "الرقم التسلسلي",
+      "location": "الموقع داخل المحطة",
+      "installationDate": "تاريخ التركيب",
+      "purchaseDate": "تاريخ الشراء",
+      "purchaseCost": "تكلفة الشراء",
+      "warrantyExpiry": "انتهاء الضمان"
+    },
+    "placeholders": {
+      "maintenanceType": "اختر نوع الصيانة",
+      "status": "اختر الحالة",
+      "purchaseCost": "0.00"
+    },
+    "stationLocked": "لا يمكن تغيير المحطة بعد إنشاء الأصل.",
+    "maintenanceHint": "داخلية: يصونها فريقك. خارجية: يصونها مزوّد خدمة.",
+    "serialHint": "يجب أن يكون فريدًا داخل شركتك.",
+    "submitCreate": "إنشاء الأصل",
+    "submitEdit": "حفظ التغييرات",
+    "submitting": "جارٍ الحفظ…",
+    "cancel": "إلغاء",
+    "noChanges": "لا توجد تغييرات لحفظها.",
+    "noStations": "لا توجد محطات متاحة لك، لذلك لا يمكن إنشاء أصل."
+  },
+  "validation": {
+    "required": "هذا الحقل مطلوب.",
+    "tooLong": "يجب ألا يتجاوز {{max}} حرفًا.",
+    "invalidDate": "أدخل تاريخًا صحيحًا.",
+    "invalidNumber": "أدخل رقمًا صحيحًا.",
+    "negative": "يجب ألا يكون سالبًا.",
+    "tooManyDecimals": "استخدم خانتين عشريتين على الأكثر.",
+    "outOfRange": "هذا المبلغ كبير جدًا.",
+    "invalidOption": "اختر أحد الخيارات المعروضة.",
+    "branchNotAllowed": "اختر إحدى محطاتك.",
+    "invalidUrl": "أدخل رابطًا يبدأ بـ http:// أو https://.",
+    "endBeforeStart": "لا يمكن أن يسبق تاريخ الانتهاء تاريخ البدء.",
+    "providerNotEligible": "هذا المزوّد لم يعد متاحًا. اختر مزوّدًا آخر."
+  },
+  "errors": {
+    "conflictSerial": "يوجد أصل بهذا الرقم التسلسلي في شركتك بالفعل.",
+    "conflict": "هذا يتعارض مع بيانات موجودة.",
+    "validation": "رفض الخادم بعض القيم. راجع الحقول المحددة.",
+    "unsafeUrl": "هذا الرابط غير مقبول. استخدم رابطًا يبدأ بـ http:// أو https://.",
+    "branchDenied": "ليس لديك وصول إلى هذه المحطة.",
+    "forbidden": "ليست لديك صلاحية لتنفيذ ذلك.",
+    "unavailable": "تعذّر التحقق من الصلاحيات الآن. لم يتغير شيء — حاول بعد قليل.",
+    "notFound": "لم يتم العثور على هذا الأصل.",
+    "network": "تعذّر الوصول إلى الخادم. لم يتغير شيء.",
+    "server": "حدث خطأ ما. لم يتغير شيء.",
+    "loadFailed": "تعذّر تحميل هذه المعلومات.",
+    "fieldRejected": "لم يقبل الخادم هذه القيمة.",
+    "warrantyDuplicate": "يوجد ضمان مطابق (المزوّد والتواريخ نفسها) مسجَّل لهذا الأصل.",
+    "warrantyProvider": "لا يمكن استخدام مزوّد الخدمة هذا لهذا الأصل. اختر مزوّدًا من القائمة.",
+    "warrantyDate": "أحد التاريخين ليس تاريخًا صحيحًا في التقويم.",
+    "warrantyRange": "لا يمكن أن يكون تاريخ النهاية قبل تاريخ البداية."
+  },
+  "toasts": {
+    "created": "تم إنشاء الأصل.",
+    "updated": "تم تحديث الأصل.",
+    "documentAdded": "تمت إضافة المستند.",
+    "documentDeleted": "تم حذف المستند.",
+    "warrantyAdded": "تمت إضافة الضمان.",
+    "warrantyUpdated": "تم تحديث الضمان.",
+    "inspectionAdded": "تم تسجيل الفحص.",
+    "maintenanceAdded": "تم تسجيل الصيانة.",
+    "documentUploaded": "تم رفع المستند.",
+    "documentAlreadyUploaded": "سبق رفع هذا الملف — لم يتم إنشاء نسخة مكررة."
+  },
+  "details": {
+    "back": "العودة إلى الأصول",
+    "edit": "تعديل",
+    "notFoundTitle": "لم يتم العثور على الأصل",
+    "notFoundDescription": "قد لا يكون موجودًا، أو قد يتبع محطة لا يمكنك الوصول إليها.",
+    "tabs": {
+      "general": "عام",
+      "documents": "المستندات",
+      "warranties": "الضمانات",
+      "inspections": "الفحوصات",
+      "maintenance": "الصيانة",
+      "history": "السجل"
+    },
+    "general": {
+      "title": "المعلومات العامة",
+      "station": "المحطة",
+      "maintenanceType": "نوع الصيانة",
+      "status": "الحالة",
+      "type": "النوع",
+      "manufacturer": "الشركة المصنعة",
+      "model": "الطراز",
+      "serialNumber": "الرقم التسلسلي",
+      "location": "الموقع",
+      "installationDate": "تاريخ التركيب",
+      "purchaseDate": "تاريخ الشراء",
+      "purchaseCost": "تكلفة الشراء",
+      "warrantyExpiry": "انتهاء الضمان",
+      "description": "الوصف",
+      "createdAt": "تاريخ الإضافة",
+      "overview": "نظرة عامة",
+      "healthScore": "مؤشر الحالة",
+      "lastMaintenance": "آخر صيانة",
+      "nextMaintenance": "الصيانة القادمة (تقديري)",
+      "documents": "المستندات",
+      "maintenanceRecords": "سجلات الصيانة",
+      "workOrders": "أوامر العمل"
+    }
+  },
+  "documents": {
+    "title": "المستندات",
+    "description": "الأدلة والشهادات وملفات أخرى متعلقة بهذا الأصل.",
+    "add": "إضافة مستند",
+    "adding": "جارٍ الإضافة…",
+    "cancel": "إلغاء",
+    "fields": {
+      "fileUrl": "رابط الملف",
+      "title": "العنوان",
+      "fileType": "نوع الملف"
+    },
+    "placeholders": {
+      "fileUrl": "https://…",
+      "title": "مثال: دليل الصيانة",
+      "fileType": "مثال: PDF"
+    },
+    "empty": "لم تتم إضافة مستندات.",
+    "open": "فتح",
+    "untitled": "مستند بلا عنوان",
+    "uploadedBy": "أضافه {{name}}",
+    "unknownUser": "أحد أعضاء الفريق",
+    "delete": "حذف",
+    "deleteTitle": "حذف هذا المستند؟",
+    "deleteDescription": "سيُزال الرابط من هذا الأصل. لا يتأثر الملف نفسه.",
+    "deleting": "جارٍ الحذف…",
+    "confirmDelete": "حذف المستند",
+    "help": "ارفع ملف PDF أو صورة (حتى 15 ميجابايت)، أو أضف رابطًا لملف محفوظ في مكان آخر.",
+    "modes": {
+      "label": "طريقة إضافة المستند",
+      "upload": "رفع ملف",
+      "link": "إضافة رابط"
+    },
+    "upload": {
+      "chooseFile": "اختر ملفًا",
+      "changeFile": "اختر ملفًا آخر",
+      "fileLabel": "الملف",
+      "noFile": "لم يتم اختيار ملف",
+      "hint": "PDF أو JPEG أو PNG أو GIF أو WebP، حتى 15 ميجابايت. من الهاتف يمكنك أيضًا التقاط صورة.",
+      "titleLabel": "العنوان (اختياري)",
+      "titlePlaceholder": "مثال: دليل الصيانة",
+      "submit": "رفع",
+      "uploading": "جارٍ الرفع…",
+      "progressLabel": "تقدّم الرفع",
+      "progress": "{{percent}}٪",
+      "progressUnknown": "جارٍ الرفع…",
+      "cancelUpload": "إلغاء الرفع",
+      "retry": "إعادة محاولة الرفع",
+      "cancelled": "تم إلغاء الرفع. قد يكون وصل إلى الخادم بالفعل — إعادة المحاولة آمنة ولن تُنشئ نسخة مكررة.",
+      "retryHint": "إعادة المحاولة ترسل الرفع نفسه مرة أخرى؛ وإذا كان قد حُفظ بالفعل فستحصل على المستند نفسه وليس نسخة ثانية.",
+      "fileSummary": "{{name}} · {{size}}"
+    },
+    "fileChecks": {
+      "empty": "هذا الملف فارغ.",
+      "tooLarge": "حجم هذا الملف أكبر من {{max}} ميجابايت.",
+      "typeInvalid": "نوع هذا الملف غير مقبول. اختر ملف PDF أو JPEG أو PNG أو GIF أو WebP (يجب تحويل صور HEIC إلى JPEG أولًا).",
+      "unsafeName": "اسم هذا الملف غير مقبول. غيّر اسم الملف وحاول مرة أخرى."
+    },
+    "item": {
+      "source": {
+        "LINK": "رابط",
+        "UPLOAD": "ملف مرفوع"
+      },
+      "scan": {
+        "NOT_SCANNED": "لم يُفحص",
+        "CLEAN": "تم الفحص — سليم",
+        "INFECTED": "محظور",
+        "SCAN_FAILED": "فشل الفحص — محظور"
+      },
+      "preview": "معاينة",
+      "previewing": "جارٍ الفتح…",
+      "download": "تنزيل",
+      "downloading": "جارٍ التحضير…",
+      "closePreview": "إغلاق",
+      "previewTitle": "معاينة: {{name}}",
+      "previewAlt": "معاينة {{name}}",
+      "previewFrame": "معاينة PDF لـ {{name}}",
+      "pdfDownloadOnly": "ملفات PDF لا يمكن إلا تنزيلها إلى أن يتم فحصها.",
+      "blocked": "هذا الملف محظور ولا يمكن فتحه أو تنزيله.",
+      "size": "{{size}}"
+    },
+    "deleteUploadDescription": "سيُحذف الملف المرفوع نهائيًا من هذا الأصل.",
+    "fileErrors": {
+      "fileRequired": "اختر ملفًا أولًا.",
+      "fileEmpty": "هذا الملف فارغ.",
+      "fileTooLarge": "حجم هذا الملف أكبر من 15 ميجابايت.",
+      "fileTypeInvalid": "نوع هذا الملف غير مقبول. استخدم ملف PDF أو JPEG أو PNG أو GIF أو WebP.",
+      "signatureUnsupported": "محتوى هذا الملف لا يطابق نوعًا مقبولًا، لذلك لم يُحفظ.",
+      "signatureMismatch": "محتوى الملف لا يطابق نوعه، لذلك لم يُحفظ.",
+      "unsafeName": "اسم هذا الملف غير مقبول. غيّر اسم الملف وحاول مرة أخرى.",
+      "limitReached": "وصل هذا الأصل إلى الحد الأقصى وهو 50 مستندًا مرفوعًا. احذف أحدها أولًا.",
+      "idempotencyReused": "سبق استخدام مرجع الرفع هذا لملف مختلف. اختر الملف مرة أخرى وأعد المحاولة.",
+      "malware": "رفض فحص البرمجيات الخبيثة الملف ولم يُحفظ.",
+      "scanUnavailable": "تعذّر فحص الملف الآن، لذلك لم يُحفظ شيء. حاول لاحقًا.",
+      "quarantined": "هذا الملف محظور ولا يمكن فتحه أو تنزيله.",
+      "storageUnavailable": "تخزين المستندات غير متاح مؤقتًا. لم يُحفظ شيء — حاول لاحقًا أو تواصل مع المسؤول.",
+      "fileMissing": "تعذّر العثور على الملف المحفوظ. تواصل مع المسؤول.",
+      "noStoredFile": "هذا المستند رابط وليس له ملف محفوظ.",
+      "schemaNotReady": "هذه الميزة غير متاحة مؤقتًا بينما يُكمل النظام تحديثًا. حاول بعد قليل.",
+      "unavailable": "تعذّر التحقق من الصلاحيات الآن. لم يتغير شيء — حاول بعد قليل.",
+      "branchDenied": "ليس لديك وصول إلى هذه المحطة.",
+      "forbidden": "ليست لديك صلاحية لتنفيذ ذلك.",
+      "notFound": "لم يتم العثور على هذا المستند أو الأصل.",
+      "cancelled": "تم إلغاء الرفع.",
+      "network": "انقطع الاتصال. قد يكون الرفع قد اكتمل — إعادة المحاولة آمنة ولن تُنشئ نسخة مكررة.",
+      "server": "حدث خطأ ما. لم يتغير شيء."
+    }
+  },
+  "warranties": {
+    "title": "الضمانات",
+    "description": "فترات الضمان ومزوّد الخدمة الذي يغطيها.",
+    "add": "إضافة ضمان",
+    "adding": "جارٍ الإضافة…",
+    "cancel": "إلغاء",
+    "editDates": "تعديل التواريخ",
+    "save": "حفظ",
+    "saving": "جارٍ الحفظ…",
+    "editTitle": "تعديل الضمان",
+    "fields": {
+      "provider": "مزوّد الخدمة",
+      "startDate": "تاريخ البدء",
+      "endDate": "تاريخ الانتهاء"
+    },
+    "placeholders": {
+      "provider": "اختر مزوّد الخدمة"
+    },
+    "providerFallback": "المزوّد رقم {{id}}",
+    "providersLoading": "جارٍ تحميل المزوّدين…",
+    "providersUnavailable": "تعذّر تحميل قائمة مزوّدي الخدمة، لذلك لا يمكن اختيار المزوّد الآن. يمكنك مع ذلك تعديل التواريخ.",
+    "noProviders": "لا يوجد مزوّدو خدمة مؤهَّلون مرتبطون بشركتك بعد. اربط مزوّدًا معتمدًا أولًا.",
+    "status": {
+      "upcoming": "قادم",
+      "active": "ساري",
+      "expired": "منتهٍ"
+    },
+    "empty": "لم تُسجَّل ضمانات.",
+    "period": "{{start}} ← {{end}}",
+    "edit": "تعديل",
+    "editDescription": "غيّر التواريخ أو صحّح مزوّد الخدمة. يُحفظ ما غيّرته فقط.",
+    "currentProvider": "المزوّد الحالي",
+    "noChanges": "لم يتغيّر شيء بعد.",
+    "providerUnavailable": "المزوّد لم يعد متاحًا",
+    "providersUnavailableAdd": "تعذّر تحميل قائمة مزوّدي الخدمة، لذلك لا يمكن إضافة ضمان الآن.",
+    "providersRetry": "حاول مرة أخرى",
+    "states": {
+      "ELIGIBLE": "مؤهَّل",
+      "INACTIVE": "المزوّد غير نشط",
+      "UNLINKED": "المزوّد غير مرتبط",
+      "UNAVAILABLE": "المزوّد غير متاح"
+    },
+    "stateHint": {
+      "INACTIVE": "هذا المزوّد لم يعد نشطًا ولا يمكن اختياره مجددًا.",
+      "UNLINKED": "هذا المزوّد لم يعد مرتبطًا بشركتك ولا يمكن اختياره مجددًا.",
+      "UNAVAILABLE": "لم يعد بالإمكان عرض هذا المزوّد."
+    },
+    "currentSuffix": "(الحالي)"
+  },
+  "inspections": {
+    "title": "الفحوصات",
+    "description": "الفحوصات التي أُجريت على هذا الأصل.",
+    "add": "تسجيل فحص",
+    "adding": "جارٍ الحفظ…",
+    "cancel": "إلغاء",
+    "fields": {
+      "inspectionDate": "تاريخ الفحص",
+      "status": "النتيجة",
+      "notes": "ملاحظات"
+    },
+    "placeholders": {
+      "status": "مثال: ناجح",
+      "notes": "ما الذي تم فحصه أو اكتشافه"
+    },
+    "empty": "لم تُسجَّل فحوصات.",
+    "noStatus": "لم تُسجَّل نتيجة"
+  },
+  "maintenance": {
+    "title": "الصيانة الداخلية",
+    "description": "الصيانة التي نفّذها فريقك.",
+    "add": "تسجيل صيانة",
+    "adding": "جارٍ الحفظ…",
+    "cancel": "إلغاء",
+    "fields": {
+      "performedAt": "وقت التنفيذ",
+      "notes": "ملاحظات"
+    },
+    "placeholders": {
+      "notes": "ما الذي تم تنفيذه"
+    },
+    "empty": "لم تُسجَّل صيانة.",
+    "performedBy": "بواسطة {{name}}",
+    "unknownUser": "أحد أعضاء الفريق"
+  },
+  "history": {
+    "title": "السجل",
+    "description": "كل ما تم تسجيله لهذا الأصل، الأحدث أولًا.",
+    "empty": "لم يتم تسجيل أي أحداث لهذا الأصل.",
+    "emptyHint": "يبدأ تسجيل السجل منذ تفعيل هذه الميزة، لذلك قد لا تظهر أي أحداث للأصول الأقدم بعد.",
+    "unknownActor": "أحد أعضاء الفريق",
+    "by": "بواسطة {{name}}",
+    "unnamed": "(بدون اسم)",
+    "emptyValue": "(فارغ)",
+    "loadMore": "عرض المزيد",
+    "loadingMore": "جارٍ التحميل…",
+    "loadMoreFailed": "تعذّر تحميل المزيد من السجل.",
+    "retry": "حاول مرة أخرى",
+    "listLabel": "الخط الزمني لنشاط الأصل",
+    "generic": {
+      "unknownTitle": "نشاط مسجَّل",
+      "legacyTitle": "حدث مسجَّل سابقًا",
+      "unknownDescription": "سُجّل هذا النشاط بواسطة إصدار أحدث من النظام.",
+      "legacyDescription": "سُجّل هذا الحدث قبل إضافة السجل التفصيلي.",
+      "code": "رمز الحدث: {{code}}"
+    },
+    "events": {
+      "asset_created": {
+        "title": "تم إنشاء الأصل",
+        "description": "تمت إضافة الأصل: {{name}}"
+      },
+      "asset_updated": {
+        "title": "تم تحديث الأصل",
+        "description": "تم تحديث بيانات الأصل."
+      },
+      "asset_warranty_created": {
+        "title": "تمت إضافة ضمان",
+        "description": "تمت إضافة ضمان ساري من {{start}} إلى {{end}}."
+      },
+      "asset_warranty_updated": {
+        "title": "تم تحديث الضمان",
+        "description": "تم تحديث تواريخ الضمان."
+      },
+      "asset_inspection_recorded": {
+        "title": "تم تسجيل فحص",
+        "description": "تم تسجيل فحص بتاريخ {{date}}."
+      },
+      "asset_maintenance_recorded": {
+        "title": "تم تسجيل صيانة",
+        "description": "تم تسجيل صيانة داخلية بتاريخ {{date}}."
+      },
+      "asset_document_link_added": {
+        "title": "تمت إضافة رابط مستند",
+        "description": "تمت إضافة الرابط: {{name}}"
+      },
+      "asset_document_uploaded": {
+        "title": "تم رفع مستند",
+        "description": "تم رفع الملف: {{name}}"
+      },
+      "asset_document_deleted": {
+        "title": "تم حذف مستند",
+        "description": "تم حذف المستند: {{name}}"
+      }
+    },
+    "details": {
+      "changes": "الحقول التي تغيّرت",
+      "redacted": "تغيّر — القيمة غير معروضة",
+      "before": "قبل",
+      "after": "بعد",
+      "result": "النتيجة: {{status}}",
+      "notesProvided": "تم إدخال ملاحظات.",
+      "noNotes": "لم تُدخل ملاحظات.",
+      "size": "الحجم: {{size}}",
+      "type": "النوع: {{type}}",
+      "source": {
+        "LINK": "مستند برابط",
+        "UPLOAD": "ملف مرفوع"
+      },
+      "fileRemoved": "تمت إزالة الملف المخزَّن.",
+      "scan": {
+        "NOT_SCANNED": "لم يُفحص",
+        "CLEAN": "تم الفحص — سليم",
+        "INFECTED": "محظور",
+        "SCAN_FAILED": "فشل الفحص — محظور"
+      },
+      "providerChanged": "تم تغيير مزوّد الضمان."
+    },
+    "fields": {
+      "startDate": "بداية الضمان",
+      "endDate": "نهاية الضمان",
+      "providerOrganizationId": "مزوّد الضمان"
+    }
+  },
+  "readOnly": "يمكنك عرض هذه المعلومات لكن لا يمكنك تغييرها."
+}

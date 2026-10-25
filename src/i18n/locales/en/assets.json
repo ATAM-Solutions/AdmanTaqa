@@ -1,0 +1,443 @@
+{
+  "title": "Assets",
+  "subtitle": "Equipment and installations at your stations, with their documents, warranties, inspections and maintenance.",
+  "status": {
+    "ACTIVE": "Active",
+    "UNDER_MAINTENANCE": "Under maintenance",
+    "INACTIVE": "Inactive",
+    "DECOMMISSIONED": "Decommissioned"
+  },
+  "maintenanceType": {
+    "INTERNAL": "Internal",
+    "EXTERNAL": "External"
+  },
+  "list": {
+    "addAsset": "Add asset",
+    "searchPlaceholder": "Search by name, serial number, manufacturer or model",
+    "searchLabel": "Search assets",
+    "stationLabel": "Station",
+    "allStations": "All stations",
+    "loading": "Loading assets…",
+    "loadFailed": "Could not load assets.",
+    "retry": "Retry",
+    "emptyTitle": "No assets yet",
+    "emptyDescription": "Assets you add will appear here.",
+    "noMatchTitle": "No assets match your filters",
+    "noMatchDescription": "Try a different search or another station.",
+    "clearFilters": "Clear filters",
+    "columns": {
+      "name": "Asset",
+      "serialNumber": "Serial number",
+      "station": "Station",
+      "details": "Type / model",
+      "status": "Status",
+      "maintenance": "Maintenance",
+      "warranty": "Warranty ends"
+    },
+    "viewAsset": "View {{name}}",
+    "refreshing": "Updating…"
+  },
+  "form": {
+    "createTitle": "Add asset",
+    "createSubtitle": "Register a new asset at one of your stations.",
+    "editTitle": "Edit asset",
+    "editSubtitle": "Update this asset's information.",
+    "sections": {
+      "basic": "Basic information",
+      "details": "Equipment details",
+      "purchase": "Purchase and warranty"
+    },
+    "fields": {
+      "branchId": "Station",
+      "name": "Asset name",
+      "maintenanceType": "Maintenance type",
+      "status": "Status",
+      "description": "Description",
+      "type": "Type",
+      "manufacturer": "Manufacturer",
+      "model": "Model",
+      "serialNumber": "Serial number",
+      "location": "Location at the station",
+      "installationDate": "Installation date",
+      "purchaseDate": "Purchase date",
+      "purchaseCost": "Purchase cost",
+      "warrantyExpiry": "Warranty expiry"
+    },
+    "placeholders": {
+      "maintenanceType": "Select maintenance type",
+      "status": "Select status",
+      "purchaseCost": "0.00"
+    },
+    "stationLocked": "The station cannot be changed after the asset is created.",
+    "maintenanceHint": "Internal: maintained by your own team. External: maintained by a service provider.",
+    "serialHint": "Must be unique within your company.",
+    "submitCreate": "Create asset",
+    "submitEdit": "Save changes",
+    "submitting": "Saving…",
+    "cancel": "Cancel",
+    "noChanges": "There are no changes to save.",
+    "noStations": "You have no stations available, so no asset can be created."
+  },
+  "validation": {
+    "required": "This field is required.",
+    "tooLong": "Must be at most {{max}} characters.",
+    "invalidDate": "Enter a valid date.",
+    "invalidNumber": "Enter a valid number.",
+    "negative": "Must not be negative.",
+    "tooManyDecimals": "Use at most two decimal places.",
+    "outOfRange": "This amount is too large.",
+    "invalidOption": "Choose one of the listed options.",
+    "branchNotAllowed": "Choose one of your own stations.",
+    "invalidUrl": "Enter a link that starts with http:// or https://.",
+    "endBeforeStart": "The end date cannot be before the start date.",
+    "providerNotEligible": "This provider is no longer available. Choose another one."
+  },
+  "errors": {
+    "conflictSerial": "An asset with this serial number already exists in your company.",
+    "conflict": "This conflicts with existing data.",
+    "validation": "Some values were rejected by the server. Check the highlighted fields.",
+    "unsafeUrl": "This link is not accepted. Use a link that starts with http:// or https://.",
+    "branchDenied": "You do not have access to this station.",
+    "forbidden": "You do not have permission to do this.",
+    "unavailable": "Permissions cannot be verified right now. Nothing was changed — try again shortly.",
+    "notFound": "This asset was not found.",
+    "network": "Could not reach the server. Nothing was changed.",
+    "server": "Something went wrong. Nothing was changed.",
+    "loadFailed": "Could not load this information.",
+    "fieldRejected": "The server did not accept this value.",
+    "warrantyDuplicate": "An identical warranty (same provider and dates) is already recorded for this asset.",
+    "warrantyProvider": "This service provider cannot be used for this asset. Choose one from the list.",
+    "warrantyDate": "One of the dates is not a valid calendar date.",
+    "warrantyRange": "The end date cannot be before the start date."
+  },
+  "toasts": {
+    "created": "Asset created.",
+    "updated": "Asset updated.",
+    "documentAdded": "Document added.",
+    "documentDeleted": "Document deleted.",
+    "warrantyAdded": "Warranty added.",
+    "warrantyUpdated": "Warranty updated.",
+    "inspectionAdded": "Inspection recorded.",
+    "maintenanceAdded": "Maintenance recorded.",
+    "documentUploaded": "Document uploaded.",
+    "documentAlreadyUploaded": "This file was already uploaded — nothing was duplicated."
+  },
+  "details": {
+    "back": "Back to assets",
+    "edit": "Edit",
+    "notFoundTitle": "Asset not found",
+    "notFoundDescription": "It may not exist, or it may belong to a station you cannot access.",
+    "tabs": {
+      "general": "General",
+      "documents": "Documents",
+      "warranties": "Warranties",
+      "inspections": "Inspections",
+      "maintenance": "Maintenance",
+      "history": "History"
+    },
+    "general": {
+      "title": "General information",
+      "station": "Station",
+      "maintenanceType": "Maintenance type",
+      "status": "Status",
+      "type": "Type",
+      "manufacturer": "Manufacturer",
+      "model": "Model",
+      "serialNumber": "Serial number",
+      "location": "Location",
+      "installationDate": "Installation date",
+      "purchaseDate": "Purchase date",
+      "purchaseCost": "Purchase cost",
+      "warrantyExpiry": "Warranty expiry",
+      "description": "Description",
+      "createdAt": "Added",
+      "overview": "Overview",
+      "healthScore": "Health score",
+      "lastMaintenance": "Last maintenance",
+      "nextMaintenance": "Next maintenance (estimated)",
+      "documents": "Documents",
+      "maintenanceRecords": "Maintenance records",
+      "workOrders": "Work orders"
+    }
+  },
+  "documents": {
+    "title": "Documents",
+    "description": "Manuals, certificates and other files related to this asset.",
+    "add": "Add document",
+    "adding": "Adding…",
+    "cancel": "Cancel",
+    "fields": {
+      "fileUrl": "File link",
+      "title": "Title",
+      "fileType": "File type"
+    },
+    "placeholders": {
+      "fileUrl": "https://…",
+      "title": "e.g. Service manual",
+      "fileType": "e.g. PDF"
+    },
+    "empty": "No documents have been added.",
+    "open": "Open",
+    "untitled": "Untitled document",
+    "uploadedBy": "Added by {{name}}",
+    "unknownUser": "a team member",
+    "delete": "Delete",
+    "deleteTitle": "Delete this document?",
+    "deleteDescription": "The link will be removed from this asset. The file itself is not affected.",
+    "deleting": "Deleting…",
+    "confirmDelete": "Delete document",
+    "help": "Upload a PDF or an image (up to 15 MB), or add a link to a file that is stored elsewhere.",
+    "modes": {
+      "label": "How to add the document",
+      "upload": "Upload a file",
+      "link": "Add a link"
+    },
+    "upload": {
+      "chooseFile": "Choose a file",
+      "changeFile": "Choose a different file",
+      "fileLabel": "File",
+      "noFile": "No file selected",
+      "hint": "PDF, JPEG, PNG, GIF or WebP, up to 15 MB. On a phone you can also take a photo.",
+      "titleLabel": "Title (optional)",
+      "titlePlaceholder": "e.g. Service manual",
+      "submit": "Upload",
+      "uploading": "Uploading…",
+      "progressLabel": "Upload progress",
+      "progress": "{{percent}}%",
+      "progressUnknown": "Uploading…",
+      "cancelUpload": "Cancel upload",
+      "retry": "Retry upload",
+      "cancelled": "The upload was cancelled. It may already have reached the server — retrying is safe and will not create a duplicate.",
+      "retryHint": "Retrying sends the same upload again; if it was already stored you will get that document back, not a second copy.",
+      "fileSummary": "{{name}} · {{size}}"
+    },
+    "fileChecks": {
+      "empty": "This file is empty.",
+      "tooLarge": "This file is larger than {{max}} MB.",
+      "typeInvalid": "This type of file is not accepted. Choose a PDF, JPEG, PNG, GIF or WebP file (photos in HEIC format must be converted to JPEG first).",
+      "unsafeName": "This file name is not accepted. Rename the file and try again."
+    },
+    "item": {
+      "source": {
+        "LINK": "Link",
+        "UPLOAD": "Uploaded file"
+      },
+      "scan": {
+        "NOT_SCANNED": "Not scanned",
+        "CLEAN": "Scanned — clean",
+        "INFECTED": "Blocked",
+        "SCAN_FAILED": "Scan failed — blocked"
+      },
+      "preview": "Preview",
+      "previewing": "Opening…",
+      "download": "Download",
+      "downloading": "Preparing…",
+      "closePreview": "Close",
+      "previewTitle": "Preview: {{name}}",
+      "previewAlt": "Preview of {{name}}",
+      "previewFrame": "PDF preview of {{name}}",
+      "pdfDownloadOnly": "PDF files can only be downloaded until they have been scanned.",
+      "blocked": "This file is blocked and cannot be opened or downloaded.",
+      "size": "{{size}}"
+    },
+    "deleteUploadDescription": "The uploaded file will be permanently removed from this asset.",
+    "fileErrors": {
+      "fileRequired": "Choose a file first.",
+      "fileEmpty": "This file is empty.",
+      "fileTooLarge": "This file is larger than 15 MB.",
+      "fileTypeInvalid": "This type of file is not accepted. Use a PDF, JPEG, PNG, GIF or WebP file.",
+      "signatureUnsupported": "The content of this file does not match an accepted type, so it was not stored.",
+      "signatureMismatch": "The file's content does not match its type, so it was not stored.",
+      "unsafeName": "This file name is not accepted. Rename the file and try again.",
+      "limitReached": "This asset already has the maximum of 50 uploaded documents. Delete one first.",
+      "idempotencyReused": "This upload reference was already used for a different file. Choose the file again and retry.",
+      "malware": "The file was rejected by the malware scan and was not stored.",
+      "scanUnavailable": "The file could not be scanned right now, so nothing was stored. Try again later.",
+      "quarantined": "This file is blocked and cannot be opened or downloaded.",
+      "storageUnavailable": "Document storage is temporarily unavailable. Nothing was stored — try again later or contact the administrator.",
+      "fileMissing": "The stored file could not be found. Contact the administrator.",
+      "noStoredFile": "This document is a link and has no stored file.",
+      "schemaNotReady": "This feature is temporarily unavailable while the system finishes an update. Try again shortly.",
+      "unavailable": "Permissions cannot be verified right now. Nothing was changed — try again shortly.",
+      "branchDenied": "You do not have access to this station.",
+      "forbidden": "You do not have permission to do this.",
+      "notFound": "This document or asset was not found.",
+      "cancelled": "The upload was cancelled.",
+      "network": "Connection lost. The upload may have completed — retrying is safe and will not create a duplicate.",
+      "server": "Something went wrong. Nothing was changed."
+    }
+  },
+  "warranties": {
+    "title": "Warranties",
+    "description": "Warranty periods and the service provider that covers them.",
+    "add": "Add warranty",
+    "adding": "Adding…",
+    "cancel": "Cancel",
+    "editDates": "Edit dates",
+    "save": "Save",
+    "saving": "Saving…",
+    "editTitle": "Edit warranty",
+    "fields": {
+      "provider": "Service provider",
+      "startDate": "Start date",
+      "endDate": "End date"
+    },
+    "placeholders": {
+      "provider": "Select a service provider"
+    },
+    "providerFallback": "Provider #{{id}}",
+    "providersLoading": "Loading providers…",
+    "providersUnavailable": "The list of service providers could not be loaded, so the provider cannot be chosen right now. You can still edit the dates.",
+    "noProviders": "No eligible service providers are linked to your company yet. Link an approved provider first.",
+    "status": {
+      "upcoming": "Upcoming",
+      "active": "Active",
+      "expired": "Expired"
+    },
+    "empty": "No warranties have been recorded.",
+    "period": "{{start}} → {{end}}",
+    "edit": "Edit",
+    "editDescription": "Change the dates or correct the service provider. Only what you change is saved.",
+    "currentProvider": "Current provider",
+    "noChanges": "Nothing has changed yet.",
+    "providerUnavailable": "Provider no longer available",
+    "providersUnavailableAdd": "The list of service providers could not be loaded, so a warranty cannot be added right now.",
+    "providersRetry": "Try again",
+    "states": {
+      "ELIGIBLE": "Eligible",
+      "INACTIVE": "Provider inactive",
+      "UNLINKED": "Provider not linked",
+      "UNAVAILABLE": "Provider unavailable"
+    },
+    "stateHint": {
+      "INACTIVE": "This provider is no longer active. It cannot be chosen again.",
+      "UNLINKED": "This provider is no longer linked to your company. It cannot be chosen again.",
+      "UNAVAILABLE": "This provider can no longer be shown."
+    },
+    "currentSuffix": "(current)"
+  },
+  "inspections": {
+    "title": "Inspections",
+    "description": "Inspections carried out on this asset.",
+    "add": "Record inspection",
+    "adding": "Saving…",
+    "cancel": "Cancel",
+    "fields": {
+      "inspectionDate": "Inspection date",
+      "status": "Result",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "status": "e.g. Passed",
+      "notes": "What was checked or found"
+    },
+    "empty": "No inspections have been recorded.",
+    "noStatus": "No result recorded"
+  },
+  "maintenance": {
+    "title": "Internal maintenance",
+    "description": "Maintenance performed by your own team.",
+    "add": "Record maintenance",
+    "adding": "Saving…",
+    "cancel": "Cancel",
+    "fields": {
+      "performedAt": "Performed at",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "notes": "What was done"
+    },
+    "empty": "No maintenance has been recorded.",
+    "performedBy": "By {{name}}",
+    "unknownUser": "a team member"
+  },
+  "history": {
+    "title": "History",
+    "description": "Everything recorded for this asset, newest first.",
+    "empty": "No history events have been recorded for this asset.",
+    "emptyHint": "History is recorded from the moment this feature was introduced, so older assets may show nothing yet.",
+    "unknownActor": "A team member",
+    "by": "By {{name}}",
+    "unnamed": "(unnamed)",
+    "emptyValue": "(empty)",
+    "loadMore": "Load more",
+    "loadingMore": "Loading…",
+    "loadMoreFailed": "More history could not be loaded.",
+    "retry": "Try again",
+    "listLabel": "Asset activity timeline",
+    "generic": {
+      "unknownTitle": "Activity recorded",
+      "legacyTitle": "Earlier recorded event",
+      "unknownDescription": "This activity was recorded by a newer version of the system.",
+      "legacyDescription": "This event was recorded before detailed history was introduced.",
+      "code": "Event code: {{code}}"
+    },
+    "events": {
+      "asset_created": {
+        "title": "Asset created",
+        "description": "Asset added: {{name}}"
+      },
+      "asset_updated": {
+        "title": "Asset updated",
+        "description": "Asset details were updated."
+      },
+      "asset_warranty_created": {
+        "title": "Warranty added",
+        "description": "Warranty added, valid {{start}} to {{end}}."
+      },
+      "asset_warranty_updated": {
+        "title": "Warranty updated",
+        "description": "The warranty dates were updated."
+      },
+      "asset_inspection_recorded": {
+        "title": "Inspection recorded",
+        "description": "Inspection recorded for {{date}}."
+      },
+      "asset_maintenance_recorded": {
+        "title": "Maintenance recorded",
+        "description": "Internal maintenance recorded for {{date}}."
+      },
+      "asset_document_link_added": {
+        "title": "Document link added",
+        "description": "Link added: {{name}}"
+      },
+      "asset_document_uploaded": {
+        "title": "Document uploaded",
+        "description": "File uploaded: {{name}}"
+      },
+      "asset_document_deleted": {
+        "title": "Document deleted",
+        "description": "Document deleted: {{name}}"
+      }
+    },
+    "details": {
+      "changes": "Changed fields",
+      "redacted": "changed — value not shown",
+      "before": "Before",
+      "after": "After",
+      "result": "Result: {{status}}",
+      "notesProvided": "Notes were provided.",
+      "noNotes": "No notes were provided.",
+      "size": "Size: {{size}}",
+      "type": "Type: {{type}}",
+      "source": {
+        "LINK": "Link document",
+        "UPLOAD": "Uploaded file"
+      },
+      "fileRemoved": "The stored file was removed.",
+      "scan": {
+        "NOT_SCANNED": "Not scanned",
+        "CLEAN": "Scanned — clean",
+        "INFECTED": "Blocked",
+        "SCAN_FAILED": "Scan failed — blocked"
+      },
+      "providerChanged": "The warranty provider was changed."
+    },
+    "fields": {
+      "startDate": "Warranty start",
+      "endDate": "Warranty end",
+      "providerOrganizationId": "Warranty provider"
+    }
+  },
+  "readOnly": "You can view this information but not change it."
+}
