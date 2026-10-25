@@ -308,7 +308,8 @@
       "stations": "Stations",
       "users": "Users",
       "documents": "Documents",
-      "activity": "Activity"
+      "activity": "Activity",
+      "assetPermissions": "Asset permissions"
     },
     "overview": {
       "companyInfo": "Company information",
@@ -517,5 +518,77 @@
     "accessTitle": "Users with access",
     "accessNone": "No user is assigned to this station (users with no assignment have company-wide access).",
     "accessLoadFailed": "Could not load the assigned users."
+  },
+  "assetPolicy": {
+    "title": "Asset permissions",
+    "description": "Choose which roles in this company are allowed to create assets. Company managers can then grant or deny asset creation for individual users, but never beyond what you allow here.",
+    "status": {
+      "unrestricted": "Not restricted",
+      "restricted": "Restricted"
+    },
+    "toggle": {
+      "label": "Restrict asset creation",
+      "hintOn": "Only the roles selected below can create assets in this company.",
+      "hintOff": "Off: no restriction is applied."
+    },
+    "unrestricted": {
+      "title": "No restriction is applied",
+      "body": "Every role keeps exactly the asset-creation access it has today, and nothing changes until you turn the restriction on and save. When you do, roles that currently grant Create Assets are preselected for you — nothing is saved until you confirm."
+    },
+    "roles": {
+      "title": "Roles that may create assets",
+      "description": "Selected roles are eligible. A role can create assets only if it is eligible here AND includes the Create Assets permission.",
+      "empty": "This company has no roles yet.",
+      "companyAdmin": "Company administrator",
+      "shared": "Shared role",
+      "holds": "Has Create Assets",
+      "doesNotHold": "Does not grant Create Assets",
+      "selected": "{{count}} of {{total}} roles selected",
+      "selectAll": "Select all",
+      "clear": "Clear selection",
+      "eligibleNote": "Eligible, but this role does not grant Create Assets itself.",
+      "listLabel": "Roles of this company"
+    },
+    "stale": {
+      "title": "Outdated role references",
+      "body": "These saved entries no longer match any role of this company. They have no effect and will be removed the next time you save.",
+      "names": "Role names: {{names}}",
+      "ids": "{{count}} removed role(s) referenced by id"
+    },
+    "ownerWarning": {
+      "title": "The company administrator is not selected",
+      "body": "{{name}} would no longer be able to create assets, and could not grant that ability to others. Only continue if this is intended."
+    },
+    "unsaved": {
+      "label": "You have unsaved changes",
+      "discard": "Discard changes",
+      "save": "Save changes",
+      "saving": "Saving…"
+    },
+    "lastUpdated": "Last updated {{date}}",
+    "never": "No policy has been saved for this company yet.",
+    "confirm": {
+      "title": "Save asset permissions?",
+      "description": "This takes effect immediately for every user of this company.",
+      "losing": "These roles will no longer be able to create assets:",
+      "admin": "The company administrator role ({{name}}) is not eligible. That user will not be able to create assets or grant the ability to others.",
+      "nobody": "No role is selected, so nobody in this company will be able to create assets.",
+      "confirm": "Save changes"
+    },
+    "toasts": {
+      "saved": "Asset permissions saved."
+    },
+    "errors": {
+      "unknownRole": "Some selected roles do not belong to this company{{names}}. Refresh the page and try again.",
+      "notSupported": "Asset permissions are only available for Fuel Station companies.",
+      "forbidden": "You do not have permission to manage asset permissions.",
+      "notFound": "This company was not found.",
+      "schemaNotReady": "This feature is temporarily unavailable while the system finishes a database update. Try again shortly or contact the administrator.",
+      "network": "Could not reach the server. Check your connection and try again.",
+      "server": "Something went wrong while handling the request. Try again.",
+      "loadFailed": "Could not load asset permissions.",
+      "saveFailed": "The changes were not saved."
+    },
+    "retry": "Retry"
   }
 }

@@ -1,6 +1,7 @@
 import axiosInstance from "@/api/config";
 import type {
   AdminActivityListData,
+  AdminAssetPolicy,
   AdminAssignableRole,
   AdminOrganization,
   AdminOrganizationDetail,
@@ -13,6 +14,7 @@ import type {
   CreateAdminOrganizationBody,
   CreateAdminStationBody,
   CreateAdminUserBody,
+  SetAssetPolicyBody,
   UpdateAdminOrganizationBody,
   UpdateAdminStationBody,
   UpdateAdminUserBody,
@@ -84,6 +86,14 @@ export const adminOrganizationsService = {
   },
   updateStation(id: number | string, stationId: number | string, body: UpdateAdminStationBody) {
     return axiosInstance.patch<ApiEnvelope<AdminStation>>(`${BASE}/${id}/stations/${stationId}`, body).then(unwrap);
+  },
+
+  // Asset-creation policy: which of the company's roles may create assets (Fuel Station only; Super Admin only)
+  getAssetPolicy(id: number | string) {
+    return axiosInstance.get<ApiEnvelope<AdminAssetPolicy>>(`${BASE}/${id}/asset-policy`).then(unwrap);
+  },
+  setAssetPolicy(id: number | string, body: SetAssetPolicyBody) {
+    return axiosInstance.put<ApiEnvelope<AdminAssetPolicy>>(`${BASE}/${id}/asset-policy`, body).then(unwrap);
   },
 
   // Roles + users

@@ -38,6 +38,8 @@ import {
   useInvalidateAdminOrganizations,
   useSetAdminOrganizationActive,
 } from "@/hooks/AdminOrganizations/useAdminOrganizations";
+import { useAuth } from "@/context/AuthContext";
+import { canShowAssetPolicyTab } from "@/lib/assetPolicy";
 import { getOrganizationDisplayName } from "@/lib/company";
 import { formatDate } from "@/lib/i18n/formatters";
 import { getApiErrorMessage } from "@/lib/utils";
@@ -47,8 +49,9 @@ import { StationsTab } from "./components/detail/StationsTab";
 import { UsersTab } from "./components/detail/UsersTab";
 import { DocumentsTab } from "./components/detail/DocumentsTab";
 import { ActivityTab } from "./components/detail/ActivityTab";
+import { AssetPermissionsTab } from "./components/detail/AssetPermissionsTab";
 
-const TAB_KEYS = ["overview", "stations", "users", "documents", "activity"] as const;
+const TAB_KEYS = ["overview", "stations", "users", "asset-permissions", "documents", "activity"] as const;
 type TabKey = (typeof TAB_KEYS)[number];
 
 const isTabKey = (value: string | null): value is TabKey =>
@@ -69,14 +72,18 @@ export default function AdminOrganizationDetail() {
   const setActiveMutation = useSetAdminOrganizationActive();
 
   const isFuelStation = organization?.type === "FUEL_STATION";
+  // Asset permissions: Super Admin viewing a Fuel Station company. (The backend enforces this too; this only avoids a dead tab.)
+  const { organization: viewerOrganization } = useAuth();
+  const showAssetPermissions = canShowAssetPolicyTab(viewerOrganization?.type, organization?.type);
 
   // ── Tab state synced with ?tab= ──────────────────────────────────────────
   const tabParam = searchParams.get("tab");
   const activeTab: TabKey = useMemo(() => {
     const candidate: TabKey = isTabKey(tabParam) ? tabParam : "overview";
     if (candidate === "stations" && organization && !isFuelStation) return "overview";
+    if (candidate === "asset-permissions" && organization && !showAssetPermissions) return "overview";
     return candidate;
-  }, [tabParam, organization, isFuelStation]);
+  }, [tabParam, organization, isFuelStation, showAssetPermissions]);
 
   const setActiveTab = (next: string) => {
     if (!isTabKey(next)) return;
@@ -319,6 +326,9 @@ export default function AdminOrganizationDetail() {
               </span>
             ) : null}
           </TabsTrigger>
+          {showAssetPermissions ? (
+            <TabsTrigger value="asset-permissions">{t("detail.tabs.assetPermissions")}</TabsTrigger>
+          ) : null}
           <TabsTrigger value="documents">{t("detail.tabs.documents")}</TabsTrigger>
           <TabsTrigger value="activity">{t("detail.tabs.activity")}</TabsTrigger>
         </TabsList>
@@ -346,6 +356,12 @@ export default function AdminOrganizationDetail() {
             createAsCompanyAdmin={userCreateAsAdmin}
           />
         </TabsContent>
+        {showAssetPermissions ? (
+          <TabsContent value="asset-permissions">
+            {/* keyed by company: a draft can never carry over from one company to another */}
+            <AssetPermissionsTab key={organization.id} organization={organization} />
+          </TabsContent>
+        ) : null}
         <TabsContent value="documents">
           <DocumentsTab organization={organization} />
         </TabsContent>

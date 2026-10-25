@@ -225,6 +225,40 @@ export interface AdminAssignableRole {
   isCompanyAdmin: boolean;
 }
 
+// ── Asset-creation policy (Super Admin, Fuel Station only) ──────────────────
+/** One role of the company as the backend reports it. `eligible` is the backend's own verdict — never recompute it. */
+export interface AssetPolicyRole {
+  id: number;
+  name: string;
+  /** A shared system role (not owned by this company). */
+  isSystem: boolean;
+  /** "Station Owner" — the company's full-authority administrator role. */
+  isCompanyAdmin: boolean;
+  /** The role itself currently grants the Create Assets permission. */
+  holdsAssetCreate: boolean;
+  eligible: boolean;
+}
+
+/** GET/PUT /admin/organizations/:id/asset-policy */
+export interface AdminAssetPolicy {
+  organizationId: number;
+  organizationType: string;
+  restricted: boolean;
+  allowedRoleNames: string[];
+  /** Saved entries whose role no longer exists; dropped by the next save. */
+  staleRoleNames: string[];
+  staleRoleIds: number[];
+  hasPolicy: boolean;
+  roles: AssetPolicyRole[];
+  updatedAt: string | null;
+  updatedByUserId: number | null;
+}
+
+export interface SetAssetPolicyBody {
+  restricted: boolean;
+  allowedRoleNames: string[];
+}
+
 export interface AdminUserRole {
   id: number;
   name: string;
