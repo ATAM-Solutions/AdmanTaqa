@@ -1,4 +1,6 @@
 import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
+import PaymentRecordPanel from "@/components/PaymentRecordPanel";
+import useConfirmReceived from "@/hooks/Provider/useConfirmReceived";
 import { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -24,6 +26,9 @@ export default function ProviderJobOrderDetail() {
   const { hasPermission } = useAuth();
   // payment amounts are commercial data: only finance/management roles can load them (Operators execute the job)
   const canSeePayments = hasPermission("payments.read") || hasPermission("provider.payments.confirm_received");
+  const canConfirmPayment = hasPermission("provider.payments.confirm_received") || hasPermission("payments.confirm_received");
+  const { t: tPay } = useTranslation("paymentRecord");
+  const confirmReceived = useConfirmReceived();
   const { data: order, isLoading } = useProviderJobOrderById(id ?? null);
   // const statusMutation = useUpdateProviderJobOrderStatus();
   const submitCompletionMutation = useSubmitJobOrderForCompletion();
@@ -51,6 +56,13 @@ export default function ProviderJobOrderDetail() {
   const { data: reportsList = [] } = useProviderJobOrderReports(id);
 
   const [completionNote, setCompletionNote] = useState("");
+  const paymentOutcome = (done: "confirmed" | "reported") => ({
+    onSuccess: () => toast.success(tPay(`errors.${done}`)),
+    onError: (e: unknown) => {
+      const code = (e as { response?: { data?: { code?: string } } })?.response?.data?.code;
+      toast.error(code && ["PAYMENT_ALREADY_CONFIRMED", "PAYMENT_NOT_SENT_YET"].includes(code) ? tPay(`errors.${code}`) : getApiErrorMessage(e, tPay("errors.generic")));
+    },
+  });
 
   const isCancelled = order?.status === "CANCELLED";
   const paymentRejected = order?.paymentRecord?.status === "REJECTED";
@@ -133,6 +145,14 @@ export default function ProviderJobOrderDetail() {
         </Link>
       </Button>
 
+      {canSeePayments && order.paymentRecord && ["STATION_CONFIRMED_SENT", "PROVIDER_CONFIRMED_RECEIVED"].includes(order.paymentRecord.status ?? "") ? (
+        <PaymentRecordPanel
+          record={order.paymentRecord}
+          audience="provider"
+          busy={confirmReceived.isPending}
+          onConfirm={canConfirmPayment ? () => confirmReceived.mutate({ jobOrderId: String(order.id), body: { confirm: true } }, paymentOutcome("confirmed")) : undefined}
+        />
+      ) : null}
       {canSeePayments && <PaymentMilestonesCard side="provider" jobOrderId={order.id} />}
 
       {isCancelled && (

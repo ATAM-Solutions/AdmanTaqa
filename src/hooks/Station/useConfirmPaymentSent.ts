@@ -12,7 +12,8 @@ export default function useConfirmPaymentSent() {
       jobOrderId: number | string;
       body?: ConfirmSentBody;
     }) => confirmJobOrderPaymentSent(jobOrderId, body),
-    onSuccess: () => {
+    // also after an error: a timed-out request may have been saved by the server, so always reload the real state
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["station-requests"] });
       queryClient.invalidateQueries({ queryKey: ["station-request"] });
       queryClient.invalidateQueries({ queryKey: ["station-job-order"] });

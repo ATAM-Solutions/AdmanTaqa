@@ -131,10 +131,24 @@ export interface StationRequestDetail extends StationRequestItem {
   paymentStatus?: string;
 }
 
+/** The station's single payment report for a job (legacy "transfer sent" flow). Amounts are as the station typed them. */
+export interface PaymentRecordDetails {
+  id?: number;
+  status?: string;
+  method?: string | null;
+  amount?: number | string | null;
+  referenceNumber?: string | null;
+  receiptFileUrl?: string | null;
+  stationConfirmedAt?: string | null;
+  providerConfirmedAt?: string | null;
+  rejectedAt?: string | null;
+  rejectionReason?: string | null;
+}
+
 export interface ExternalJobOrderSummary {
   id: number;
   status?: string;
-  paymentRecord?: { status?: string; rejectionReason?: string | null; receiptFileUrl?: string | null };
+  paymentRecord?: PaymentRecordDetails;
 }
 
 /** ExternalRequest nested in station job order list item */

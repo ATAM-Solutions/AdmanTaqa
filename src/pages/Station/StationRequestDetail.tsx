@@ -26,6 +26,10 @@ import SourceReportAttachments from "@/components/SourceReportAttachments";
 import ActivityTimeline from "@/components/ActivityTimeline";
 import SendToProvidersCard from "@/components/SendToProvidersCard";
 import QuoteOfferDetails from "@/components/QuoteOfferDetails";
+import PaymentRecordPanel from "@/components/PaymentRecordPanel";
+import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
+import { fetchMilestones } from "@/api/services/paymentMilestoneService";
+import { useQuery } from "@tanstack/react-query";
 
 const MAX_RECEIPT_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -34,6 +38,7 @@ export default function StationRequestDetail() {
   const { t: tCommon } = useTranslation("common");
   const { t: tActivity } = useTranslation("activity");
   const { t: tReport } = useTranslation("finalReport");
+  const { t: tPay } = useTranslation("paymentRecord");
   const { t: tQuoteRaw } = useTranslation("station", { keyPrefix: "quoteView" });
   const tQuote = (key: string, options?: Record<string, unknown>) => tQuoteRaw(key, options) as string;
   const { id } = useParams<{ id: string }>();
@@ -70,6 +75,17 @@ export default function StationRequestDetail() {
     (externalJobOrder?.status === "AWAITING_PAYMENT" ? externalJobOrder : undefined);
   const stationAlreadyConfirmedSent =
     awaitingPaymentJob?.paymentRecord?.status === "STATION_CONFIRMED_SENT";
+  // the payment already reported for this job (any state past "not started"), whichever job the page is showing
+  const shownJob = awaitingPaymentJob ?? externalJobOrder ?? jobOrders[0];
+  const recordedPayment = shownJob?.paymentRecord && ["STATION_CONFIRMED_SENT", "PROVIDER_CONFIRMED_RECEIVED"].includes(shownJob.paymentRecord.status ?? "") ? shownJob.paymentRecord : undefined;
+  // jobs with installments are paid milestone by milestone; the single-payment form is only for jobs without any
+  const milestonesQuery = useQuery({
+    queryKey: ["payment-milestones", "station", String(awaitingPaymentJob?.id ?? "")],
+    queryFn: () => fetchMilestones("station", awaitingPaymentJob!.id),
+    enabled: !!awaitingPaymentJob?.id && !recordedPayment,
+    retry: false,
+  });
+  const hasMilestones = (milestonesQuery.data ?? []).length > 0;
 
   const handleSelectQuote = () => {
     if (!id || !selectedQuoteId) {
@@ -112,7 +128,13 @@ export default function StationRequestDetail() {
           refetchRequest();
           toast.success(t("requestDetail.toasts.paymentConfirmed"), { duration: 8000 });
         },
-        onError: (e) => toast.error(getApiErrorMessage(e, t("requestDetail.toasts.confirmFailed"))),
+        onError: (e) => {
+          // the server refuses a second report (409): the first one is already recorded, so show it instead of an error
+          const code = (e as { response?: { data?: { code?: string } } })?.response?.data?.code;
+          if (code === "PAYMENT_ALREADY_REPORTED" || code === "PAYMENT_ALREADY_CONFIRMED") toast.info(tPay("errors.recordedAlready"));
+          else toast.error(getApiErrorMessage(e, t("requestDetail.toasts.confirmFailed")));
+          void refetchRequest();
+        },
       }
     );
   };
@@ -389,25 +411,9 @@ export default function StationRequestDetail() {
                 </div>
               )}
 
-              {awaitingPaymentJob && !paymentRejected && stationAlreadyConfirmedSent && (
-                <div className="pt-2 border-t space-y-2 rounded-lg border bg-green-50/50 dark:bg-green-950/20 p-3">
-                  <p className="text-sm font-medium text-green-800 dark:text-green-200">
-                    {t("requestDetail.paymentConfirmedTitle")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{t("requestDetail.paymentConfirmedNote")}</p>
-                  {(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl) && (
-                    <a
-                      href={(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl) ?? "#"}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-sm text-primary underline"
-                    >
-                      {t("requestDetail.viewReceipt")}
-                    </a>
-                  )}
-                </div>
-              )}
-              {awaitingPaymentJob && !paymentRejected && !stationAlreadyConfirmedSent && (
+              {recordedPayment ? <PaymentRecordPanel record={recordedPayment} audience="station" /> : null}
+              {awaitingPaymentJob && !recordedPayment && hasMilestones ? <PaymentMilestonesCard side="station" jobOrderId={awaitingPaymentJob.id} /> : null}
+              {awaitingPaymentJob && !paymentRejected && !stationAlreadyConfirmedSent && !recordedPayment && !hasMilestones && !milestonesQuery.isLoading && (
                 <div className="pt-2 border-t space-y-3">
                   <p className="text-sm font-medium">{t("requestDetail.paymentHeading")}</p>
                   <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{t("requestDetail.paymentHint")}</p>

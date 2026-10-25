@@ -259,6 +259,12 @@ export interface PaymentRecordSummary {
   rejectionReason?: string | null;
   /** URL of uploaded bank transfer receipt (when API returns it). */
   receiptFileUrl?: string | null;
+  method?: string | null;
+  amount?: number | string | null;
+  referenceNumber?: string | null;
+  stationConfirmedAt?: string | null;
+  providerConfirmedAt?: string | null;
+  rejectedAt?: string | null;
 }
 
 export interface ProviderJobOrderDetail extends ProviderJobOrderItem {

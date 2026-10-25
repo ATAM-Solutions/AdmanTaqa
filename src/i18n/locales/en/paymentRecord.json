@@ -1,0 +1,59 @@
+{
+  "openReceipt": "Open the transfer receipt",
+  "cancel": "Cancel",
+  "fields": {
+    "method": "Method",
+    "reference": "Transfer reference",
+    "amount": "Amount reported",
+    "reportedAt": "Reported as sent on",
+    "confirmedAt": "Receipt confirmed on",
+    "problem": "Problem reported by the provider"
+  },
+  "method": {
+    "BANK_TRANSFER": "Bank transfer",
+    "CASH": "Cash",
+    "OTHER": "Other"
+  },
+  "station": {
+    "SENT": {
+      "title": "Payment reported as sent — awaiting the provider's confirmation",
+      "next": "Nothing more to do now. The provider's finance team must confirm that the transfer arrived; work starts after that. Do not send this payment again. If it takes long, contact the provider."
+    },
+    "RECEIVED": {
+      "title": "Payment confirmed received by the provider",
+      "next": "The provider has confirmed the payment and can start the work."
+    },
+    "REJECTED": {
+      "title": "The provider reported a problem with this payment",
+      "next": "Check the transfer with your bank and the provider, then report it again with the correct details."
+    }
+  },
+  "provider": {
+    "SENT": {
+      "title": "The station reports that it sent the payment",
+      "next": "Check your bank account. Confirm only when the money has actually arrived; work can start after you confirm. If it has not arrived or the details do not match, do not confirm — contact the station.",
+      "confirm": "Confirm receipt",
+      "reportProblem": "Report a problem",
+      "problemLabel": "What is wrong with the payment?",
+      "problemHint": "The station will see this and must report the payment again.",
+      "problemSubmit": "Send the problem report"
+    },
+    "RECEIVED": {
+      "title": "You confirmed receipt of this payment",
+      "next": "The job is cleared to start."
+    },
+    "REJECTED": {
+      "title": "You reported a problem with this payment",
+      "next": "The station has to report the payment again."
+    }
+  },
+  "errors": {
+    "PAYMENT_ALREADY_REPORTED": "This payment was already reported. The page shows its current state.",
+    "PAYMENT_ALREADY_CONFIRMED": "This payment was already confirmed.",
+    "PAYMENT_NOT_SENT_YET": "The station has not reported this payment yet.",
+    "generic": "The action could not be completed.",
+    "confirmed": "Receipt confirmed. The job can start.",
+    "reported": "The problem was reported to the station.",
+    "recordedAlready": "This payment is already recorded — no new payment was created."
+  }
+}

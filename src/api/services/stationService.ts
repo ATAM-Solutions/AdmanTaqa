@@ -4,6 +4,7 @@ import type {
   CreateMaintenanceRequestResponse,
   StationRequestItem,
   StationRequestDetail,
+  PaymentRecordDetails,
   StationRequestsListResponse,
   LinkedProviderItem,
   ConfirmSentBody,
@@ -82,6 +83,17 @@ function normalizeQuote(raw: unknown) {
   } as NonNullable<StationRequestItem["quotes"]>[number];
 }
 
+/**
+ * The API names a job's payment report `PaymentRecord` (PascalCase, like every Sequelize include); the pages read `paymentRecord`.
+ * Without this mapping a payment the station already reported was invisible: the page offered the payment form again and the
+ * server (rightly) refused it as already reported.
+ */
+export function withPaymentRecord<T extends object>(job: T | undefined | null): (T & { paymentRecord?: PaymentRecordDetails }) | undefined {
+  if (!job) return undefined;
+  const j = job as T & { PaymentRecord?: PaymentRecordDetails; paymentRecord?: PaymentRecordDetails };
+  return { ...j, paymentRecord: j.paymentRecord ?? j.PaymentRecord ?? undefined };
+}
+
 /** GET /api/station/requests/:id — request detail + all quotes from service providers */
 export async function fetchStationRequestById(
   id: number | string
@@ -100,6 +112,8 @@ export async function fetchStationRequestById(
     formData: raw.formData,
     Branch: raw.Branch,
     quotes,
+    ExternalJobOrder: withPaymentRecord(raw.ExternalJobOrder),
+    jobOrders: raw.jobOrders?.map((j) => withPaymentRecord(j) as NonNullable<typeof raw.jobOrders>[number]),
   };
 }
 
