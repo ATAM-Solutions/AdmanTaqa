@@ -18,7 +18,8 @@ export default function WarehouseRequests() {
   const { t } = useTranslation("station");
   const { t: tw } = useTranslation("warehouse");
   const { hasPermission } = useAuth();
-  const isManager = MANAGER_PERMISSIONS.some((p) => hasPermission(p));
+  // people who act on requests, or who may monitor them (read the warehouse and its requests): the list is station-wide for them
+  const isManager = MANAGER_PERMISSIONS.some((p) => hasPermission(p)) || (hasPermission("warehouse.read") && hasPermission("warehouse_orders.read"));
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
   const { data, isLoading, isError, refetch, isFetching } = useQuery({
