@@ -10,12 +10,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import SparePartsPicker from "@/components/SparePartsPicker";
+import { isSelectionValid, selectionToItems, type PartSelection } from "@/lib/spareParts";
 import TaskProgress from "@/components/TaskProgress";
 import { DashboardLoadError } from "@/components/DashboardLoadError";
 import { useAuth } from "@/context/AuthContext";
 import {
   TaskActionError,
   fetchTaskDetail,
+  fetchTaskSpareParts,
   submitTaskReview,
   submitTaskStatus,
   uploadTaskAttachment,
@@ -40,13 +43,13 @@ const TECH_ACTIONS: Record<string, TechAction[]> = {
   ACCEPTED: [{ id: "arrive", target: "IN_PROGRESS" }],
   IN_PROGRESS: [
     { id: "inspect", target: "INSPECTING", field: { name: "inspectionNotes", required: true }, variant: "outline" },
-    { id: "parts", target: "WAITING_PARTS", field: { name: "message", required: true }, variant: "outline" },
+    { id: "parts", target: "WAITING_PARTS", field: { name: "message" }, variant: "outline" },
     { id: "pause", target: "PAUSED", variant: "outline" },
     { id: "complete", target: "COMPLETED", field: { name: "completionReport", required: true } },
   ],
   INSPECTING: [
     { id: "resume", target: "IN_PROGRESS", variant: "outline" },
-    { id: "parts", target: "WAITING_PARTS", field: { name: "message", required: true }, variant: "outline" },
+    { id: "parts", target: "WAITING_PARTS", field: { name: "message" }, variant: "outline" },
     { id: "complete", target: "COMPLETED", field: { name: "completionReport", required: true } },
   ],
   PAUSED: [{ id: "resume", target: "IN_PROGRESS" }],
@@ -83,6 +86,8 @@ export default function TaskDetail() {
   const [fields, setFields] = useState<Record<string, string>>({});
   const [reviewNote, setReviewNote] = useState("");
   const [uploadCategory] = useState("DURING");
+  const [partsSelection, setPartsSelection] = useState<PartSelection>({});
+  const [partsWarehouse, setPartsWarehouse] = useState<number | null>(null);
 
   const taskQuery = useQuery<TaskDetailData, TaskActionError>({
     queryKey,
@@ -94,6 +99,18 @@ export default function TaskDetail() {
   const task = taskQuery.data;
 
   const refresh = () => queryClient.invalidateQueries({ queryKey });
+
+  // the warehouse catalogue is fetched only when the technician opens the parts request
+  const catalogue = useQuery({
+    queryKey: ["task-spare-parts", id],
+    queryFn: () => fetchTaskSpareParts(id as string),
+    enabled: !!id && openAction === "parts",
+    retry: false,
+    staleTime: 60_000,
+  });
+  const catalogueWarehouses = (catalogue.data ?? []).filter((w) => w.items.length > 0);
+  // no catalogue to pick from (no warehouse or no parts yet, or it could not be loaded): the written request still works
+  const pickerUsable = catalogue.isSuccess && catalogueWarehouses.length > 0;
 
   /** One guarded runner for every mutation: no double submit, stale-state errors become a refresh. */
   const run = useMutation({
@@ -116,6 +133,7 @@ export default function TaskDetail() {
     },
     onSuccess: async () => {
       setOpenAction(null);
+      setPartsSelection({});
       setFields({});
       setReviewNote("");
       await refresh();
@@ -145,6 +163,10 @@ export default function TaskDetail() {
         if (f.required && !v) return;
         if (v) (body as unknown as Record<string, string>)[f.name] = v;
       }
+    }
+    if (a.id === "parts" && pickerUsable) {
+      if (!isSelectionValid(partsSelection)) return;
+      body.requestedItems = selectionToItems(partsSelection);
     }
     run.mutate(() => submitTaskStatus(id, body));
   };
@@ -261,9 +283,21 @@ export default function TaskDetail() {
                       .filter((a) => a.field && openAction === a.id)
                       .map((a) => (
                         <div key={a.id} className="space-y-3 rounded-md border p-3" data-testid={`form-${a.id}`}>
+                          {a.id === "parts" && catalogue.isLoading ? <p className="text-sm text-muted-foreground" role="status">{t("partsPicker.loading")}</p> : null}
+                          {a.id === "parts" && pickerUsable ? (
+                            <SparePartsPicker
+                              warehouses={catalogueWarehouses}
+                              value={partsSelection}
+                              onChange={setPartsSelection}
+                              warehouseId={partsWarehouse ?? catalogueWarehouses[0].id}
+                              onWarehouseChange={setPartsWarehouse}
+                            />
+                          ) : null}
+                          {a.id === "parts" && catalogue.isSuccess && !pickerUsable ? <p className="text-xs text-muted-foreground" data-testid="parts-empty-catalogue">{t("partsPicker.emptyCatalogue")}</p> : null}
+                          {a.id === "parts" && catalogue.isError ? <p className="text-xs text-muted-foreground" role="alert">{t("partsPicker.loadFailed")}</p> : null}
                           {[a.field, a.extraField].filter(Boolean).map((f) => (
                             <div key={f!.name} className="space-y-1">
-                              <Label htmlFor={`${a.id}-${f!.name}`}>{t(`fieldLabels.${f!.name}`)}</Label>
+                              <Label htmlFor={`${a.id}-${f!.name}`}>{a.id === "parts" && pickerUsable ? t("partsPicker.note") : t(`fieldLabels.${f!.name}`)}</Label>
                               <Textarea
                                 id={`${a.id}-${f!.name}`}
                                 dir="auto"
@@ -277,6 +311,7 @@ export default function TaskDetail() {
                             size="sm"
                             disabled={
                               busy ||
+                              (a.id === "parts" && (catalogue.isLoading || (pickerUsable ? !isSelectionValid(partsSelection) : !(fields["parts.message"] ?? "").trim()))) ||
                               [a.field, a.extraField].some((f) => f?.required && !(fields[`${a.id}.${f.name}`] ?? "").trim())
                             }
                             onClick={() => doStatus(a)}

@@ -170,9 +170,16 @@ export async function fetchTaskDetail(id: number | string): Promise<TaskDetailDa
   }
 }
 
+export interface RequestedPart {
+  sparePartId: number;
+  quantity: number;
+}
+
 export interface TaskStatusBody {
   status: string;
   message?: string;
+  /** Parts picked from the warehouse catalogue (a request for spare parts). */
+  requestedItems?: RequestedPart[];
   completionReport?: string;
   inspectionNotes?: string;
   materialsUsedSummary?: string;
@@ -216,6 +223,39 @@ export async function uploadTaskAttachment(id: number | string, file: File, cate
     form.append("file", file);
     form.append("category", category);
     await axiosInstance.post(`internal-tasks/${id}/attachments`, form);
+  } catch (err) {
+    throw toActionError(err);
+  }
+}
+
+export interface SparePartOption {
+  id: number;
+  name: string;
+  code: string | null;
+  unit: string | null;
+  category: string | null;
+}
+export interface SparePartWarehouse {
+  id: number;
+  name: string;
+  items: SparePartOption[];
+}
+
+/** The warehouse catalogue a technician may pick from for this task (names only; the server never sends stock levels here). */
+export async function fetchTaskSpareParts(id: number | string): Promise<SparePartWarehouse[]> {
+  try {
+    const res = await axiosInstance.get(`internal-tasks/${id}/spare-parts`);
+    return arr(obj(obj(res.data)?.data)?.warehouses)
+      .map(obj)
+      .filter((w): w is Record<string, unknown> => !!w && typeof w.id === "number")
+      .map((w) => ({
+        id: w.id as number,
+        name: str(w.name) ?? `#${w.id}`,
+        items: arr(w.items)
+          .map(obj)
+          .filter((i): i is Record<string, unknown> => !!i && typeof i.id === "number")
+          .map((i) => ({ id: i.id as number, name: str(i.name) ?? "", code: str(i.code), unit: str(i.unit), category: str(i.category) })),
+      }));
   } catch (err) {
     throw toActionError(err);
   }
