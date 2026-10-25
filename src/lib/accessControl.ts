@@ -167,6 +167,7 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   },
   operators: {
     orgTypes: ["SERVICE_PROVIDER"],
+    anyPermissions: ["operators.read", "operators.create", "operators.update"],
   },
   "service-categories": {
     orgTypes: ["SERVICE_PROVIDER", "AUTHORITY", "SUPER_ADMIN"],
@@ -293,15 +294,19 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   // Provider (Service Provider): RFQs, job orders
   "provider-rfqs": {
     orgTypes: ["SERVICE_PROVIDER"],
+    anyPermissions: ["provider.rfqs.read"],
   },
   "provider-rfqs/:id": {
     orgTypes: ["SERVICE_PROVIDER"],
+    anyPermissions: ["provider.rfqs.read"],
   },
   "provider-job-orders": {
     orgTypes: ["SERVICE_PROVIDER"],
+    anyPermissions: ["provider.job_orders.read"],
   },
   "provider-job-orders/:id": {
     orgTypes: ["SERVICE_PROVIDER"],
+    anyPermissions: ["provider.job_orders.read"],
   },
 };
 
@@ -317,11 +322,17 @@ export const canAccessByRule = (
     if (!organizationType || !rule.orgTypes.includes(organizationType)) return false;
   }
 
-  // If permissions were loaded, enforce permission checks.
-  // If backend returns no permissions for a session, fall back to org-type gating.
+  // Permission checks are enforced whenever permissions are known. A company session (Fuel Station / Service
+  // Provider) with NO permissions is a Job Title with no capabilities (or a session whose permissions could not be
+  // loaded): it fails closed on every permission-gated page instead of falling back to org-type gating. Only the
+  // platform tenants (Authority / Super Admin) keep the org-type fallback.
   // Codes are compared in their canonical dot form (see normalizePermissionCode) so the
   // legacy colon-style rule keys match the backend's dot-style permission keys.
   const granted = new Set(permissions.map(normalizePermissionCode));
+  const companySession = organizationType === "FUEL_STATION" || organizationType === "SERVICE_PROVIDER";
+  const permissionGated =
+    !!rule.anyPermissions?.length || !!rule.allPermissions?.length || !!(organizationType && rule.orgTypePermissions?.[organizationType]?.length);
+  if (companySession && granted.size === 0 && permissionGated) return false;
   if (granted.size > 0 && rule.anyPermissions?.length) {
     const allowed = rule.anyPermissions.some((code) => granted.has(normalizePermissionCode(code)));
     if (!allowed) return false;

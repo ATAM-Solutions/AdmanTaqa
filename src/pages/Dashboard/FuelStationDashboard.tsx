@@ -23,8 +23,8 @@ import useGetStationDashboard from "@/hooks/AdminDashboard/useGetStationDashboar
 import { useChartColors } from "@/lib/chartColors";
 import { formatDate, formatNumber } from "@/lib/i18n/formatters";
 import { getOrganizationDisplayName, hasCompanyAdminRole } from "@/lib/company";
-import type { StationDashboardActivityItem, StationDashboardRecentStation } from "@/types/stationDashboard";
-import { isExecutorOnly } from "@/lib/accessControl";
+import type { StationDashboardActivityItem, StationDashboardRecentStation, StationDashboardVisibility } from "@/types/stationDashboard";
+import { canAccessPath, isExecutorOnly } from "@/lib/accessControl";
 import { KpiCard } from "./components/KpiCard";
 import { ChartCard } from "./components/ChartCard";
 
@@ -42,6 +42,20 @@ export default function FuelStationDashboard() {
 
   const kpis = data?.kpis;
   const charts = data?.charts;
+  // What this session may see: the server says which blocks it really computed for the caller's permissions
+  // (`visibility`), and each card/action must also lead to a page the caller can open.
+  const can = (path: string) => canAccessPath(path, organization?.type, permissions);
+  const vis = (key: keyof StationDashboardVisibility) => data?.visibility?.[key] !== false;
+  const anyQuickAction =
+    canCreateReport || canReadReports || ["/branches/create", "/users", "/station-requests/create", "/station-requests", "/station-job-orders"].some(can);
+  const show = {
+    stations: vis("stations") && can("/branches"),
+    users: vis("employees") && can("/users"),
+    reports: vis("maintenanceIssues") && canReadReports,
+    internal: vis("internalWorkOrders") && can("/internal-work-orders"),
+    requests: vis("externalRequests") && can("/station-requests"),
+    jobs: vis("externalRequests") && can("/station-job-orders"),
+  };
   const isArabic = i18n.language.startsWith("ar");
 
   // Identity: prefer the fresh server payload (logo may have just been uploaded), fall back to the auth context.
@@ -85,7 +99,7 @@ export default function FuelStationDashboard() {
           <p className="mt-1 text-sm text-muted-foreground">{t("station.description")}</p>
         </div>
       </div>
-      {!executorOnly ? (
+      {!executorOnly && can("/company") ? (
         <Button asChild variant="outline" size="sm" className="self-start md:self-center">
           <Link to="/company" className="gap-1.5">
             <ExternalLink className="h-3.5 w-3.5" />
@@ -134,41 +148,44 @@ export default function FuelStationDashboard() {
       {error ? <DashboardLoadError error={error} fallbackMessage={t("charts.error")} onRetry={() => refetch()} hasPreviousData /> : null}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-        <KpiCard label={t("station.kpi.stations")} value={kpis ? formatNumber(kpis.branches, i18n.language) : "—"} icon={<Store className="h-5 w-5" />} to="/branches" isLoading={isLoading} />
-        <KpiCard label={t("station.kpi.users")} value={kpis ? formatNumber(kpis.employees, i18n.language) : "—"} icon={<Users className="h-5 w-5" />} to="/users" isLoading={isLoading} />
-        <KpiCard label={t("station.kpi.openMaintenanceRequests")} value={kpis ? formatNumber(kpis.openMaintenanceIssues, i18n.language) : "—"} icon={<Wrench className="h-5 w-5" />} to={canReadReports ? "/maintenance-reports" : "/station-requests"} isLoading={isLoading} />
-        <KpiCard label={t("station.kpi.internalWorkOrders")} value={kpis ? formatNumber(kpis.internalWorkOrders.open, i18n.language) : "—"} icon={<ClipboardList className="h-5 w-5" />} to="/internal-work-orders" isLoading={isLoading} context={kpis ? t("kpi.ofTotal", { total: formatNumber(kpis.internalWorkOrders.total, i18n.language) }) : undefined} />
-        <KpiCard label={t("station.kpi.externalRequests")} value={kpis ? formatNumber(kpis.externalRequests.open, i18n.language) : "—"} icon={<Send className="h-5 w-5" />} to="/station-requests" isLoading={isLoading} context={kpis ? t("kpi.ofTotal", { total: formatNumber(kpis.externalRequests.total, i18n.language) }) : undefined} />
-        <KpiCard label={t("station.kpi.quotesAwaitingDecision")} value={kpis ? formatNumber(kpis.quotesAwaitingDecision, i18n.language) : "—"} icon={<FileOutput className="h-5 w-5" />} to="/station-requests" isLoading={isLoading} accent={kpis && kpis.quotesAwaitingDecision > 0 ? "warning" : "default"} />
-        <KpiCard label={t("station.kpi.activeJobs")} value={kpis ? formatNumber(kpis.activeJobs, i18n.language) : "—"} icon={<CircleCheck className="h-5 w-5" />} to="/station-job-orders" isLoading={isLoading} />
-        <KpiCard label={t("station.kpi.completedJobs")} value={kpis ? formatNumber(kpis.completedJobs, i18n.language) : "—"} icon={<ClipboardCheck className="h-5 w-5" />} to="/station-job-orders" isLoading={isLoading} />
-        <KpiCard label={t("station.kpi.awaitingPayment")} value={kpis ? formatNumber(kpis.awaitingPayment, i18n.language) : "—"} icon={<CreditCard className="h-5 w-5" />} to="/station-job-orders" isLoading={isLoading} accent={kpis && kpis.awaitingPayment > 0 ? "warning" : "default"} />
-        <KpiCard label={t("station.kpi.completedAwaitingApproval")} value={kpis ? formatNumber(kpis.completedAwaitingApproval, i18n.language) : "—"} icon={<ClipboardCheck className="h-5 w-5" />} to="/station-job-orders" isLoading={isLoading} accent={kpis && kpis.completedAwaitingApproval > 0 ? "warning" : "default"} />
+        {show.stations && (<KpiCard label={t("station.kpi.stations")} value={kpis ? formatNumber(kpis.branches, i18n.language) : "—"} icon={<Store className="h-5 w-5" />} to="/branches" isLoading={isLoading} />)}
+        {show.users && (<KpiCard label={t("station.kpi.users")} value={kpis ? formatNumber(kpis.employees, i18n.language) : "—"} icon={<Users className="h-5 w-5" />} to="/users" isLoading={isLoading} />)}
+        {show.reports && (<KpiCard label={t("station.kpi.openMaintenanceRequests")} value={kpis ? formatNumber(kpis.openMaintenanceIssues, i18n.language) : "—"} icon={<Wrench className="h-5 w-5" />} to={canReadReports ? "/maintenance-reports" : "/station-requests"} isLoading={isLoading} />)}
+        {show.internal && (<KpiCard label={t("station.kpi.internalWorkOrders")} value={kpis ? formatNumber(kpis.internalWorkOrders.open, i18n.language) : "—"} icon={<ClipboardList className="h-5 w-5" />} to="/internal-work-orders" isLoading={isLoading} context={kpis ? t("kpi.ofTotal", { total: formatNumber(kpis.internalWorkOrders.total, i18n.language) }) : undefined} />)}
+        {show.requests && (<KpiCard label={t("station.kpi.externalRequests")} value={kpis ? formatNumber(kpis.externalRequests.open, i18n.language) : "—"} icon={<Send className="h-5 w-5" />} to="/station-requests" isLoading={isLoading} context={kpis ? t("kpi.ofTotal", { total: formatNumber(kpis.externalRequests.total, i18n.language) }) : undefined} />)}
+        {show.requests && (<KpiCard label={t("station.kpi.quotesAwaitingDecision")} value={kpis ? formatNumber(kpis.quotesAwaitingDecision, i18n.language) : "—"} icon={<FileOutput className="h-5 w-5" />} to="/station-requests" isLoading={isLoading} accent={kpis && kpis.quotesAwaitingDecision > 0 ? "warning" : "default"} />)}
+        {show.jobs && (<KpiCard label={t("station.kpi.activeJobs")} value={kpis ? formatNumber(kpis.activeJobs, i18n.language) : "—"} icon={<CircleCheck className="h-5 w-5" />} to="/station-job-orders" isLoading={isLoading} />)}
+        {show.jobs && (<KpiCard label={t("station.kpi.completedJobs")} value={kpis ? formatNumber(kpis.completedJobs, i18n.language) : "—"} icon={<ClipboardCheck className="h-5 w-5" />} to="/station-job-orders" isLoading={isLoading} />)}
+        {show.jobs && (<KpiCard label={t("station.kpi.awaitingPayment")} value={kpis ? formatNumber(kpis.awaitingPayment, i18n.language) : "—"} icon={<CreditCard className="h-5 w-5" />} to="/station-job-orders" isLoading={isLoading} accent={kpis && kpis.awaitingPayment > 0 ? "warning" : "default"} />)}
+        {show.jobs && (<KpiCard label={t("station.kpi.completedAwaitingApproval")} value={kpis ? formatNumber(kpis.completedAwaitingApproval, i18n.language) : "—"} icon={<ClipboardCheck className="h-5 w-5" />} to="/station-job-orders" isLoading={isLoading} accent={kpis && kpis.completedAwaitingApproval > 0 ? "warning" : "default"} />)}
       </div>
 
       {/* ── Quick actions ─────────────────────────────────────────── */}
+      {anyQuickAction && (
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-base font-semibold">{t("quickActions.title")}</CardTitle>
           <CardDescription>{t("quickActions.description")}</CardDescription>
         </CardHeader>
         <CardContent className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          <QuickAction to="/branches/create" icon={<GitBranch className="h-4 w-4" />} label={t("station.quickActions.addStation")} />
-          <QuickAction to="/users" icon={<UserPlus className="h-4 w-4" />} label={t("station.quickActions.addUser")} />
+          {can("/branches/create") && <QuickAction to="/branches/create" icon={<GitBranch className="h-4 w-4" />} label={t("station.quickActions.addStation")} />}
+          {can("/users") && <QuickAction to="/users" icon={<UserPlus className="h-4 w-4" />} label={t("station.quickActions.addUser")} />}
           {canCreateReport && (
             <QuickAction to="/maintenance-reports/create" icon={<ClipboardList className="h-4 w-4" />} label={t("station.quickActions.createReport")} />
           )}
           {canReadReports && (
             <QuickAction to="/maintenance-reports" icon={<ListChecks className="h-4 w-4" />} label={t("station.quickActions.viewReports")} />
           )}
-          <QuickAction to="/station-requests/create" icon={<PlusCircle className="h-4 w-4" />} label={t("station.quickActions.createRequest")} />
-          <QuickAction to="/station-requests" icon={<FileOutput className="h-4 w-4" />} label={t("station.quickActions.viewQuotes")} />
-          <QuickAction to="/station-job-orders" icon={<ListChecks className="h-4 w-4" />} label={t("station.quickActions.viewActiveJobs")} />
+          {can("/station-requests/create") && <QuickAction to="/station-requests/create" icon={<PlusCircle className="h-4 w-4" />} label={t("station.quickActions.createRequest")} />}
+          {can("/station-requests") && <QuickAction to="/station-requests" icon={<FileOutput className="h-4 w-4" />} label={t("station.quickActions.viewQuotes")} />}
+          {can("/station-job-orders") && <QuickAction to="/station-job-orders" icon={<ListChecks className="h-4 w-4" />} label={t("station.quickActions.viewActiveJobs")} />}
         </CardContent>
       </Card>
+      )}
 
       {/* ── Stations + recent activity ────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {show.stations && (
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-base font-semibold">{t("station.panels.stations")}</CardTitle>
@@ -209,7 +226,9 @@ export default function FuelStationDashboard() {
             </AsyncBoundary>
           </CardContent>
         </Card>
+        )}
 
+        {(vis("internalWorkOrders") || vis("externalRequests")) && (
         <Card>
           <CardHeader className="pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-base font-semibold">{t("station.panels.recentActivity")}</CardTitle>
@@ -240,9 +259,11 @@ export default function FuelStationDashboard() {
             </AsyncBoundary>
           </CardContent>
         </Card>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        {show.requests && (
         <ChartCard title={t("station.charts.requestsOverTime")} isLoading={isLoading} isEmpty={!!charts && charts.requestsOverTime.every((r) => r.count === 0)}>
           <div dir="ltr">
             <ResponsiveContainer width="100%" height={240}>
@@ -256,7 +277,9 @@ export default function FuelStationDashboard() {
             </ResponsiveContainer>
           </div>
         </ChartCard>
+        )}
 
+        {(show.internal && show.requests) && (
         <ChartCard title={t("charts.internalVsExternal.title")} isLoading={isLoading} isEmpty={internalVsExternalData.every((d) => d.value === 0)}>
           <div dir="ltr">
             <ResponsiveContainer width="100%" height={240}>
@@ -272,7 +295,9 @@ export default function FuelStationDashboard() {
             </ResponsiveContainer>
           </div>
         </ChartCard>
+        )}
 
+        {show.jobs && (
         <ChartCard title={t("charts.jobsByStatus.title")} isLoading={isLoading} isEmpty={!charts?.jobsByStatus.length}>
           <div dir="ltr">
             <ResponsiveContainer width="100%" height={240}>
@@ -286,7 +311,9 @@ export default function FuelStationDashboard() {
             </ResponsiveContainer>
           </div>
         </ChartCard>
+        )}
 
+        {show.requests && (
         <ChartCard title={t("station.charts.branchActivity")} isLoading={isLoading} isEmpty={!charts?.branchActivity.length}>
           <div dir="ltr">
             <ResponsiveContainer width="100%" height={240}>
@@ -300,7 +327,9 @@ export default function FuelStationDashboard() {
             </ResponsiveContainer>
           </div>
         </ChartCard>
+        )}
 
+        {show.requests && (
         <ChartCard title={t("station.charts.providerUsage")} isLoading={isLoading} isEmpty={!charts?.providerUsage.length} className="lg:col-span-2">
           <div dir="ltr">
             <ResponsiveContainer width="100%" height={240}>
@@ -314,6 +343,7 @@ export default function FuelStationDashboard() {
             </ResponsiveContainer>
           </div>
         </ChartCard>
+        )}
       </div>
     </div>
   );

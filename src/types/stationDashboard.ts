@@ -54,7 +54,17 @@ export interface StationDashboardActivityItem {
   createdAt: string;
 }
 
+/** Which blocks the server really computed for the caller's permissions (a hidden block is "not available", not zero). */
+export interface StationDashboardVisibility {
+  stations: boolean;
+  employees: boolean;
+  maintenanceIssues: boolean;
+  internalWorkOrders: boolean;
+  externalRequests: boolean;
+}
+
 export interface StationDashboardData {
+  visibility?: StationDashboardVisibility;
   kpis: StationDashboardKpis;
   charts: StationDashboardCharts;
   organization?: StationDashboardOrganization | null;
