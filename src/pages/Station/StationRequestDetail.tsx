@@ -23,12 +23,14 @@ import { formatDate } from "@/lib/i18n/formatters";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SourceReportAttachments from "@/components/SourceReportAttachments";
+import ActivityTimeline from "@/components/ActivityTimeline";
 
 const MAX_RECEIPT_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
 export default function StationRequestDetail() {
   const { t, i18n } = useTranslation("station");
   const { t: tCommon } = useTranslation("common");
+  const { t: tActivity } = useTranslation("activity");
   const { id } = useParams<{ id: string }>();
   const { data: request, isLoading, refetch: refetchRequest } = useStationRequestById(id ?? null);
   const selectQuoteMutation = useSelectQuote();
@@ -485,6 +487,15 @@ export default function StationRequestDetail() {
               )}
             </>
           )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>{tActivity("title")}</CardTitle>
+          <p className="text-sm text-muted-foreground">{tActivity("description")}</p>
+        </CardHeader>
+        <CardContent>
+          <ActivityTimeline root="stationRequest" id={request.id} />
         </CardContent>
       </Card>
     </div>

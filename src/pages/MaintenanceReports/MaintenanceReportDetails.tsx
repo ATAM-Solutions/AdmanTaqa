@@ -18,6 +18,7 @@ import {
 import { AsyncBoundary } from "@/components/patterns";
 import BranchSelect from "@/components/BranchSelect";
 import ReportAttachmentTile from "@/components/ReportAttachmentTile";
+import ActivityTimeline from "@/components/ActivityTimeline";
 import useUploadReportAttachments from "@/hooks/MaintenanceReports/useUploadReportAttachments";
 import { checkReportFile, REPORT_ACCEPTED_TYPES, REPORT_MAX_FILES } from "@/lib/reportAttachments";
 import { ReportPriorityBadge, ReportStatusBadge } from "@/components/MaintenanceReportBadges";
@@ -229,25 +230,9 @@ export default function MaintenanceReportDetails() {
                   <CardHeader>
                     <CardTitle className="text-lg">{t("details.timeline")}</CardTitle>
                   </CardHeader>
-                  <CardContent className="space-y-4 text-sm">
-                    <TimelineRow label={t("details.tlSubmitted")} who={report.SubmittedByUser?.fullName} at={when(report.createdAt)} />
-                    {report.supervisorReviewedAt && (
-                      <TimelineRow label={t("details.tlSupervisor")} who={report.SupervisorReviewedByUser?.fullName} at={when(report.supervisorReviewedAt)} note={report.supervisorNote} />
-                    )}
-                    {report.opsApprovedAt && (
-                      <TimelineRow label={t("details.tlOps")} who={report.OpsApprovedByUser?.fullName} at={when(report.opsApprovedAt)} note={report.opsNote} />
-                    )}
-                    {report.decidedAt && (
-                      <TimelineRow
-                        label={report.decisionType === "EXTERNAL" ? t("details.tlDecidedExternal") : t("details.tlDecidedInternal")}
-                        who={report.DecidedByUser?.fullName}
-                        at={when(report.decidedAt)}
-                        note={report.decisionNote}
-                      />
-                    )}
-                    {report.rejectedAt && (
-                      <TimelineRow label={t("details.tlRejected")} who={report.RejectedByUser?.fullName} at={when(report.rejectedAt)} note={report.rejectionNote} />
-                    )}
+                  <CardContent>
+                    {/* every step with who, when, its comment or rejection reason, the status change and the files */}
+                    <ActivityTimeline root="report" id={report.id} />
                   </CardContent>
                 </Card>
               </div>
@@ -259,19 +244,6 @@ export default function MaintenanceReportDetails() {
           </>
         )}
       </AsyncBoundary>
-    </div>
-  );
-}
-
-function TimelineRow({ label, who, at, note }: { label: string; who?: string | null; at: string; note?: string | null }) {
-  return (
-    <div className="border-s-2 border-primary/30 ps-3">
-      <p className="font-semibold">{label}</p>
-      <p className="text-xs text-muted-foreground">
-        {who ? `${who} • ` : ""}
-        {at}
-      </p>
-      {note ? <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{note}</p> : null}
     </div>
   );
 }

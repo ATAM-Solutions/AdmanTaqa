@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import ActivityTimeline from "@/components/ActivityTimeline";
 import { toast } from "sonner";
 import { ChevronLeft, Loader2, Paperclip } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -388,23 +389,7 @@ export default function TaskDetail() {
           <Card>
             <CardHeader><CardTitle className="text-base">{t("activity.title")}</CardTitle></CardHeader>
             <CardContent>
-              {task.activity.length === 0 ? (
-                <p className="text-sm text-muted-foreground" data-testid="activity-empty">{t("activity.empty")}</p>
-              ) : (
-                <ul className="space-y-3" data-testid="activity-list">
-                  {task.activity.map((u) => (
-                    <li key={u.id} className="border-s-2 ps-3 text-sm">
-                      <p dir="auto">
-                        {u.newStatus ? <Badge variant="outline" className="me-2">{t(`status.${u.newStatus}`, { defaultValue: u.newStatus })}</Badge> : null}
-                        {u.message}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {u.by ?? t("fields.none")} · {u.createdAt ? new Date(u.createdAt).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" }) : ""}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <ActivityTimeline root="task" id={task.id} defaultOrder="desc" />
             </CardContent>
           </Card>
         </>

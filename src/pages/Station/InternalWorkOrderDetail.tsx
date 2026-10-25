@@ -9,6 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import AssignWorkerDialog from "./AssignWorkerDialog";
 import TaskProgress from "@/components/TaskProgress";
 import SourceReportAttachments from "@/components/SourceReportAttachments";
+import ActivityTimeline from "@/components/ActivityTimeline";
 import { toast } from "sonner";
 import useInternalWorkOrderById from "@/hooks/Station/useInternalWorkOrderById";
 import useReviewInternalWorkOrder from "@/hooks/Station/useReviewInternalWorkOrder";
@@ -18,6 +19,7 @@ export default function InternalWorkOrderDetail() {
   const { t } = useTranslation("station");
   const { t: tTasks } = useTranslation("tasks");
   const { t: tCommon } = useTranslation("common");
+  const { t: tActivity } = useTranslation("activity");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: order, isLoading, error } = useInternalWorkOrderById(id ?? null);
@@ -192,6 +194,15 @@ export default function InternalWorkOrderDetail() {
               ))}
             </ul>
           )}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>{tActivity("title")}</CardTitle>
+          <p className="text-sm text-muted-foreground">{tActivity("description")}</p>
+        </CardHeader>
+        <CardContent>
+          <ActivityTimeline root="workOrder" id={order.id} />
         </CardContent>
       </Card>
       {assignTarget && (
