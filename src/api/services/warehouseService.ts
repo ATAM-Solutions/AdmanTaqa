@@ -108,11 +108,21 @@ export async function addStockItem(warehouseId: number, body: { name: string; co
 }
 
 // ───────────── capabilities (delegation) ─────────────
+export type CapabilityEffect = "GRANT" | "DENY" | "DEFAULT";
 export interface CapabilityState {
   code: string;
+  /** What the person can actually do now (for assets.create this already includes Super Admin's ceiling). */
   effective: boolean;
+  /** The person's role grants it. */
   byRole: boolean;
+  /** The company manager's individual setting, if any. */
   override: "GRANT" | "DENY" | null;
+  /** Super Admin's company policy allows this person's role to hold the capability (always true when not policy-controlled). */
+  eligible?: boolean;
+  /** Why `eligible` is false: ROLE_NOT_ELIGIBLE (platform restriction) | POLICY_UNAVAILABLE (cannot be verified right now). */
+  eligibilityReason?: "ROLE_NOT_ELIGIBLE" | "POLICY_UNAVAILABLE" | null;
+  /** assets.create only: the company has a restriction set by the platform administrator. */
+  restrictedByPlatform?: boolean;
 }
 export async function fetchUserCapabilities(userId: number | string): Promise<CapabilityState[]> {
   try {
@@ -122,7 +132,7 @@ export async function fetchUserCapabilities(userId: number | string): Promise<Ca
     throw toError(e);
   }
 }
-export async function setUserCapability(userId: number | string, capability: string, effect: "GRANT" | "DENY" | "DEFAULT"): Promise<CapabilityState[]> {
+export async function setUserCapability(userId: number | string, capability: string, effect: CapabilityEffect): Promise<CapabilityState[]> {
   try {
     const res = await axiosInstance.patch(`team/users/${userId}/capabilities`, { capability, effect });
     return arr(obj(res.data)?.data) as CapabilityState[];

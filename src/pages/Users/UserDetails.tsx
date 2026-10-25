@@ -190,7 +190,7 @@ export default function UserDetails() {
 
             </div>
 
-            <UserCapabilityCard userId={user.id} />
+            <UserCapabilityCard userId={user.id} roleNames={user.roles?.map((r) => r.name)} />
 
             <EditUserDialog
               open={editOpen}

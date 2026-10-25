@@ -158,5 +158,65 @@
       "ACTIVE": "Active",
       "INACTIVE": "Inactive"
     }
+  },
+  "capabilities": {
+    "title": "Individual permissions",
+    "description": "Allow or deny specific actions for this person only. Their role, and everyone else on the same role, stay unchanged.",
+    "loading": "Loading…",
+    "loadFailed": "Could not load this person's permissions.",
+    "retry": "Retry",
+    "saved": "Saved.",
+    "readonly": {
+      "self": "You can't change your own permissions.",
+      "protected": "This person is a company administrator. Their permissions can't be changed here."
+    },
+    "labels": {
+      "access": "Current access",
+      "role": "From the role",
+      "individual": "Individual setting"
+    },
+    "access": {
+      "allowed": "Allowed",
+      "notAllowed": "Not allowed"
+    },
+    "roleSource": {
+      "yes": "The role grants it",
+      "no": "The role does not grant it"
+    },
+    "individual": {
+      "grant": "Allowed for this person",
+      "deny": "Denied for this person",
+      "none": "Not set — follows the role"
+    },
+    "actions": {
+      "grant": "Allow for this person",
+      "deny": "Deny for this person",
+      "reset": "Back to role default"
+    },
+    "restricted": {
+      "role": "The platform administrator has restricted asset creation for this person's role, so it cannot be allowed here.",
+      "unverifiable": "The platform's asset-creation setting cannot be checked right now, so allowing it is unavailable. Try again shortly."
+    },
+    "errors": {
+      "selfChange": "You can't change your own permissions.",
+      "protectedUser": "This person is a protected administrator; their permissions can't be changed here.",
+      "roleNotEligible": "The platform administrator has not allowed this person's role to create assets.",
+      "unavailable": "Permissions can't be verified right now. Nothing was changed — try again shortly.",
+      "notDelegable": "This permission can't be set per person for this company.",
+      "forbidden": "You don't have permission to change this.",
+      "notFound": "This person was not found in your company.",
+      "network": "Could not reach the server. Nothing was changed.",
+      "server": "Something went wrong. Nothing was changed."
+    },
+    "items": {
+      "assets_create": {
+        "name": "Create assets",
+        "description": "Add new assets to the stations this person can access. Maintaining existing assets is not affected."
+      },
+      "warehouse_items_create": {
+        "name": "Create warehouse items",
+        "description": "Add parts to the warehouses this person can access."
+      }
+    }
   }
 }
