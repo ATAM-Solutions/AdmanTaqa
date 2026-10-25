@@ -54,6 +54,14 @@ describe("Fuel Station job titles: pages", () => {
     for (const p of [...ORDER_PAGES, "/maintenance-reports", "/station-requests", "/station-job-orders", "/my-tasks", "/internal-tasks/9", "/assets", "/branches", "/users"]) expect(fs("warehouse", p), p).toBe(false);
   });
 
+  it("Warehouse management pages follow warehouse.read: Warehouse Manager and Maintenance Manager yes, Technician no", () => {
+    for (const p of ["/warehouses", "/warehouses/4"]) {
+      expect(fs("warehouse", p), p).toBe(true);
+      expect(fs("maintenance", p), p).toBe(true);
+      expect(fs("technician", p), p).toBe(false);
+    }
+  });
+
   it("Maintenance Manager manages orders and tasks but not warehouse inventory or My tasks", () => {
     for (const p of [...ORDER_PAGES, "/internal-tasks/9", "/maintenance-reports", "/station-requests", "/station-requests/create"]) expect(fs("maintenance", p), p).toBe(true);
     expect(fs("maintenance", "/my-tasks")).toBe(false);

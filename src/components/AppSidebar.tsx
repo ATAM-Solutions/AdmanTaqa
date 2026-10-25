@@ -23,6 +23,7 @@ import {
   PlusCircle,
   ListChecks,
   PackageOpen,
+  Warehouse,
   Boxes,
 } from "lucide-react";
 import React from "react";
@@ -121,6 +122,7 @@ const navGroups: NavGroup[] = [
       { id: "externalJobOrders", labelKey: "externalJobOrders", path: "/external-job-orders", icon: Briefcase },
       { id: "myTasks", labelKey: "myTasks", path: "/my-tasks", icon: ListChecks },
       { id: "warehouseRequests", labelKey: "warehouseRequests", path: "/warehouse-requests", icon: PackageOpen },
+      { id: "warehouses", labelKey: "warehouses", path: "/warehouses", icon: Warehouse },
       { id: "warehouseInventory", labelKey: "warehouseInventory", path: "/warehouse-inventory", icon: PackageOpen },
       { id: "internalWorkOrders", labelKey: "internalWorkOrders", path: "/internal-work-orders", icon: Briefcase },
       { id: "maintenanceReports", labelKey: "maintenanceReports", path: "/maintenance-reports", icon: ClipboardList },

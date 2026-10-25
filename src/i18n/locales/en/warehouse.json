@@ -181,5 +181,128 @@
     "title": "Issue quantities",
     "approved": "approved {{count}}",
     "range": "Enter 0 to {{max}}."
+  },
+  "mgmt": {
+    "title": "Warehouses",
+    "subtitle": "Your warehouses, the stations they serve, who manages them, their stock and their requests.",
+    "listTitle": "Warehouses",
+    "backToList": "All warehouses",
+    "notFound": "This warehouse was not found.",
+    "notFoundOrNotYours": "This warehouse was not found, or it is not assigned to you.",
+    "emptyNoneAssigned": "No warehouse is assigned to you. Ask the company administrator to assign you to a warehouse.",
+    "servesAll": "Serves every station of the company",
+    "stationsCount_one": "{{count}} station",
+    "stationsCount_other": "{{count}} stations",
+    "home": "home station",
+    "createTitle": "Add a warehouse",
+    "name": "Name",
+    "homeStation": "Home station",
+    "noHomeStation": "None (company level)",
+    "create": "Create warehouse",
+    "created": "Warehouse created.",
+    "prev": "Previous",
+    "next": "Next",
+    "tabs": {
+      "overview": "Overview",
+      "stock": "Items and stock",
+      "movements": "Stock movements",
+      "managers": "Managers",
+      "stations": "Stations",
+      "orders": "Requests"
+    },
+    "overview": {
+      "serves": "Stations served",
+      "stock": "Stock",
+      "items_one": "{{count}} item",
+      "items_other": "{{count}} items",
+      "low_one": "{{count}} item below its minimum",
+      "low_other": "{{count}} items below their minimum",
+      "managers": "Managers",
+      "assignedToYou": "You are assigned to this warehouse.",
+      "assignmentOff": "Manager assignment is off: managers see the warehouses of their stations."
+    },
+    "stock": {
+      "min": "Minimum",
+      "low": "Low",
+      "out": "Out of stock"
+    },
+    "movements": {
+      "empty": "No stock movements yet.",
+      "type": "Type",
+      "allTypes": "All types",
+      "when": "When",
+      "change": "Change",
+      "after": "Quantity",
+      "order": "Request",
+      "types": {
+        "INITIAL": "Opening stock",
+        "ISSUE": "Issued",
+        "RETURN": "Returned",
+        "ADJUSTMENT": "Adjustment"
+      }
+    },
+    "managers": {
+      "hint": "Managers assigned here can work this warehouse when manager assignment is on. Assigning someone never gives them permissions: they still need a warehouse Job Title.",
+      "empty": "No manager is assigned to this warehouse.",
+      "add": "Assign a manager",
+      "choose": "Choose a person",
+      "assign": "Assign",
+      "assigned": "Manager assigned.",
+      "remove": "Remove",
+      "removed": "Manager removed.",
+      "inactive": "deactivated"
+    },
+    "stations": {
+      "hint": "A warehouse serves its home station and the stations linked here. A station can be served by several warehouses.",
+      "add": "Link a station",
+      "choose": "Choose a station",
+      "link": "Link",
+      "unlink": "Unlink",
+      "linked": "Station linked.",
+      "unlinked": "Station unlinked."
+    },
+    "orders": {
+      "empty": "No requests for this warehouse yet."
+    },
+    "policy": {
+      "title": "Manager assignment",
+      "on": "On",
+      "off": "Off",
+      "descOn": "Warehouse managers see and act on the warehouses they are assigned to. The company administrator sees all.",
+      "descOff": "Managers currently see the warehouses of their stations. Turn this on to limit each manager to the warehouses assigned to them.",
+      "impactTitle": "What turning it on would do now",
+      "impactWarehouses_one": "{{count}} warehouse",
+      "impactWarehouses_other": "{{count}} warehouses",
+      "impactManagers": "{{count}} people hold a warehouse Job Title; {{assigned}} already have an assignment.",
+      "impactNoManager_one": "{{count}} warehouse has no manager (only the administrator could work it).",
+      "impactNoManager_other": "{{count}} warehouses have no manager (only the administrator could work them).",
+      "impactOpenOrders_one": "{{count}} open request is in a warehouse without a manager.",
+      "impactOpenOrders_other": "{{count}} open requests are in warehouses without a manager.",
+      "willLoseAccess_one": "{{count}} person would lose access to every warehouse:",
+      "willLoseAccess_other": "{{count}} people would lose access to every warehouse:",
+      "confirm_one": "I understand that {{count}} person will lose access until they are assigned.",
+      "confirm_other": "I understand that {{count}} people will lose access until they are assigned.",
+      "turnOn": "Turn on",
+      "turnOff": "Turn off",
+      "turnedOn": "Manager assignment is on.",
+      "turnedOff": "Manager assignment is off.",
+      "adminOnly": "Only the company administrator can change this.",
+      "loadFailed": "Could not load the assignment setting."
+    },
+    "errors": {
+      "NO_WAREHOUSES": "Create a warehouse first.",
+      "NO_MANAGERS_ASSIGNED": "Assign at least one manager to a warehouse before turning this on.",
+      "USER_NOT_WAREHOUSE_ROLE": "This person has no warehouse Job Title. Give them one first; an assignment never grants permissions.",
+      "USER_INACTIVE": "This person is deactivated.",
+      "USER_NOT_FOUND": "This person is not in your company.",
+      "STATION_NOT_FOUND": "That station is not in your company.",
+      "ALREADY_HOME_STATION": "That is already this warehouse's home station.",
+      "WAREHOUSE_NOT_FOUND": "Warehouse not found.",
+      "WAREHOUSE_NOT_ASSIGNED": "You are not assigned to this warehouse.",
+      "WAREHOUSE_ADMIN_REQUIRED": "Only the company administrator can create warehouses while manager assignment is on.",
+      "ASSIGNMENT_ACTIVATION_BLOCKED": "Assign at least one manager before turning this on.",
+      "ASSIGNMENT_IMPACT_CONFIRMATION_REQUIRED": "The impact changed. Review it and confirm again.",
+      "COMPANY_ADMIN_REQUIRED": "Only the company administrator can do this."
+    }
   }
 }

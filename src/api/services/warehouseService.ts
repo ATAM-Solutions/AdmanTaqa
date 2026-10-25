@@ -13,7 +13,7 @@ export class WarehouseApiError extends Error {
   }
 }
 
-const toError = (err: unknown): WarehouseApiError => {
+export const toError = (err: unknown): WarehouseApiError => {
   const r = err as { response?: { status?: number; data?: { message?: string; code?: string; errors?: Record<string, unknown> } }; message?: string };
   return new WarehouseApiError(
     r.response?.data?.message ?? r.message ?? "Request failed",
@@ -34,10 +34,18 @@ export interface WarehouseSummary {
   name: string;
   branchId: number | null;
   stationName: { en: string | null; ar: string | null } | null;
+  /** Stations this warehouse is explicitly linked to (besides its home station). */
+  linkedBranchIds: number[];
 }
 export interface WarehouseListResult {
   items: WarehouseSummary[];
-  meta: { isOrgWide: boolean; canAddItems: boolean; canManageWarehouses: boolean };
+  meta: {
+    isOrgWide: boolean;
+    canAddItems: boolean;
+    canManageWarehouses: boolean;
+    /** Manager-assignment scoping: on for the company, and whether the caller is the company administrator. */
+    assignmentScoping: { enabled: boolean; isAdmin: boolean };
+  };
 }
 export interface StockItem {
   id: number;
@@ -65,12 +73,17 @@ export async function fetchWarehouses(): Promise<WarehouseListResult> {
             name: str(w.name) ?? `#${w.id}`,
             branchId: num(w.branchId),
             stationName: b ? { en: str(b.nameEn), ar: str(b.nameAr) } : null,
+            linkedBranchIds: arr(w.linkedBranchIds).filter((x): x is number => typeof x === "number"),
           };
         }),
       meta: {
         isOrgWide: obj(meta?.scope)?.isOrgWide === true,
         canAddItems: obj(meta?.capabilities)?.canAddItems === true,
         canManageWarehouses: obj(meta?.capabilities)?.canManageWarehouses === true,
+        assignmentScoping: {
+          enabled: obj(meta?.assignmentScoping)?.enabled === true,
+          isAdmin: obj(meta?.assignmentScoping)?.isAdmin === true,
+        },
       },
     };
   } catch (e) {

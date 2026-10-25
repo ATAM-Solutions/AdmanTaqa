@@ -233,6 +233,15 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["warehouse.read", "warehouse_items.create"],
   },
+  // Warehouse management (list, one warehouse, managers, stations, movements, requests). The server filters what each person may see.
+  warehouses: {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["warehouse.read"],
+  },
+  "warehouses/:id": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["warehouse.read"],
+  },
   // Station (Fuel Station): internal work orders, external requests
   "internal-work-orders": {
     orgTypes: ["FUEL_STATION"],

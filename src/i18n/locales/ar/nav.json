@@ -59,5 +59,6 @@
   "myTasks": "مهامي",
   "warehouseRequests": "طلبات المستودع",
   "warehouseInventory": "المخزون",
-  "assets": "الأصول"
+  "assets": "الأصول",
+  "warehouses": "المستودعات"
 }

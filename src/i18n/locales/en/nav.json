@@ -59,5 +59,6 @@
   "myTasks": "My tasks",
   "warehouseRequests": "Warehouse requests",
   "warehouseInventory": "Inventory",
-  "assets": "Assets"
+  "assets": "Assets",
+  "warehouses": "Warehouses"
 }
