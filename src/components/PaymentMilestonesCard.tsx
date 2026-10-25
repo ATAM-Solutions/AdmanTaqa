@@ -1,3 +1,4 @@
+import { currencyDecimals } from "@/lib/decimalPattern";
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -42,7 +43,9 @@ export default function PaymentMilestonesCard({ side, jobOrderId }: { side: "sta
   const fmt = (m: Milestone) => {
     if (m.amount == null || m.amount === "") return "—";
     const n = Number(m.amount);
-    const num = Number.isFinite(n) ? n.toLocaleString(i18n.language, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : String(m.amount);
+    // the currency's own minor units: OMR/KWD/BHD show 3 decimals, so 250.505 is never rounded to 250.51
+    const digits = currencyDecimals(m.currency);
+    const num = Number.isFinite(n) ? n.toLocaleString(i18n.language, { minimumFractionDigits: digits, maximumFractionDigits: digits }) : String(m.amount);
     // the currency is whatever the accepted quotation says; never assumed
     return m.currency ? `${num} ${m.currency}` : `${num} (${t("currencyUnknown")})`;
   };

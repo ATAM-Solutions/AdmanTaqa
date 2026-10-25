@@ -57,8 +57,29 @@ interface ServiceRequestApiResponse {
   ProviderQuotes?: StationRequestItem["quotes"];
   jobOrders?: StationRequestDetail["jobOrders"];
   ExternalJobOrder?: StationRequestDetail["ExternalJobOrder"];
+  recipients?: StationRequestDetail["recipients"];
   cancellationReason?: string | null;
   selectedQuoteId?: number | null;
+}
+
+/** The API names the provider/price fields differently from the summary the pages use: map them once, keep everything else. */
+function normalizeQuote(raw: unknown) {
+  const q = raw as Record<string, unknown>;
+  const pricing = (q.pricingJson ?? q.pricing ?? null) as Record<string, unknown> | null;
+  const amountRaw = q.amount ?? pricing?.amount;
+  const amount = amountRaw == null || amountRaw === "" ? undefined : Number(amountRaw);
+  const terms = (q.QuotePaymentTerms ?? q.paymentTerms ?? []) as { sequence: number; percent: number | string; trigger: string; note?: string | null }[];
+  const files = (q.QuoteAttachments ?? q.attachments ?? []) as { id: number; fileUrl: string; fileName?: string | null; mimeType?: string | null }[];
+  return {
+    ...q,
+    providerOrganizationId: (q.providerOrganizationId ?? q.serviceProviderOrganizationId) as number | undefined,
+    providerName: (q.providerName ?? q.serviceProviderName ?? null) as string | null,
+    amount: Number.isFinite(amount) ? amount : undefined,
+    currency: (q.currency ?? pricing?.currency ?? null) as string | null,
+    pricing,
+    paymentTerms: [...terms].sort((a, b) => a.sequence - b.sequence).map((t) => ({ ...t, percent: Number(t.percent) })),
+    attachments: files,
+  } as NonNullable<StationRequestItem["quotes"]>[number];
 }
 
 /** GET /api/station/requests/:id — request detail + all quotes from service providers */
@@ -71,7 +92,7 @@ export async function fetchStationRequestById(
   const raw = response.data?.data;
   if (!raw) return null;
   const description = (raw.formData?.description as string) ?? (raw as { title?: string }).title ?? "";
-  const quotes = raw.quotes ?? raw.ProviderQuotes ?? [];
+  const quotes = (raw.quotes ?? raw.ProviderQuotes ?? []).map(normalizeQuote);
   return {
     ...raw,
     title: (raw as { title?: string }).title ?? (description || `Request #${raw.id}`),
@@ -328,9 +349,14 @@ export async function approveReport(reportId: number | string): Promise<unknown>
 /** Doc (8.4): POST /api/station/reports/:reportId/reject — رفض تقرير */
 export async function rejectReport(
   reportId: number | string,
-  body?: { reason?: string }
+  body?: { reason?: string; rejectionReason?: string; reviewNote?: string }
 ): Promise<unknown> {
-  const response = await axiosInstance.post(`station/reports/${reportId}/reject`, body ?? {});
+  // The API field is `rejectionReason` (required); sending `reason` was a 400, so a provider report could never be rejected.
+  const rejectionReason = body?.rejectionReason ?? body?.reason ?? "";
+  const response = await axiosInstance.post(`station/reports/${reportId}/reject`, {
+    rejectionReason,
+    ...(body?.reviewNote ? { reviewNote: body.reviewNote } : {}),
+  });
   return response.data;
 }
 

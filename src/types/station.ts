@@ -107,14 +107,24 @@ export interface StationRequestBranch {
 export interface ProviderQuoteSummary {
   id: number;
   providerOrganizationId?: number;
+  /** Provider company name (only the providers this station sent the request to). */
+  providerName?: string | null;
   amount?: number;
+  currency?: string | null;
   status?: string;
   validUntil?: string;
+  rejectionReason?: string | null;
+  /** Offer details the provider entered (labour, materials, timeline, warranty, scope, notes...). */
+  pricing?: Record<string, unknown> | null;
+  paymentTerms?: { sequence: number; percent: number; trigger: string; note?: string | null }[];
+  attachments?: { id: number; fileUrl: string; fileName?: string | null; mimeType?: string | null }[];
 }
 
 export interface StationRequestDetail extends StationRequestItem {
   /** Files of the report this request was created from (read-only); null when it has no source report. */
   sourceReport?: import("@/types/sourceReport").SourceReport | null;
+  /** Providers this request was already sent to (external requests). */
+  recipients?: { organizationId: number; name: string | null; sentAt?: string | null }[];
   jobOrders?: ExternalJobOrderSummary[];
   /** For external requests, backend may return a single ExternalJobOrder when a quote is selected */
   ExternalJobOrder?: ExternalJobOrderSummary;

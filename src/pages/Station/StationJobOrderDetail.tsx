@@ -396,12 +396,12 @@ export default function StationJobOrderDetail() {
                       {t("jobOrderDetail.approve")}
                     </Button>
                     {rejectReportId === r.id ? (
-                      <div className="flex gap-2 items-center">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Input
                           value={rejectReportReason}
                           onChange={(e) => setRejectReportReason(e.target.value)}
                           placeholder={t("jobOrderDetail.reasonPlaceholder")}
-                          className="w-32 h-8"
+                          className="h-8 min-w-[10rem] flex-1"
                         />
                         <Button
                           size="sm"

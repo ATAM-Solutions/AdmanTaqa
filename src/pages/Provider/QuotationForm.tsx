@@ -1,3 +1,4 @@
+import { decimalPattern } from "@/lib/decimalPattern";
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -23,7 +24,6 @@ const KNOWN = [
   "QUOTING_CLOSED", "QUOTE_ALREADY_EXISTS", "RFQ_NOT_ASSIGNED", "CURRENCY_UNSUPPORTED", "CURRENCY_REQUIRED",
   "QUOTE_PRICING_INVALID", "QUOTE_NOT_DRAFT", "QUOTE_ATTACHMENT_LIMIT",
 ] as const;
-const DECIMAL = /^\d+(\.\d{1,2})?$/;
 
 type Props = {
   rfqId: number;
@@ -49,6 +49,8 @@ export default function QuotationForm({ rfqId, quoting, draft }: Props) {
 
   const currencies = useQuery({ queryKey: ["currencies"], queryFn: fetchCurrencies, staleTime: 60 * 60 * 1000, retry: false });
   const sum = terms.reduce((a, x) => a + (Number(x.percent) || 0), 0);
+  const decimals = (currencies.data ?? []).find((c) => c.code === f.currency)?.decimals ?? 2;
+  const DECIMAL = decimalPattern(decimals);
   const money = (v: string) => v.trim() === "" || DECIMAL.test(v.trim());
   const valid =
     DECIMAL.test(f.amount.trim()) && Number(f.amount) > 0 && !!f.currency && money(f.laborCost) && money(f.materialCost) &&

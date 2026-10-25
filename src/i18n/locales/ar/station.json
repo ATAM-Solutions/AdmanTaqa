@@ -352,5 +352,44 @@
     "request": "الطلب رقم {{id}}",
     "items": "{{count}} صنف",
     "mobileNote": "إنشاء طلب قطع الغيار وإرساله يتم من تطبيق الجوال."
+  },
+  "sendProviders": {
+    "title": "الإرسال إلى المزوّدين",
+    "noneSent": "لم يتم إرسال هذا الطلب إلى أي مزوّد بعد.",
+    "alreadySent": "أُرسل إلى {{count}} مزوّد. يمكنك إضافة المزيد ما دامت عروض الأسعار مفتوحة.",
+    "loading": "جارٍ تحميل المزوّدين المرتبطين…",
+    "noLinked": "لا يوجد لديك مزوّدون مرتبطون.",
+    "allSent": "جميع المزوّدين المرتبطين لديهم هذا الطلب بالفعل.",
+    "manageLinks": "إدارة المزوّدين المرتبطين",
+    "pick": "اختر المزوّدين",
+    "submit": "إرسال إلى المحدّدين ({{count}})",
+    "selectAll": "تحديد الكل",
+    "sent": "تم إرسال الطلب إلى المزوّدين المحدّدين.",
+    "failed": "تعذّر إرسال الطلب.",
+    "providerFallback": "المزوّد رقم {{id}}"
+  },
+  "quoteView": {
+    "fields": {
+      "laborCost": "تكلفة العمالة",
+      "materialCost": "تكلفة المواد",
+      "timeline": "المدة",
+      "warranty": "الضمان",
+      "scopeOfWork": "نطاق العمل",
+      "technicalProposal": "العرض الفني",
+      "notes": "ملاحظات"
+    },
+    "paymentSchedule": "جدول الدفعات",
+    "term": "#{{sequence}} · {{percent}}٪ · {{trigger}}",
+    "triggers": {
+      "ON_APPROVAL": "عند الموافقة على العرض",
+      "ON_JOB_START": "عند بدء العمل",
+      "ON_COMPLETION_SUBMITTED": "عند تقديم الإنجاز",
+      "ON_JOB_CLOSED": "عند إغلاق العمل"
+    },
+    "files": "الملفات",
+    "file": "ملف رقم {{id}}",
+    "rejectionReason": "سبب الرفض",
+    "provider": "المزوّد",
+    "unnamed": "المزوّد رقم {{id}}"
   }
 }

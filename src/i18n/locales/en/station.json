@@ -352,5 +352,44 @@
     "request": "Request #{{id}}",
     "items": "{{count}} item(s)",
     "mobileNote": "Creating and submitting a parts request is done in the mobile app."
+  },
+  "sendProviders": {
+    "title": "Send to providers",
+    "noneSent": "This request has not been sent to any provider yet.",
+    "alreadySent": "Sent to {{count}} provider(s). You can add more while quotes are still open.",
+    "loading": "Loading linked providers…",
+    "noLinked": "You have no linked providers.",
+    "allSent": "Every linked provider already has this request.",
+    "manageLinks": "Manage linked providers",
+    "pick": "Choose providers",
+    "submit": "Send to selected ({{count}})",
+    "selectAll": "Select all",
+    "sent": "Request sent to the selected providers.",
+    "failed": "Could not send the request.",
+    "providerFallback": "Provider #{{id}}"
+  },
+  "quoteView": {
+    "fields": {
+      "laborCost": "Labour cost",
+      "materialCost": "Materials cost",
+      "timeline": "Timeline",
+      "warranty": "Warranty",
+      "scopeOfWork": "Scope of work",
+      "technicalProposal": "Technical offer",
+      "notes": "Notes"
+    },
+    "paymentSchedule": "Payment schedule",
+    "term": "#{{sequence}} · {{percent}}% · {{trigger}}",
+    "triggers": {
+      "ON_APPROVAL": "On quote approval",
+      "ON_JOB_START": "When the job starts",
+      "ON_COMPLETION_SUBMITTED": "When completion is submitted",
+      "ON_JOB_CLOSED": "When the job is closed"
+    },
+    "files": "Files",
+    "file": "File #{{id}}",
+    "rejectionReason": "Rejection reason",
+    "provider": "Provider",
+    "unnamed": "Provider #{{id}}"
   }
 }

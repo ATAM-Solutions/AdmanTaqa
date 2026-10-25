@@ -5,6 +5,8 @@ export interface CurrencyOption {
   nameEn: string;
   nameAr: string;
   symbol: string;
+  /** ISO-4217 minor-unit digits (SAR 2, OMR/KWD/BHD 3, JPY 0): the most decimals an amount in this currency may have. */
+  decimals?: number;
 }
 
 /** Supported currencies (GET /api/meta/currencies) — the form renders a selector, never free text. */

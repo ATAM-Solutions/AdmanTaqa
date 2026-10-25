@@ -24,6 +24,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import SourceReportAttachments from "@/components/SourceReportAttachments";
 import ActivityTimeline from "@/components/ActivityTimeline";
+import SendToProvidersCard from "@/components/SendToProvidersCard";
+import QuoteOfferDetails from "@/components/QuoteOfferDetails";
 
 const MAX_RECEIPT_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
@@ -31,6 +33,8 @@ export default function StationRequestDetail() {
   const { t, i18n } = useTranslation("station");
   const { t: tCommon } = useTranslation("common");
   const { t: tActivity } = useTranslation("activity");
+  const { t: tQuoteRaw } = useTranslation("station", { keyPrefix: "quoteView" });
+  const tQuote = (key: string, options?: Record<string, unknown>) => tQuoteRaw(key, options) as string;
   const { id } = useParams<{ id: string }>();
   const { data: request, isLoading, refetch: refetchRequest } = useStationRequestById(id ?? null);
   const selectQuoteMutation = useSelectQuote();
@@ -284,10 +288,12 @@ export default function StationRequestDetail() {
                         isInactive ? "opacity-75 bg-muted/50 border-muted" : ""
                       }`}
                     >
-                      <span>
-                        {t("requestDetail.quoteLabel", { id: q.id })}
-                        {q.amount != null && ` · ${q.amount}`}
-                        {q.providerOrganizationId != null && ` · ${t("requestDetail.orgLabel", { id: q.providerOrganizationId })}`}
+                      <span className="min-w-0" data-testid={`quote-summary-${q.id}`}>
+                        <span className="font-medium" dir="auto">
+                          {q.providerName ?? (q.providerOrganizationId != null ? tQuote("unnamed", { id: q.providerOrganizationId }) : t("requestDetail.quoteLabel", { id: q.id }))}
+                        </span>
+                        {q.amount != null && <span className="mx-1 inline-block font-semibold" dir="ltr">{`· ${q.amount} ${q.currency ?? ""}`.trimEnd()}</span>}
+                        <span className="text-muted-foreground">{`· ${t("requestDetail.quoteLabel", { id: q.id })}`}</span>
                       </span>
                       <div className="flex items-center gap-2 shrink-0">
                         {!isInactive && rejectQuoteId !== q.id && (
@@ -342,6 +348,7 @@ export default function StationRequestDetail() {
                           {q.status ?? "—"}
                         </Badge>
                       </div>
+                      <QuoteOfferDetails quote={q} />
                     </li>
                   );
                 })}
@@ -359,13 +366,13 @@ export default function StationRequestDetail() {
                   <p className="text-sm font-medium">{t("requestDetail.selectQuoteHeading")}</p>
                   <div className="flex gap-2 items-center">
                     <Select value={selectedQuoteId} onValueChange={setSelectedQuoteId}>
-                      <SelectTrigger className="w-[200px]">
+                      <SelectTrigger className="w-[260px] max-w-full">
                         <SelectValue placeholder={t("requestDetail.chooseQuote")} />
                       </SelectTrigger>
                       <SelectContent>
                         {selectableQuotes.map((q) => (
                           <SelectItem key={q.id} value={String(q.id)}>
-                            {t("requestDetail.quoteLabel", { id: q.id })} · {q.amount != null ? `${q.amount}` : ""}
+                            {q.providerName ?? t("requestDetail.quoteLabel", { id: q.id })}{q.amount != null ? ` · ${q.amount} ${q.currency ?? ""}`.trimEnd() : ""}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -489,6 +496,7 @@ export default function StationRequestDetail() {
           )}
         </CardContent>
       </Card>
+      <SendToProvidersCard requestId={request.id} status={request.status} recipients={request.recipients ?? []} />
       <Card>
         <CardHeader>
           <CardTitle>{tActivity("title")}</CardTitle>

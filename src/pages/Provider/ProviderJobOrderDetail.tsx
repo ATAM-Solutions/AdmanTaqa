@@ -15,11 +15,15 @@ import useUploadProviderJobOrderAttachment from "@/hooks/Provider/useUploadProvi
 import useProviderJobOrderReports from "@/hooks/Provider/useProviderJobOrderReports";
 import type { ProviderJobOrderAssignment, ProviderJobOrderVisit } from "@/types/provider";
 import { formatDate } from "@/lib/i18n/formatters";
+import { useAuth } from "@/context/AuthContext";
 import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
 
 export default function ProviderJobOrderDetail() {
   const { t, i18n } = useTranslation("provider");
   const { id } = useParams<{ id: string }>();
+  const { hasPermission } = useAuth();
+  // payment amounts are commercial data: only finance/management roles can load them (Operators execute the job)
+  const canSeePayments = hasPermission("payments.read") || hasPermission("provider.payments.confirm_received");
   const { data: order, isLoading } = useProviderJobOrderById(id ?? null);
   // const statusMutation = useUpdateProviderJobOrderStatus();
   const submitCompletionMutation = useSubmitJobOrderForCompletion();
@@ -129,7 +133,7 @@ export default function ProviderJobOrderDetail() {
         </Link>
       </Button>
 
-      <PaymentMilestonesCard side="provider" jobOrderId={order.id} />
+      {canSeePayments && <PaymentMilestonesCard side="provider" jobOrderId={order.id} />}
 
       {isCancelled && (
         <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/30">
