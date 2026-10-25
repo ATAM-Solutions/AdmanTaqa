@@ -58,5 +58,6 @@
   "maintenanceReports": "بلاغات الصيانة",
   "myTasks": "مهامي",
   "warehouseRequests": "طلبات المستودع",
-  "warehouseInventory": "المخزون"
+  "warehouseInventory": "المخزون",
+  "assets": "الأصول"
 }

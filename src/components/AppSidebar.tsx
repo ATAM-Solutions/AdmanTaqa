@@ -23,6 +23,7 @@ import {
   PlusCircle,
   ListChecks,
   PackageOpen,
+  Boxes,
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -110,6 +111,7 @@ const navGroups: NavGroup[] = [
       { id: "onboarding", labelKey: "onboarding", path: "/onboarding", icon: BookOpen },
       { id: "profile", labelKey: "profile", path: "/profile", icon: UserCog },
 
+      { id: "assets", labelKey: "assets", path: "/assets", icon: Boxes },
       { id: "branches", labelKey: "branches", path: "/branches", icon: GitBranch },
       { id: "branchRequests", labelKey: "branchRequests", path: "/branch-requests", icon: GitBranch },
       { id: "locations", labelKey: "locations", path: "/locations", icon: MapPin },

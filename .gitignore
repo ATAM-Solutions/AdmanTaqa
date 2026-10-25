@@ -27,3 +27,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Credentials and access notes: never commit
+sshaccess.md
+*sshaccess*
+*.pem
+*.key
+id_rsa*
+id_ed25519*

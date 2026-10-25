@@ -58,5 +58,6 @@
   "maintenanceReports": "Maintenance reports",
   "myTasks": "My tasks",
   "warehouseRequests": "Warehouse requests",
-  "warehouseInventory": "Inventory"
+  "warehouseInventory": "Inventory",
+  "assets": "Assets"
 }

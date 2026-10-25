@@ -125,6 +125,23 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     orgTypes: [ "FUEL_STATION","AUTHORITY" ,"SERVICE_PROVIDER","SUPER_ADMIN",],
     orgTypePermissions: { FUEL_STATION: ["roles.update"] },
   },
+  // Asset Management (Fuel Station only). The route rules only decide who SEES a page; every call is re-checked by the server.
+  assets: {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["assets.read"],
+  },
+  "assets/create": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["assets.create"],
+  },
+  "assets/:id": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["assets.read"],
+  },
+  "assets/:id/edit": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["assets.update"],
+  },
   branches: {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["branches.read", "stations.read"],

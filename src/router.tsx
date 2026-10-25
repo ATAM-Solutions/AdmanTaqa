@@ -11,6 +11,12 @@ import Dashboard from "./pages/Dashboard/Dashboard";
 import HomeRedirect from "./components/HomeRedirect";
 import CompanyProfile from "./pages/Company/CompanyProfile";
 
+// ---------- Asset Management (Fuel Station) ----------
+import Assets from "./pages/Assets/Assets";
+import CreateAsset from "./pages/Assets/CreateAsset";
+import EditAsset from "./pages/Assets/EditAsset";
+import AssetDetails from "./pages/Assets/AssetDetails";
+
 // ---------- SUPER_ADMIN company management ----------
 import OrganizationsEntry from "./pages/Admin/Organizations/OrganizationsEntry";
 import OrganizationDetailEntry from "./pages/Admin/Organizations/OrganizationDetailEntry";
@@ -374,6 +380,40 @@ export const router = createHashRouter([
         element: (
           <RouteAccessGuard pathKey="linked-providers">
             <LinkedProviders />
+          </RouteAccessGuard>
+        ),
+      },
+
+      // ---------- Assets (Fuel Station) ----------
+      {
+        path: "assets",
+        element: (
+          <RouteAccessGuard pathKey="assets">
+            <Assets />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "assets/create",
+        element: (
+          <RouteAccessGuard pathKey="assets/create">
+            <CreateAsset />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "assets/:id",
+        element: (
+          <RouteAccessGuard pathKey="assets/:id">
+            <AssetDetails />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "assets/:id/edit",
+        element: (
+          <RouteAccessGuard pathKey="assets/:id/edit">
+            <EditAsset />
           </RouteAccessGuard>
         ),
       },
