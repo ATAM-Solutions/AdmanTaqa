@@ -81,7 +81,7 @@ describe("SUPER_ADMIN company management routes", () => {
 
   it("exposes the company profile page to company tenants only", () => {
     const rule = ROUTE_ACCESS_RULES["company"];
-    expect(canAccessByRule(rule, "FUEL_STATION", [])).toBe(true);
+    expect(canAccessByRule(rule, "FUEL_STATION", ["organizations.read"])).toBe(true);
     expect(canAccessByRule(rule, "SERVICE_PROVIDER", [])).toBe(true);
     expect(canAccessByRule(rule, "SUPER_ADMIN", [])).toBe(false);
     expect(canAccessByRule(rule, "AUTHORITY", [])).toBe(false);
@@ -139,7 +139,7 @@ describe("resolvePostLoginPath", () => {
 
   it("keeps the query string of an allowed page", () => {
     expect(
-      resolvePostLoginPath({ pathname: "/station-requests", search: "?status=OPEN" }, "FUEL_STATION", [], home)
+      resolvePostLoginPath({ pathname: "/station-requests", search: "?status=OPEN" }, "FUEL_STATION", ["station.requests.read"], home)
     ).toBe("/station-requests?status=OPEN");
   });
 
@@ -196,8 +196,35 @@ describe("fuel-station technician navigation (finding 21)", () => {
     expect(can("branch-requests", ["anything.else"], "SUPER_ADMIN")).toBe(true);
   });
 
-  it("keeps the legacy fallback: a session with no permissions list is gated by organization type only", () => {
-    expect(can("my-tasks", [])).toBe(true);
+  it("fails closed: a company session with NO permissions opens no permission-gated page", () => {
+    expect(can("my-tasks", [])).toBe(false);
     expect(can("my-tasks", [], "SERVICE_PROVIDER")).toBe(false);
+    for (const key of ["internal-work-orders", "maintenance-reports", "station-requests", "assets", "warehouse-requests", "users", "company"]) {
+      expect(canAccessByRule(ROUTE_ACCESS_RULES[key], "FUEL_STATION", [])).toBe(false);
+    }
+    // a page that asks for no permission at all stays open (the dashboard itself, shown per role)
+    expect(canAccessByRule(ROUTE_ACCESS_RULES["dashboard"], "FUEL_STATION", [])).toBe(true);
+  });
+
+  it("keeps the org-type fallback for the platform tenants only", () => {
+    expect(canAccessByRule(ROUTE_ACCESS_RULES["audit-log"], "AUTHORITY", [])).toBe(true);
+    expect(canAccessByRule(ROUTE_ACCESS_RULES["organizations/new"], "SUPER_ADMIN", [])).toBe(true);
+  });
+});
+
+describe("service provider job titles", () => {
+  const owner = ["provider.rfqs.read", "provider.job_orders.read", "operators.read"];
+  const operator = ["provider.job_orders.read", "provider.jobs.execute"];
+  const accountant = ["provider.job_orders.read", "provider.payments.confirm_received", "payments.read"];
+  it("RFQs and operators need their own permission; job orders need job_orders.read", () => {
+    for (const key of ["provider-rfqs", "provider-rfqs/:id", "operators"]) {
+      expect(canAccessByRule(ROUTE_ACCESS_RULES[key], "SERVICE_PROVIDER", owner)).toBe(true);
+      expect(canAccessByRule(ROUTE_ACCESS_RULES[key], "SERVICE_PROVIDER", operator)).toBe(false);
+      expect(canAccessByRule(ROUTE_ACCESS_RULES[key], "SERVICE_PROVIDER", accountant)).toBe(false);
+    }
+    for (const key of ["provider-job-orders", "provider-job-orders/:id"]) {
+      for (const perms of [owner, operator, accountant]) expect(canAccessByRule(ROUTE_ACCESS_RULES[key], "SERVICE_PROVIDER", perms)).toBe(true);
+      expect(canAccessByRule(ROUTE_ACCESS_RULES[key], "SERVICE_PROVIDER", ["provider.rfqs.read"])).toBe(false);
+    }
   });
 });
