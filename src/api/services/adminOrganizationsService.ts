@@ -15,6 +15,8 @@ import type {
   CreateAdminStationBody,
   CreateAdminUserBody,
   SetAssetPolicyBody,
+  AdminPermissionPolicy,
+  SetPermissionPolicyBody,
   UpdateAdminOrganizationBody,
   UpdateAdminStationBody,
   UpdateAdminUserBody,
@@ -91,6 +93,12 @@ export const adminOrganizationsService = {
   // Asset-creation policy: which of the company's roles may create assets (Fuel Station only; Super Admin only)
   getAssetPolicy(id: number | string) {
     return axiosInstance.get<ApiEnvelope<AdminAssetPolicy>>(`${BASE}/${id}/asset-policy`).then(unwrap);
+  },
+  getPermissionPolicy(id: number | string) {
+    return axiosInstance.get<ApiEnvelope<AdminPermissionPolicy>>(`${BASE}/${id}/permission-policy`).then(unwrap);
+  },
+  setPermissionPolicy(id: number | string, body: SetPermissionPolicyBody) {
+    return axiosInstance.put<ApiEnvelope<AdminPermissionPolicy>>(`${BASE}/${id}/permission-policy`, body).then(unwrap);
   },
   setAssetPolicy(id: number | string, body: SetAssetPolicyBody) {
     return axiosInstance.put<ApiEnvelope<AdminAssetPolicy>>(`${BASE}/${id}/asset-policy`, body).then(unwrap);

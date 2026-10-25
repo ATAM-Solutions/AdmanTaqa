@@ -321,3 +321,54 @@ export interface ApiEnvelope<T> {
   data: T;
   message?: string;
 }
+
+// ── Job Title permission policy (Super Admin, Fuel Station and Service Provider companies) ─────────────────
+export type PermissionDecisionKind = "formal_decision" | "direct_request" | null;
+
+/** One governable permission as the backend reports it. `eligibleRoleNames === null` = platform default (every Job Title). */
+export interface PolicyPermission {
+  code: string;
+  /** `asset_policy` permissions are edited in the Asset permissions tab, not here. */
+  managedBy: "permission_policy" | "asset_policy";
+  /** `closed`: a per-person grant is impossible until Super Admin makes the Job Title eligible. */
+  grantDefault: "open" | "closed";
+  decisionKind: PermissionDecisionKind;
+  /** Approvals and commercial writes: withheld whenever the policy cannot be read. */
+  sensitive: boolean;
+  restricted: boolean;
+  eligibleRoleNames: string[] | null;
+  /** Job Titles whose own role grants it today. */
+  holdingRoleNames: string[];
+}
+
+export interface PolicyModule {
+  id: string;
+  permissions: PolicyPermission[];
+}
+
+export interface PolicyRole {
+  id: number;
+  name: string;
+  isSystem: boolean;
+  /** Always eligible; cannot be restricted out of its own company. */
+  isCompanyAdmin: boolean;
+}
+
+/** GET/PUT /admin/organizations/:id/permission-policy */
+export interface AdminPermissionPolicy {
+  organizationId: number;
+  organizationType: string;
+  roles: PolicyRole[];
+  modules: PolicyModule[];
+  /** People of the company who hold no Job Title (identified only, never assigned automatically). */
+  usersWithoutJobTitle: number;
+}
+
+export interface PermissionPolicyEntry {
+  code: string;
+  restricted: boolean;
+  allowedRoleNames: string[];
+}
+export interface SetPermissionPolicyBody {
+  policies: PermissionPolicyEntry[];
+}

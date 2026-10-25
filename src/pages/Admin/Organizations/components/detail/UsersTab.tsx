@@ -75,8 +75,16 @@ export function UsersTab({ organization, openCreate, onOpenCreateChange, createA
   /** One-time credentials of a user just created through the dialog — never persisted. */
   const [credentials, setCredentials] = useState<CreatedCredentials | null>(null);
 
+  const [onlyWithoutJobTitle, setOnlyWithoutJobTitle] = useState(false);
+  const withoutJobTitleCount = useMemo(
+    () => (data ?? []).filter((u) => u.organizationId === organization.id && u.roles.length === 0).length,
+    [data, organization.id],
+  );
+
   const users = useMemo(() => {
-    const own = (data ?? []).filter((u) => u.organizationId === organization.id);
+    const everyone = (data ?? []).filter((u) => u.organizationId === organization.id);
+    // identification only: nothing is ever assigned automatically
+    const own = onlyWithoutJobTitle ? everyone.filter((u) => u.roles.length === 0) : everyone;
     const q = search.trim().toLowerCase();
     if (!q) return own;
     return own.filter((u) =>
@@ -84,7 +92,7 @@ export function UsersTab({ organization, openCreate, onOpenCreateChange, createA
         .filter(Boolean)
         .some((v) => String(v).toLowerCase().includes(q))
     );
-  }, [data, organization.id, search]);
+  }, [data, organization.id, search, onlyWithoutJobTitle]);
 
   const hasUsers = (data ?? []).length > 0;
 
@@ -132,7 +140,20 @@ export function UsersTab({ organization, openCreate, onOpenCreateChange, createA
                   className="ps-10"
                 />
               </div>
-              <span className="text-sm text-muted-foreground">{t("detail.users.count", { count: users.length })}</span>
+              <div className="flex flex-wrap items-center gap-3">
+                {withoutJobTitleCount > 0 ? (
+                  <Button
+                    size="sm"
+                    variant={onlyWithoutJobTitle ? "default" : "outline"}
+                    aria-pressed={onlyWithoutJobTitle}
+                    data-testid="filter-no-job-title"
+                    onClick={() => setOnlyWithoutJobTitle((v) => !v)}
+                  >
+                    {t("detail.users.noJobTitleFilter", { count: withoutJobTitleCount })}
+                  </Button>
+                ) : null}
+                <span className="text-sm text-muted-foreground">{t("detail.users.count", { count: users.length })}</span>
+              </div>
             </div>
           ) : null}
         </CardHeader>
@@ -334,7 +355,11 @@ function UserInitials({ name, size = "sm" }: { name: string; size?: "sm" | "lg" 
 function RoleCell({ user }: { user: AdminUser }) {
   const { t } = useTranslation("adminOrganizations");
   if (user.roles.length === 0) {
-    return <span className="text-sm text-muted-foreground">{t("detail.users.noRole")}</span>;
+    return (
+      <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300" data-testid="no-job-title-badge">
+        {t("detail.users.noRole")}
+      </Badge>
+    );
   }
   return (
     <div className="flex flex-wrap items-center gap-1.5">

@@ -1,0 +1,270 @@
+{
+  "modules": {
+    "maintenance_reports": "Maintenance reports",
+    "maintenance_approvals": "Report approvals",
+    "maintenance_decision": "Internal / external decision",
+    "internal_tasks": "Tasks and technicians",
+    "work_orders": "Work orders",
+    "external_maintenance": "External maintenance",
+    "warehouse": "Warehouse",
+    "assets": "Assets",
+    "provider_quotes": "Provider: requests and quotes",
+    "provider_jobs": "Provider: jobs and operators",
+    "provider_warehouse": "Provider: warehouse",
+    "provider_commercial": "Provider: commercial setup",
+    "organization_team": "Company and team"
+  },
+  "codes": {
+    "maintenance_issues_create": {
+      "name": "File maintenance reports"
+    },
+    "maintenance_issues_read": {
+      "name": "View maintenance reports"
+    },
+    "maintenance_issues_supervisor_review": {
+      "name": "Supervisor review of reports"
+    },
+    "maintenance_issues_ops_approve": {
+      "name": "Operations approval of reports"
+    },
+    "maintenance_issues_decide": {
+      "name": "Maintenance decision on a report",
+      "description": "The formal decision on a submitted report: handle it in-house (internal work order) or send it to providers (external request)."
+    },
+    "station_maintenance_requests_create": {
+      "name": "Create a request with its type chosen",
+      "description": "Creates a request directly, choosing internal or external at creation, without a report and its approvals. This is request-type selection, not the formal decision."
+    },
+    "external_maintenance_v2_create": {
+      "name": "Create external maintenance requests",
+      "description": "Creates an external request directly (request-type selection, not the formal decision)."
+    },
+    "workorders_create": {
+      "name": "Create work orders (legacy)",
+      "description": "Legacy path that opens a work order directly (request-type selection, not the formal decision)."
+    },
+    "internal_tasks_read": {
+      "name": "View tasks"
+    },
+    "internal_tasks_assign": {
+      "name": "Assign technicians"
+    },
+    "internal_tasks_update_status": {
+      "name": "Update task progress"
+    },
+    "internal_tasks_upload": {
+      "name": "Upload task files"
+    },
+    "internal_tasks_review": {
+      "name": "Review completed tasks"
+    },
+    "internal_tasks_close": {
+      "name": "Close tasks"
+    },
+    "internal_work_orders_read": {
+      "name": "View work orders"
+    },
+    "internal_work_orders_create": {
+      "name": "Create work orders"
+    },
+    "internal_work_orders_update": {
+      "name": "Edit work orders"
+    },
+    "internal_work_orders_review": {
+      "name": "Review work orders"
+    },
+    "internal_work_orders_close": {
+      "name": "Close work orders"
+    },
+    "internal_work_orders_warehouse_return": {
+      "name": "Confirm warehouse returns"
+    },
+    "internal_work_orders_ops_confirm": {
+      "name": "Operations confirmation of work orders"
+    },
+    "station_requests_read": {
+      "name": "View external requests"
+    },
+    "station_requests_send_to_providers": {
+      "name": "Send requests to providers"
+    },
+    "station_requests_select_quote": {
+      "name": "Select a provider quote"
+    },
+    "station_job_orders_read": {
+      "name": "View external job orders"
+    },
+    "station_job_orders_review": {
+      "name": "Review external job orders"
+    },
+    "external_maintenance_v2_read": {
+      "name": "View external maintenance"
+    },
+    "external_maintenance_v2_maintenance_review": {
+      "name": "Maintenance review of external work"
+    },
+    "external_maintenance_v2_ops_closure": {
+      "name": "Operations closure of external work"
+    },
+    "warehouse_read": {
+      "name": "View warehouses"
+    },
+    "warehouse_manage": {
+      "name": "Manage warehouses"
+    },
+    "warehouse_items_create": {
+      "name": "Create warehouse items"
+    },
+    "warehouse_orders_read": {
+      "name": "View warehouse requests"
+    },
+    "warehouse_orders_create": {
+      "name": "Create warehouse requests"
+    },
+    "warehouse_orders_submit": {
+      "name": "Submit warehouse requests"
+    },
+    "warehouse_orders_maintenance_approve": {
+      "name": "Maintenance approval of requests"
+    },
+    "warehouse_orders_review": {
+      "name": "Review warehouse requests"
+    },
+    "warehouse_orders_approve": {
+      "name": "Approve warehouse requests"
+    },
+    "warehouse_orders_reject": {
+      "name": "Reject warehouse requests"
+    },
+    "warehouse_orders_issue": {
+      "name": "Issue warehouse items"
+    },
+    "warehouse_orders_deliver": {
+      "name": "Deliver warehouse items"
+    },
+    "warehouse_orders_close": {
+      "name": "Close warehouse requests"
+    },
+    "warehouse_orders_upload": {
+      "name": "Upload warehouse request files"
+    },
+    "warehouse_orders_assign": {
+      "name": "Assign warehouse requests"
+    },
+    "warehouse_orders_update_status": {
+      "name": "Update warehouse request status"
+    },
+    "assets_create": {
+      "name": "Create assets"
+    },
+    "assets_update": {
+      "name": "Edit assets"
+    },
+    "assets_delete": {
+      "name": "Delete assets"
+    },
+    "provider_rfqs_read": {
+      "name": "View requests for quotation"
+    },
+    "provider_quotes_create": {
+      "name": "Submit quotes"
+    },
+    "provider_quotes_revise": {
+      "name": "Revise quotes"
+    },
+    "provider_quotes_withdraw": {
+      "name": "Withdraw quotes"
+    },
+    "provider_job_orders_read": {
+      "name": "View job orders"
+    },
+    "provider_job_orders_assign_operator": {
+      "name": "Assign operators to jobs"
+    },
+    "provider_job_orders_update_status": {
+      "name": "Update job status"
+    },
+    "provider_job_orders_upload": {
+      "name": "Upload job files"
+    },
+    "provider_jobs_execute": {
+      "name": "Execute jobs"
+    },
+    "provider_jobs_submit_review": {
+      "name": "Submit jobs for review"
+    },
+    "provider_visits_checkin": {
+      "name": "Check in to visits"
+    },
+    "provider_visits_upload": {
+      "name": "Upload visit files"
+    },
+    "provider_reports_create": {
+      "name": "Write job reports"
+    },
+    "provider_reports_submit": {
+      "name": "Submit job reports"
+    },
+    "provider_job_v2_assign_technician": {
+      "name": "Assign technicians (v2)"
+    },
+    "provider_job_v2_execute": {
+      "name": "Execute jobs (v2)"
+    },
+    "provider_job_v2_review_report": {
+      "name": "Review reports (v2)"
+    },
+    "provider_payments_confirm_received": {
+      "name": "Confirm payments received"
+    },
+    "operators_read": {
+      "name": "View operators"
+    },
+    "operators_create": {
+      "name": "Create operators"
+    },
+    "operators_update": {
+      "name": "Edit operators"
+    },
+    "provider_warehouse_read": {
+      "name": "View provider warehouse"
+    },
+    "provider_warehouse_create": {
+      "name": "Create provider warehouse requests"
+    },
+    "provider_warehouse_approve": {
+      "name": "Approve provider warehouse requests"
+    },
+    "provider_warehouse_issue": {
+      "name": "Issue provider warehouse items"
+    },
+    "provider_profile_manage": {
+      "name": "Edit the provider profile"
+    },
+    "provider_offerings_manage": {
+      "name": "Manage service offerings and prices",
+      "description": "Adds, edits and removes the services the company offers and their prices."
+    },
+    "provider_categories_manage": {
+      "name": "Manage service categories"
+    },
+    "organizations_update": {
+      "name": "Edit the company profile",
+      "description": "Changes the company name, contact details and address."
+    },
+    "team_read": {
+      "name": "View the team"
+    },
+    "team_invite": {
+      "name": "Invite team members"
+    },
+    "team_deactivate": {
+      "name": "Deactivate team members"
+    }
+  },
+  "decisionKind": {
+    "formal_decision": "Formal decision",
+    "direct_request": "Request-type selection"
+  },
+  "sensitive": "Sensitive"
+}

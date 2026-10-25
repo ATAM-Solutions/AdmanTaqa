@@ -32,6 +32,8 @@ function toUserRow(u: ApiUser): UserRow {
   };
 }
 
+const NO_JOB_TITLE_FILTER = "__no_job_title__";
+
 export default function Users() {
   const { t } = useTranslation("users");
   const [searchQuery, setSearchQuery] = useState("");
@@ -57,8 +59,11 @@ export default function Users() {
           (u.role && u.role.toLowerCase().includes(q))
       )
       : rows;
-    return roleFilter === "all" ? list : list.filter((u) => u.role === roleFilter);
+    if (roleFilter === "all") return list;
+    if (roleFilter === NO_JOB_TITLE_FILTER) return list.filter((u) => !(u.roles && u.roles.length > 0) && !u.role);
+    return list.filter((u) => u.role === roleFilter);
   }, [rows, searchQuery, roleFilter]);
+  const withoutJobTitle = useMemo(() => rows.filter((u) => !(u.roles && u.roles.length > 0) && !u.role).length, [rows]);
 
   return (
     <div className="p-4 md:p-8 space-y-6 animate-in fade-in zoom-in-95 duration-500">
@@ -104,6 +109,9 @@ export default function Users() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">{t("list.allRoles")}</SelectItem>
+                    {withoutJobTitle > 0 ? (
+                      <SelectItem value={NO_JOB_TITLE_FILTER}>{t("list.noJobTitleFilter", { count: withoutJobTitle })}</SelectItem>
+                    ) : null}
                     {roleOptions.map((name) => (
                       <SelectItem key={name} value={name}>{name}</SelectItem>
                     ))}

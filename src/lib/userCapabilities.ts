@@ -1,5 +1,6 @@
 import type { CapabilityEffect, CapabilityState } from "@/api/services/warehouseService";
 import { COMPANY_ADMIN_ROLE_NAMES } from "@/lib/company";
+import { moduleRank } from "@/lib/permissionPolicy";
 
 /**
  * Pure rules for the per-user "individual permissions" card.
@@ -8,15 +9,41 @@ import { COMPANY_ADMIN_ROLE_NAMES } from "@/lib/company";
  * requests are worth sending. A request the backend would refuse anyway is simply not offered.
  */
 
-/** Delegable capabilities this card knows how to present, in display order. Unknown codes from the API are ignored. */
-export const CAPABILITY_CODES = ["assets.create", "warehouse_items.create"] as const;
-export type CapabilityCode = (typeof CAPABILITY_CODES)[number];
+/**
+ * Every delegable capability the API reports, grouped by module in the platform's display order. Unknown codes/modules
+ * from the API are still shown (with the code as its label) — the card never hides what the server returned.
+ */
+export interface CapabilityGroup {
+  module: string;
+  items: CapabilityState[];
+}
 
-export const isKnownCapability = (code: string): code is CapabilityCode => (CAPABILITY_CODES as readonly string[]).includes(code);
+export function groupCapabilities(list: readonly CapabilityState[]): CapabilityGroup[] {
+  const groups = new Map<string, CapabilityState[]>();
+  for (const c of list) {
+    const module = c.module ?? "other";
+    groups.set(module, [...(groups.get(module) ?? []), c]);
+  }
+  return [...groups.entries()]
+    .map(([module, items]) => ({ module, items }))
+    .sort((a, b) => moduleRank(a.module) - moduleRank(b.module));
+}
 
-/** Only the capabilities the card can present, ordered as CAPABILITY_CODES. */
+/** What a filter shows: allowed = effective now; unavailable = cannot be granted to this person; available = the rest. */
+export type CapabilityFilter = "all" | "allowed" | "available" | "unavailable";
+export function matchesFilter(cap: CapabilityState, filter: CapabilityFilter): boolean {
+  if (filter === "all") return true;
+  if (filter === "allowed") return cap.effective;
+  const unavailable = cap.eligible === false;
+  return filter === "unavailable" ? unavailable : !unavailable && !cap.effective;
+}
+
+/** A module starts expanded when something in it is individually set or can still be allowed. */
+export const shouldOpenModule = (items: readonly CapabilityState[]): boolean => items.some((c) => c.override != null || c.eligible !== false);
+
+/** Kept for callers that only need the flat, ordered list (module order, then API order). */
 export function visibleCapabilities(list: readonly CapabilityState[]): CapabilityState[] {
-  return CAPABILITY_CODES.map((code) => list.find((c) => c.code === code)).filter((c): c is CapabilityState => c != null);
+  return groupCapabilities(list).flatMap((g) => g.items);
 }
 
 export type EditMode = "hidden" | "readonly" | "edit";
@@ -39,19 +66,24 @@ export interface EditContext {
  * 403 PROTECTED_USER_CAPABILITY_FORBIDDEN and the card then locks itself — see `classifyCapabilityError`.)
  */
 export function editMode(ctx: EditContext): { mode: EditMode; reason: ReadonlyReason } {
-  if (!ctx.viewerHasAssignRoles || ctx.viewerOrganizationType !== "FUEL_STATION") return { mode: "hidden", reason: null };
+  const company = ctx.viewerOrganizationType === "FUEL_STATION" || ctx.viewerOrganizationType === "SERVICE_PROVIDER";
+  if (!ctx.viewerHasAssignRoles || !company) return { mode: "hidden", reason: null };
   if (ctx.viewerUserId != null && String(ctx.viewerUserId) === String(ctx.targetUserId)) return { mode: "readonly", reason: "self" };
-  const adminName = COMPANY_ADMIN_ROLE_NAMES.FUEL_STATION.toLowerCase();
-  if ((ctx.targetRoleNames ?? []).some((n) => n.trim().toLowerCase() === adminName)) return { mode: "readonly", reason: "protected" };
+  const adminNames = Object.values(COMPANY_ADMIN_ROLE_NAMES).map((n) => n.toLowerCase());
+  if ((ctx.targetRoleNames ?? []).some((n) => adminNames.includes(n.trim().toLowerCase()))) return { mode: "readonly", reason: "protected" };
   return { mode: "edit", reason: null };
 }
 
 export type RoleSource = "role" | "none";
 export type OverrideState = "grant" | "deny" | "none";
 
+/** Why a permission cannot be granted to this person right now (null = it can, or it is already held). */
+export type UnavailableReason = "notEligible" | "noJobTitle" | "notGrantable" | "notWhitelisted" | "unverifiable" | null;
+
 export interface RowView {
   code: string;
   effective: boolean;
+  reason: UnavailableReason;
   /** Platform (Super Admin) restriction applies to this person's role. */
   restricted: boolean;
   /** The restriction cannot be checked right now (treated as restricted for granting). */
@@ -68,10 +100,22 @@ export function describeRow(cap: CapabilityState): RowView {
   const unverifiable = cap.eligibilityReason === "POLICY_UNAVAILABLE";
   const restricted = cap.eligible === false && !unverifiable;
   const blocked = cap.eligible === false;
+  const reason: UnavailableReason = !blocked
+    ? null
+    : unverifiable
+      ? "unverifiable"
+      : cap.eligibilityReason === "NO_JOB_TITLE"
+        ? "noJobTitle"
+        : cap.eligibilityReason === "NOT_GRANTABLE"
+          ? "notGrantable"
+          : cap.eligibilityReason === "NOT_WHITELISTED"
+            ? "notWhitelisted"
+            : "notEligible";
   const override: OverrideState = cap.override === "GRANT" ? "grant" : cap.override === "DENY" ? "deny" : "none";
   return {
     code: cap.code,
     effective: cap.effective,
+    reason,
     restricted,
     unverifiable,
     inheritedFromRole: cap.byRole,
@@ -89,6 +133,8 @@ export type CapabilityErrorKind =
   | "selfChange"
   | "protectedUser"
   | "roleNotEligible"
+  | "noJobTitle"
+  | "notGrantable"
   | "unavailable"
   | "notDelegable"
   | "forbidden"
@@ -110,6 +156,8 @@ export function classifyCapabilityError(error: unknown): CapabilityErrorKind {
   if (code === "CAPABILITY_SELF_CHANGE_FORBIDDEN") return "selfChange";
   if (code === "PROTECTED_USER_CAPABILITY_FORBIDDEN") return "protectedUser";
   if (code === "ROLE_NOT_ELIGIBLE") return "roleNotEligible";
+  if (code === "NO_JOB_TITLE") return "noJobTitle";
+  if (code === "CAPABILITY_NOT_GRANTABLE") return "notGrantable";
   if (code === "PERMISSION_OVERRIDES_UNAVAILABLE" || status === 503) return "unavailable";
   if (code === "CAPABILITY_NOT_DELEGABLE") return "notDelegable";
   if (status === 401 || status === 403) return "forbidden";

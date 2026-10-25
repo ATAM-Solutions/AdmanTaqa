@@ -1,0 +1,270 @@
+{
+  "modules": {
+    "maintenance_reports": "بلاغات الصيانة",
+    "maintenance_approvals": "موافقات البلاغات",
+    "maintenance_decision": "قرار الصيانة داخلي / خارجي",
+    "internal_tasks": "المهام والفنيون",
+    "work_orders": "أوامر العمل",
+    "external_maintenance": "الصيانة الخارجية",
+    "warehouse": "المستودع",
+    "assets": "الأصول",
+    "provider_quotes": "المزوّد: الطلبات وعروض الأسعار",
+    "provider_jobs": "المزوّد: الأعمال والمشغّلون",
+    "provider_warehouse": "المزوّد: المستودع",
+    "provider_commercial": "المزوّد: الإعداد التجاري",
+    "organization_team": "الشركة والفريق"
+  },
+  "codes": {
+    "maintenance_issues_create": {
+      "name": "رفع بلاغات الصيانة"
+    },
+    "maintenance_issues_read": {
+      "name": "عرض بلاغات الصيانة"
+    },
+    "maintenance_issues_supervisor_review": {
+      "name": "مراجعة المشرف للبلاغات"
+    },
+    "maintenance_issues_ops_approve": {
+      "name": "موافقة التشغيل على البلاغات"
+    },
+    "maintenance_issues_decide": {
+      "name": "قرار الصيانة على البلاغ",
+      "description": "القرار الرسمي على بلاغ مقدَّم: معالجته داخليًا (أمر عمل داخلي) أو إرساله إلى المزوّدين (طلب خارجي)."
+    },
+    "station_maintenance_requests_create": {
+      "name": "إنشاء طلب مع اختيار نوعه",
+      "description": "ينشئ طلبًا مباشرة مع اختيار داخلي أو خارجي عند الإنشاء، دون بلاغ وموافقاته. هذا اختيار لنوع الطلب وليس القرار الرسمي."
+    },
+    "external_maintenance_v2_create": {
+      "name": "إنشاء طلبات صيانة خارجية",
+      "description": "ينشئ طلبًا خارجيًا مباشرة (اختيار لنوع الطلب وليس القرار الرسمي)."
+    },
+    "workorders_create": {
+      "name": "إنشاء أوامر عمل (قديم)",
+      "description": "مسار قديم يفتح أمر عمل مباشرة (اختيار لنوع الطلب وليس القرار الرسمي)."
+    },
+    "internal_tasks_read": {
+      "name": "عرض المهام"
+    },
+    "internal_tasks_assign": {
+      "name": "تعيين الفنيين"
+    },
+    "internal_tasks_update_status": {
+      "name": "تحديث تقدم المهمة"
+    },
+    "internal_tasks_upload": {
+      "name": "رفع ملفات المهمة"
+    },
+    "internal_tasks_review": {
+      "name": "مراجعة المهام المنجزة"
+    },
+    "internal_tasks_close": {
+      "name": "إغلاق المهام"
+    },
+    "internal_work_orders_read": {
+      "name": "عرض أوامر العمل"
+    },
+    "internal_work_orders_create": {
+      "name": "إنشاء أوامر العمل"
+    },
+    "internal_work_orders_update": {
+      "name": "تعديل أوامر العمل"
+    },
+    "internal_work_orders_review": {
+      "name": "مراجعة أوامر العمل"
+    },
+    "internal_work_orders_close": {
+      "name": "إغلاق أوامر العمل"
+    },
+    "internal_work_orders_warehouse_return": {
+      "name": "تأكيد إرجاعات المستودع"
+    },
+    "internal_work_orders_ops_confirm": {
+      "name": "تأكيد التشغيل لأوامر العمل"
+    },
+    "station_requests_read": {
+      "name": "عرض الطلبات الخارجية"
+    },
+    "station_requests_send_to_providers": {
+      "name": "إرسال الطلبات إلى المزوّدين"
+    },
+    "station_requests_select_quote": {
+      "name": "اختيار عرض سعر مزوّد"
+    },
+    "station_job_orders_read": {
+      "name": "عرض أوامر العمل الخارجية"
+    },
+    "station_job_orders_review": {
+      "name": "مراجعة أوامر العمل الخارجية"
+    },
+    "external_maintenance_v2_read": {
+      "name": "عرض الصيانة الخارجية"
+    },
+    "external_maintenance_v2_maintenance_review": {
+      "name": "مراجعة الصيانة للعمل الخارجي"
+    },
+    "external_maintenance_v2_ops_closure": {
+      "name": "إغلاق التشغيل للعمل الخارجي"
+    },
+    "warehouse_read": {
+      "name": "عرض المستودعات"
+    },
+    "warehouse_manage": {
+      "name": "إدارة المستودعات"
+    },
+    "warehouse_items_create": {
+      "name": "إنشاء أصناف المستودع"
+    },
+    "warehouse_orders_read": {
+      "name": "عرض طلبات المستودع"
+    },
+    "warehouse_orders_create": {
+      "name": "إنشاء طلبات المستودع"
+    },
+    "warehouse_orders_submit": {
+      "name": "تقديم طلبات المستودع"
+    },
+    "warehouse_orders_maintenance_approve": {
+      "name": "موافقة الصيانة على الطلبات"
+    },
+    "warehouse_orders_review": {
+      "name": "مراجعة طلبات المستودع"
+    },
+    "warehouse_orders_approve": {
+      "name": "اعتماد طلبات المستودع"
+    },
+    "warehouse_orders_reject": {
+      "name": "رفض طلبات المستودع"
+    },
+    "warehouse_orders_issue": {
+      "name": "صرف أصناف المستودع"
+    },
+    "warehouse_orders_deliver": {
+      "name": "تسليم أصناف المستودع"
+    },
+    "warehouse_orders_close": {
+      "name": "إغلاق طلبات المستودع"
+    },
+    "warehouse_orders_upload": {
+      "name": "رفع ملفات طلبات المستودع"
+    },
+    "warehouse_orders_assign": {
+      "name": "إسناد طلبات المستودع"
+    },
+    "warehouse_orders_update_status": {
+      "name": "تحديث حالة طلبات المستودع"
+    },
+    "assets_create": {
+      "name": "إنشاء الأصول"
+    },
+    "assets_update": {
+      "name": "تعديل الأصول"
+    },
+    "assets_delete": {
+      "name": "حذف الأصول"
+    },
+    "provider_rfqs_read": {
+      "name": "عرض طلبات التسعير"
+    },
+    "provider_quotes_create": {
+      "name": "تقديم عروض الأسعار"
+    },
+    "provider_quotes_revise": {
+      "name": "تعديل عروض الأسعار"
+    },
+    "provider_quotes_withdraw": {
+      "name": "سحب عروض الأسعار"
+    },
+    "provider_job_orders_read": {
+      "name": "عرض أوامر العمل"
+    },
+    "provider_job_orders_assign_operator": {
+      "name": "تعيين المشغّلين للأعمال"
+    },
+    "provider_job_orders_update_status": {
+      "name": "تحديث حالة العمل"
+    },
+    "provider_job_orders_upload": {
+      "name": "رفع ملفات العمل"
+    },
+    "provider_jobs_execute": {
+      "name": "تنفيذ الأعمال"
+    },
+    "provider_jobs_submit_review": {
+      "name": "تقديم الأعمال للمراجعة"
+    },
+    "provider_visits_checkin": {
+      "name": "تسجيل الحضور في الزيارات"
+    },
+    "provider_visits_upload": {
+      "name": "رفع ملفات الزيارات"
+    },
+    "provider_reports_create": {
+      "name": "كتابة تقارير العمل"
+    },
+    "provider_reports_submit": {
+      "name": "تقديم تقارير العمل"
+    },
+    "provider_job_v2_assign_technician": {
+      "name": "تعيين الفنيين (الإصدار 2)"
+    },
+    "provider_job_v2_execute": {
+      "name": "تنفيذ الأعمال (الإصدار 2)"
+    },
+    "provider_job_v2_review_report": {
+      "name": "مراجعة التقارير (الإصدار 2)"
+    },
+    "provider_payments_confirm_received": {
+      "name": "تأكيد استلام الدفعات"
+    },
+    "operators_read": {
+      "name": "عرض المشغّلين"
+    },
+    "operators_create": {
+      "name": "إنشاء المشغّلين"
+    },
+    "operators_update": {
+      "name": "تعديل المشغّلين"
+    },
+    "provider_warehouse_read": {
+      "name": "عرض مستودع المزوّد"
+    },
+    "provider_warehouse_create": {
+      "name": "إنشاء طلبات مستودع المزوّد"
+    },
+    "provider_warehouse_approve": {
+      "name": "اعتماد طلبات مستودع المزوّد"
+    },
+    "provider_warehouse_issue": {
+      "name": "صرف أصناف مستودع المزوّد"
+    },
+    "provider_profile_manage": {
+      "name": "تعديل ملف المزوّد"
+    },
+    "provider_offerings_manage": {
+      "name": "إدارة الخدمات المعروضة وأسعارها",
+      "description": "إضافة الخدمات التي تقدمها الشركة وأسعارها وتعديلها وحذفها."
+    },
+    "provider_categories_manage": {
+      "name": "إدارة فئات الخدمة"
+    },
+    "organizations_update": {
+      "name": "تعديل ملف الشركة",
+      "description": "تغيير اسم الشركة وبيانات الاتصال والعنوان."
+    },
+    "team_read": {
+      "name": "عرض الفريق"
+    },
+    "team_invite": {
+      "name": "دعوة أعضاء الفريق"
+    },
+    "team_deactivate": {
+      "name": "إيقاف أعضاء الفريق"
+    }
+  },
+  "decisionKind": {
+    "formal_decision": "قرار رسمي",
+    "direct_request": "اختيار نوع الطلب"
+  },
+  "sensitive": "حساس"
+}

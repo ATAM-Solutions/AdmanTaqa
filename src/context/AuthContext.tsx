@@ -4,6 +4,13 @@ import { clearRateLimitCooldown } from "@/lib/rateLimit";
 import type { User, Organization, AuthData, AuthRole } from "../types/auth";
 import { buildPermissionHelpers } from "@/lib/permissions";
 import { authService } from "@/api/services/authService";
+import {
+  PERMISSIONS_STALE_EVENT,
+  SESSION_REFRESH_INTERVAL_MS,
+  keepIfEqual,
+  samePermissions,
+  shouldRefreshSession,
+} from "@/lib/sessionRefresh";
 
 interface AuthContextType {
   user: User | null;
@@ -135,17 +142,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const me = await authService.me();
       if (me.success && me.data) {
-        setUser(me.data.user);
-        setOrganization(me.data.organization);
-        setRoles(me.data.roles ?? []);
-        setPermissions(me.data.permissions ?? []);
-        setScope(me.data.scope ?? null);
+        // an unchanged answer keeps every previous reference, so a periodic refresh re-renders nothing
+        setUser((prev) => keepIfEqual(prev, me.data!.user));
+        setOrganization((prev) => keepIfEqual(prev, me.data!.organization));
+        setRoles((prev) => keepIfEqual(prev, me.data!.roles ?? []));
+        setPermissions((prev) => (samePermissions(prev, me.data!.permissions ?? []) ? prev : (me.data!.permissions ?? [])));
+        setScope((prev) => keepIfEqual(prev, me.data!.scope ?? null));
         localStorage.setItem(ORG_TYPE_STORAGE_KEY, me.data.organization.type);
       }
     } catch {
       // Keep the current in-memory identity if /auth/me is temporarily unavailable.
     }
   };
+
+  // Follow permission changes made by the platform / company administrator without a new login: refresh the session
+  // periodically while the tab is visible, when it regains focus, and when the server answers 403 (our view is stale).
+  const refreshRef = useRef(refreshOrganization);
+  refreshRef.current = refreshOrganization;
+  const lastSyncRef = useRef(0);
+  useEffect(() => {
+    if (!accessToken) return;
+    const run = () => {
+      if (document.visibilityState !== "visible") return;
+      if (!shouldRefreshSession(Date.now(), lastSyncRef.current)) return;
+      lastSyncRef.current = Date.now();
+      void refreshRef.current();
+    };
+    lastSyncRef.current = Date.now();
+    const timer = window.setInterval(run, SESSION_REFRESH_INTERVAL_MS);
+    window.addEventListener("focus", run);
+    document.addEventListener("visibilitychange", run);
+    window.addEventListener(PERMISSIONS_STALE_EVENT, run);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", run);
+      document.removeEventListener("visibilitychange", run);
+      window.removeEventListener(PERMISSIONS_STALE_EVENT, run);
+    };
+  }, [accessToken]);
 
   const logout = () => {
     currentUserIdRef.current = null;

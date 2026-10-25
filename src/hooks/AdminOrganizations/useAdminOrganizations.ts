@@ -14,6 +14,7 @@ export const adminOrganizationKeys = {
   stations: (id: number | string) => ["admin", "organizations", String(id), "stations"] as const,
   users: (id: number | string) => ["admin", "organizations", String(id), "users"] as const,
   assetPolicy: (id: number | string) => ["admin", "organizations", String(id), "asset-policy"] as const,
+  permissionPolicy: (id: number | string) => ["admin", "organizations", String(id), "permission-policy"] as const,
   roles: (id: number | string) => ["admin", "organizations", String(id), "roles"] as const,
   activity: (id: number | string, page: number) => ["admin", "organizations", String(id), "activity", page] as const,
 };

@@ -119,10 +119,21 @@ export interface CapabilityState {
   override: "GRANT" | "DENY" | null;
   /** Super Admin's company policy allows this person's role to hold the capability (always true when not policy-controlled). */
   eligible?: boolean;
-  /** Why `eligible` is false: ROLE_NOT_ELIGIBLE (platform restriction) | POLICY_UNAVAILABLE (cannot be verified right now). */
-  eligibilityReason?: "ROLE_NOT_ELIGIBLE" | "POLICY_UNAVAILABLE" | null;
-  /** assets.create only: the company has a restriction set by the platform administrator. */
+  /**
+   * Why `eligible` is false: ROLE_NOT_ELIGIBLE (the platform restricts this permission to other Job Titles) | NO_JOB_TITLE
+   * (the person has none) | NOT_GRANTABLE (the platform has not made it available to grant) | NOT_WHITELISTED |
+   * POLICY_UNAVAILABLE (cannot be verified right now).
+   */
+  eligibilityReason?: "ROLE_NOT_ELIGIBLE" | "POLICY_UNAVAILABLE" | "NO_JOB_TITLE" | "NOT_GRANTABLE" | "NOT_WHITELISTED" | null;
+  /** The company has a restriction on this permission set by the platform administrator. */
   restrictedByPlatform?: boolean;
+  /** Module id used to group permissions (see the `permissionCatalog` translations). */
+  module?: string;
+  /** `formal_decision` = the decision on a report; `direct_request` = a request whose type is chosen at creation. */
+  decisionKind?: "formal_decision" | "direct_request" | null;
+  /** Approvals and commercial writes (withheld when the policy cannot be read). */
+  sensitive?: boolean;
+  managedBy?: "permission_policy" | "asset_policy";
 }
 export async function fetchUserCapabilities(userId: number | string): Promise<CapabilityState[]> {
   try {

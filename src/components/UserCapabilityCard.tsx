@@ -19,12 +19,16 @@ import {
   classifyCapabilityError,
   describeRow,
   editMode,
+  groupCapabilities,
   isLockingError,
-  visibleCapabilities,
+  matchesFilter,
+  shouldOpenModule,
   type CapabilityErrorKind,
+  type CapabilityFilter,
   type EditMode,
   type ReadonlyReason,
 } from "@/lib/userCapabilities";
+import { codeKey } from "@/lib/permissionPolicy";
 
 interface CapabilityListProps {
   capabilities: readonly CapabilityState[];
@@ -43,6 +47,7 @@ interface CapabilityListProps {
  */
 export function CapabilityList({ capabilities, mode, reason, pendingCode = null, errors = {}, onChange }: CapabilityListProps) {
   const { t } = useTranslation("users");
+  const { t: tc } = useTranslation("permissionCatalog");
   const busy = pendingCode != null;
   return (
     <div className="space-y-4">
@@ -55,23 +60,33 @@ export function CapabilityList({ capabilities, mode, reason, pendingCode = null,
 
       {capabilities.map((cap) => {
         const row = describeRow(cap);
+        // The common case — a permission nobody offers per person and this person does not hold — is shown compactly:
+        // name, state, the reason and the (disabled) Allow control. Anything set, held or restricted keeps the full row.
+        const slim = (row.reason === "notGrantable" || row.reason === "notWhitelisted") && row.override === "none" && !row.effective && !row.inheritedFromRole;
         const error = errors[cap.code];
         const titleId = `capability-title-${cap.code}`;
         // i18next reads "." as a path separator, so the code is keyed with underscores
-        const itemKey = cap.code.replace(/\./g, "_");
+        const itemKey = codeKey(cap.code);
+        // the two original capabilities keep their own texts; every other permission is named by the shared catalog
+        const name = t(`capabilities.items.${itemKey}.name`, { defaultValue: tc(`codes.${itemKey}.name`, { defaultValue: cap.code }) });
+        const description = t(`capabilities.items.${itemKey}.description`, { defaultValue: tc(`codes.${itemKey}.description`, { defaultValue: "" }) });
         return (
           <section
             key={cap.code}
             aria-labelledby={titleId}
-            className="space-y-3 rounded-lg border p-4"
+            className={slim ? "space-y-2 rounded-lg border px-4 py-3" : "space-y-3 rounded-lg border p-4"}
             data-testid={`capability-row-${cap.code}`}
           >
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-1">
-                <h3 id={titleId} className="text-sm font-semibold">
-                  {t(`capabilities.items.${itemKey}.name`)}
-                </h3>
-                <p className="text-sm text-muted-foreground">{t(`capabilities.items.${itemKey}.description`)}</p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 id={titleId} className="text-sm font-semibold">
+                    {name}
+                  </h3>
+                  {cap.sensitive ? <Badge variant="outline" className="text-[10px]">{t("capabilities.sensitive")}</Badge> : null}
+                  {cap.decisionKind ? <Badge variant="secondary" className="text-[10px]">{tc(`decisionKind.${cap.decisionKind}`)}</Badge> : null}
+                </div>
+                {description ? <p className="text-sm text-muted-foreground">{description}</p> : null}
               </div>
               <Badge
                 variant={row.effective ? "default" : "secondary"}
@@ -82,7 +97,7 @@ export function CapabilityList({ capabilities, mode, reason, pendingCode = null,
               </Badge>
             </div>
 
-            <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
+            {slim ? null : <dl className="grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
               <div className="flex flex-wrap items-baseline gap-x-2">
                 <dt className="text-muted-foreground">{t("capabilities.labels.role")}:</dt>
                 <dd data-testid={`capability-role-${cap.code}`}>
@@ -93,15 +108,23 @@ export function CapabilityList({ capabilities, mode, reason, pendingCode = null,
                 <dt className="text-muted-foreground">{t("capabilities.labels.individual")}:</dt>
                 <dd data-testid={`capability-override-${cap.code}`}>{t(`capabilities.individual.${row.override}`)}</dd>
               </div>
-            </dl>
+            </dl>}
 
-            {row.restricted || row.unverifiable ? (
+            {row.reason === "notGrantable" || row.reason === "notWhitelisted" ? (
+              // not an alarm: most permissions simply are not offered per person; say so briefly
+              <p className="flex items-start gap-2 text-xs text-muted-foreground" data-testid={`capability-unavailable-${cap.code}`}>
+                <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                <span>{t(`capabilities.restricted.${row.reason}`)}</span>
+              </p>
+            ) : row.restricted || row.unverifiable ? (
               <Alert
                 data-testid={`capability-restricted-${cap.code}`}
                 className="border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200 [&>svg]:text-amber-600 dark:[&>svg]:text-amber-400"
               >
                 <Info className="h-4 w-4" />
-                <AlertDescription>{row.unverifiable ? t("capabilities.restricted.unverifiable") : t("capabilities.restricted.role")}</AlertDescription>
+                <AlertDescription>
+                  {t(`capabilities.restricted.${row.reason === "notEligible" || row.reason == null ? "role" : row.reason}`)}
+                </AlertDescription>
               </Alert>
             ) : null}
 
@@ -123,15 +146,17 @@ export function CapabilityList({ capabilities, mode, reason, pendingCode = null,
                   {pendingCode === cap.code ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : null}
                   {t("capabilities.actions.grant")}
                 </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={busy || !row.canDeny}
-                  data-testid={`capability-deny-${cap.code}`}
-                  onClick={() => onChange?.(cap.code, "DENY")}
-                >
-                  {t("capabilities.actions.deny")}
-                </Button>
+                {slim ? null : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={busy || !row.canDeny}
+                    data-testid={`capability-deny-${cap.code}`}
+                    onClick={() => onChange?.(cap.code, "DENY")}
+                  >
+                    {t("capabilities.actions.deny")}
+                  </Button>
+                )}
                 {row.canReset ? (
                   <Button
                     size="sm"
@@ -165,6 +190,7 @@ interface UserCapabilityCardProps {
  */
 export default function UserCapabilityCard({ userId, roleNames }: UserCapabilityCardProps) {
   const { t } = useTranslation("users");
+  const { t: tc } = useTranslation("permissionCatalog");
   const { hasPermission, organization, user: viewer } = useAuth();
   const queryClient = useQueryClient();
   const base = editMode({
@@ -177,6 +203,7 @@ export default function UserCapabilityCard({ userId, roleNames }: UserCapability
   // the backend can reveal that this person is protected (e.g. a renamed administrator role): lock the card from then on
   const [lockedReason, setLockedReason] = useState<ReadonlyReason>(null);
   const [errors, setErrors] = useState<Record<string, CapabilityErrorKind | undefined>>({});
+  const [filter, setFilter] = useState<CapabilityFilter>("all");
   const mode: EditMode = base.mode === "edit" && lockedReason ? "readonly" : base.mode;
   const reason = base.mode === "edit" ? lockedReason : base.reason;
 
@@ -202,7 +229,7 @@ export default function UserCapabilityCard({ userId, roleNames }: UserCapability
 
   if (mode === "hidden") return null;
 
-  const capabilities = visibleCapabilities(query.data ?? []);
+  const groups = groupCapabilities(query.data ?? []);
   const loadFailure = query.isError ? classifyCapabilityError(query.error) : null;
 
   return (
@@ -224,14 +251,62 @@ export default function UserCapabilityCard({ userId, roleNames }: UserCapability
             </Button>
           </div>
         ) : (
-          <CapabilityList
-            capabilities={capabilities}
-            mode={mode}
-            reason={reason}
-            pendingCode={mutation.isPending ? (mutation.variables?.code ?? null) : null}
-            errors={errors}
-            onChange={(code, effect) => mutation.mutate({ code, effect })}
-          />
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-2" role="group" aria-label={t("capabilities.filters.label")} data-testid="capability-filters">
+              <span className="text-xs text-muted-foreground">{t("capabilities.filters.label")}:</span>
+              {(["all", "allowed", "available", "unavailable"] as const).map((f) => (
+                <Button
+                  key={f}
+                  size="sm"
+                  variant={filter === f ? "default" : "outline"}
+                  className="h-7 px-2 text-xs"
+                  aria-pressed={filter === f}
+                  data-testid={`capability-filter-${f}`}
+                  onClick={() => setFilter(f)}
+                >
+                  {t(`capabilities.filters.${f}`)}
+                </Button>
+              ))}
+            </div>
+            <p className="text-xs text-muted-foreground">{t("capabilities.staleHint")}</p>
+            {mode === "readonly" && reason ? (
+              <Alert data-testid="capability-readonly">
+                <Lock className="h-4 w-4" />
+                <AlertDescription>{t(`capabilities.readonly.${reason}`)}</AlertDescription>
+              </Alert>
+            ) : null}
+            {groups.map((g) => {
+              const shown = g.items.filter((c) => matchesFilter(c, filter));
+              const allowed = g.items.filter((c) => c.effective).length;
+              if (shown.length === 0 && filter !== "all") return null;
+              return (
+                <details
+                  key={g.module}
+                  className="rounded-lg border"
+                  data-testid={`capability-module-${g.module}`}
+                  open={filter !== "all" || shouldOpenModule(g.items)}
+                >
+                  <summary className="flex cursor-pointer list-none flex-wrap items-center justify-between gap-2 px-4 py-3">
+                    <span className="text-sm font-semibold">{tc(`modules.${g.module}`, { defaultValue: g.module })}</span>
+                    <span className="text-xs text-muted-foreground">{t("capabilities.summary", { allowed, total: g.items.length })}</span>
+                  </summary>
+                  <div className="border-t p-3">
+                    <CapabilityList
+                      capabilities={shown}
+                      mode={mode}
+                      reason={null}
+                      pendingCode={mutation.isPending ? (mutation.variables?.code ?? null) : null}
+                      errors={errors}
+                      onChange={(code, effect) => mutation.mutate({ code, effect })}
+                    />
+                  </div>
+                </details>
+              );
+            })}
+            {groups.every((g) => g.items.filter((c) => matchesFilter(c, filter)).length === 0) ? (
+              <p className="text-sm text-muted-foreground">{t("capabilities.empty")}</p>
+            ) : null}
+          </div>
         )}
       </CardContent>
     </Card>

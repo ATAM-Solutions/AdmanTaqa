@@ -8,6 +8,7 @@ import {
   sessionKeyFromToken,
   startRateLimitCooldown,
 } from "@/lib/rateLimit";
+import { PERMISSIONS_STALE_EVENT } from "@/lib/sessionRefresh";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -70,6 +71,12 @@ axiosInstance.interceptors.response.use(
           : null;
     if (apiMessage && error instanceof Error) {
       error.message = apiMessage;
+    }
+
+    // The server refused for lack of permission: our copy of the user's permissions may be stale (an administrator just
+    // changed them). Ask the session to refresh; it is rate-limited there.
+    if (status === 403 && data?.code === "INSUFFICIENT_PERMISSIONS" && typeof window !== "undefined") {
+      window.dispatchEvent(new Event(PERMISSIONS_STALE_EVENT));
     }
 
     if (status !== 401 || !originalRequest) {

@@ -35,8 +35,15 @@ type UsersTableCardContentProps = {
   users: UserRow[];
 };
 
-function getRoleBadge(role?: string) {
-  if (!role) return <Badge variant="secondary">—</Badge>;
+function getRoleBadge(role: string | undefined, noJobTitleLabel: string) {
+  // A person with no Job Title is flagged (identification only: nothing is ever assigned automatically).
+  if (!role) {
+    return (
+      <Badge variant="outline" className="border-amber-300 bg-amber-50 text-amber-800 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-300" data-testid="no-job-title-badge">
+        {noJobTitleLabel}
+      </Badge>
+    );
+  }
   const variants: Record<string, string> = {
     ADMIN: "bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-900",
     AUTHORITY: "bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-900",
@@ -128,7 +135,7 @@ export default function UsersTableCardContent({ users }: UsersTableCardContentPr
                       <span className="text-muted-foreground text-[10px] font-mono" dir="ltr">{user.id}</span>
                     </div>
                   </TableCell>
-                  <TableCell>{getRoleBadge(user.role ?? undefined)}</TableCell>
+                  <TableCell>{getRoleBadge(user.role ?? undefined, t("list.noJobTitle"))}</TableCell>
                   <TableCell className="text-end px-6 relative">
                     <div className="flex justify-end">
                       <Button

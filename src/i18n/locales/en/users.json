@@ -6,7 +6,9 @@
     "roleLabel": "Role:",
     "allRoles": "All Roles",
     "loading": "Loading users...",
-    "loadFailed": "Failed to load users."
+    "loadFailed": "Failed to load users.",
+    "noJobTitle": "No job title",
+    "noJobTitleFilter": "No job title ({{count}})"
   },
   "table": {
     "userName": "User Name",
@@ -161,7 +163,7 @@
   },
   "capabilities": {
     "title": "Individual permissions",
-    "description": "Allow or deny specific actions for this person only. Their role, and everyone else on the same role, stay unchanged.",
+    "description": "Allow or deny specific actions for this person only. Their Job Title, and everyone else with it, stay unchanged. You can only allow what the platform administrator has made available for this person's Job Title.",
     "loading": "Loading…",
     "loadFailed": "Could not load this person's permissions.",
     "retry": "Retry",
@@ -194,19 +196,24 @@
       "reset": "Back to role default"
     },
     "restricted": {
-      "role": "The platform administrator has restricted asset creation for this person's role, so it cannot be allowed here.",
-      "unverifiable": "The platform's asset-creation setting cannot be checked right now, so allowing it is unavailable. Try again shortly."
+      "role": "The platform administrator has not allowed this person's Job Title to hold this permission, so it cannot be allowed here.",
+      "noJobTitle": "This person has no Job Title, so nothing can be allowed for them. Ask the platform administrator to assign one.",
+      "notGrantable": "Not available: the platform administrator has not made this permission available to allow per person.",
+      "notWhitelisted": "Not available for this kind of company.",
+      "unverifiable": "The platform's permission setting cannot be checked right now, so allowing it is unavailable. Try again shortly."
     },
     "errors": {
       "selfChange": "You can't change your own permissions.",
       "protectedUser": "This person is a protected administrator; their permissions can't be changed here.",
-      "roleNotEligible": "The platform administrator has not allowed this person's role to create assets.",
+      "roleNotEligible": "The platform administrator has not allowed this person's Job Title to hold this permission.",
       "unavailable": "Permissions can't be verified right now. Nothing was changed — try again shortly.",
       "notDelegable": "This permission can't be set per person for this company.",
       "forbidden": "You don't have permission to change this.",
       "notFound": "This person was not found in your company.",
       "network": "Could not reach the server. Nothing was changed.",
-      "server": "Something went wrong. Nothing was changed."
+      "server": "Something went wrong. Nothing was changed.",
+      "noJobTitle": "This person has no Job Title, so nothing can be allowed for them.",
+      "notGrantable": "The platform administrator has not made this permission available to allow per person."
     },
     "items": {
       "assets_create": {
@@ -217,6 +224,17 @@
         "name": "Create warehouse items",
         "description": "Add parts to the warehouses this person can access."
       }
-    }
+    },
+    "filters": {
+      "label": "Show",
+      "all": "All",
+      "allowed": "Allowed",
+      "available": "Can be allowed",
+      "unavailable": "Unavailable"
+    },
+    "summary": "{{allowed}} allowed of {{total}}",
+    "empty": "Nothing to show for this filter.",
+    "sensitive": "Sensitive",
+    "staleHint": "Changes apply to this person within seconds, without signing in again."
   }
 }

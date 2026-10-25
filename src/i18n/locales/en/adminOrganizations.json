@@ -309,7 +309,8 @@
       "users": "Users",
       "documents": "Documents",
       "activity": "Activity",
-      "assetPermissions": "Asset permissions"
+      "assetPermissions": "Asset permissions",
+      "permissionPolicy": "Job title permissions"
     },
     "overview": {
       "companyInfo": "Company information",
@@ -407,7 +408,7 @@
       },
       "emptyTitle": "No users yet",
       "emptyDescription": "Create the company's administrator or an employee.",
-      "noRole": "No role",
+      "noRole": "No job title",
       "viewTitle": "User details",
       "fields": {
         "fullName": "Full name",
@@ -427,7 +428,8 @@
         "copied": "Copied",
         "dismiss": "Dismiss"
       },
-      "count": "{{count}} users"
+      "count": "{{count}} users",
+      "noJobTitleFilter": "No job title ({{count}})"
     },
     "documents": {
       "title": "Documents",
@@ -590,5 +592,45 @@
       "saveFailed": "The changes were not saved."
     },
     "retry": "Retry"
+  },
+  "permissionPolicy": {
+    "title": "Job title permissions",
+    "description": "Choose which Job Titles may hold each permission in this company. A restriction removes the permission from every other Job Title at once; the platform default leaves everything as it is today. The company manager can then grant or deny a permission per person, only inside what you allow here.",
+    "noJobTitle": "People in this company without a Job Title: {{count}}. They are only identified here — nothing is assigned to them automatically.",
+    "adminAlways": "The company administrator is always eligible, so a company can never lock itself out.",
+    "moduleRestricted": "{{count}} of {{total}} restricted",
+    "moduleDefault": "{{total}} at platform default",
+    "holdsToday": "Held today by",
+    "holdsShort": "holds it",
+    "nobody": "no Job Title",
+    "restricted": "Restricted",
+    "platformDefault": "Platform default",
+    "jobTitles": "Eligible Job Titles",
+    "alwaysEligible": "Always eligible",
+    "managedByAssetPolicy": "Set in Asset permissions",
+    "defaultOpen": "Platform default: every Job Title keeps what it has, and the company manager may grant it to anyone with a Job Title.",
+    "defaultClosed": "Platform default: every Job Title keeps what it has. It cannot be granted to a person whose Job Title does not already hold it until you restrict it and select that Job Title.",
+    "unsaved": "{{count}} unsaved change(s)",
+    "noChanges": "No unsaved changes.",
+    "discard": "Discard",
+    "save": "Save changes",
+    "saved": "Permission policy saved.",
+    "retry": "Retry",
+    "loadFailed": "Could not load the permission policy.",
+    "confirm": {
+      "title": "Remove permissions from Job Titles?",
+      "description": "These Job Titles hold the permission today and are not selected. People with them lose it immediately, in this company only.",
+      "confirm": "Save and remove"
+    },
+    "errors": {
+      "unknownRole": "Some Job Titles do not belong to this company{{names}}.",
+      "unknownCode": "This permission cannot be configured for this company.",
+      "assetManaged": "Asset creation is configured in Asset permissions.",
+      "schemaNotReady": "The permission policy is not set up yet. Try again shortly.",
+      "forbidden": "You don't have permission to change this.",
+      "notFound": "This company was not found.",
+      "network": "Could not reach the server. Nothing was saved.",
+      "server": "Something went wrong. Nothing was saved."
+    }
   }
 }
