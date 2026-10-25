@@ -3,7 +3,7 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, CheckCircle, XCircle, Lock, UserPlus, UserCog } from "lucide-react";
+import { ChevronLeft, CheckCircle, XCircle, Lock, UserPlus, UserCog, FileText } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import AssignWorkerDialog from "./AssignWorkerDialog";
@@ -20,6 +20,7 @@ export default function InternalWorkOrderDetail() {
   const { t: tTasks } = useTranslation("tasks");
   const { t: tCommon } = useTranslation("common");
   const { t: tActivity } = useTranslation("activity");
+  const { t: tReport } = useTranslation("finalReport");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { data: order, isLoading, error } = useInternalWorkOrderById(id ?? null);
@@ -196,6 +197,9 @@ export default function InternalWorkOrderDetail() {
           )}
         </CardContent>
       </Card>
+      <Button asChild variant="outline" className="w-fit">
+        <Link to={`/reports/work-orders/${order.id}`} data-testid="open-final-report"><FileText className="me-2 h-4 w-4" />{tReport("open")}</Link>
+      </Button>
       <Card>
         <CardHeader>
           <CardTitle>{tActivity("title")}</CardTitle>

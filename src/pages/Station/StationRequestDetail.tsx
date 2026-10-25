@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, AlertCircle, Building2, MapPin, Phone, Calendar, XCircle, Upload, CheckCircle } from "lucide-react";
+import { ChevronLeft, AlertCircle, Building2, MapPin, Phone, Calendar, XCircle, Upload, CheckCircle, FileText } from "lucide-react";
 import { toast } from "sonner";
 import useStationRequestById from "@/hooks/Station/useStationRequestById";
 import useSelectQuote from "@/hooks/Station/useSelectQuote";
@@ -33,6 +33,7 @@ export default function StationRequestDetail() {
   const { t, i18n } = useTranslation("station");
   const { t: tCommon } = useTranslation("common");
   const { t: tActivity } = useTranslation("activity");
+  const { t: tReport } = useTranslation("finalReport");
   const { t: tQuoteRaw } = useTranslation("station", { keyPrefix: "quoteView" });
   const tQuote = (key: string, options?: Record<string, unknown>) => tQuoteRaw(key, options) as string;
   const { id } = useParams<{ id: string }>();
@@ -497,6 +498,9 @@ export default function StationRequestDetail() {
         </CardContent>
       </Card>
       <SendToProvidersCard requestId={request.id} status={request.status} recipients={request.recipients ?? []} />
+      <Button asChild variant="outline" className="w-fit">
+        <Link to={`/reports/requests/${request.id}`} data-testid="open-final-report"><FileText className="me-2 h-4 w-4" />{tReport("open")}</Link>
+      </Button>
       <Card>
         <CardHeader>
           <CardTitle>{tActivity("title")}</CardTitle>

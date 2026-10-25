@@ -279,6 +279,15 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["station.requests.read"],
   },
+  // Final maintenance report (read-only). The server applies the same access as the record itself, including a technician's own task only.
+  "reports/work-orders/:id": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["internal_work_orders.read"],
+  },
+  "reports/requests/:id": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["station.requests.read"],
+  },
   "linked-providers": {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["station.linked_providers.read", "station.requests.read", "station.requests.send_to_providers", "proposals.read"],
