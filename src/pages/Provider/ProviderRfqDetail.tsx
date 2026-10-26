@@ -52,8 +52,10 @@ export default function ProviderRfqDetail() {
   };
 
   const quotes = rfq?.quotes ?? rfq?.ProviderQuotes ?? [];
-  const selectedQuote = quotes.find((q: { status?: string }) => q.status === "SELECTED");
-  const externalJobOrder = selectedQuote?.ExternalJobOrder ?? (selectedQuote as { ExternalJobOrder?: { id?: number; PaymentRecord?: { status?: string; receiptFileUrl?: string | null } } | null })?.ExternalJobOrder ?? null;
+  type JobOrderRef = { id?: number; PaymentRecord?: { status?: string; receiptFileUrl?: string | null } } | null;
+  // `quotes` is the API's trimmed summary (no job order); the job order lives on the raw ProviderQuotes.
+  const rawQuotes = (rfq?.ProviderQuotes ?? quotes) as Array<{ status?: string; ExternalJobOrder?: JobOrderRef }>;
+  const externalJobOrder: JobOrderRef = rawQuotes.find((q) => q.status === "SELECTED")?.ExternalJobOrder ?? null;
 
   const title = rfq?.formData?.title ?? rfq?.title ?? (rfq ? `RFQ #${rfq.id}` : "");
   const description = rfq?.formData?.description ?? rfq?.description;
