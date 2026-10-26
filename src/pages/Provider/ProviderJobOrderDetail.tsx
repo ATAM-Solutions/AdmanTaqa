@@ -1,5 +1,6 @@
 import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
 import PaymentRecordPanel from "@/components/PaymentRecordPanel";
+import usePaymentMilestones from "@/hooks/Payments/usePaymentMilestones";
 import useConfirmReceived from "@/hooks/Provider/useConfirmReceived";
 import { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -30,6 +31,8 @@ export default function ProviderJobOrderDetail() {
   const { t: tPay } = useTranslation("paymentRecord");
   const confirmReceived = useConfirmReceived();
   const { data: order, isLoading } = useProviderJobOrderById(id ?? null);
+  // a job with installments is confirmed per installment; the single-payment confirm button is for historical jobs only
+  const schedule = usePaymentMilestones("provider", order?.id, canSeePayments);
   // const statusMutation = useUpdateProviderJobOrderStatus();
   const submitCompletionMutation = useSubmitJobOrderForCompletion();
   const uploadAttachmentMutation = useUploadProviderJobOrderAttachment();
@@ -150,7 +153,7 @@ export default function ProviderJobOrderDetail() {
           record={order.paymentRecord}
           audience="provider"
           busy={confirmReceived.isPending}
-          onConfirm={canConfirmPayment ? () => confirmReceived.mutate({ jobOrderId: String(order.id), body: { confirm: true } }, paymentOutcome("confirmed")) : undefined}
+          onConfirm={canConfirmPayment && schedule.isLegacyJob ? () => confirmReceived.mutate({ jobOrderId: String(order.id), body: { confirm: true } }, paymentOutcome("confirmed")) : undefined}
         />
       ) : null}
       {canSeePayments && <PaymentMilestonesCard side="provider" jobOrderId={order.id} />}

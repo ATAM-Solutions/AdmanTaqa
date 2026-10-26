@@ -1,4 +1,5 @@
 import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
+import usePaymentMilestones from "@/hooks/Payments/usePaymentMilestones";
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, Link } from "react-router-dom";
@@ -53,8 +54,10 @@ export default function StationJobOrderDetail() {
   const awaitingPayment = order?.status === "AWAITING_PAYMENT";
   const paymentRejected = order?.paymentRecord?.status === "REJECTED";
   const stationAlreadyConfirmedSent = order?.paymentRecord?.status === "STATION_CONFIRMED_SENT";
+  // Jobs with an installment schedule are paid ONLY through it; the single-payment form is for historical jobs.
+  const schedule = usePaymentMilestones("station", order?.id);
   const showPaymentSection =
-    awaitingPayment && !paymentRejected && !stationAlreadyConfirmedSent;
+    awaitingPayment && !paymentRejected && !stationAlreadyConfirmedSent && schedule.isLegacyJob;
   const canApproveOrRejectOrder = underReview;
 
   const handleApproveOrder = () => {
@@ -271,7 +274,7 @@ export default function StationJobOrderDetail() {
       )}
 
       {showPaymentSection && (
-        <Card>
+        <Card data-testid="legacy-payment-form">
           <CardHeader>
             <CardTitle>{t("jobOrderDetail.paymentHeading")}</CardTitle>
             <p className="text-sm font-medium text-amber-700 dark:text-amber-400">{t("jobOrderDetail.paymentHint")}</p>

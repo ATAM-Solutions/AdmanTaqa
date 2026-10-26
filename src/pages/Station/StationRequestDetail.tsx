@@ -413,7 +413,7 @@ export default function StationRequestDetail() {
 
               {recordedPayment ? <PaymentRecordPanel record={recordedPayment} audience="station" /> : null}
               {awaitingPaymentJob && !recordedPayment && hasMilestones ? <PaymentMilestonesCard side="station" jobOrderId={awaitingPaymentJob.id} /> : null}
-              {awaitingPaymentJob && !paymentRejected && !stationAlreadyConfirmedSent && !recordedPayment && !hasMilestones && !milestonesQuery.isLoading && (
+              {awaitingPaymentJob && !paymentRejected && !stationAlreadyConfirmedSent && !recordedPayment && !hasMilestones && milestonesQuery.isSuccess && (
                 <div className="pt-2 border-t space-y-3">
                   <p className="text-sm font-medium">{t("requestDetail.paymentHeading")}</p>
                   <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{t("requestDetail.paymentHint")}</p>

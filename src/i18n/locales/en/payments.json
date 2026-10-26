@@ -50,6 +50,17 @@
     "MILESTONE_DISPUTED": "This installment is disputed.",
     "PAYMENT_NOT_SENT_YET": "The station has not reported this payment yet.",
     "UNSAFE_MEDIA_URL": "The receipt link is not valid.",
-    "INSUFFICIENT_PERMISSIONS": "You do not have permission for this action."
+    "INSUFFICIENT_PERMISSIONS": "You do not have permission for this action.",
+    "PAYMENT_USES_INSTALLMENTS": "This job is paid by installments. Use the installment actions on this page."
+  },
+  "next": {
+    "you": {
+      "report": "Your step: report this payment with a transfer reference or a receipt.",
+      "confirm": "Your step: confirm that you received this payment."
+    },
+    "waiting": {
+      "station": "Waiting for the station to report this payment.",
+      "provider": "Reported. Waiting for the provider to confirm receipt — do not send this payment again."
+    }
   }
 }

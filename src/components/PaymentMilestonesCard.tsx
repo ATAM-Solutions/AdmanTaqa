@@ -22,7 +22,7 @@ import {
 
 const CODES = [
   "PAYMENT_EVIDENCE_REQUIRED", "MILESTONE_NOT_DUE", "MILESTONE_SEQUENCE_BLOCKED", "MILESTONE_ALREADY_SENT",
-  "MILESTONE_ALREADY_CONFIRMED", "MILESTONE_DISPUTED", "PAYMENT_NOT_SENT_YET", "UNSAFE_MEDIA_URL", "INSUFFICIENT_PERMISSIONS",
+  "MILESTONE_ALREADY_CONFIRMED", "MILESTONE_DISPUTED", "PAYMENT_NOT_SENT_YET", "PAYMENT_USES_INSTALLMENTS", "UNSAFE_MEDIA_URL", "INSUFFICIENT_PERMISSIONS",
 ] as const;
 
 /**
@@ -81,6 +81,11 @@ export default function PaymentMilestonesCard({ side, jobOrderId }: { side: "sta
             {(q.data ?? []).map((m) => {
               const w = m.workflow;
               const stage = w?.stage ?? "DUE_LATER";
+              // who must act next, said explicitly so nobody is left guessing (null → the "why" line below explains)
+              const next =
+                stage === "AWAITING_REPORT" ? (side === "station" ? (w?.report.allowed ? "you.report" : null) : "waiting.station")
+                : stage === "AWAITING_RECEIPT_CONFIRMATION" ? (side === "provider" ? (w?.confirmReceipt.allowed ? "you.confirm" : null) : "waiting.provider")
+                : null;
               return (
                 <li key={m.id} className="space-y-2 rounded-md border p-3" data-testid="milestone" data-stage={stage} data-milestone-id={m.id}>
                   <div className="flex flex-wrap items-center justify-between gap-2">
@@ -88,6 +93,7 @@ export default function PaymentMilestonesCard({ side, jobOrderId }: { side: "sta
                     <Badge variant={stage === "SETTLED" ? "default" : "secondary"} data-testid="milestone-stage">{t(`stage.${stage}`)}</Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">{t(`trigger.${m.trigger}`, { defaultValue: m.trigger })}</p>
+                  {next ? <p className="text-xs font-medium" data-testid="milestone-next" data-next={next}>{t(`next.${next}`)}</p> : null}
                   {m.referenceNumber ? <p className="text-xs" dir="auto">{t("reference")}: <span dir="ltr">{m.referenceNumber}</span></p> : null}
                   {m.receiptUrl ? <p className="text-xs"><a className="text-primary hover:underline" href={m.receiptUrl} target="_blank" rel="noopener noreferrer" data-testid="milestone-receipt">{t("openReceipt")}</a></p> : null}
 
