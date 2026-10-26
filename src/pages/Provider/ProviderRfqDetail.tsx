@@ -16,6 +16,8 @@ import useProviderRfqById from "@/hooks/Provider/useProviderRfqById";
 import { getQuotePaymentTerms } from "@/types/provider";
 import { formatDate as formatDateShared } from "@/lib/i18n/formatters";
 import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
+import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
+import { useAuth } from "@/context/AuthContext";
 import QuotationForm from "./QuotationForm";
 
 /** Resolve pricing details from quote: either pricingDetails (flattened API) or latest ProviderQuoteRevision.pricingJson. */
@@ -36,6 +38,8 @@ export default function ProviderRfqDetail() {
   const { t, i18n } = useTranslation("provider");
   const { id } = useParams<{ id: string }>();
   const { data: rfq, isLoading } = useProviderRfqById(id ?? null);
+  const { hasPermission } = useAuth();
+  const canSeePayments = hasPermission("payments.read") || hasPermission("provider.payments.confirm_received");
 
   const formatDate = (s: string | undefined): string => {
     if (!s) return "—";
@@ -127,6 +131,10 @@ export default function ProviderRfqDetail() {
                 {city && <p><span className="text-muted-foreground">{t("rfqDetail.city")}</span> {city.name ?? (city.id != null ? `#${city.id}` : "—")}</p>}
               </CardContent>
             </Card>
+          )}
+
+          {canSeePayments && externalJobOrder?.id != null && (
+            <PaymentMilestonesCard side="provider" jobOrderId={externalJobOrder.id} />
           )}
 
           <Card>
