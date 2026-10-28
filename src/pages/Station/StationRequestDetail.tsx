@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,14 +11,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, AlertCircle, Building2, MapPin, Phone, Calendar, XCircle, Upload, CheckCircle, FileText } from "lucide-react";
+import { ChevronLeft, AlertCircle, Building2, MapPin, Phone, Calendar, XCircle, FileText, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import useStationRequestById from "@/hooks/Station/useStationRequestById";
 import useSelectQuote from "@/hooks/Station/useSelectQuote";
 import useRejectQuote from "@/hooks/Station/useRejectQuote";
-import useConfirmPaymentSent from "@/hooks/Station/useConfirmPaymentSent";
-import useUploadJobOrderReceipt from "@/hooks/Station/useUploadJobOrderReceipt";
-import { getApiErrorMessage } from "@/lib/utils";
 import { formatDate } from "@/lib/i18n/formatters";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -27,35 +24,25 @@ import ActivityTimeline from "@/components/ActivityTimeline";
 import SendToProvidersCard from "@/components/SendToProvidersCard";
 import QuoteOfferDetails from "@/components/QuoteOfferDetails";
 import PaymentRecordPanel from "@/components/PaymentRecordPanel";
-import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
-import { fetchMilestones } from "@/api/services/paymentMilestoneService";
-import { useQuery } from "@tanstack/react-query";
-
-const MAX_RECEIPT_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+import PaymentProgressSummary from "@/components/flow/PaymentProgressSummary";
+import FlowBreadcrumb from "@/components/flow/FlowBreadcrumb";
 
 export default function StationRequestDetail() {
   const { t, i18n } = useTranslation("station");
   const { t: tCommon } = useTranslation("common");
   const { t: tActivity } = useTranslation("activity");
   const { t: tReport } = useTranslation("finalReport");
-  const { t: tPay } = useTranslation("paymentRecord");
+  const { t: tFlow } = useTranslation("flow");
   const { t: tQuoteRaw } = useTranslation("station", { keyPrefix: "quoteView" });
   const tQuote = (key: string, options?: Record<string, unknown>) => tQuoteRaw(key, options) as string;
   const { id } = useParams<{ id: string }>();
-  const { data: request, isLoading, refetch: refetchRequest } = useStationRequestById(id ?? null);
+  const { data: request, isLoading } = useStationRequestById(id ?? null);
   const selectQuoteMutation = useSelectQuote();
   const rejectQuoteMutation = useRejectQuote();
-  const confirmSentMutation = useConfirmPaymentSent();
-  const uploadReceiptMutation = useUploadJobOrderReceipt();
 
   const [selectedQuoteId, setSelectedQuoteId] = useState<string>("");
-  const receiptFileInputRef = useRef<HTMLInputElement>(null);
   const [rejectQuoteId, setRejectQuoteId] = useState<number | null>(null);
   const [rejectReason, setRejectReason] = useState("");
-  const [receiptFileUrl, setReceiptFileUrl] = useState<string>("");
-  const [paymentReferenceNumber, setPaymentReferenceNumber] = useState("");
-  const [paymentAmount, setPaymentAmount] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
 
   const isCancelled = request?.status === "CANCELLED";
   const quotes = request?.quotes ?? [];
@@ -73,20 +60,9 @@ export default function StationRequestDetail() {
   const awaitingPaymentJob =
     jobOrders.find((jo) => jo.status === "AWAITING_PAYMENT") ??
     (externalJobOrder?.status === "AWAITING_PAYMENT" ? externalJobOrder : undefined);
-  const stationAlreadyConfirmedSent =
-    awaitingPaymentJob?.paymentRecord?.status === "STATION_CONFIRMED_SENT";
   // the payment already reported for this job (any state past "not started"), whichever job the page is showing
   const shownJob = awaitingPaymentJob ?? externalJobOrder ?? jobOrders[0];
   const recordedPayment = shownJob?.paymentRecord && ["STATION_CONFIRMED_SENT", "PROVIDER_CONFIRMED_RECEIVED"].includes(shownJob.paymentRecord.status ?? "") ? shownJob.paymentRecord : undefined;
-  // jobs with installments are paid milestone by milestone; the single-payment form is only for jobs without any
-  const milestonesQuery = useQuery({
-    queryKey: ["payment-milestones", "station", String(awaitingPaymentJob?.id ?? "")],
-    queryFn: () => fetchMilestones("station", awaitingPaymentJob!.id),
-    enabled: !!awaitingPaymentJob?.id && !recordedPayment,
-    retry: false,
-  });
-  const hasMilestones = (milestonesQuery.data ?? []).length > 0;
-
   const handleSelectQuote = () => {
     if (!id || !selectedQuoteId) {
       toast.error(t("requestDetail.toasts.selectQuoteRequired"));
@@ -97,74 +73,6 @@ export default function StationRequestDetail() {
       {
         onSuccess: () => toast.success(t("requestDetail.toasts.quoteSelected")),
         onError: (e) => toast.error(e instanceof Error ? e.message : t("requestDetail.toasts.selectQuoteFailed")),
-      }
-    );
-  };
-
-  const handleConfirmPaymentSent = () => {
-    if (!awaitingPaymentJob?.id) return;
-    if (awaitingPaymentJob.paymentRecord?.status === "STATION_CONFIRMED_SENT") {
-      toast.info(t("requestDetail.toasts.alreadyConfirmed"));
-      return;
-    }
-    const hasReceipt = !!(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl);
-    const hasRef = paymentReferenceNumber.trim().length > 0;
-    if (!hasReceipt && !hasRef) {
-      toast.error(t("requestDetail.toasts.uploadOrRefRequired"));
-      return;
-    }
-    const body: { receiptFileUrl?: string; referenceNumber?: string; amount?: number; method?: string } = {};
-    const url = receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl;
-    if (url) body.receiptFileUrl = url;
-    if (paymentReferenceNumber.trim()) body.referenceNumber = paymentReferenceNumber.trim();
-    const amountNum = paymentAmount.trim() ? Number(paymentAmount.trim()) : undefined;
-    if (amountNum != null && !Number.isNaN(amountNum)) body.amount = amountNum;
-    if (paymentMethod) body.method = paymentMethod;
-
-    confirmSentMutation.mutate(
-      { jobOrderId: awaitingPaymentJob.id, body },
-      {
-        onSuccess: () => {
-          refetchRequest();
-          toast.success(t("requestDetail.toasts.paymentConfirmed"), { duration: 8000 });
-        },
-        onError: (e) => {
-          // the server refuses a second report (409): the first one is already recorded, so show it instead of an error
-          const code = (e as { response?: { data?: { code?: string } } })?.response?.data?.code;
-          if (code === "PAYMENT_ALREADY_REPORTED" || code === "PAYMENT_ALREADY_CONFIRMED") toast.info(tPay("errors.recordedAlready"));
-          else toast.error(getApiErrorMessage(e, t("requestDetail.toasts.confirmFailed")));
-          void refetchRequest();
-        },
-      }
-    );
-  };
-
-  const handleReceiptFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!awaitingPaymentJob?.id || !file) return;
-    if (file.size > MAX_RECEIPT_SIZE_BYTES) {
-      toast.error(t("requestDetail.toasts.fileTooLarge"));
-      e.target.value = "";
-      return;
-    }
-    if (awaitingPaymentJob.paymentRecord?.status === "STATION_CONFIRMED_SENT") {
-      toast.info(t("requestDetail.toasts.alreadyConfirmed"));
-      e.target.value = "";
-      return;
-    }
-    uploadReceiptMutation.mutate(
-      { jobOrderId: awaitingPaymentJob.id, file },
-      {
-        onSuccess: (data) => {
-          if (data?.receiptFileUrl) {
-            setReceiptFileUrl(data.receiptFileUrl);
-            toast.success(t("requestDetail.toasts.receiptUploaded"));
-          } else {
-            toast.success(t("requestDetail.toasts.receiptUploadedGeneric"));
-          }
-          e.target.value = "";
-        },
-        onError: (err) => toast.error(getApiErrorMessage(err, t("requestDetail.toasts.uploadFailed"))),
       }
     );
   };
@@ -207,6 +115,8 @@ export default function StationRequestDetail() {
           <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("back")}
         </Link>
       </Button>
+
+      <FlowBreadcrumb side="station" current="stationRequest" rfqId={request.id} jobOrderId={shownJob?.id} />
 
       {isCancelled && (
         <Card className="border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20">
@@ -412,93 +322,15 @@ export default function StationRequestDetail() {
               )}
 
               {recordedPayment ? <PaymentRecordPanel record={recordedPayment} audience="station" /> : null}
-              {awaitingPaymentJob && !recordedPayment && hasMilestones ? <PaymentMilestonesCard side="station" jobOrderId={awaitingPaymentJob.id} /> : null}
-              {awaitingPaymentJob && !paymentRejected && !stationAlreadyConfirmedSent && !recordedPayment && !hasMilestones && milestonesQuery.isSuccess && (
-                <div className="pt-2 border-t space-y-3">
-                  <p className="text-sm font-medium">{t("requestDetail.paymentHeading")}</p>
-                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400">{t("requestDetail.paymentHint")}</p>
-                  <p className="text-xs text-muted-foreground">{t("requestDetail.paymentSteps")}</p>
-                  <div className="space-y-2">
-                    <Label className="text-xs">{t("requestDetail.uploadReceiptLabel")}</Label>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <input
-                        ref={receiptFileInputRef}
-                        type="file"
-                        accept="image/*,.pdf"
-                        className="hidden"
-                        onChange={handleReceiptFileChange}
-                      />
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="gap-1"
-                        onClick={() => receiptFileInputRef.current?.click()}
-                        disabled={uploadReceiptMutation.isPending}
-                      >
-                        <Upload className="h-4 w-4" /> {t("requestDetail.uploadReceipt")}
-                      </Button>
-                      {(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl) && (
-                        <a
-                          href={(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl) ?? "#"}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-sm text-primary underline"
-                        >
-                          {t("requestDetail.viewReceiptShort")}
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <div className="space-y-1">
-                      <Label className="text-xs">{t("requestDetail.referenceNumber")}</Label>
-                      <Input
-                        value={paymentReferenceNumber}
-                        onChange={(e) => setPaymentReferenceNumber(e.target.value)}
-                        placeholder="e.g. TRF-2024-001"
-                        className="h-8"
-                        dir="ltr"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">{t("requestDetail.amount")}</Label>
-                      <Input
-                        type="number"
-                        min={0}
-                        value={paymentAmount}
-                        onChange={(e) => setPaymentAmount(e.target.value)}
-                        placeholder="0"
-                        className="h-8"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">{t("requestDetail.method")}</Label>
-                      <Select value={paymentMethod || "_"} onValueChange={(v) => setPaymentMethod(v === "_" ? "" : v)}>
-                        <SelectTrigger className="h-8">
-                          <SelectValue placeholder="—" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="_">—</SelectItem>
-                          <SelectItem value="BANK_TRANSFER">{t("requestDetail.methodBankTransfer")}</SelectItem>
-                          <SelectItem value="CASH">{t("requestDetail.methodCash")}</SelectItem>
-                          <SelectItem value="OTHER">{t("requestDetail.methodOther")}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <Button
-                    size="sm"
-                    className="gap-1"
-                    onClick={handleConfirmPaymentSent}
-                    disabled={
-                      confirmSentMutation.isPending ||
-                      (!(receiptFileUrl || awaitingPaymentJob.paymentRecord?.receiptFileUrl) && !paymentReferenceNumber.trim())
-                    }
-                  >
-                    <CheckCircle className="h-4 w-4" /> {t("requestDetail.confirmPaymentSent")}
+              {shownJob?.id != null ? (
+                <div className="space-y-3 pt-2 border-t" data-testid="request-payment-summary">
+                  <PaymentProgressSummary side="station" jobOrderId={shownJob.id} jobOrderHref={`/station-job-orders/${shownJob.id}`} legacyStatus={shownJob.paymentRecord?.status} />
+                  <Button asChild size="lg" className="gap-2" data-testid="open-job-order">
+                    <Link to={`/station-job-orders/${shownJob.id}`}><Briefcase className="h-5 w-5" />{tFlow("openJobOrder")}</Link>
                   </Button>
+                  <p className="text-xs text-muted-foreground">{tFlow("openJobOrderHint")}</p>
                 </div>
-              )}
+              ) : null}
             </>
           )}
         </CardContent>

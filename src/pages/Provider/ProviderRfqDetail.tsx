@@ -11,12 +11,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronLeft, Building2, MapPin, Calendar, Hash, Briefcase, CreditCard, Info } from "lucide-react";
+import { ChevronLeft, Building2, MapPin, Calendar, Hash, Briefcase, CreditCard, Info, ExternalLink } from "lucide-react";
 import useProviderRfqById from "@/hooks/Provider/useProviderRfqById";
 import { getQuotePaymentTerms } from "@/types/provider";
 import { formatDate as formatDateShared } from "@/lib/i18n/formatters";
 import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
-import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
+import PaymentProgressSummary from "@/components/flow/PaymentProgressSummary";
+import FlowBreadcrumb from "@/components/flow/FlowBreadcrumb";
 import { useAuth } from "@/context/AuthContext";
 import QuotationForm from "./QuotationForm";
 
@@ -39,6 +40,8 @@ export default function ProviderRfqDetail() {
   const { id } = useParams<{ id: string }>();
   const { data: rfq, isLoading } = useProviderRfqById(id ?? null);
   const { hasPermission } = useAuth();
+  const { t: tFlow } = useTranslation("flow");
+  const canOpenQuotation = hasPermission("quotations:read") || hasPermission("quotations:submit");
   const canSeePayments = hasPermission("payments.read") || hasPermission("provider.payments.confirm_received");
 
   const formatDate = (s: string | undefined): string => {
@@ -55,7 +58,8 @@ export default function ProviderRfqDetail() {
   type JobOrderRef = { id?: number; PaymentRecord?: { status?: string; receiptFileUrl?: string | null } } | null;
   // `quotes` is the API's trimmed summary (no job order); the job order lives on the raw ProviderQuotes.
   const rawQuotes = (rfq?.ProviderQuotes ?? quotes) as Array<{ status?: string; ExternalJobOrder?: JobOrderRef }>;
-  const externalJobOrder: JobOrderRef = rawQuotes.find((q) => q.status === "SELECTED")?.ExternalJobOrder ?? null;
+  const selectedQuote = rawQuotes.find((q) => q.status === "SELECTED") as ({ id?: number } & (typeof rawQuotes)[number]) | undefined;
+  const externalJobOrder: JobOrderRef = selectedQuote?.ExternalJobOrder ?? null;
 
   const title = rfq?.formData?.title ?? rfq?.title ?? (rfq ? `RFQ #${rfq.id}` : "");
   const description = rfq?.formData?.description ?? rfq?.description;
@@ -135,8 +139,36 @@ export default function ProviderRfqDetail() {
             </Card>
           )}
 
-          {canSeePayments && externalJobOrder?.id != null && (
-            <PaymentMilestonesCard side="provider" jobOrderId={externalJobOrder.id} />
+          <FlowBreadcrumb side="provider" current="rfq" rfqId={rfq.id} quoteId={selectedQuote?.id} jobOrderId={externalJobOrder?.id} />
+
+          {selectedQuote && (
+            <Card className="border-primary/50 bg-primary/5" data-testid="job-order-cta">
+              <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
+                {externalJobOrder?.id != null ? (
+                  <>
+                    <p className="text-sm text-muted-foreground">{tFlow("openJobOrderHint")}</p>
+                    <Button size="lg" className="gap-2" asChild>
+                      <Link to={`/provider-job-orders/${externalJobOrder.id}`} data-testid="open-job-order">
+                        <Briefcase className="h-5 w-5" />
+                        {tFlow("openJobOrder")}
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <p className="text-sm text-muted-foreground" data-testid="job-order-missing">{tFlow("jobOrderPending")}</p>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {externalJobOrder?.id != null && (
+            <PaymentProgressSummary
+              side="provider"
+              jobOrderId={externalJobOrder.id}
+              jobOrderHref={`/provider-job-orders/${externalJobOrder.id}`}
+              legacyStatus={paymentRecord?.status}
+              enabled={canSeePayments}
+            />
           )}
 
           <Card>
@@ -157,16 +189,6 @@ export default function ProviderRfqDetail() {
                 )}
               </div>
             </CardHeader>
-            {externalJobOrder?.id != null && (
-              <div className="ms-6 pt-2 pb-2 border-b">
-                <Button size="sm" variant="outline" className="gap-2" asChild>
-                  <Link to={`/provider-job-orders/${externalJobOrder.id}`}>
-                    <Briefcase className="h-4 w-4" />
-                    {t("rfqDetail.jobOrder")}
-                  </Link>
-                </Button>
-              </div>
-            )}
             {receiptFileUrl && (
               <div className="ms-6 pt-2 pb-2 border-b space-y-2">
                 <p className="text-sm font-medium">{t("rfqDetail.paymentReceipt")}</p>
@@ -297,6 +319,11 @@ export default function ProviderRfqDetail() {
                                   {q.status === "WITHDRAWN" && <Badge variant="secondary">{t("rfqDetail.status.withdrawn")}</Badge>}
                                   {q.status === "ACCEPTED" && <Badge variant="default">{t("rfqDetail.status.accepted")}</Badge>}
                                   {q.status === "SELECTED" && <Badge variant="default">{t("rfqDetail.status.selected")}</Badge>}
+                                  {canOpenQuotation && (
+                                    <Link to={`/quotations/${q.id}`} className="text-xs text-primary hover:underline" data-testid="open-quotation">
+                                      <ExternalLink className="inline h-3 w-3 me-1" />{tFlow("openQuotation")}
+                                    </Link>
+                                  )}
                                 </div>
                               </div>
 

@@ -1,5 +1,8 @@
 import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
 import usePaymentMilestones from "@/hooks/Payments/usePaymentMilestones";
+import FlowBreadcrumb from "@/components/flow/FlowBreadcrumb";
+import NextActionBanner from "@/components/flow/NextActionBanner";
+import { nextJobAction } from "@/lib/externalFlow";
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, Link } from "react-router-dom";
@@ -59,6 +62,13 @@ export default function StationJobOrderDetail() {
   const showPaymentSection =
     awaitingPayment && !paymentRejected && !stationAlreadyConfirmedSent && schedule.isLegacyJob;
   const canApproveOrRejectOrder = underReview;
+  const nextAction = nextJobAction({
+    side: "station",
+    status: order?.status,
+    paymentRejected,
+    milestones: schedule.data,
+    legacyAwaitingStation: showPaymentSection,
+  });
 
   const handleApproveOrder = () => {
     if (!id) return;
@@ -197,6 +207,9 @@ export default function StationJobOrderDetail() {
           <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("back")}
         </Link>
       </Button>
+
+      <FlowBreadcrumb side="station" current="jobOrder" rfqId={order.externalRequestId} jobOrderId={order.id} />
+      <NextActionBanner action={nextAction} />
 
       <Card>
         <CardHeader>

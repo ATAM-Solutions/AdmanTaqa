@@ -12,6 +12,7 @@ import { CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
+import QuoteFlowLinks from "@/components/flow/QuoteFlowLinks";
 import type { QuotationsWebListItem } from "@/types/quotationsWeb";
 import { formatDate, formatNumber } from "@/lib/i18n/formatters";
 
@@ -103,12 +104,15 @@ export default function TableQuotationsWeb({ items }: TableQuotationsWebProps) {
                     )}
                   </TableCell>
                   <TableCell className="text-end">
-                    <Button variant="ghost" size="sm" asChild>
-                      <Link to={`/quotations/${item.id}`} className="gap-1">
-                        <Eye className="h-4 w-4" />
-                        {t("table.view")}
-                      </Link>
-                    </Button>
+                    <div className="flex flex-wrap items-center justify-end gap-1">
+                      <Button variant="ghost" size="sm" asChild>
+                        <Link to={`/quotations/${item.id}`} className="gap-1">
+                          <Eye className="h-4 w-4" />
+                          {t("table.view")}
+                        </Link>
+                      </Button>
+                      <QuoteFlowLinks compact externalRequestId={item.externalRequestId} quoteId={item.id} status={item.status} />
+                    </div>
                   </TableCell>
                 </TableRow>
               );

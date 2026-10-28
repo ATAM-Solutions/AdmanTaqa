@@ -1,6 +1,9 @@
 import PaymentMilestonesCard from "@/components/PaymentMilestonesCard";
 import PaymentRecordPanel from "@/components/PaymentRecordPanel";
 import usePaymentMilestones from "@/hooks/Payments/usePaymentMilestones";
+import FlowBreadcrumb from "@/components/flow/FlowBreadcrumb";
+import NextActionBanner from "@/components/flow/NextActionBanner";
+import { nextJobAction } from "@/lib/externalFlow";
 import useConfirmReceived from "@/hooks/Provider/useConfirmReceived";
 import { useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
@@ -57,6 +60,13 @@ export default function ProviderJobOrderDetail() {
   const jobOrderVisitsList = orderWithVisits?.externalJobVisits ?? orderWithVisits?.ExternalJobVisits ?? [];
 
   const { data: reportsList = [] } = useProviderJobOrderReports(id);
+  const nextAction = nextJobAction({
+    side: "provider",
+    status: order?.status,
+    paymentRejected: order?.paymentRecord?.status === "REJECTED",
+    milestones: schedule.data,
+    operatorCount: jobOrderOperatorsList.length,
+  });
 
   const [completionNote, setCompletionNote] = useState("");
   const paymentOutcome = (done: "confirmed" | "reported") => ({
@@ -147,6 +157,9 @@ export default function ProviderJobOrderDetail() {
           <ChevronLeft className="h-4 w-4 rtl:rotate-180" /> {t("jobOrderDetail.back")}
         </Link>
       </Button>
+
+      <FlowBreadcrumb side="provider" current="jobOrder" rfqId={order.externalRequestId} quoteId={order.providerQuoteId} jobOrderId={order.id} />
+      <NextActionBanner action={nextAction} />
 
       {canSeePayments && order.paymentRecord && ["STATION_CONFIRMED_SENT", "PROVIDER_CONFIRMED_RECEIVED"].includes(order.paymentRecord.status ?? "") ? (
         <PaymentRecordPanel

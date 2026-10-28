@@ -6,11 +6,19 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, FileText, MapPin, Building2, Paperclip, CreditCard } from "lucide-react";
 import { useQuotationsWebById } from "@/hooks/Quotations/useQuotationsWeb";
 import { formatDate } from "@/lib/i18n/formatters";
+import FlowBreadcrumb from "@/components/flow/FlowBreadcrumb";
+import QuoteFlowLinks from "@/components/flow/QuoteFlowLinks";
+import PaymentProgressSummary from "@/components/flow/PaymentProgressSummary";
+import useQuoteJobOrder from "@/hooks/Quotations/useQuoteJobOrder";
+import { useAuth } from "@/context/AuthContext";
 
 export default function QuotationDetail() {
   const { t, i18n } = useTranslation("quotations");
   const { id } = useParams<{ id: string }>();
   const { data: quote, isLoading } = useQuotationsWebById(id ?? null);
+  const { hasPermission } = useAuth();
+  const canSeePayments = hasPermission("payments.read") || hasPermission("provider.payments.confirm_received");
+  const { jobOrder } = useQuoteJobOrder(quote?.externalRequestId, quote?.id, quote?.status);
 
   const formatQuoteDate = (s: string | undefined | null): string => {
     if (!s) return "—";
@@ -74,6 +82,18 @@ export default function QuotationDetail() {
           {t("detail.backToOffers")}
         </Link>
       </Button>
+
+      <FlowBreadcrumb side="provider" current="quotation" rfqId={quote.externalRequestId} quoteId={quote.id} jobOrderId={jobOrder?.id} />
+      <QuoteFlowLinks externalRequestId={quote.externalRequestId} quoteId={quote.id} status={quote.status} />
+      {jobOrder?.id != null && (
+        <PaymentProgressSummary
+          side="provider"
+          jobOrderId={jobOrder.id}
+          jobOrderHref={`/provider-job-orders/${jobOrder.id}`}
+          legacyStatus={jobOrder.PaymentRecord?.status}
+          enabled={canSeePayments}
+        />
+      )}
 
       <Card>
         <CardHeader>

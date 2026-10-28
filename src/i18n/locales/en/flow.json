@@ -1,0 +1,74 @@
+{
+  "breadcrumb": {
+    "label": "Where you are in this maintenance request",
+    "requests": "Requests",
+    "rfqs": "RFQs",
+    "rfq": "RFQ #{{id}}",
+    "quotations": "Quotations",
+    "quotation": "Quotation #{{id}}",
+    "jobOrders": "Job orders",
+    "jobOrder": "Job order #{{id}}",
+    "stationRequest": "Request #{{id}}"
+  },
+  "openJobOrder": "Open Job Order",
+  "openJobOrderHint": "Execution, payments and closure are managed in the job order.",
+  "jobOrderPending": "No job order has been created for this quotation yet.",
+  "openRfq": "Open RFQ",
+  "openQuotation": "Open quotation",
+  "openRequest": "Open request",
+  "legacy": {
+    "badge": "Legacy",
+    "title": "Legacy offers",
+    "note": "These are older offers from the previous quotation system. They are kept for reference and are not linked to RFQs or job orders.",
+    "tabCurrent": "Provider quotations",
+    "tabLegacy": "Legacy offers"
+  },
+  "paymentSummary": {
+    "title": "Payment progress",
+    "readOnly": "Summary only. Payments are handled in the job order.",
+    "settled": "{{settled}} of {{total}} installments settled",
+    "percent": "{{percent}}% of the contract value",
+    "awaitingReport": "Waiting for the station to report: {{count}}",
+    "awaitingConfirmation": "Waiting for the provider to confirm receipt: {{count}}",
+    "dueLater": "Not due yet: {{count}}",
+    "disputed": "Disputed: {{count}}",
+    "waitingOn": {
+      "STATION": "Next: the station reports the payment.",
+      "PROVIDER": "Next: the provider confirms receipt."
+    },
+    "allSettled": "All installments are settled.",
+    "legacy": "Single-payment record (historical job).",
+    "legacyStatus": "Status: {{status}}",
+    "none": "No payment schedule yet.",
+    "loading": "Loading payment progress…",
+    "loadFailed": "Payment progress is not available right now.",
+    "manage": "Manage payments in the job order"
+  },
+  "next": {
+    "title": "Next step",
+    "you": "Your step",
+    "other": "Waiting",
+    "none": "Status",
+    "provider": {
+      "confirmPayment": "Confirm that you received the reported payment (see Payments below).",
+      "waitStationPayment": "Waiting for the station to report the payment.",
+      "assignOperator": "Assign an operator so the work can start.",
+      "work": "Carry out the work. Operators record visits and evidence.",
+      "rework": "The station asked for rework. Fix the issues and submit again.",
+      "waitReview": "Submitted. Waiting for the station to review the completion."
+    },
+    "station": {
+      "reportPayment": "Report the installment payment with a transfer reference or receipt (see Payments below).",
+      "waitProviderConfirm": "Payment reported. Waiting for the provider to confirm receipt. Do not pay again.",
+      "legacyPayment": "Confirm the payment you sent (historical single payment, see below).",
+      "review": "Review the completed work: approve and close, or request rework.",
+      "waitProviderWork": "The provider is carrying out the work.",
+      "paymentRejected": "The payment was rejected. Contact the provider."
+    },
+    "none": {
+      "cancelled": "This job order was cancelled.",
+      "done": "This job order is complete.",
+      "waiting": "No action is needed right now."
+    }
+  }
+}

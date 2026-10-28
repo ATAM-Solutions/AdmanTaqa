@@ -8,6 +8,8 @@ import enProvider from "@/i18n/locales/en/provider.json";
 import arProvider from "@/i18n/locales/ar/provider.json";
 import enPayments from "@/i18n/locales/en/payments.json";
 import arPayments from "@/i18n/locales/ar/payments.json";
+import enFlow from "@/i18n/locales/en/flow.json";
+import arFlow from "@/i18n/locales/ar/flow.json";
 import enCommon from "@/i18n/locales/en/common.json";
 import arCommon from "@/i18n/locales/ar/common.json";
 
@@ -53,8 +55,8 @@ async function render(data: unknown, lng: "en" | "ar", p: string[], ms: unknown 
   perms = p;
   const i = createInstance();
   await i.use(initReactI18next).init({
-    lng, fallbackLng: "en", ns: ["provider", "payments", "common"], defaultNS: "provider",
-    resources: { en: { provider: enProvider, payments: enPayments, common: enCommon }, ar: { provider: arProvider, payments: arPayments, common: arCommon } },
+    lng, fallbackLng: "en", ns: ["provider", "payments", "flow", "common"], defaultNS: "provider",
+    resources: { en: { provider: enProvider, payments: enPayments, flow: enFlow, common: enCommon }, ar: { provider: arProvider, payments: arPayments, flow: arFlow, common: arCommon } },
     interpolation: { escapeValue: false },
   });
   const qc = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
@@ -72,74 +74,95 @@ async function render(data: unknown, lng: "en" | "ar", p: string[], ms: unknown 
 }
 const count = (html: string, s: string) => html.split(s).length - 1;
 
-describe("ProviderRfqDetail — payment installments (RFQ 152 regression)", () => {
-  it("resolves the job order from the raw ProviderQuotes when `quotes` is a trimmed summary", async () => {
+const noActions = (html: string) => {
+  // Phase 2: payment actions live on the job order only
+  expect(html).not.toContain('data-testid="confirm-received"');
+  expect(html).not.toContain('data-testid="report-sent"');
+  expect(html).not.toContain('data-testid="milestones-card"');
+  expect(html).not.toContain('data-testid="receipt-input"');
+};
+
+describe("ProviderRfqDetail — Phase 2: invitation + quotation page, payments are summary-only", () => {
+  it("resolves the job order from the raw ProviderQuotes and shows a prominent Open Job Order link", async () => {
     const html = await render(rfq(), "en", FINANCE);
-    expect(html).toContain('href="/provider-job-orders/92"'); // Job Order link
-    expect(html).toContain("Job Order");
-    expect(html).toContain('data-testid="milestones-card"');
-    expect(count(html, 'data-testid="milestone"')).toBe(2);
+    expect(html).toContain('data-testid="job-order-cta"');
+    expect(html).toContain('data-testid="open-job-order"');
+    expect(html).toContain('href="/provider-job-orders/92"');
+    expect(html).toContain("Open Job Order");
+    expect(count(html, 'data-testid="open-job-order"')).toBe(1);
   });
 
-  it("the finance user gets Confirm Receipt only for the reported installment; the not-due one has none", async () => {
+  it("shows a read-only payment progress summary and no payment action, for the finance user", async () => {
     const html = await render(rfq(), "en", FINANCE);
-    expect(count(html, 'data-testid="confirm-received"')).toBe(1);
-    expect(html).toContain("Confirm payment received");
-    const [, first, second] = html.split('<li class="space-y-2 rounded-md border p-3" ');
-    expect(first).toContain('data-milestone-id="39"');
-    expect(first).toContain('data-stage="AWAITING_RECEIPT_CONFIRMATION"');
-    expect(first).toContain('data-testid="confirm-received"');
-    expect(second).toContain('data-milestone-id="40"');
-    expect(second).toContain('data-stage="DUE_LATER"');
-    expect(second).not.toContain('data-testid="confirm-received"');
-    expect(html).toContain("Awaiting provider confirmation");
-    expect(html).toContain("Not due yet");
+    expect(html).toContain('data-testid="payment-summary"');
+    expect(html).toContain("0 of 2 installments settled");
+    expect(html).toContain("Waiting for the provider to confirm receipt: 1");
+    expect(html).toContain("Next: the provider confirms receipt.");
+    expect(html).toContain('data-testid="payment-summary-manage"');
+    noActions(html);
+    expect(html).not.toContain("Confirm payment received");
   });
 
-  it("shows the payment receipt and the installment's receipt link", async () => {
+  it("pending vs confirmed installments change the summary, never the buttons", async () => {
+    const settled = milestones.map((m, i) => i === 0 ? { ...m, status: "CONFIRMED_BY_PROVIDER", workflow: { ...wf("SETTLED", true, { allowed: false, reason: "MILESTONE_ALREADY_CONFIRMED" }) } } : m);
+    const html = await render(rfq(), "en", FINANCE, settled);
+    expect(html).toContain("1 of 2 installments settled");
+    expect(html).toContain("82% of the contract value");
+    noActions(html);
+  });
+
+  it("still shows the legacy payment receipt read-only", async () => {
     const html = await render(rfq(), "en", FINANCE);
     expect(html).toContain(RECEIPT);
     expect(html).toContain("Payment receipt");
-    expect(html).toContain('data-testid="milestone-receipt"');
-    expect(html).toContain("https://files.test/m39.png");
   });
 
-  it("a provider user without payment permissions sees no installments and no payment action", async () => {
+  it("links the RFQ, quotation and job order in a breadcrumb and from the quote row", async () => {
+    const html = await render(rfq(), "en", [...FINANCE, "quotations:read"]);
+    expect(html).toContain('data-testid="flow-breadcrumb"');
+    expect(html).toContain('href="/quotations/110"');
+    expect(html).toContain('data-crumb="quotation"');
+    expect(html).toContain('data-crumb="jobOrder"');
+    expect(html).toContain('data-testid="open-quotation"');
+  });
+
+  it("does not offer a quotation link to a user without quotation access", async () => {
+    const html = await render(rfq(), "en", FINANCE);
+    expect(html).not.toContain('href="/quotations/110"');
+    expect(html).not.toContain('data-testid="open-quotation"');
+  });
+
+  it("a provider user without payment permissions sees no payment summary and no payment action", async () => {
     const html = await render(rfq(), "en", ["provider.rfqs.read"]);
-    expect(html).not.toContain('data-testid="milestones-card"');
-    expect(html).not.toContain('data-testid="confirm-received"');
-    expect(html).toContain("RFQ title 152"); // the page itself still renders
-  });
-
-  it("read-only finance user: the server saying 'not allowed' hides the button", async () => {
-    const denied = milestones.map((m) => ({ ...m, workflow: wf(m.workflow.stage, m.workflow.due, { allowed: false, reason: "INSUFFICIENT_PERMISSIONS" }) }));
-    const html = await render(rfq(), "en", ["payments.read"], denied);
-    expect(html).toContain('data-testid="milestones-card"');
-    expect(html).not.toContain('data-testid="confirm-received"');
+    expect(html).not.toContain('data-testid="payment-summary"');
+    noActions(html);
+    expect(html).toContain("RFQ title 152");
+    expect(html).toContain('data-testid="open-job-order"'); // navigation is not a payment action
   });
 
   it("renders in Arabic", async () => {
     const html = await render(rfq(), "ar", FINANCE);
-    expect(html).toContain("تأكيد استلام الدفعة");
-    expect(html).toContain("أمر العمل");
+    expect(html).toContain("فتح أمر العمل");
+    expect(html).toContain("تقدم الدفعات");
     expect(html).toContain("إيصال الدفع");
-    expect(html).not.toContain("Confirm payment received");
-    expect(count(html, 'data-testid="confirm-received"')).toBe(1);
+    expect(html).not.toContain("Open Job Order");
+    noActions(html);
   });
 
   it.each([
-    ["no ExternalJobOrder on the selected quote", rfq({ ProviderQuotes: [rawQuote(null)] })],
-    ["no ProviderQuotes at all", rfq({ ProviderQuotes: undefined })],
-    ["no selected quote", rfq({ ProviderQuotes: [{ ...rawQuote(jobOrder), status: "REJECTED" }] })],
-    ["job order without id or payment record", rfq({ ProviderQuotes: [rawQuote({ status: "AWAITING_PAYMENT" })] })],
-  ])("missing job-order data (%s) renders the page with no payment UI and no crash", async (_n, data) => {
+    ["no ExternalJobOrder on the selected quote", rfq({ ProviderQuotes: [rawQuote(null)] }), true],
+    ["no ProviderQuotes at all (only the trimmed summary says SELECTED)", rfq({ ProviderQuotes: undefined }), true],
+    ["no selected quote", rfq({ ProviderQuotes: [{ ...rawQuote(jobOrder), status: "REJECTED" }] }), false],
+    ["job order without id or payment record", rfq({ ProviderQuotes: [rawQuote({ status: "AWAITING_PAYMENT" })] }), true],
+  ])("missing job-order data (%s) renders the page with no payment UI and no crash", async (_n, data, selected) => {
     for (const lng of ["en", "ar"] as const) {
       const html = await render(data, lng, FINANCE);
       expect(html).toContain("RFQ title 152");
-      expect(html).not.toContain('data-testid="milestones-card"');
-      expect(html).not.toContain('data-testid="confirm-received"');
+      noActions(html);
+      expect(html).not.toContain('data-testid="payment-summary"');
       expect(html).not.toContain("/provider-job-orders/");
       expect(html).not.toContain(RECEIPT);
+      expect(html.includes('data-testid="job-order-missing"')).toBe(selected);
     }
   });
 });

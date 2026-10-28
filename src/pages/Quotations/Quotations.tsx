@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ import TableQuotations from "./Component/TableQuotations";
 import TableQuotationsWeb from "./Component/TableQuotationsWeb";
 import { useAuth } from "@/context/AuthContext";
 import { AsyncBoundary } from "@/components/patterns/AsyncBoundary";
+import { Badge } from "@/components/ui/badge";
 
 const QUOTATIONS_WEB_STATUS_VALUES: (QuotationsWebStatus | "all")[] = [
   "all",
@@ -45,6 +47,11 @@ const QUOTATIONS_WEB_STATUS_VALUES: (QuotationsWebStatus | "all")[] = [
 
 export default function Quotations() {
   const { t } = useTranslation("quotations");
+  const { t: tFlow } = useTranslation("flow");
+  // the tab is in the URL so the legacy list can be linked to and survives a refresh
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab: "current" | "legacy" = searchParams.get("tab") === "legacy" ? "legacy" : "current";
+  const setTab = (k: "current" | "legacy") => setSearchParams(k === "legacy" ? { tab: "legacy" } : {}, { replace: true });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [page, setPage] = useState(1);
   const limit = 50;
@@ -68,17 +75,21 @@ export default function Quotations() {
     error: webErrorObj,
   } = useQuotationsWebList(
     { page, limit: 20, status: webStatus || undefined },
-    { enabled: isServiceProvider }
+    { enabled: isServiceProvider && tab === "current" }
   );
 
-  const useWebList = isServiceProvider;
+  // Providers see their current ProviderQuotes by default and can switch to the older offers; everyone else only has the older offers.
+  const useWebList = isServiceProvider && tab === "current";
+  const showingLegacy = !useWebList;
   const listData = useWebList ? webData : data;
   const listLoading = useWebList ? webLoading : isLoading;
   const listError = useWebList ? webError : isError;
   const listErrorObj = useWebList ? webErrorObj : error;
   const createQuotation = useCreateQuotation();
 
+  // the submit dialog creates an older-style offer, so it lives with the legacy list
   const canSubmitQuotation =
+    showingLegacy &&
     organization?.type === "SERVICE_PROVIDER" &&
     permissions.includes("quotations:submit");
 
@@ -225,6 +236,30 @@ export default function Quotations() {
           )}
         </div>
       </div>
+
+      {isServiceProvider && (
+        <div className="flex flex-wrap gap-2" role="tablist" aria-label={t("title.default")} data-testid="quotations-tabs">
+          {(["current", "legacy"] as const).map((k) => (
+            <Button
+              key={k}
+              role="tab"
+              aria-selected={tab === k}
+              data-tab={k}
+              size="sm"
+              variant={tab === k ? "default" : "outline"}
+              onClick={() => { setTab(k); setPage(1); }}
+            >
+              {k === "current" ? tFlow("legacy.tabCurrent") : tFlow("legacy.tabLegacy")}
+            </Button>
+          ))}
+        </div>
+      )}
+      {showingLegacy && (
+        <div className="flex items-start gap-2 rounded-md border bg-muted/40 p-3 text-sm" data-testid="legacy-note">
+          <Badge variant="outline">{tFlow("legacy.badge")}</Badge>
+          <span className="text-muted-foreground">{tFlow("legacy.note")}</span>
+        </div>
+      )}
 
       <Card className="border-none shadow-xl bg-card/60 backdrop-blur-md">
         <QuotationsTableHeader total={listData?.total} page={listData?.page ?? page} />
