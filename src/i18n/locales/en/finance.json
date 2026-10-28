@@ -1,0 +1,88 @@
+{
+  "title": "Payment reconciliation",
+  "subtitle": "Read-only audit of standalone payments, installments and quotation totals.",
+  "readOnly": "Read-only. Nothing on this page changes a payment, an installment or a balance.",
+  "loading": "Loading the report…",
+  "loadFailed": "The report could not be loaded.",
+  "empty": "No jobs match the filters.",
+  "generatedAt": "Generated {{date}}",
+  "summary": {
+    "jobs": "Jobs analysed",
+    "withFlags": "Jobs with findings",
+    "all": "All findings"
+  },
+  "filters": { "flag": "Finding", "currency": "Currency", "allCurrencies": "All currencies" },
+  "table": {
+    "job": "Job order", "request": "Request", "station": "Station", "provider": "Provider", "currency": "Currency",
+    "quoteTotal": "Quotation total", "system": "Payment system", "standalone": "Standalone payment", "installments": "Installments",
+    "verified": "Verified", "unpaid": "Unpaid balance", "findings": "Findings", "open": "Open"
+  },
+  "system": { "MIXED": "Mixed", "INSTALLMENTS": "Installments", "LEGACY_ONLY": "Standalone only", "NONE": "None" },
+  "paymentStatus": {
+    "NOT_STARTED": "Not started", "STATION_CONFIRMED_SENT": "Reported by station", "PROVIDER_CONFIRMED_RECEIVED": "Confirmed by provider", "REJECTED": "Rejected"
+  },
+  "installmentSummary": "{{count}} · confirmed {{confirmed}} · open {{outstanding}}",
+  "overpaid": "overpaid by {{amount}}",
+  "noStandalone": "—",
+  "assumedCurrency": "Currency of the standalone payment is not recorded; the quotation currency is assumed.",
+  "flag": {
+    "MIXED_PAYMENT_SYSTEMS": "Mixed payment systems",
+    "UNALLOCATED_VERIFIED_PAYMENT": "Verified payment not allocated",
+    "PENDING_START_INSTALLMENT_AFTER_ACTIVATION": "Start installment pending after activation",
+    "ACTIVATED_WITHOUT_VERIFIED_PAYMENT": "Active without a verified payment",
+    "REPORTED_NOT_CONFIRMED": "Reported, not confirmed",
+    "OVERPAYMENT_RISK": "Overpayment risk",
+    "OVER_QUOTATION_TOTAL": "Verified money exceeds the quotation",
+    "PAYMENT_AMOUNT_MISSING": "Confirmed payment has no amount",
+    "PAYMENT_REFERENCE_MISSING": "No reference or receipt",
+    "DUPLICATE_PAYMENT_REFERENCE": "Reference used more than once",
+    "QUOTE_TOTAL_MISSING": "Quotation total missing",
+    "CURRENCY_MISSING": "Currency missing",
+    "CURRENCY_MISMATCH": "Currency mismatch",
+    "SCHEDULE_TOTAL_MISMATCH": "Installments do not add up to the quotation"
+  },
+  "flagHelp": {
+    "MIXED_PAYMENT_SYSTEMS": "The job has a standalone payment and an installment schedule at the same time.",
+    "UNALLOCATED_VERIFIED_PAYMENT": "A payment confirmed by the provider is not yet accounted against any installment ({{amount}}).",
+    "PENDING_START_INSTALLMENT_AFTER_ACTIVATION": "The job is active but an installment due at approval or start is still open.",
+    "ACTIVATED_WITHOUT_VERIFIED_PAYMENT": "The job is active but no payment is confirmed by the provider.",
+    "REPORTED_NOT_CONFIRMED": "A payment was reported by the station and the provider has not confirmed receipt.",
+    "OVERPAYMENT_RISK": "Paying the whole schedule on top of the standalone payment would exceed the quotation by {{excess}}.",
+    "OVER_QUOTATION_TOTAL": "Confirmed money already exceeds the quotation by {{excess}}.",
+    "PAYMENT_AMOUNT_MISSING": "A payment is confirmed but its amount is empty or zero.",
+    "PAYMENT_REFERENCE_MISSING": "A payment has neither a transfer reference nor a receipt.",
+    "DUPLICATE_PAYMENT_REFERENCE": "The same transfer reference appears on more than one payment.",
+    "QUOTE_TOTAL_MISSING": "The accepted quotation has no valid total.",
+    "CURRENCY_MISSING": "The quotation or an installment has no currency.",
+    "CURRENCY_MISMATCH": "An installment currency differs from the quotation currency.",
+    "SCHEDULE_TOTAL_MISMATCH": "The installments add up to {{scheduleTotal}}, the quotation is {{quoteTotal}}."
+  },
+  "detail": {
+    "back": "Back to the report",
+    "heading": "Job order #{{id}}",
+    "request": "Request #{{id}}",
+    "findings": "Findings",
+    "noFindings": "No findings.",
+    "installments": "Installments",
+    "installmentCols": { "seq": "#", "percent": "%", "trigger": "When due", "status": "Status", "amount": "Amount", "allocated": "Allocated (approved)", "pending": "Allocated (pending)", "remaining": "Remaining" },
+    "standalone": "Standalone payment",
+    "standaloneFields": { "status": "Status", "amount": "Amount", "reference": "Transfer reference", "receipt": "Receipt", "reported": "Reported by station", "confirmed": "Confirmed by provider" },
+    "recorded": "recorded", "notRecorded": "not recorded",
+    "ledger": "Allocation history",
+    "ledgerEmpty": "No allocation has been recorded. Allocations are append-only.",
+    "ledgerRow": "{{amount}} {{currency}} → installment #{{milestone}}",
+    "ledgerState": { "PENDING": "Pending approval", "APPROVED": "Approved", "REJECTED": "Rejected", "REVERSED": "Reversed" },
+    "preview": "Proposed allocation",
+    "previewNote": "Preview only. Nothing is applied and this page has no way to apply it. Applying an allocation needs a reviewed finance workflow.",
+    "previewItem": "Allocate {{amount}} to installment #{{sequence}} ({{partial}}); {{left}} would remain on it.",
+    "partial": "partial", "full": "full",
+    "previewRemaining": "Left of the verified payment after this: {{amount}}",
+    "previewReason": {
+      "NO_VERIFIED_STANDALONE_PAYMENT": "There is no provider-confirmed standalone payment to allocate.",
+      "NO_INSTALLMENTS": "This job has no installments to allocate to.",
+      "NOTHING_TO_ALLOCATE": "Nothing can be allocated: no open installment or nothing left of the payment."
+    },
+    "writesDisabled": "Allocation is disabled on this server.",
+    "notFound": "This job order was not found."
+  }
+}

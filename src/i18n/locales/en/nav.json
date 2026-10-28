@@ -60,5 +60,6 @@
   "warehouseRequests": "Warehouse requests",
   "warehouseInventory": "Inventory",
   "assets": "Assets",
-  "warehouses": "Warehouses"
+  "warehouses": "Warehouses",
+  "reconciliation": "Payment reconciliation"
 }

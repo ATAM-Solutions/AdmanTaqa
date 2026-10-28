@@ -12,6 +12,7 @@ import {
   ClipboardList,
   // SearchCheck,
   History,
+  Scale,
   LogOut,
   UserCog,
   ChevronDown,
@@ -183,6 +184,7 @@ const superAdminNavGroups: NavGroup[] = [
     items: [
       { id: "locations", labelKey: "locations", path: "/locations", icon: MapPin },
       { id: "serviceCategories", labelKey: "serviceCategories", path: "/service-categories", icon: Tags },
+      { id: "reconciliation", labelKey: "reconciliation", path: "/finance/reconciliation", icon: Scale },
       { id: "auditLog", labelKey: "auditLog", path: "/audit-log", icon: History },
     ],
   },

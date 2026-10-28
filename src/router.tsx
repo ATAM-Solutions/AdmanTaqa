@@ -86,6 +86,8 @@ import StationJobOrderDetail from "./pages/Station/StationJobOrderDetail";
 // ---------- Shared (مشترك: Authority + Service Provider) ----------
 import Quotations from "./pages/Quotations/Quotations";
 import QuotationDetail from "./pages/Quotations/QuotationDetail";
+import Reconciliation from "./pages/Finance/Reconciliation";
+import ReconciliationJob from "./pages/Finance/ReconciliationJob";
 
 export const router = createHashRouter([
   {
@@ -640,6 +642,22 @@ export const router = createHashRouter([
       },
 
       // ---------- Shared (مشترك: Authority + Service Provider + Fuel Station) ----------
+      {
+        path: "finance/reconciliation",
+        element: (
+          <RouteAccessGuard pathKey="finance/reconciliation">
+            <Reconciliation />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "finance/reconciliation/:id",
+        element: (
+          <RouteAccessGuard pathKey="finance/reconciliation/:id">
+            <ReconciliationJob />
+          </RouteAccessGuard>
+        ),
+      },
       {
         path: "quotations",
         element: (

@@ -60,5 +60,6 @@
   "warehouseRequests": "طلبات المستودع",
   "warehouseInventory": "المخزون",
   "assets": "الأصول",
-  "warehouses": "المستودعات"
+  "warehouses": "المستودعات",
+  "reconciliation": "مطابقة الدفعات"
 }

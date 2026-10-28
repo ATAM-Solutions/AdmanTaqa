@@ -188,6 +188,15 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["job-orders:read"],
   },
+  // Platform finance (Super Admin only): read-only payment reconciliation report. The server enforces the same rule.
+  "finance/reconciliation": {
+    orgTypes: ["SUPER_ADMIN"],
+    anyPermissions: ["finance.reconciliation.read"],
+  },
+  "finance/reconciliation/:id": {
+    orgTypes: ["SUPER_ADMIN"],
+    anyPermissions: ["finance.reconciliation.read"],
+  },
   "external-job-orders": {
     orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
     anyPermissions: ["organizations:read"],
