@@ -37,14 +37,23 @@ export type NextActionKey =
   | "provider.work"
   | "provider.rework"
   | "provider.waitReview"
+  | "provider.startWork"
+  | "provider.submitReport"
+  | "provider.waitMaintenance"
+  | "provider.waitOperations"
   | "station.reportPayment"
   | "station.waitProviderConfirm"
   | "station.legacyPayment"
   | "station.review"
+  | "station.reviewMaintenance"
+  | "station.reviewOperations"
+  | "station.waitMaintenance"
+  | "station.waitOperations"
   | "station.waitProviderWork"
   | "station.paymentRejected"
   | "none.cancelled"
   | "none.done"
+  | "none.technicalDone"
   | "none.waiting";
 
 export interface NextAction {
@@ -62,6 +71,15 @@ interface JobInput {
   /** the single-payment record is awaiting the station and the job has no schedule */
   legacyAwaitingStation?: boolean;
   operatorCount?: number;
+  /** execution facts (provider): false = nothing started yet; hasCompletedVisit = evidence is ready for the final report */
+  hasVisit?: boolean;
+  hasCompletedVisit?: boolean;
+  /** where the two-step review stands (from GET .../review) and which stage the viewer may decide */
+  reviewStage?: string;
+  canReviewMaintenance?: boolean;
+  canReviewOperations?: boolean;
+  /** every installment confirmed by the provider; undefined while unknown */
+  financiallySettled?: boolean;
 }
 
 /**
@@ -86,18 +104,32 @@ export function nextJobAction(i: JobInput): NextAction {
   }
 
   switch (status) {
-    case "UNDER_REVIEW":
-      return side === "station" ? { key: "station.review", actor: "you" } : { key: "provider.waitReview", actor: "other" };
+    case "UNDER_REVIEW": {
+      const stage = i.reviewStage;
+      if (side === "provider") {
+        const key = stage === "AWAITING_OPERATIONS_MANAGER" ? "provider.waitOperations" : stage === "AWAITING_MAINTENANCE_MANAGER" ? "provider.waitMaintenance" : "provider.waitReview";
+        return { key, actor: "other" };
+      }
+      if (stage === "AWAITING_MAINTENANCE_MANAGER") return i.canReviewMaintenance ? { key: "station.reviewMaintenance", actor: "you" } : { key: "station.waitMaintenance", actor: "other" };
+      if (stage === "AWAITING_OPERATIONS_MANAGER") return i.canReviewOperations ? { key: "station.reviewOperations", actor: "you" } : { key: "station.waitOperations", actor: "other" };
+      return { key: "station.review", actor: "you" };
+    }
     case "REWORK_REQUIRED":
       return side === "provider" ? { key: "provider.rework", actor: "you" } : { key: "station.waitProviderWork", actor: "other" };
     case "ACTIVE":
     case "IN_PROGRESS":
     case "WAITING_PARTS":
-      if (side === "provider") return (i.operatorCount ?? 1) === 0 ? { key: "provider.assignOperator", actor: "you" } : { key: "provider.work", actor: "you" };
+      if (side === "provider") {
+        if ((i.operatorCount ?? 1) === 0) return { key: "provider.assignOperator", actor: "you" };
+        if (i.hasCompletedVisit) return { key: "provider.submitReport", actor: "you" };
+        if (i.hasVisit === false) return { key: "provider.startWork", actor: "you" };
+        return { key: "provider.work", actor: "you" };
+      }
       return { key: "station.waitProviderWork", actor: "other" };
     case "COMPLETED":
     case "CLOSED":
-      return { key: "none.done", actor: "none" };
+      // technical approval is not payment: until every installment is confirmed the job is not "done"
+      return i.financiallySettled === false ? { key: "none.technicalDone", actor: "none" } : { key: "none.done", actor: "none" };
     default:
       return { key: "none.waiting", actor: "none" };
   }

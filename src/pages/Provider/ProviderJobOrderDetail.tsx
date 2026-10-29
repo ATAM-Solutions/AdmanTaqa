@@ -6,6 +6,11 @@ import NextActionBanner from "@/components/flow/NextActionBanner";
 import { nextJobAction } from "@/lib/externalFlow";
 import useConfirmReceived from "@/hooks/Provider/useConfirmReceived";
 import { useState, useRef } from "react";
+import { useQuery } from "@tanstack/react-query";
+import ProviderExecutionPanel from "@/components/execution/ProviderExecutionPanel";
+import OutcomeBadges from "@/components/execution/OutcomeBadges";
+import ReviewHistory from "@/components/execution/ReviewHistory";
+import { fetchJobReview } from "@/api/services/externalReviewService";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -60,12 +65,20 @@ export default function ProviderJobOrderDetail() {
   const jobOrderVisitsList = orderWithVisits?.externalJobVisits ?? orderWithVisits?.ExternalJobVisits ?? [];
 
   const { data: reportsList = [] } = useProviderJobOrderReports(id);
+  // review stage, technical-vs-financial outcome and the approval history come from the server, never guessed here
+  const reviewQ = useQuery({ queryKey: ["job-review", "provider", id], queryFn: () => fetchJobReview("provider", id!), enabled: !!id, retry: false, refetchOnWindowFocus: false });
+  const review = reviewQ.data;
+  const reviewVisits = review?.package.visits ?? [];
   const nextAction = nextJobAction({
     side: "provider",
     status: order?.status,
     paymentRejected: order?.paymentRecord?.status === "REJECTED",
     milestones: schedule.data,
     operatorCount: jobOrderOperatorsList.length,
+    hasVisit: review ? reviewVisits.length > 0 : jobOrderVisitsList.length > 0,
+    hasCompletedVisit: reviewVisits.some((v) => v.status === "COMPLETED"),
+    reviewStage: review?.reviewStage,
+    financiallySettled: review ? review.outcome.financiallySettled : undefined,
   });
 
   const [completionNote, setCompletionNote] = useState("");
@@ -160,6 +173,14 @@ export default function ProviderJobOrderDetail() {
 
       <FlowBreadcrumb side="provider" current="jobOrder" rfqId={order.externalRequestId} quoteId={order.providerQuoteId} jobOrderId={order.id} />
       <NextActionBanner action={nextAction} />
+      {review && <OutcomeBadges review={review} />}
+      <ProviderExecutionPanel
+        jobOrderId={order.id}
+        status={order.status ?? ""}
+        review={review}
+        assignedOperators={jobOrderOperatorsList.map(({ operator }) => ({ id: operator.id, name: operator.name ?? `#${operator.id}` }))}
+      />
+      {review && <ReviewHistory review={review} />}
 
       {canSeePayments && order.paymentRecord && ["STATION_CONFIRMED_SENT", "PROVIDER_CONFIRMED_RECEIVED"].includes(order.paymentRecord.status ?? "") ? (
         <PaymentRecordPanel

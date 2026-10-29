@@ -1,0 +1,178 @@
+{
+  "outcome": {
+    "technical": "Technical work",
+    "financial": "Payments",
+    "technicalState": {
+      "approved": "Approved",
+      "inProgress": "In progress",
+      "returned": "Returned for correction",
+      "inReview": "Under review"
+    },
+    "financialState": {
+      "settled": "Financially settled",
+      "none": "No installments",
+      "open": "{{settled}} of {{total}} installments confirmed"
+    }
+  },
+  "history": {
+    "title": "Review history",
+    "round": "Submission {{n}}",
+    "submitted": "Submitted {{date}}",
+    "pending": "waiting",
+    "APPROVED": "Approved",
+    "RETURNED": "Returned",
+    "by": "by {{name}}",
+    "maintenance": "Maintenance Manager",
+    "operations": "Operations Manager",
+    "legacy": "Reviewed in a single step (submitted before the two-step review)."
+  },
+  "noPermission": "Your role can view this job but not run the work.",
+  "steps": {
+    "operator": "Operator assigned",
+    "start": "Work started on site",
+    "evidence": "Evidence recorded",
+    "report": "Final report submitted"
+  },
+  "provider": {
+    "title": "Carry out the work",
+    "returned": "The work was returned for correction",
+    "returnedHint": "Fix the issues, update the report below and submit it again. The previous submission stays in the history.",
+    "notExecutable": "The work cannot be edited while the job is {{status}}.",
+    "underReview": {
+      "AWAITING_MAINTENANCE_MANAGER": "Submitted. The Maintenance Manager is reviewing the final report.",
+      "AWAITING_OPERATIONS_MANAGER": "The Maintenance Manager approved it. The Operations Manager gives the final approval.",
+      "LEGACY_SINGLE_STEP": "Submitted. The station is reviewing the work."
+    }
+  },
+  "operator": {
+    "title": "Operator",
+    "choose": "Assign an operator",
+    "placeholder": "Choose an operator",
+    "assign": "Assign",
+    "waiting": "An operator must be assigned by someone with permission."
+  },
+  "visit": {
+    "title": "Start the work",
+    "needOperator": "Assign an operator first.",
+    "checkedIn": "Checked in on site",
+    "checkInGps": "Check in with my location",
+    "manualReason": "Reason for manual check-in",
+    "checkInManual": "Check in manually",
+    "mobileHint": "Check-in needs your location (or the station QR code on the mobile app).",
+    "start": "Start work"
+  },
+  "evidence": {
+    "title": "Notes, photos and files",
+    "notes": "Maintenance notes",
+    "addNote": "Add note",
+    "photoKind": "Photo of",
+    "before": "Before the work",
+    "after": "After the work",
+    "other": "Other",
+    "photo": "Photo",
+    "uploadPhoto": "Upload photo",
+    "file": "Supporting file",
+    "uploadFile": "Upload file",
+    "limits": "Images or PDF, up to 5 MB.",
+    "completionNote": "What was done in this visit",
+    "completeVisit": "Finish visit"
+  },
+  "report": {
+    "title": "Final maintenance report",
+    "hint": "The station reviews this report together with the visit notes and photos.",
+    "findings": "Findings",
+    "actionsTaken": "Work performed and resolution",
+    "recommendations": "Recommendations",
+    "photo": "Completion photo",
+    "uploadPhoto": "Upload photo",
+    "photoCount": "{{count}} photo(s) attached",
+    "saveFirst": "Save the draft to attach completion photos.",
+    "saveDraft": "Save draft",
+    "submit": "Submit for review"
+  },
+  "toasts": {
+    "started": "Work started.",
+    "uploaded": "File uploaded.",
+    "visitCompleted": "Visit finished.",
+    "draftSaved": "Draft saved.",
+    "submitted": "Submitted for the Maintenance Manager's review."
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "fileTooLarge": "The file is larger than 5 MB.",
+    "noGeolocation": "This browser cannot share your location.",
+    "locationDenied": "Location is required to check in. Allow location access and try again.",
+    "TWO_STEP_REVIEW_REQUIRED": "This work is in the two-step review. Use the Maintenance Manager and Operations Manager actions.",
+    "STATUS_SET_BY_REVIEW_WORKFLOW": "This status is set by the review workflow. Submit the final report instead.",
+    "FINAL_REPORT_REQUIRED": "Submit the final maintenance report to send this work for review.",
+    "COMMENT_REQUIRED": "A comment is required when returning the work.",
+    "MAINTENANCE_APPROVAL_REQUIRED": "The Maintenance Manager must approve before the Operations Manager.",
+    "REVIEW_STAGE_CLOSED": "This step was already decided.",
+    "REPORT_NOT_AWAITING_REVIEW": "This report is not waiting for review any more.",
+    "TWO_STEP_REVIEW_NOT_APPLICABLE": "This report was submitted before the two-step review."
+  },
+  "station": {
+    "title": "Technical review",
+    "stage": {
+      "NOT_SUBMITTED": "The provider has not submitted the final report yet.",
+      "AWAITING_MAINTENANCE_MANAGER": "Waiting for the Maintenance Manager.",
+      "AWAITING_OPERATIONS_MANAGER": "Waiting for the Operations Manager's final approval.",
+      "RETURNED_TO_PROVIDER": "Returned to the provider for correction.",
+      "APPROVED": "Approved. The work is technically complete.",
+      "LEGACY_SINGLE_STEP": "Single-step review (submitted before the two-step review)."
+    },
+    "approveMaintenance": "Approve and forward",
+    "approveFinal": "Final approval",
+    "returnWork": "Return for correction",
+    "confirmReturn": "Return to provider",
+    "cancel": "Cancel",
+    "comment": "Comment",
+    "commentRequired": "Explain what must be corrected (required).",
+    "commentOptional": "Comment (optional)",
+    "finalNote": "Final approval makes the last installment due and notifies the Station Owner.",
+    "maintenanceNote": "Approval forwards the work to the Operations Manager. It does not make any payment due.",
+    "approved": "Approved.",
+    "returned": "Returned to the provider.",
+    "notYours": "The other manager reviews this step."
+  },
+  "package": {
+    "title": "Final report and evidence",
+    "station": "Station",
+    "branch": "Branch",
+    "provider": "Provider",
+    "operators": "Operator",
+    "completion": "Submitted",
+    "activated": "Work order active since",
+    "visits": "Visits",
+    "timeline": "Execution timeline",
+    "noVisits": "No visits recorded.",
+    "noOperators": "No operator assigned.",
+    "checkedIn": "Checked in",
+    "completed": "Completed",
+    "report": "Report",
+    "findings": "Findings",
+    "actions": "Work performed and resolution",
+    "recommendations": "Recommendations",
+    "photos": "Photos",
+    "noReport": "No report has been submitted yet."
+  },
+  "queue": {
+    "maintenance": {
+      "title": "External work — Maintenance Manager review",
+      "subtitle": "Final reports from providers waiting for your review."
+    },
+    "operations": {
+      "title": "External work — Operations Manager approval",
+      "subtitle": "Work the Maintenance Manager approved, waiting for the final approval."
+    },
+    "empty": "Nothing is waiting for your review.",
+    "job": "Job order",
+    "request": "Request",
+    "branch": "Station",
+    "provider": "Provider",
+    "submitted": "Submitted",
+    "approvedOn": "Maintenance approved",
+    "open": "Review",
+    "loadFailed": "The review queue could not be loaded."
+  }
+}

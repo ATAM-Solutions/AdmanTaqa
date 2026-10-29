@@ -82,6 +82,7 @@ import CreateMaintenanceRequest from "./pages/Station/CreateMaintenanceRequest";
 import StationRequestDetail from "./pages/Station/StationRequestDetail";
 import StationJobOrders from "./pages/Station/StationJobOrders";
 import StationJobOrderDetail from "./pages/Station/StationJobOrderDetail";
+import ExternalWorkReviewQueue from "./pages/Station/ExternalWorkReviewQueue";
 
 // ---------- Shared (مشترك: Authority + Service Provider) ----------
 import Quotations from "./pages/Quotations/Quotations";
@@ -637,6 +638,23 @@ export const router = createHashRouter([
         element: (
           <RouteAccessGuard pathKey="station-job-orders/:id">
             <StationJobOrderDetail />
+          </RouteAccessGuard>
+        ),
+      },
+
+      {
+        path: "external-reviews/maintenance",
+        element: (
+          <RouteAccessGuard pathKey="external-reviews/maintenance">
+            <ExternalWorkReviewQueue stage="maintenance" />
+          </RouteAccessGuard>
+        ),
+      },
+      {
+        path: "external-reviews/operations",
+        element: (
+          <RouteAccessGuard pathKey="external-reviews/operations">
+            <ExternalWorkReviewQueue stage="operations" />
           </RouteAccessGuard>
         ),
       },

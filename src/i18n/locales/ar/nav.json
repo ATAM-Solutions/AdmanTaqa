@@ -61,5 +61,7 @@
   "warehouseInventory": "المخزون",
   "assets": "الأصول",
   "warehouses": "المستودعات",
-  "reconciliation": "مطابقة الدفعات"
+  "reconciliation": "مطابقة الدفعات",
+  "maintenanceReview": "مراجعة الأعمال الخارجية",
+  "operationsReview": "اعتماد الأعمال الخارجية"
 }

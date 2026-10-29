@@ -48,14 +48,23 @@
     "title": "Next step",
     "you": "Your step",
     "other": "Waiting",
-    "none": "Status",
+    "none": {
+      "cancelled": "This job order was cancelled.",
+      "done": "This job order is complete.",
+      "waiting": "No action is needed right now.",
+      "technicalDone": "The work is approved. The job is not complete until every installment is confirmed."
+    },
     "provider": {
       "confirmPayment": "Confirm that you received the reported payment (see Payments below).",
       "waitStationPayment": "Waiting for the station to report the payment.",
       "assignOperator": "Assign an operator so the work can start.",
       "work": "Carry out the work. Operators record visits and evidence.",
       "rework": "The station asked for rework. Fix the issues and submit again.",
-      "waitReview": "Submitted. Waiting for the station to review the completion."
+      "waitReview": "Submitted. Waiting for the station to review the completion.",
+      "startWork": "Start the work: check in on site. Operators then record notes and photos.",
+      "submitReport": "Evidence is ready. Write the final maintenance report and submit it for review.",
+      "waitMaintenance": "Report submitted. Waiting for the Maintenance Manager to review it.",
+      "waitOperations": "The Maintenance Manager approved it. Waiting for the Operations Manager's final approval."
     },
     "station": {
       "reportPayment": "Report the installment payment with a transfer reference or receipt (see Payments below).",
@@ -63,12 +72,11 @@
       "legacyPayment": "Confirm the payment you sent (historical single payment, see below).",
       "review": "Review the completed work: approve and close, or request rework.",
       "waitProviderWork": "The provider is carrying out the work.",
-      "paymentRejected": "The payment was rejected. Contact the provider."
-    },
-    "none": {
-      "cancelled": "This job order was cancelled.",
-      "done": "This job order is complete.",
-      "waiting": "No action is needed right now."
+      "paymentRejected": "The payment was rejected. Contact the provider.",
+      "reviewMaintenance": "Review the provider's final report: approve it for the Operations Manager, or return it with a comment.",
+      "reviewOperations": "Give the final approval or return the work with a comment. Approval makes the final installment due.",
+      "waitMaintenance": "Waiting for the Maintenance Manager to review the final report.",
+      "waitOperations": "Waiting for the Operations Manager's final approval."
     }
   }
 }

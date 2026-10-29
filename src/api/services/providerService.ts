@@ -316,7 +316,7 @@ export async function completeProviderVisit(
 /** Doc (7.6): POST /api/provider/visits/:visitId/checkin — تسجيل وصول للزيارة (body: method GPS|QR|MANUAL, notes). */
 export async function checkinProviderVisit(
   visitId: number | string,
-  body?: { method?: "GPS" | "QR" | "MANUAL"; notes?: string }
+  body?: { method?: "GPS" | "QR" | "MANUAL"; lat?: number; lng?: number; qrToken?: string; reason?: string }
 ): Promise<unknown> {
   const response = await axiosInstance.post(
     `provider/visits/${visitId}/checkin`,
@@ -346,10 +346,13 @@ export async function addProviderVisitAttachment(
 /** Doc (7.9): POST /api/provider/visits/:visitId/upload-photo — رفع صورة للزيارة (multipart) */
 export async function uploadProviderVisitPhoto(
   visitId: number | string,
-  file: File
+  file: File,
+  /** what the photo shows (before / after / other); stored as the evidence description */
+  description?: string
 ): Promise<{ url?: string }> {
   const formData = new FormData();
   formData.append("file", file);
+  if (description) formData.append("description", description);
   const response = await axiosInstance.post<{ success?: boolean; data?: { url?: string } }>(
     `provider/visits/${visitId}/upload-photo`,
     formData,

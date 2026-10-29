@@ -318,6 +318,15 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["station.job_orders.read", "station.job_orders.review", "station.requests.read", "station.job_orders.confirm_sent"],
   },
+  // Two-step technical review of external work: each stage has its own permission (no shared fallback)
+  "external-reviews/maintenance": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["external_maintenance_v2.maintenance_review"],
+  },
+  "external-reviews/operations": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["external_maintenance_v2.ops_closure"],
+  },
   // Provider (Service Provider): RFQs, job orders
   "provider-rfqs": {
     orgTypes: ["SERVICE_PROVIDER"],

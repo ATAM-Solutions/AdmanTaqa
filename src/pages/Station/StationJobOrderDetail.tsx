@@ -3,6 +3,13 @@ import usePaymentMilestones from "@/hooks/Payments/usePaymentMilestones";
 import FlowBreadcrumb from "@/components/flow/FlowBreadcrumb";
 import NextActionBanner from "@/components/flow/NextActionBanner";
 import { nextJobAction } from "@/lib/externalFlow";
+import { useQuery } from "@tanstack/react-query";
+import StationReviewPanel from "@/components/execution/StationReviewPanel";
+import ReviewHistory from "@/components/execution/ReviewHistory";
+import ReportPackage from "@/components/execution/ReportPackage";
+import OutcomeBadges from "@/components/execution/OutcomeBadges";
+import { fetchJobReview } from "@/api/services/externalReviewService";
+import { useAuth } from "@/context/AuthContext";
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, Link } from "react-router-dom";
@@ -61,13 +68,23 @@ export default function StationJobOrderDetail() {
   const schedule = usePaymentMilestones("station", order?.id);
   const showPaymentSection =
     awaitingPayment && !paymentRejected && !stationAlreadyConfirmedSent && schedule.isLegacyJob;
-  const canApproveOrRejectOrder = underReview;
+  const { hasPermission } = useAuth();
+  const reviewQ = useQuery({ queryKey: ["job-review", "station", id], queryFn: () => fetchJobReview("station", id!), enabled: !!id, retry: false, refetchOnWindowFocus: false });
+  const review = reviewQ.data;
+  // Single-step approve/reject is only for work submitted before the two-step review existed; the server refuses it otherwise.
+  const legacyReview = underReview && (review == null || review.reviewStage === "LEGACY_SINGLE_STEP");
+  const canApproveOrRejectOrder = legacyReview;
+  const twoStepReport = [...reports].filter((r) => ["SUBMITTED", "APPROVED", "REJECTED"].includes(String(r.status))).sort((a, b) => b.id - a.id)[0];
   const nextAction = nextJobAction({
     side: "station",
     status: order?.status,
     paymentRejected,
     milestones: schedule.data,
     legacyAwaitingStation: showPaymentSection,
+    reviewStage: review?.reviewStage,
+    canReviewMaintenance: hasPermission("external_maintenance_v2.maintenance_review"),
+    canReviewOperations: hasPermission("external_maintenance_v2.ops_closure"),
+    financiallySettled: review ? review.outcome.financiallySettled : undefined,
   });
 
   const handleApproveOrder = () => {
@@ -210,6 +227,14 @@ export default function StationJobOrderDetail() {
 
       <FlowBreadcrumb side="station" current="jobOrder" rfqId={order.externalRequestId} jobOrderId={order.id} />
       <NextActionBanner action={nextAction} />
+      {review && review.reviewStage !== "LEGACY_SINGLE_STEP" && review.reviewStage !== "NOT_SUBMITTED" && (
+        <>
+          <StationReviewPanel jobOrderId={order.id} review={review} reportId={twoStepReport?.id ?? null} />
+          <ReportPackage review={review} report={twoStepReport as never} />
+          <ReviewHistory review={review} />
+        </>
+      )}
+      {review && review.reviewStage === "NOT_SUBMITTED" && <OutcomeBadges review={review} />}
 
       <Card>
         <CardHeader>
@@ -402,7 +427,7 @@ export default function StationJobOrderDetail() {
                       </span>
                     )}
                   </div>
-                  <div className="flex gap-2">
+                  {legacyReview && <div className="flex gap-2">
                     <Button
                       size="sm"
                       variant="outline"
@@ -436,7 +461,7 @@ export default function StationJobOrderDetail() {
                         {t("jobOrderDetail.reject")}
                       </Button>
                     )}
-                  </div>
+                  </div>}
                 </li>
               ))}
             </ul>

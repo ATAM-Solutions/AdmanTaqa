@@ -61,5 +61,7 @@
   "warehouseInventory": "Inventory",
   "assets": "Assets",
   "warehouses": "Warehouses",
-  "reconciliation": "Payment reconciliation"
+  "reconciliation": "Payment reconciliation",
+  "maintenanceReview": "External work review",
+  "operationsReview": "External work approval"
 }
