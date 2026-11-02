@@ -38,6 +38,8 @@ interface Props {
   status: string;
   review: JobReview | undefined;
   assignedOperators: Array<{ id: number; name: string }>;
+  /** server-computed: the signed-in user holds the operator seat on this job */
+  viewerIsAssigned?: boolean;
 }
 
 type Visit = { id: number; status?: string; type?: string; visitDate?: string; notes?: string | null };
@@ -46,12 +48,13 @@ type Visit = { id: number; status?: string; type?: string; visitDate?: string; n
  * The provider's execution workspace on the job order: operator → start work → evidence → final report → submit.
  * It only offers the step that is open for the current state; the server enforces every transition and permission.
  */
-export default function ProviderExecutionPanel({ jobOrderId, status, review, assignedOperators }: Props) {
+export default function ProviderExecutionPanel({ jobOrderId, status, review, assignedOperators, viewerIsAssigned = false }: Props) {
   const { t } = useTranslation("execution");
   const { hasPermission } = useAuth();
   const qc = useQueryClient();
   const canExecute = hasPermission("provider.jobs.execute") || hasPermission("provider.job_orders.update_status");
-  const canAssign = hasPermission("provider.job_orders.assign_operator") || hasPermission("provider.jobs.execute");
+  // assigning is a manager permission; "execute" (technician) must never open the operator list — that call is 403 for technicians
+  const canAssign = hasPermission("provider.job_orders.assign_operator");
   const canManualCheckin = hasPermission("provider.jobs.manual_checkin");
   const canUpload = hasPermission("provider.job_orders.upload") || hasPermission("provider.visits.upload") || canExecute;
   const canReport = hasPermission("provider.reports.create") || canExecute;
@@ -59,7 +62,7 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
 
   const visitsQ = useQuery({ queryKey: ["provider-job-order-visits", String(jobOrderId)], queryFn: () => fetchProviderJobOrderVisits(jobOrderId) });
   const reportsQ = useQuery({ queryKey: ["provider-job-order-reports", String(jobOrderId)], queryFn: () => fetchProviderJobOrderReports(jobOrderId) });
-  const operatorsQ = useQuery({ queryKey: ["operators"], queryFn: fetchOperators, enabled: canAssign && assignedOperators.length === 0 });
+  const operatorsQ = useQuery({ queryKey: ["operators"], queryFn: fetchOperators, enabled: canAssign && assignedOperators.length === 0 && status !== "" });
 
   const visits = (visitsQ.data ?? []) as Visit[];
   const reports = (reportsQ.data ?? []) as ProviderReportItem[];
@@ -169,7 +172,7 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
         {!showWorkspace && !underReview && !executing && <p className="text-sm text-muted-foreground">{t("provider.notExecutable", { status })}</p>}
         {readOnlyReason && showWorkspace && <p className="text-sm text-muted-foreground">{readOnlyReason}</p>}
 
-        {showWorkspace && canExecute && (
+        {showWorkspace && (canExecute || canAssign) && (
           <>
             {/* 1 — operator */}
             <section className="space-y-2" aria-label={t("steps.operator")}>
@@ -191,6 +194,9 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
                 </div>
               ) : <p className="text-sm text-muted-foreground">{t("operator.waiting")}</p>}
             </section>
+
+            {canExecute && viewerIsAssigned ? (
+            <>
 
             {/* 2 — start work */}
             <section className="space-y-2" aria-label={t("steps.start")}>
@@ -290,6 +296,8 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
                 </div>
               </section>
             )}
+            </>
+            ) : hasOperator ? <p className="text-sm text-muted-foreground" data-testid="not-your-job">{t("operator.notYours")}</p> : null}
           </>
         )}
       </CardContent>

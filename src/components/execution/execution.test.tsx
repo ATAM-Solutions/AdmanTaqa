@@ -63,14 +63,31 @@ async function render(lng: "en" | "ar", ui: React.ReactElement, seed: (qc: Query
   );
 }
 const visit = (status: string) => ({ id: 7, status, type: "EXECUTION", visitDate: "2026-10-29" });
-const panel = (lng: "en" | "ar", opts: { status?: string; operators?: boolean; visits?: ReturnType<typeof visit>[]; reports?: Array<Record<string, unknown>>; review?: JobReview } = {}) => {
-  const { status = "ACTIVE", operators = true, visits = [], reports = [], review: rv } = opts;
+const panel = (lng: "en" | "ar", opts: { status?: string; operators?: boolean; visits?: ReturnType<typeof visit>[]; reports?: Array<Record<string, unknown>>; review?: JobReview; mine?: boolean } = {}) => {
+  const { status = "ACTIVE", operators = true, visits = [], reports = [], review: rv, mine = true } = opts;
   return render(lng,
-    <ProviderExecutionPanel jobOrderId={93} status={status} review={rv} assignedOperators={operators ? [{ id: 1, name: "Field Op" }] : []} />,
+    <ProviderExecutionPanel jobOrderId={93} status={status} review={rv} assignedOperators={operators ? [{ id: 1, name: "Field Op" }] : []} viewerIsAssigned={mine} />,
     (qc) => { qc.setQueryData(["provider-job-order-visits", "93"], visits); qc.setQueryData(["provider-job-order-reports", "93"], reports); qc.setQueryData(["operators"], [{ id: 5, name: "Op Five" }]); });
 };
 
 describe("Provider execution workspace", () => {
+  it("a technician (execute, no assign_operator) never gets the operator picker or the operators request", async () => {
+    perms = ["provider.jobs.execute", "provider.reports.create", "provider.reports.submit"];
+    const html = await panel("en", { operators: false, mine: false });
+    expect(html).not.toContain('data-testid="operator-select"');
+    expect(html).not.toContain('data-testid="assign-operator"');
+    expect(html).not.toContain('data-testid="start-work"');
+  });
+  it("a technician who is not the assigned operator sees no work controls; a manager can still assign", async () => {
+    perms = ["provider.jobs.execute", "provider.reports.create", "provider.reports.submit"];
+    const other = await panel("en", { operators: true, mine: false });
+    expect(other).toContain('data-testid="not-your-job"');
+    expect(other).not.toContain('data-testid="start-work"');
+    perms = ["provider.job_orders.assign_operator"];
+    const mgr = await panel("en", { operators: false, mine: false });
+    expect(mgr).toContain('data-testid="assign-operator"');
+    expect(mgr).not.toContain('data-testid="start-work"');
+  });
   it("asks for an operator first, and offers nothing later until there is one", async () => {
     perms = PROVIDER_PERMS;
     const html = await panel("en", { operators: false });

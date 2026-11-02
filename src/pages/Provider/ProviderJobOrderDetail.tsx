@@ -178,6 +178,7 @@ export default function ProviderJobOrderDetail() {
         jobOrderId={order.id}
         status={order.status ?? ""}
         review={review}
+        viewerIsAssigned={Boolean((order as { viewerIsAssignedOperator?: boolean }).viewerIsAssignedOperator)}
         assignedOperators={jobOrderOperatorsList.map(({ operator }) => ({ id: operator.id, name: operator.name ?? `#${operator.id}` }))}
       />
       {review && <ReviewHistory review={review} />}

@@ -49,7 +49,8 @@
     "choose": "Assign an operator",
     "placeholder": "Choose an operator",
     "assign": "Assign",
-    "waiting": "An operator must be assigned by someone with permission."
+    "waiting": "An operator must be assigned by someone with permission.",
+    "notYours": "This job is assigned to another operator."
   },
   "visit": {
     "title": "Start the work",
