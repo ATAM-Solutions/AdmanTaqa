@@ -52,13 +52,21 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
   const { t } = useTranslation("execution");
   const { hasPermission } = useAuth();
   const qc = useQueryClient();
-  const canExecute = hasPermission("provider.jobs.execute") || hasPermission("provider.job_orders.update_status");
+  // Each flag mirrors what the SERVER route requires (routes/provider.routes.js), so a button is never offered that the server
+  // will refuse with "Insufficient permissions". Older Operator role copies only hold the visit-level keys (check-in / upload /
+  // status) and lack provider.jobs.execute + reports.*: they can start and check in, but not add notes, complete a visit or report.
+  const hasExecute = hasPermission("provider.jobs.execute");
+  const canStart = hasExecute || hasPermission("provider.visits.checkin"); // create visit + check-in
+  const canNote = hasExecute; // visit notes + complete visit
+  const canExecute = hasExecute || hasPermission("provider.visits.checkin") || hasPermission("provider.job_orders.update_status");
   // assigning is a manager permission; "execute" (technician) must never open the operator list — that call is 403 for technicians
   const canAssign = hasPermission("provider.job_orders.assign_operator");
   const canManualCheckin = hasPermission("provider.jobs.manual_checkin");
-  const canUpload = hasPermission("provider.job_orders.upload") || hasPermission("provider.visits.upload") || canExecute;
-  const canReport = hasPermission("provider.reports.create") || canExecute;
+  const canUpload = hasPermission("provider.job_orders.upload") || hasPermission("provider.visits.upload");
+  const canReport = hasPermission("provider.reports.create") || hasExecute;
   const canSubmit = hasPermission("provider.reports.submit") || hasPermission("provider.jobs.submit_review");
+  // what this person's role cannot do on a job they are assigned to — shown up front instead of as a 403 after the fact
+  const missingPermissions = [!canStart && "start", !canNote && "notes", !canUpload && "upload", !canReport && "report", !canSubmit && "submit"].filter((x): x is string => Boolean(x));
 
   const visitsQ = useQuery({ queryKey: ["provider-job-order-visits", String(jobOrderId)], queryFn: () => fetchProviderJobOrderVisits(jobOrderId) });
   const reportsQ = useQuery({ queryKey: ["provider-job-order-reports", String(jobOrderId)], queryFn: () => fetchProviderJobOrderReports(jobOrderId) });
@@ -205,6 +213,13 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
 
             {canExecute && viewerIsAssigned ? (
             <>
+            {missingPermissions.length > 0 ? (
+              <div className="rounded-md border border-amber-400/60 bg-amber-50 p-3 text-sm text-amber-900 dark:bg-amber-950/30 dark:text-amber-200" role="note" data-testid="missing-permissions">
+                <p className="font-medium">{t("missingPermissions.title")}</p>
+                <ul className="mt-1 list-disc ps-5 text-xs">{missingPermissions.map((k) => <li key={k} data-testid={`missing-${k}`}>{t(`missingPermissions.items.${k}`)}</li>)}</ul>
+                <p className="mt-1 text-xs">{t("missingPermissions.hint")}</p>
+              </div>
+            ) : null}
 
             {/* 2 — start work */}
             <section className="space-y-2" aria-label={t("steps.start")}>
@@ -214,7 +229,7 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
               ) : openVisit ? (
                 <div className="space-y-2">
                   <div className="flex flex-wrap gap-2">
-                    <Button size="sm" disabled={busy} onClick={() => checkIn(openVisit.id, false)} data-testid="checkin-gps"><MapPin className="me-1 h-4 w-4" aria-hidden />{t("visit.checkInGps")}</Button>
+                    <Button size="sm" disabled={busy || !canStart} onClick={() => checkIn(openVisit.id, false)} data-testid="checkin-gps"><MapPin className="me-1 h-4 w-4" aria-hidden />{t("visit.checkInGps")}</Button>
                   </div>
                   {canManualCheckin && (
                     <div className="flex flex-wrap items-end gap-2">
@@ -225,7 +240,7 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
                   <p className="text-xs text-muted-foreground">{t("visit.mobileHint")}</p>
                 </div>
               ) : (
-                <Button size="sm" disabled={busy} onClick={startWork} data-testid="start-work"><Play className="me-1 h-4 w-4" aria-hidden />{t("visit.start")}</Button>
+                <Button size="sm" disabled={busy || !canStart} onClick={startWork} data-testid="start-work"><Play className="me-1 h-4 w-4" aria-hidden />{t("visit.start")}</Button>
               )}
             </section>
 
@@ -236,7 +251,7 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
                 <div className="space-y-1">
                   <Label htmlFor="visit-note" className="text-xs">{t("evidence.notes")}</Label>
                   <Textarea id="visit-note" rows={2} value={note} onChange={(e) => setNote(e.target.value)} />
-                  <Button size="sm" variant="outline" disabled={busy || !note.trim()} onClick={() => run.mutate(async () => { await addProviderVisitNote(checkedIn.id, { note: note.trim() }); setNote(""); })}>{t("evidence.addNote")}</Button>
+                  <Button size="sm" variant="outline" disabled={busy || !canNote || !note.trim()} onClick={() => run.mutate(async () => { await addProviderVisitNote(checkedIn.id, { note: note.trim() }); setNote(""); })}>{t("evidence.addNote")}</Button>
                 </div>
                 <div className="flex flex-wrap items-end gap-2">
                   <div className="space-y-1">
@@ -264,7 +279,7 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
                 <div className="space-y-1">
                   <Label htmlFor="visit-complete" className="text-xs">{t("evidence.completionNote")}</Label>
                   <Textarea id="visit-complete" rows={2} value={completion} onChange={(e) => setCompletion(e.target.value)} />
-                  <Button size="sm" disabled={busy} onClick={() => run.mutate(async () => { await completeProviderVisit(checkedIn.id, { completionNote: completion.trim() || undefined }); setCompletion(""); toast.success(t("toasts.visitCompleted")); })} data-testid="complete-visit">{t("evidence.completeVisit")}</Button>
+                  <Button size="sm" disabled={busy || !canNote} onClick={() => run.mutate(async () => { await completeProviderVisit(checkedIn.id, { completionNote: completion.trim() || undefined }); setCompletion(""); toast.success(t("toasts.visitCompleted")); })} data-testid="complete-visit">{t("evidence.completeVisit")}</Button>
                 </div>
               </section>
             )}

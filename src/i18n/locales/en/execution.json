@@ -227,5 +227,16 @@
     "confirmReturn": "Return to technician",
     "approved": "Approved and sent to the station.",
     "returned": "Returned to the technician."
+  },
+  "missingPermissions": {
+    "title": "Your role cannot do part of this job",
+    "items": {
+      "start": "Start work and check in",
+      "notes": "Add visit notes and complete the visit",
+      "upload": "Upload photos and files",
+      "report": "Create the final report",
+      "submit": "Submit the final report"
+    },
+    "hint": "Ask your company administrator to add the missing permissions to your job title. Nothing was changed automatically."
   }
 }

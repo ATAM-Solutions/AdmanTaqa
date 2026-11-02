@@ -76,6 +76,25 @@ const panel = (lng: "en" | "ar", opts: { status?: string; operators?: boolean; v
 };
 
 describe("Provider execution workspace", () => {
+  it("production Operator role copy (visit-level keys only): can start and check in, is told up front what it cannot do, and is never offered notes / complete / report buttons the server refuses", async () => {
+    // exactly the six keys of Operator role copy #252 (the operator of production job #93): no provider.jobs.execute, no reports.*
+    perms = ["provider.job_orders.read", "provider.job_orders.update_status", "provider.job_orders.upload", "provider.visits.checkin", "provider.visits.upload"];
+    const start = await panel("en", { visits: [] });
+    expect(start).toContain('data-testid="start-work"');
+    const tag = (html: string, id: string) => html.match(new RegExp(`<button[^>]*data-testid="${id}"[^>]*>`))?.[0] ?? "";
+    expect(tag(start, "start-work")).not.toMatch(/\sdisabled(=|\s|>)/);
+    expect(start).toContain('data-testid="missing-permissions"');
+    for (const k of ["notes", "report", "submit"]) expect(start).toContain(`data-testid="missing-${k}"`);
+    expect(start).not.toContain('data-testid="missing-start"');
+    const working = await panel("en", { status: "IN_PROGRESS", visits: [visit("CHECKED_IN")] });
+    expect(tag(working, "complete-visit")).toMatch(/\sdisabled(=|\s|>)/);
+    const ar = await panel("ar", { visits: [] });
+    expect(ar).toContain("دورك لا يتيح جزءًا من هذا العمل");
+    expect(ar).not.toContain("missingPermissions.");
+    // a full Operator role sees no such notice
+    perms = PROVIDER_PERMS;
+    expect(await panel("en", { visits: [] })).not.toContain('data-testid="missing-permissions"');
+  });
   it("a technician (execute, no assign_operator) never gets the operator picker or the operators request", async () => {
     perms = ["provider.jobs.execute", "provider.reports.create", "provider.reports.submit"];
     const html = await panel("en", { operators: false, mine: false });
