@@ -43,6 +43,11 @@
     "WORK_ORDER_REVIEW_REJECTED": "رفض مراجعة أمر العمل — أُعيد إلى الفنيين",
     "WORK_ORDER_WAREHOUSE_RETURN": "تأكيد إرجاع المستودع",
     "WORK_ORDER_OPS_CONFIRMED": "تأكيد التشغيل — تم إغلاق أمر العمل",
+    "WORK_ORDER_MAINTENANCE_APPROVED": "اعتمد مدير الصيانة تقرير الفني",
+    "WORK_ORDER_MAINTENANCE_RETURNED": "أعاد مدير الصيانة تقرير الفني للتصحيح",
+    "WORK_ORDER_OPS_APPROVED": "أكّد التشغيل — بانتظار الإغلاق النهائي",
+    "WORK_ORDER_OPS_RETURNED": "أعاد التشغيل العمل للتصحيح",
+    "WORK_ORDER_FINAL_CLOSED": "أغلق مدير الصيانة أمر العمل",
     "TASK_ASSIGNED": "تم إسناد المهمة",
     "TASK_ASSIGNED_TO": "تم إسناد المهمة إلى {{name}}",
     "TASK_REASSIGNED": "أُعيد إسناد المهمة",
@@ -78,7 +83,11 @@
       "ATTACHMENT_UPLOADED": "تم رفع ملف",
       "WAITING_PARTS_REQUESTED": "بانتظار قطع الغيار",
       "VISIT_COMPLETED": "اكتملت الزيارة",
-      "JOB_SUBMITTED_FOR_REVIEW": "قُدّم للمراجعة"
+      "JOB_SUBMITTED_FOR_REVIEW": "قُدّم للمراجعة",
+      "REVIEW_PROVIDER_MANAGER_APPROVED": "اعتمد مدير المزوّد التقرير",
+      "REVIEW_PROVIDER_MANAGER_RETURNED": "أعاد مدير المزوّد التقرير",
+      "TECHNICAL_CLOSED": "أُغلق أمر العمل فنياً",
+      "FINAL_PAYMENT_REQUESTED": "طُلبت الدفعة الأخيرة"
     },
     "WAREHOUSE_RETURN_PROPOSED": "اقتراح إرجاع قطع",
     "WAREHOUSE_RETURN_RESOLVED": "الرد على إرجاع القطع"
@@ -115,7 +124,8 @@
     "RETURN_SUBMITTED": "تم تقديم الإرجاع",
     "WAREHOUSE_CONFIRMATION": "المستودع يتحقق من الإرجاع",
     "RETURNED": "تم الإرجاع",
-    "CONFIRMED": "مؤكد"
+    "CONFIRMED": "مؤكد",
+    "AWAITING_FINAL_CLOSURE": "بانتظار الإغلاق النهائي"
   },
   "actorLabels": {
     "UNRECORDED": "غير مسجَّل (سجل أقدم)",

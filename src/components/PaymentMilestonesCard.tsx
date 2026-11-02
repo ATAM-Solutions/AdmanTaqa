@@ -11,11 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { DashboardLoadError } from "@/components/DashboardLoadError";
 import { getApiErrorMessage } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 import {
   PaymentApiError,
   confirmMilestoneReceived,
   fetchMilestones,
   reportMilestoneSent,
+  requestFinalInstallment,
   uploadStationReceipt,
   type Milestone,
 } from "@/api/services/paymentMilestoneService";
@@ -23,6 +25,7 @@ import {
 const CODES = [
   "PAYMENT_EVIDENCE_REQUIRED", "MILESTONE_NOT_DUE", "MILESTONE_SEQUENCE_BLOCKED", "MILESTONE_ALREADY_SENT",
   "MILESTONE_ALREADY_CONFIRMED", "MILESTONE_DISPUTED", "PAYMENT_NOT_SENT_YET", "PAYMENT_USES_INSTALLMENTS", "UNSAFE_MEDIA_URL", "INSUFFICIENT_PERMISSIONS",
+  "MILESTONE_NOT_REQUESTED", "MILESTONE_ALREADY_REQUESTED", "REQUEST_NOT_APPLICABLE",
 ] as const;
 
 /**
@@ -32,6 +35,9 @@ const CODES = [
  */
 export default function PaymentMilestonesCard({ side, jobOrderId }: { side: "station" | "provider"; jobOrderId: number | string }) {
   const { t, i18n } = useTranslation("payments");
+  const { hasPermission } = useAuth();
+  // the Provider Manager (not provider finance) requests the final installment after the station's technical closure
+  const canRequest = hasPermission("provider_job_v2.review_report");
   const qc = useQueryClient();
   const key = ["payment-milestones", side, String(jobOrderId)];
   const busy = useRef(false);
@@ -56,7 +62,7 @@ export default function PaymentMilestonesCard({ side, jobOrderId }: { side: "sta
       busy.current = true;
       try { await job(); } finally { busy.current = false; }
     },
-    onSuccess: async () => { toast.success(t("saved")); await qc.invalidateQueries({ queryKey: key }); await qc.invalidateQueries({ queryKey: ["station-job-order"] }); },
+    onSuccess: async () => { toast.success(t("saved")); await qc.invalidateQueries({ queryKey: key }); await qc.invalidateQueries({ queryKey: ["station-job-order"] }); void qc.invalidateQueries({ queryKey: ["provider-job-order"] }); void qc.invalidateQueries({ queryKey: ["job-review"] }); },
     onError: async (e) => {
       const err = e as PaymentApiError;
       const known = CODES.find((c) => c === err.code);
@@ -83,7 +89,8 @@ export default function PaymentMilestonesCard({ side, jobOrderId }: { side: "sta
               const stage = w?.stage ?? "DUE_LATER";
               // who must act next, said explicitly so nobody is left guessing (null → the "why" line below explains)
               const next =
-                stage === "AWAITING_REPORT" ? (side === "station" ? (w?.report.allowed ? "you.report" : null) : "waiting.station")
+                stage === "AWAITING_PROVIDER_REQUEST" ? (side === "provider" ? (w?.request?.allowed && canRequest ? "you.request" : "waiting.request") : "waiting.providerRequest")
+                : stage === "AWAITING_REPORT" ? (side === "station" ? (w?.report.allowed ? "you.report" : null) : "waiting.station")
                 : stage === "AWAITING_RECEIPT_CONFIRMATION" ? (side === "provider" ? (w?.confirmReceipt.allowed ? "you.confirm" : null) : "waiting.provider")
                 : null;
               return (
@@ -126,10 +133,15 @@ export default function PaymentMilestonesCard({ side, jobOrderId }: { side: "sta
                       {t("confirmReceived")}
                     </Button>
                   ) : null}
+                  {side === "provider" && stage === "AWAITING_PROVIDER_REQUEST" && w?.request?.allowed && canRequest ? (
+                    <Button size="sm" disabled={pending} data-testid="request-installment" onClick={() => run.mutate(async () => { await requestFinalInstallment(jobOrderId, m.id); })}>
+                      {t("requestInstallment")}
+                    </Button>
+                  ) : null}
                   {/* why nothing can be done now */}
-                  {w && !(side === "station" ? w.report.allowed : w.confirmReceipt.allowed) && stage !== "SETTLED" ? (
+                  {w && !(side === "station" ? w.report.allowed : stage === "AWAITING_PROVIDER_REQUEST" ? Boolean(w.request?.allowed && canRequest) : w.confirmReceipt.allowed) && stage !== "SETTLED" ? (
                     <p className="text-xs text-muted-foreground" data-testid="milestone-why">
-                      {t(`why.${side === "station" ? w.report.reason : w.confirmReceipt.reason}`, { defaultValue: t(`stageHint.${stage}`) })}
+                      {t(`why.${side === "station" ? w.report.reason : stage === "AWAITING_PROVIDER_REQUEST" ? (w.request?.reason ?? w.confirmReceipt.reason) : w.confirmReceipt.reason}`, { defaultValue: t(`stageHint.${stage}`) })}
                     </p>
                   ) : null}
                 </li>

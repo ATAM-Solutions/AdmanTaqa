@@ -63,5 +63,8 @@
   "warehouses": "المستودعات",
   "reconciliation": "مطابقة الدفعات",
   "maintenanceReview": "مراجعة الأعمال الخارجية",
-  "operationsReview": "اعتماد الأعمال الخارجية"
+  "operationsReview": "اعتماد الأعمال الخارجية",
+  "closureReview": "إغلاق الأعمال الخارجية",
+  "providerReviewQueue": "مراجعة تقارير الفنيين",
+  "internalReviewQueue": "مراجعة أوامر العمل الداخلية"
 }

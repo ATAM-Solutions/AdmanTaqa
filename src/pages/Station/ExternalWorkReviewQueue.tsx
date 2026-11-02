@@ -12,7 +12,7 @@ import { formatDate } from "@/lib/i18n/formatters";
  * Review queue for ONE stage of the external-work approval. The server returns only work that has reached that stage
  * for the caller's company (and stations): the Operations queue never contains work the Maintenance Manager has not approved.
  */
-export default function ExternalWorkReviewQueue({ stage }: { stage: "maintenance" | "operations" }) {
+export default function ExternalWorkReviewQueue({ stage }: { stage: "maintenance" | "operations" | "closure" }) {
   const { t, i18n } = useTranslation("execution");
   const ar = i18n.language.startsWith("ar");
   const q = useQuery({ queryKey: ["review-queue", stage], queryFn: () => fetchReviewQueue(stage), refetchOnWindowFocus: false });

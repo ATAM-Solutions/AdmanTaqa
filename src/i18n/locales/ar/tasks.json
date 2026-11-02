@@ -70,7 +70,8 @@
     "completeSubmit": "إرسال الإنجاز",
     "submitReview": "إرسال للمراجعة",
     "returnMaterials": "إرجاع المواد",
-    "returnMaterialsSubmit": "إرسال تقرير الإرجاع"
+    "returnMaterialsSubmit": "إرسال تقرير الإرجاع",
+    "chainNoSubmit": "بعد موافقة مدير الصيانة على تقريرك، ينتقل الأمر إلى التشغيل تلقائياً."
   },
   "review": {
     "pendingPrompt": "طلب الفني نقل هذه المهمة إلى «{{stage}}». وافق على التحديث أو ارفضه.",
@@ -78,7 +79,11 @@
     "alreadyApproved": "تمت الموافقة على هذه المهمة مسبقاً.",
     "note": "ملاحظة (اختياري)",
     "approve": "موافقة",
-    "reject": "رفض"
+    "reject": "رفض",
+    "noteRequired": "ملاحظة (مطلوبة لإعادة التقرير)",
+    "returnNeedsNote": "اكتب ملاحظة توضح ما يجب تصحيحه قبل إعادة التقرير.",
+    "handedToOps": "تمت الموافقة. انتقل أمر العمل إلى مراجعة التشغيل.",
+    "handedToFinal": "تمت الموافقة. أمر العمل الآن بانتظار الإغلاق النهائي."
   },
   "attachments": {
     "title": "المرفقات",
@@ -96,7 +101,16 @@
     "TASK_NOT_REVIEWABLE": "لم تعد هذه المهمة بانتظار المراجعة. تم تحديث الصفحة.",
     "TASK_ALREADY_CLOSED": "هذه المهمة مغلقة بالفعل.",
     "BRANCH_ACCESS_DENIED": "ليس لديك صلاحية الوصول إلى هذه المحطة.",
-    "INSUFFICIENT_PERMISSIONS": "ليس لديك صلاحية تنفيذ هذا الإجراء."
+    "INSUFFICIENT_PERMISSIONS": "ليس لديك صلاحية تنفيذ هذا الإجراء.",
+    "COMMENT_REQUIRED": "التعليق مطلوب لإعادة التقرير.",
+    "PARTS_UNRESOLVED": "ما زالت هناك قطع غيار غير مسوّاة.",
+    "WORK_ORDER_NOT_AWAITING_OPS_CONFIRMATION": "لم يعد هذا الأمر بانتظار تأكيد التشغيل. تم تحديث الصفحة.",
+    "WORK_ORDER_NOT_AWAITING_FINAL_CLOSURE": "لم يعد هذا الأمر بانتظار الإغلاق النهائي. تم تحديث الصفحة.",
+    "WORK_ORDER_LEGACY_WORKFLOW": "هذا الإجراء غير متاح لأمر العمل القديم هذا.",
+    "WORK_ORDER_REVIEW_CHAIN": "هذا الأمر يتبع سلسلة المراجعة الجديدة.",
+    "NOT_ASSIGNED_TECHNICIAN": "الفني المكلّف فقط يمكنه تنفيذ هذا.",
+    "ORDER_NOT_RECEIVED": "أكّد استلام القطع أولاً.",
+    "INVALID_USED_QUANTITY": "الكمية المستخدمة أكبر مما تحتفظ به."
   },
   "open": "فتح المهمة",
   "partsPicker": {

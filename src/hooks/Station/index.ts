@@ -20,3 +20,6 @@ export { default as useCreateInternalWorkOrder } from "./useCreateInternalWorkOr
 export { default as useUpdateInternalWorkOrder } from "./useUpdateInternalWorkOrder";
 export { default as useReviewInternalWorkOrder } from "./useReviewInternalWorkOrder";
 export { default as useCloseInternalWorkOrder } from "./useCloseInternalWorkOrder";
+export { default as useOpsConfirmInternalWorkOrder } from "./useOpsConfirmInternalWorkOrder";
+export { default as useOpsReturnInternalWorkOrder } from "./useOpsReturnInternalWorkOrder";
+export { default as useFinalCloseInternalWorkOrder } from "./useFinalCloseInternalWorkOrder";

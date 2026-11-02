@@ -41,6 +41,11 @@ export type NextActionKey =
   | "provider.submitReport"
   | "provider.waitMaintenance"
   | "provider.waitOperations"
+  | "provider.managerApprove"
+  | "provider.waitProviderManager"
+  | "provider.waitFinalClosure"
+  | "provider.requestFinalInstallment"
+  | "provider.waitRequest"
   | "station.reportPayment"
   | "station.waitProviderConfirm"
   | "station.legacyPayment"
@@ -49,6 +54,10 @@ export type NextActionKey =
   | "station.reviewOperations"
   | "station.waitMaintenance"
   | "station.waitOperations"
+  | "station.closeWorkOrder"
+  | "station.waitFinalClosure"
+  | "station.waitProviderManager"
+  | "station.waitProviderRequest"
   | "station.waitProviderWork"
   | "station.paymentRejected"
   | "none.cancelled"
@@ -78,6 +87,8 @@ interface JobInput {
   reviewStage?: string;
   canReviewMaintenance?: boolean;
   canReviewOperations?: boolean;
+  /** provider: the viewer holds provider_job_v2.review_report (approves the technician's report, requests the final installment) */
+  canReviewReport?: boolean;
   /** every installment confirmed by the provider; undefined while unknown */
   financiallySettled?: boolean;
 }
@@ -96,9 +107,15 @@ export function nextJobAction(i: JobInput): NextAction {
   const ms = i.milestones ?? [];
   if (side === "provider") {
     if (ms.some((m) => m.workflow?.confirmReceipt.allowed)) return { key: "provider.confirmPayment", actor: "you" };
+    if (ms.some((m) => m.workflow?.stage === "AWAITING_PROVIDER_REQUEST")) {
+      return ms.some((m) => m.workflow?.stage === "AWAITING_PROVIDER_REQUEST" && m.workflow.request?.allowed)
+        ? { key: "provider.requestFinalInstallment", actor: "you" }
+        : { key: "provider.waitRequest", actor: "other" };
+    }
     if (ms.some((m) => m.workflow?.stage === "AWAITING_REPORT")) return { key: "provider.waitStationPayment", actor: "other" };
   } else {
     if (ms.some((m) => m.workflow?.report.allowed)) return { key: "station.reportPayment", actor: "you" };
+    if (ms.some((m) => m.workflow?.stage === "AWAITING_PROVIDER_REQUEST")) return { key: "station.waitProviderRequest", actor: "other" };
     if (ms.some((m) => m.workflow?.stage === "AWAITING_RECEIPT_CONFIRMATION")) return { key: "station.waitProviderConfirm", actor: "other" };
     if (i.legacyAwaitingStation) return { key: "station.legacyPayment", actor: "you" };
   }
@@ -107,9 +124,13 @@ export function nextJobAction(i: JobInput): NextAction {
     case "UNDER_REVIEW": {
       const stage = i.reviewStage;
       if (side === "provider") {
+        if (stage === "AWAITING_PROVIDER_MANAGER") return i.canReviewReport ? { key: "provider.managerApprove", actor: "you" } : { key: "provider.waitProviderManager", actor: "other" };
+        if (stage === "AWAITING_FINAL_CLOSURE") return { key: "provider.waitFinalClosure", actor: "other" };
         const key = stage === "AWAITING_OPERATIONS_MANAGER" ? "provider.waitOperations" : stage === "AWAITING_MAINTENANCE_MANAGER" ? "provider.waitMaintenance" : "provider.waitReview";
         return { key, actor: "other" };
       }
+      if (stage === "AWAITING_PROVIDER_MANAGER") return { key: "station.waitProviderManager", actor: "other" };
+      if (stage === "AWAITING_FINAL_CLOSURE") return i.canReviewMaintenance ? { key: "station.closeWorkOrder", actor: "you" } : { key: "station.waitFinalClosure", actor: "other" };
       if (stage === "AWAITING_MAINTENANCE_MANAGER") return i.canReviewMaintenance ? { key: "station.reviewMaintenance", actor: "you" } : { key: "station.waitMaintenance", actor: "other" };
       if (stage === "AWAITING_OPERATIONS_MANAGER") return i.canReviewOperations ? { key: "station.reviewOperations", actor: "you" } : { key: "station.waitOperations", actor: "other" };
       return { key: "station.review", actor: "you" };

@@ -229,8 +229,9 @@ export default function StationJobOrderDetail() {
       <NextActionBanner action={nextAction} />
       {review && review.reviewStage !== "LEGACY_SINGLE_STEP" && review.reviewStage !== "NOT_SUBMITTED" && (
         <>
-          <StationReviewPanel jobOrderId={order.id} review={review} reportId={twoStepReport?.id ?? null} />
-          <ReportPackage review={review} report={twoStepReport as never} />
+          <StationReviewPanel jobOrderId={order.id} review={review} reportId={twoStepReport?.id ?? review.rounds[review.rounds.length - 1]?.reportId ?? null} />
+          {/* the station never sees the report before the provider's own manager approved it */}
+          {review.reviewStage !== "AWAITING_PROVIDER_MANAGER" && <ReportPackage review={review} report={twoStepReport as never} />}
           <ReviewHistory review={review} />
         </>
       )}

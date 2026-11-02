@@ -131,8 +131,10 @@
     "NOT_ASSIGNED_TECHNICIAN": "Only the technician assigned to this request can confirm receipt.",
     "NO_ASSIGNED_TECHNICIAN": "This request has no assigned technician, so receipt cannot be confirmed.",
     "INVALID_RECEIVED_QUANTITY": "The received quantity must be between 0 and the issued quantity.",
-    "INVALID_USED_QUANTITY": "The used quantity cannot exceed the received quantity.",
-    "RECEIPT_NOTE_REQUIRED": "Add a note explaining why less than the issued quantity was received."
+    "INVALID_USED_QUANTITY": "The used quantity cannot exceed what you received minus what was returned or is awaiting the warehouse.",
+    "RECEIPT_NOTE_REQUIRED": "Add a note explaining why less than the issued quantity was received.",
+    "ORDER_NOT_RECEIVED": "Confirm receipt of the parts before stating usage.",
+    "ORDER_NOT_OPEN_FOR_USAGE": "Usage can no longer be changed for this request."
   },
   "inventory": {
     "title": "Inventory",
@@ -339,5 +341,17 @@
     "issued": "issued {{count}}",
     "range": "Enter 0 to {{max}}.",
     "noteRequired": "You received less than was issued — explain why."
+  },
+  "usage": {
+    "title": "Confirm parts usage",
+    "hint": "State how much of each part you actually used. Leftovers must then be returned with the return buttons below.",
+    "received": "received {{count}}",
+    "range": "Enter 0 to {{max}}.",
+    "save": "Save usage",
+    "saved": "Usage saved.",
+    "confirmedBy": "Confirmed by {{name}} on {{date}}",
+    "confirmedAt": "Confirmed on {{date}}",
+    "used": "Used quantity",
+    "notStated": "Not stated yet"
   }
 }

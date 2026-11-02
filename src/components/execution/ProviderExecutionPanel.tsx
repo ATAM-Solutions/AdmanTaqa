@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
-import { getApiErrorMessage } from "@/lib/utils";
 import {
   assignProviderJobOrderOperator,
   checkinProviderVisit,
@@ -28,6 +27,7 @@ import {
   uploadProviderVisitPhoto,
 } from "@/api/services/providerService";
 import { uploadReportPhoto, type JobReview } from "@/api/services/externalReviewService";
+import { chainErrorMessage } from "@/hooks/Execution/useReviewChain";
 import type { ProviderReportItem } from "@/types/provider";
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
@@ -72,6 +72,13 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
   const draft = reports.find((r) => r.status === "DRAFT");
   const lastReturned = [...reports].filter((r) => r.status === "REJECTED").sort((a, b) => b.id - a.id)[0];
 
+  // who sent the last report back (Provider Manager / Maintenance / Operations) and why, from the review rounds
+  const rounds = review?.rounds ?? [];
+  const returnedRound = rounds.find((r) => r.reportId === lastReturned?.id) ?? [...rounds].reverse().find((r) => [r.providerManager, r.maintenanceManager, r.operationsManager].some((d) => d?.decision === "RETURNED"));
+  const returnedBy = returnedRound
+    ? ([["providerManager", returnedRound.providerManager], ["maintenance", returnedRound.maintenanceManager], ["operations", returnedRound.operationsManager]] as const).find(([, d]) => d?.decision === "RETURNED")
+    : undefined;
+
   const refresh = () => {
     for (const key of [["provider-job-order", String(jobOrderId)], ["provider-job-order", jobOrderId], ["provider-job-order-visits", String(jobOrderId)], ["provider-job-order-reports", String(jobOrderId)], ["job-review", "provider", String(jobOrderId)], ["provider-job-orders"]]) {
       void qc.invalidateQueries({ queryKey: key });
@@ -79,7 +86,7 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
   };
   const fail = (e: unknown) => {
     const code = (e as { response?: { data?: { code?: string } } })?.response?.data?.code;
-    toast.error(code && (ERROR_CODES as readonly string[]).includes(code) ? t(`errors.${code}`) : getApiErrorMessage(e, t("errors.generic")));
+    toast.error(code && (ERROR_CODES as readonly string[]).includes(code) ? t(`errors.${code}`) : chainErrorMessage(e, t));
     refresh();
   };
   const run = useMutation({
@@ -164,7 +171,8 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
         {status === "REWORK_REQUIRED" && lastReturned && (
           <div className="rounded border border-destructive/40 bg-destructive/5 p-3 text-sm" data-testid="returned-notice">
             <p className="font-medium text-destructive">{t("provider.returned")}</p>
-            <p className="mt-1">{lastReturned.rejectionReason ?? lastReturned.reviewNote}</p>
+            {returnedBy ? <p className="mt-1 text-xs font-medium" data-testid="returned-by" data-role={returnedBy[0]}>{t("provider.returnedBy", { role: t(`history.roles.${returnedBy[0]}`), name: returnedBy[1]?.by?.name ?? "—" })}</p> : null}
+            <p className="mt-1">{returnedBy?.[1]?.comment ?? lastReturned.rejectionReason ?? lastReturned.reviewNote}</p>
             <p className="mt-1 text-xs text-muted-foreground">{t("provider.returnedHint")}</p>
           </div>
         )}

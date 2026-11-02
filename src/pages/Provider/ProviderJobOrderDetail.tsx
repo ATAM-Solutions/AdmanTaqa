@@ -10,6 +10,7 @@ import { useQuery } from "@tanstack/react-query";
 import ProviderExecutionPanel from "@/components/execution/ProviderExecutionPanel";
 import OutcomeBadges from "@/components/execution/OutcomeBadges";
 import ReviewHistory from "@/components/execution/ReviewHistory";
+import ProviderManagerReviewPanel from "@/components/execution/ProviderManagerReviewPanel";
 import { fetchJobReview } from "@/api/services/externalReviewService";
 import { useParams, Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -34,7 +35,7 @@ export default function ProviderJobOrderDetail() {
   const { id } = useParams<{ id: string }>();
   const { hasPermission } = useAuth();
   // payment amounts are commercial data: only finance/management roles can load them (Operators execute the job)
-  const canSeePayments = hasPermission("payments.read") || hasPermission("provider.payments.confirm_received");
+  const canSeePayments = hasPermission("payments.read") || hasPermission("provider.payments.confirm_received") || hasPermission("provider_job_v2.review_report");
   const canConfirmPayment = hasPermission("provider.payments.confirm_received") || hasPermission("payments.confirm_received");
   const { t: tPay } = useTranslation("paymentRecord");
   const confirmReceived = useConfirmReceived();
@@ -78,6 +79,7 @@ export default function ProviderJobOrderDetail() {
     hasVisit: review ? reviewVisits.length > 0 : jobOrderVisitsList.length > 0,
     hasCompletedVisit: reviewVisits.some((v) => v.status === "COMPLETED"),
     reviewStage: review?.reviewStage,
+    canReviewReport: hasPermission("provider_job_v2.review_report"),
     financiallySettled: review ? review.outcome.financiallySettled : undefined,
   });
 
@@ -174,6 +176,11 @@ export default function ProviderJobOrderDetail() {
       <FlowBreadcrumb side="provider" current="jobOrder" rfqId={order.externalRequestId} quoteId={order.providerQuoteId} jobOrderId={order.id} />
       <NextActionBanner action={nextAction} />
       {review && <OutcomeBadges review={review} />}
+      <ProviderManagerReviewPanel
+        jobOrderId={order.id}
+        review={review}
+        report={(() => { const rid = review?.rounds[review.rounds.length - 1]?.reportId; return (reportsList as Array<{ id: number }>).find((r) => r.id === rid) as never; })()}
+      />
       <ProviderExecutionPanel
         jobOrderId={order.id}
         status={order.status ?? ""}

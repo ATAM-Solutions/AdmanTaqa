@@ -17,13 +17,15 @@
     "AWAITING_REPORT": "Awaiting payment report",
     "AWAITING_RECEIPT_CONFIRMATION": "Awaiting provider confirmation",
     "SETTLED": "Settled",
-    "DISPUTED": "Disputed"
+    "DISPUTED": "Disputed",
+    "AWAITING_PROVIDER_REQUEST": "Awaiting provider request"
   },
   "stageHint": {
     "DUE_LATER": "This installment becomes payable later in the job.",
     "AWAITING_REPORT": "The station reports the payment once it is sent.",
     "AWAITING_RECEIPT_CONFIRMATION": "Waiting for the provider to confirm receipt.",
-    "DISPUTED": "This installment is disputed."
+    "DISPUTED": "This installment is disputed.",
+    "AWAITING_PROVIDER_REQUEST": "The job is technically closed. The Provider Manager must request this installment before the station can pay."
   },
   "trigger": {
     "ON_APPROVAL": "On approval",
@@ -38,7 +40,10 @@
     "MILESTONE_ALREADY_SENT": "Already reported — waiting for the provider to confirm receipt.",
     "MILESTONE_ALREADY_CONFIRMED": "Already settled.",
     "MILESTONE_DISPUTED": "This installment is disputed.",
-    "PAYMENT_NOT_SENT_YET": "The station has not reported this payment yet."
+    "PAYMENT_NOT_SENT_YET": "The station has not reported this payment yet.",
+    "MILESTONE_NOT_REQUESTED": "The station can report the transfer only after the provider requests this installment.",
+    "MILESTONE_ALREADY_REQUESTED": "Already requested.",
+    "REQUEST_NOT_APPLICABLE": "This installment is not requested separately."
   },
   "errors": {
     "generic": "The action could not be completed.",
@@ -51,16 +56,23 @@
     "PAYMENT_NOT_SENT_YET": "The station has not reported this payment yet.",
     "UNSAFE_MEDIA_URL": "The receipt link is not valid.",
     "INSUFFICIENT_PERMISSIONS": "You do not have permission for this action.",
-    "PAYMENT_USES_INSTALLMENTS": "This job is paid by installments. Use the installment actions on this page."
+    "PAYMENT_USES_INSTALLMENTS": "This job is paid by installments. Use the installment actions on this page.",
+    "MILESTONE_NOT_REQUESTED": "The provider has not requested this installment yet. The page was refreshed.",
+    "MILESTONE_ALREADY_REQUESTED": "This installment was already requested. The page was refreshed.",
+    "REQUEST_NOT_APPLICABLE": "This installment cannot be requested."
   },
   "next": {
     "you": {
       "report": "Your step: report this payment with a transfer reference or a receipt.",
-      "confirm": "Your step: confirm that you received this payment."
+      "confirm": "Your step: confirm that you received this payment.",
+      "request": "Your step: request this final installment from the station."
     },
     "waiting": {
       "station": "Waiting for the station to report this payment.",
-      "provider": "Reported. Waiting for the provider to confirm receipt — do not send this payment again."
+      "provider": "Reported. Waiting for the provider to confirm receipt — do not send this payment again.",
+      "request": "Waiting for the Provider Manager to request this installment.",
+      "providerRequest": "Waiting for the service provider to request this installment."
     }
-  }
+  },
+  "requestInstallment": "Request final installment"
 }

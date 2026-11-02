@@ -27,7 +27,7 @@
     "next": "التالي",
     "reviewQueue": {
       "title": "أوامر العمل الداخلية — قائمة المراجعة",
-      "subtitle": "أوامر بانتظار الموافقة أو الرفض.",
+      "subtitle": "أوامر بانتظار مراجعة الصيانة أو تأكيد التشغيل أو الإغلاق النهائي.",
       "noOrders": "لا توجد أوامر في قائمة المراجعة.",
       "review": "مراجعة"
     },
@@ -45,6 +45,120 @@
         "closeFailed": "فشل الإغلاق."
       },
       "noAccess": "ليست لديك صلاحية الوصول إلى محطة أمر العمل هذا."
+    },
+    "statusLabels": {
+      "DRAFT": "مسودة",
+      "OPEN": "مفتوح",
+      "PENDING": "قيد الانتظار",
+      "IN_PROGRESS": "قيد التنفيذ",
+      "UNDER_REVIEW": "بانتظار مراجعة الصيانة",
+      "MAINTENANCE_CLOSED": "أُغلق من الصيانة",
+      "AWAITING_OPS_CONFIRMATION": "بانتظار تأكيد التشغيل",
+      "AWAITING_FINAL_CLOSURE": "بانتظار الإغلاق النهائي",
+      "CLOSED": "مغلق",
+      "CANCELLED": "ملغى"
+    },
+    "statusAwaitingOps": "بانتظار تأكيد التشغيل",
+    "statusAwaitingFinal": "بانتظار الإغلاق النهائي",
+    "reviewStage": {
+      "UNDER_REVIEW": "مراجعة الصيانة",
+      "AWAITING_OPS_CONFIRMATION": "تأكيد التشغيل",
+      "AWAITING_FINAL_CLOSURE": "الإغلاق النهائي",
+      "OTHER": "مراجعة"
+    },
+    "reviewQueueOrderId": "#{{id}}",
+    "chain": {
+      "bannerTitle": "الخطوة التالية",
+      "you": "هذه الخطوة عليك.",
+      "waitingFor": "بانتظار {{actor}}.",
+      "actor": {
+        "TECHNICIAN": "الفني",
+        "MAINTENANCE_MANAGER": "مدير الصيانة",
+        "OPERATIONS_MANAGER": "مدير التشغيل"
+      },
+      "stage": {
+        "NOT_STARTED": "لم يبدأ العمل بعد. يجب تكليف فني ليبدأ المهمة.",
+        "IN_EXECUTION": "الفني يعمل على هذا الأمر. عند إكمال المهمة يراجع مدير الصيانة التقرير.",
+        "AWAITING_MAINTENANCE_REVIEW": "تقرير الفني بانتظار موافقة مدير الصيانة. الموافقة تحيل الأمر إلى التشغيل تلقائياً.",
+        "AWAITING_OPERATIONS_REVIEW": "على مدير التشغيل تأكيد العمل المنجز أو إعادته إلى الفني مع تعليق.",
+        "AWAITING_FINAL_CLOSURE": "أكّد التشغيل العمل. يقوم مدير الصيانة بالإغلاق النهائي.",
+        "AWAITING_WAREHOUSE_RETURN": "تتم حالياً إعادة قطع الغيار إلى المستودع.",
+        "CLOSED": "أمر العمل هذا مغلق."
+      },
+      "comment": {
+        "label": "تعليق",
+        "hintOps": "اختياري عند التأكيد، وإلزامي عند الإعادة إلى الفني.",
+        "hintClose": "اختياري.",
+        "placeholder": "اكتب تعليقاً"
+      },
+      "ops": {
+        "confirm": "تأكيد العمل",
+        "return": "إعادة إلى الفني",
+        "returnNeedsComment": "اكتب تعليقاً لإعادة العمل إلى الفني.",
+        "confirmed": "تم تأكيد العمل. الأمر الآن بانتظار الإغلاق النهائي.",
+        "returned": "تمت إعادة العمل إلى الفني."
+      },
+      "finalClose": {
+        "button": "إغلاق أمر العمل",
+        "closed": "تم إغلاق أمر العمل.",
+        "blockedTitle": "الإغلاق متوقف بسبب قطع الغيار",
+        "blockedHint": "عالج كل قطعة أدناه (يُقرّ الفني بالاستخدام، وتُعاد الفائض ويؤكدها المستودع) قبل الإغلاق."
+      },
+      "legacy": {
+        "stuckHint": "جميع المهام مكتملة ومعتمدة لكن الأمر لم يُرسل للمراجعة. يمكنك الموافقة عليه أو رفضه الآن.",
+        "approve": "موافقة",
+        "reject": "رفض",
+        "close": "تأكيد الإغلاق"
+      },
+      "parts": {
+        "title": "تسوية قطع الغيار",
+        "none": "لم تُصرف أي قطع غيار لهذا الأمر.",
+        "part": "القطعة",
+        "issued": "المصروف",
+        "received": "المستلم",
+        "used": "المستخدم",
+        "returned": "المُرجَع",
+        "awaitingWarehouse": "بانتظار المستودع",
+        "unresolved": "غير المسوّى",
+        "status": "الحالة",
+        "notYet": "—",
+        "resolved": "مسوّاة",
+        "shortfall": "أقل من الكمية المصروفة بمقدار {{count}}",
+        "order": "طلب المستودع #{{id}}",
+        "blockers": {
+          "AWAITING_RECEIPT": "بانتظار الاستلام",
+          "USAGE_NOT_CONFIRMED": "الاستخدام غير مؤكد",
+          "RETURN_NOT_RECORDED": "الإرجاع غير مسجل",
+          "RETURN_AWAITING_WAREHOUSE": "الإرجاع بانتظار المستودع"
+        },
+        "total": "الإجمالي"
+      },
+      "history": {
+        "title": "سجل المراجعة",
+        "empty": "لم تُسجل أي قرارات مراجعة بعد.",
+        "task": "المهمة #{{id}}",
+        "noComment": "بلا تعليق",
+        "stage": {
+          "MAINTENANCE_REVIEW": "مراجعة الصيانة",
+          "OPERATIONS_REVIEW": "مراجعة التشغيل",
+          "FINAL_CLOSURE": "الإغلاق النهائي"
+        },
+        "decision": {
+          "APPROVED": "تمت الموافقة",
+          "RETURNED": "أُعيد",
+          "CLOSED": "أُغلق"
+        }
+      },
+      "errors": {
+        "generic": "تعذر إكمال الإجراء.",
+        "COMMENT_REQUIRED": "التعليق مطلوب.",
+        "PARTS_UNRESOLVED": "ما زالت هناك قطع غيار غير مسوّاة، لذا لا يمكن إغلاق الأمر الآن.",
+        "WORK_ORDER_NOT_AWAITING_OPS_CONFIRMATION": "لم يعد هذا الأمر بانتظار تأكيد التشغيل. تم تحديث الصفحة.",
+        "WORK_ORDER_NOT_AWAITING_FINAL_CLOSURE": "لم يعد هذا الأمر بانتظار الإغلاق النهائي. تم تحديث الصفحة.",
+        "WORK_ORDER_LEGACY_WORKFLOW": "هذا الإجراء غير متاح لأمر العمل القديم هذا.",
+        "WORK_ORDER_REVIEW_CHAIN": "هذا الأمر يتبع سلسلة المراجعة الجديدة. راجع تقرير مهمة الفني بدلاً من ذلك.",
+        "INSUFFICIENT_PERMISSIONS": "ليست لديك صلاحية لتنفيذ هذا الإجراء."
+      }
     }
   },
   "jobOrders": {

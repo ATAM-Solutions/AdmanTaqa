@@ -43,6 +43,11 @@
     "WORK_ORDER_REVIEW_REJECTED": "Work order review rejected — sent back to the technicians",
     "WORK_ORDER_WAREHOUSE_RETURN": "Warehouse return confirmed",
     "WORK_ORDER_OPS_CONFIRMED": "Operations confirmed — work order closed",
+    "WORK_ORDER_MAINTENANCE_APPROVED": "Maintenance Manager approved the technician report",
+    "WORK_ORDER_MAINTENANCE_RETURNED": "Maintenance Manager returned the technician report for correction",
+    "WORK_ORDER_OPS_APPROVED": "Operations confirmed — awaiting final closure",
+    "WORK_ORDER_OPS_RETURNED": "Operations returned the work for correction",
+    "WORK_ORDER_FINAL_CLOSED": "Maintenance Manager closed the work order",
     "TASK_ASSIGNED": "Task assigned",
     "TASK_ASSIGNED_TO": "Task assigned to {{name}}",
     "TASK_REASSIGNED": "Task reassigned",
@@ -78,7 +83,11 @@
       "ATTACHMENT_UPLOADED": "File uploaded",
       "WAITING_PARTS_REQUESTED": "Waiting for parts",
       "VISIT_COMPLETED": "Visit completed",
-      "JOB_SUBMITTED_FOR_REVIEW": "Submitted for review"
+      "JOB_SUBMITTED_FOR_REVIEW": "Submitted for review",
+      "REVIEW_PROVIDER_MANAGER_APPROVED": "Report approved by the provider manager",
+      "REVIEW_PROVIDER_MANAGER_RETURNED": "Report returned by the provider manager",
+      "TECHNICAL_CLOSED": "Work order technically closed",
+      "FINAL_PAYMENT_REQUESTED": "Final installment requested"
     },
     "WAREHOUSE_RETURN_PROPOSED": "Parts return proposed",
     "WAREHOUSE_RETURN_RESOLVED": "Parts return answered"
@@ -115,7 +124,8 @@
     "RETURN_SUBMITTED": "Return submitted",
     "WAREHOUSE_CONFIRMATION": "Warehouse checking return",
     "RETURNED": "Returned",
-    "CONFIRMED": "Confirmed"
+    "CONFIRMED": "Confirmed",
+    "AWAITING_FINAL_CLOSURE": "Awaiting final closure"
   },
   "actorLabels": {
     "UNRECORDED": "Not recorded (older record)",

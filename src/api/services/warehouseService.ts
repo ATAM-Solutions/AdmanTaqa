@@ -178,6 +178,9 @@ export interface OrderLine {
   /** Issued but not yet confirmed by the technician (only while the request awaits receipt). */
   pendingReceiptQuantity: number;
   usedQuantity: number | null;
+  /** When the assigned technician explicitly stated the used quantity (null until they did). */
+  usageConfirmedAt: string | null;
+  usageConfirmedByUserId: number | null;
   returnedQuantity: number | null;
   /** Proposed by the technician, not yet answered by the warehouse. */
   pendingReturnQuantity: number;
@@ -196,6 +199,8 @@ export interface OrderDetail {
   createdAt: string | null;
   requestedBy: string | null;
   requestedByUserId: number | null;
+  /** The technician who receives, states usage of and returns the parts. */
+  assignedTechnicianId: number | null;
   station: { en: string | null; ar: string | null } | null;
   warehouse: { id: number; name: string } | null;
   taskId: number | null;
@@ -233,6 +238,7 @@ export function normalizeOrder(raw: unknown): OrderDetail | null {
     createdAt: str(r.createdAt),
     requestedBy: str(obj(r.RequestedByUser)?.fullName),
     requestedByUserId: num(r.requestedByUserId),
+    assignedTechnicianId: num(r.assignedTechnicianId),
     station: b ? { en: str(b.nameEn), ar: str(b.nameAr) } : null,
     warehouse: wh && typeof wh.id === "number" ? { id: wh.id as number, name: str(wh.name) ?? `#${wh.id}` } : null,
     taskId: num(r.internalTaskId),
@@ -255,6 +261,8 @@ export function normalizeOrder(raw: unknown): OrderDetail | null {
         receivedQuantity: num(i.receivedQuantity),
         pendingReceiptQuantity: num(i.pendingReceiptQuantity) ?? 0,
         usedQuantity: num(i.usedQuantity),
+        usageConfirmedAt: str(i.usageConfirmedAt),
+        usageConfirmedByUserId: num(i.usageConfirmedByUserId),
         returnedQuantity: num(i.returnedQuantity),
         pendingReturnQuantity: num(i.pendingReturnQuantity) ?? 0,
         availableQuantity: num(i.availableQuantity),
@@ -294,6 +302,7 @@ export type OrderAction =
   | { kind: "issue"; quantities?: { itemId: number; quantity: number }[] }
   | { kind: "approveAndIssue"; quantities?: { itemId: number; quantity: number }[]; note?: string }
   | { kind: "receive"; received?: { itemId: number; quantity: number }[]; note?: string }
+  | { kind: "confirmUsage"; lines: { itemId: number; usedQuantity: number }[] }
   | { kind: "deliver" }
   | { kind: "partialReturn"; items: { itemId: number; quantity: number }[] }
   | { kind: "submitReturn" }
@@ -303,6 +312,11 @@ export type OrderAction =
   | { kind: "close" }
   | { kind: "cancel" }
   | { kind: "mapItem"; itemId: number; sparePartId: number };
+
+/** The assigned technician's explicit statement of how much of each received part was actually used (PATCH /warehouse-orders/:id/usage). */
+export async function confirmWarehouseUsage(orderId: number | string, lines: { itemId: number; usedQuantity: number }[]): Promise<void> {
+  await axiosInstance.patch(`warehouse-orders/${orderId}/usage`, { lines });
+}
 
 export async function runOrderAction(id: number | string, a: OrderAction): Promise<void> {
   const base = `warehouse-orders/${id}`;
@@ -317,6 +331,7 @@ export async function runOrderAction(id: number | string, a: OrderAction): Promi
       case "issue": await axiosInstance.patch(`${base}/issue`, a.quantities?.length ? { itemIssuedQuantities: a.quantities } : {}); break;
       case "approveAndIssue": await axiosInstance.patch(`${base}/approve-and-issue`, { ...(a.quantities?.length ? { itemIssuedQuantities: a.quantities } : {}), ...(a.note ? { note: a.note } : {}) }); break;
       case "receive": await axiosInstance.patch(`${base}/receive`, { ...(a.received?.length ? { itemReceivedQuantities: a.received } : {}), ...(a.note ? { note: a.note } : {}) }); break;
+      case "confirmUsage": await confirmWarehouseUsage(id, a.lines); break;
       case "deliver": await axiosInstance.patch(`${base}/deliver`, {}); break;
       case "partialReturn": await axiosInstance.patch(`${base}/return/partial`, { items: a.items }); break;
       case "submitReturn": await axiosInstance.patch(`${base}/return/submit`, {}); break;

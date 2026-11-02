@@ -27,6 +27,7 @@ import {
   type TaskStatusBody,
 } from "@/api/services/taskDetailService";
 import { getApiErrorMessage } from "@/lib/utils";
+import { chainHandoffStatus, reviewReturnNeedsComment, techActionsForOrder } from "@/lib/internalReviewChain";
 import ReportAttachmentTile from "@/components/ReportAttachmentTile";
 
 type TechAction = {
@@ -72,6 +73,15 @@ const STABLE_CODES = [
   "TASK_ALREADY_CLOSED",
   "BRANCH_ACCESS_DENIED",
   "INSUFFICIENT_PERMISSIONS",
+  "COMMENT_REQUIRED",
+  "PARTS_UNRESOLVED",
+  "WORK_ORDER_NOT_AWAITING_OPS_CONFIRMATION",
+  "WORK_ORDER_NOT_AWAITING_FINAL_CLOSURE",
+  "WORK_ORDER_LEGACY_WORKFLOW",
+  "WORK_ORDER_REVIEW_CHAIN",
+  "NOT_ASSIGNED_TECHNICIAN",
+  "ORDER_NOT_RECEIVED",
+  "INVALID_USED_QUANTITY",
 ] as const;
 
 const httpStatusOf = (e: unknown) => (e instanceof TaskActionError ? e.status : null);
@@ -158,10 +168,16 @@ export default function TaskDetail() {
   const canUpload = (isAssignee || canReview) && hasPermission("internal_tasks.upload");
   const stationName = task?.station ? (i18n.language.startsWith("ar") ? task.station.nameAr ?? task.station.nameEn : task.station.nameEn ?? task.station.nameAr) : null;
 
-  const techActions = canExecute && task ? TECH_ACTIONS[task.status] ?? [] : [];
+  const workflowVersion = task?.order?.workflowVersion ?? 1;
+  const isChain = reviewReturnNeedsComment(workflowVersion);
+  // chain orders: the manager's approval hands the order on, so the technician has no second "submit for review" step
+  const techActions = canExecute && task ? techActionsForOrder(TECH_ACTIONS[task.status] ?? [], workflowVersion) : [];
   const pendingReview = canReview && task?.status === "PENDING_APPROVAL";
   const submittedReview = canReview && task?.status === "UNDER_REVIEW";
   const alreadyApproved = submittedReview && !!task?.progress?.reviewedAt;
+  // chain orders: sending a technician report back needs a written reason (the server answers COMMENT_REQUIRED otherwise)
+  const returnBlocked = isChain && !reviewNote.trim();
+  const handoff = isChain ? chainHandoffStatus(task?.order?.status) : null;
 
   const doStatus = (a: TechAction) => {
     const body: TaskStatusBody = { status: a.target };
@@ -263,12 +279,22 @@ export default function TaskDetail() {
             <CardContent><TaskProgress progress={task.progress} /></CardContent>
           </Card>
 
-          {(techActions.length > 0 || pendingReview || submittedReview || (canExecute && task.status === "PENDING_APPROVAL")) && (
+          {handoff ? (
+            <p className="text-sm text-emerald-700 dark:text-emerald-400" role="status" data-testid="order-handoff">
+              {handoff === "AWAITING_OPS_CONFIRMATION" ? t("review.handedToOps") : t("review.handedToFinal")}
+            </p>
+          ) : null}
+
+          {(techActions.length > 0 || pendingReview || submittedReview || (canExecute && (task.status === "PENDING_APPROVAL" || (isChain && task.status === "COMPLETED")))) && (
             <Card>
               <CardHeader><CardTitle className="text-base">{t("actions.title")}</CardTitle></CardHeader>
               <CardContent className="space-y-4">
                 {canExecute && task.status === "PENDING_APPROVAL" ? (
                   <p className="text-sm text-amber-700 dark:text-amber-400" data-testid="task-waiting-manager">{t("actions.waitingManager")}</p>
+                ) : null}
+
+                {canExecute && isChain && task.status === "COMPLETED" ? (
+                  <p className="text-sm text-muted-foreground" data-testid="task-chain-no-submit">{t("actions.chainNoSubmit")}</p>
                 ) : null}
 
                 {techActions.length > 0 ? (
@@ -358,8 +384,9 @@ export default function TaskDetail() {
                           : t("review.submittedPrompt")}
                     </p>
                     <div className="space-y-1">
-                      <Label htmlFor="review-note">{t("review.note")}</Label>
+                      <Label htmlFor="review-note">{isChain ? t("review.noteRequired") : t("review.note")}</Label>
                       <Textarea id="review-note" dir="auto" value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} maxLength={2000} />
+                      {returnBlocked ? <p className="text-xs text-muted-foreground" data-testid="review-return-hint">{t("review.returnNeedsNote")}</p> : null}
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {!alreadyApproved ? (
@@ -384,7 +411,7 @@ export default function TaskDetail() {
                       <Button
                         size="sm"
                         variant="destructive"
-                        disabled={busy}
+                        disabled={busy || returnBlocked}
                         data-testid="review-reject"
                         onClick={() =>
                           run.mutate(() =>

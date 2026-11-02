@@ -63,5 +63,8 @@
   "warehouses": "Warehouses",
   "reconciliation": "Payment reconciliation",
   "maintenanceReview": "External work review",
-  "operationsReview": "External work approval"
+  "operationsReview": "External work approval",
+  "closureReview": "External work closure",
+  "providerReviewQueue": "Technician report review",
+  "internalReviewQueue": "Internal work order review"
 }

@@ -61,7 +61,7 @@ export interface TaskDetailData {
   inspectionNotes: string | null;
   reopenReason: string | null;
   station: { id: number; nameEn: string | null; nameAr: string | null; address: string | null } | null;
-  order: { id: number; title: string | null; status: string | null; priority: string | null; description: string | null } | null;
+  order: { id: number; title: string | null; status: string | null; priority: string | null; description: string | null; workflowVersion: number } | null;
   progress: TaskProgress | null;
   activity: TaskActivity[];
   attachments: TaskAttachmentItem[];
@@ -108,6 +108,7 @@ export function normalizeTaskDetail(raw: unknown): TaskDetailData | null {
           status: str(orderRaw.status),
           priority: str(orderRaw.priority),
           description: str(orderRaw.description),
+          workflowVersion: num(orderRaw.workflowVersion) ?? 1,
         }
       : null,
     progress: progress && Array.isArray(progress.stages) ? (progress as unknown as TaskProgress) : null,

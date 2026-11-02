@@ -257,9 +257,11 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
     anyPermissions: ["internal_work_orders.read"],
     excludeExecutorOnly: true,
   },
+  // Maintenance Managers (review) and Operations Managers (ops_confirm): the server narrows an Operations-only caller
+  // to the orders awaiting their confirmation.
   "internal-work-orders/review-queue": {
     orgTypes: ["FUEL_STATION"],
-    anyPermissions: ["internal_work_orders.review"],
+    anyPermissions: ["internal_work_orders.review", "internal_work_orders.ops_confirm"],
   },
   "internal-work-orders/:id": {
     orgTypes: ["FUEL_STATION"],
@@ -326,6 +328,16 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   "external-reviews/operations": {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["external_maintenance_v2.ops_closure"],
+  },
+  // Final technical closure by the requesting Maintenance Manager (review chain)
+  "external-reviews/closure": {
+    orgTypes: ["FUEL_STATION"],
+    anyPermissions: ["external_maintenance_v2.maintenance_review"],
+  },
+  // Provider Manager's queue of technician reports awaiting approval (review chain)
+  "provider-review-queue": {
+    orgTypes: ["SERVICE_PROVIDER"],
+    anyPermissions: ["provider_job_v2.review_report"],
   },
   // Provider (Service Provider): RFQs, job orders
   "provider-rfqs": {

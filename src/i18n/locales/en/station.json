@@ -27,7 +27,7 @@
     "next": "Next",
     "reviewQueue": {
       "title": "Internal Work Orders — Review Queue",
-      "subtitle": "Orders awaiting approval or rejection.",
+      "subtitle": "Orders awaiting maintenance review, operations confirmation or final closure.",
       "noOrders": "No orders in review queue.",
       "review": "Review"
     },
@@ -45,6 +45,120 @@
         "closeFailed": "Close failed."
       },
       "noAccess": "You don't have access to this work order's station."
+    },
+    "statusLabels": {
+      "DRAFT": "Draft",
+      "OPEN": "Open",
+      "PENDING": "Pending",
+      "IN_PROGRESS": "In progress",
+      "UNDER_REVIEW": "Awaiting maintenance review",
+      "MAINTENANCE_CLOSED": "Maintenance closed",
+      "AWAITING_OPS_CONFIRMATION": "Awaiting operations confirmation",
+      "AWAITING_FINAL_CLOSURE": "Awaiting final closure",
+      "CLOSED": "Closed",
+      "CANCELLED": "Cancelled"
+    },
+    "statusAwaitingOps": "Awaiting operations confirmation",
+    "statusAwaitingFinal": "Awaiting final closure",
+    "reviewStage": {
+      "UNDER_REVIEW": "Maintenance review",
+      "AWAITING_OPS_CONFIRMATION": "Operations confirmation",
+      "AWAITING_FINAL_CLOSURE": "Final closure",
+      "OTHER": "Review"
+    },
+    "reviewQueueOrderId": "#{{id}}",
+    "chain": {
+      "bannerTitle": "Next step",
+      "you": "This step is yours.",
+      "waitingFor": "Waiting for {{actor}}.",
+      "actor": {
+        "TECHNICIAN": "the technician",
+        "MAINTENANCE_MANAGER": "the Maintenance Manager",
+        "OPERATIONS_MANAGER": "the Operations Manager"
+      },
+      "stage": {
+        "NOT_STARTED": "Work has not started yet. A technician needs to be assigned and begin the task.",
+        "IN_EXECUTION": "The technician is working on this order. When the task is completed, the Maintenance Manager reviews the report.",
+        "AWAITING_MAINTENANCE_REVIEW": "The technician's report is waiting for the Maintenance Manager's approval. Approving it sends the order to Operations automatically.",
+        "AWAITING_OPERATIONS_REVIEW": "The Operations Manager must confirm the completed work or return it to the technician with a comment.",
+        "AWAITING_FINAL_CLOSURE": "Operations confirmed the work. The Maintenance Manager performs the final closure.",
+        "AWAITING_WAREHOUSE_RETURN": "Spare parts are being returned to the warehouse.",
+        "CLOSED": "This work order is closed."
+      },
+      "comment": {
+        "label": "Comment",
+        "hintOps": "Optional when confirming, required when returning to the technician.",
+        "hintClose": "Optional.",
+        "placeholder": "Write a comment"
+      },
+      "ops": {
+        "confirm": "Confirm work",
+        "return": "Return to technician",
+        "returnNeedsComment": "Write a comment to return the work to the technician.",
+        "confirmed": "Work confirmed. The order now awaits final closure.",
+        "returned": "Work returned to the technician."
+      },
+      "finalClose": {
+        "button": "Close work order",
+        "closed": "Work order closed.",
+        "blockedTitle": "Closure is blocked by spare parts",
+        "blockedHint": "Resolve every part below (technician states usage, leftovers returned and confirmed by the warehouse) before closing."
+      },
+      "legacy": {
+        "stuckHint": "Every task is completed and approved but the order was never submitted for review. You can approve or reject it now.",
+        "approve": "Approve",
+        "reject": "Reject",
+        "close": "Confirm closure"
+      },
+      "parts": {
+        "title": "Spare parts reconciliation",
+        "none": "No spare parts were issued for this order.",
+        "part": "Part",
+        "issued": "Issued",
+        "received": "Received",
+        "used": "Used",
+        "returned": "Returned",
+        "awaitingWarehouse": "Awaiting warehouse",
+        "unresolved": "Unresolved",
+        "status": "Status",
+        "notYet": "—",
+        "resolved": "Resolved",
+        "shortfall": "{{count}} short of the issued quantity",
+        "order": "Warehouse request #{{id}}",
+        "blockers": {
+          "AWAITING_RECEIPT": "Awaiting receipt",
+          "USAGE_NOT_CONFIRMED": "Usage not confirmed",
+          "RETURN_NOT_RECORDED": "Return not recorded",
+          "RETURN_AWAITING_WAREHOUSE": "Return awaiting warehouse"
+        },
+        "total": "Total"
+      },
+      "history": {
+        "title": "Review history",
+        "empty": "No review decisions have been recorded yet.",
+        "task": "Task #{{id}}",
+        "noComment": "No comment",
+        "stage": {
+          "MAINTENANCE_REVIEW": "Maintenance review",
+          "OPERATIONS_REVIEW": "Operations review",
+          "FINAL_CLOSURE": "Final closure"
+        },
+        "decision": {
+          "APPROVED": "Approved",
+          "RETURNED": "Returned",
+          "CLOSED": "Closed"
+        }
+      },
+      "errors": {
+        "generic": "The action could not be completed.",
+        "COMMENT_REQUIRED": "A comment is required.",
+        "PARTS_UNRESOLVED": "Spare parts are still unresolved, so the order cannot be closed yet.",
+        "WORK_ORDER_NOT_AWAITING_OPS_CONFIRMATION": "This order is no longer awaiting operations confirmation. The page was refreshed.",
+        "WORK_ORDER_NOT_AWAITING_FINAL_CLOSURE": "This order is no longer awaiting final closure. The page was refreshed.",
+        "WORK_ORDER_LEGACY_WORKFLOW": "This action is not available for this older work order.",
+        "WORK_ORDER_REVIEW_CHAIN": "This order follows the new review chain. Review the technician's task report instead.",
+        "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this."
+      }
     }
   },
   "jobOrders": {

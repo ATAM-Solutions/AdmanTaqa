@@ -31,9 +31,10 @@ describe("Fuel Station job titles: pages", () => {
       expect(fs("technician", p), p).toBe(false);
   });
 
-  it("only the Maintenance Manager reaches the review queue and the internal/external request form (with the Station Manager's direct form a documented policy question)", () => {
-    expect(fs("maintenance", "/internal-work-orders/review-queue")).toBe(true);
-    for (const who of ["technician", "supervisor", "operations", "warehouse", "manager"] as const) expect(fs(who, "/internal-work-orders/review-queue"), who).toBe(false);
+  it("only the Maintenance Manager and the Operations Manager reach the internal review queue (Operations is narrowed to its own stage by the server); only the Maintenance Manager reaches the request form (with the Station Manager's direct form a documented policy question)", () => {
+    // Review chain: the Operations Manager has a review stage of their own (confirm / return), so they get the queue too.
+    for (const who of ["maintenance", "operations"] as const) expect(fs(who, "/internal-work-orders/review-queue"), who).toBe(true);
+    for (const who of ["technician", "supervisor", "warehouse", "manager"] as const) expect(fs(who, "/internal-work-orders/review-queue"), who).toBe(false);
     for (const who of ["technician", "supervisor", "operations", "warehouse"] as const) expect(fs(who, "/station-requests/create"), who).toBe(false);
   });
 
@@ -42,7 +43,8 @@ describe("Fuel Station job titles: pages", () => {
       expect(fs(who, "/maintenance-reports")).toBe(true);
       expect(fs(who, "/maintenance-reports/create")).toBe(false);
       expect(fs(who, "/station-requests/create")).toBe(false);
-      expect(fs(who, "/internal-work-orders/review-queue")).toBe(false);
+      // the Operations Manager reaches the review queue for the orders awaiting their confirmation; the Supervisor does not
+      expect(fs(who, "/internal-work-orders/review-queue")).toBe(who === "operations");
       expect(fs(who, "/my-tasks")).toBe(false);
     }
     expect(fs("operations", "/station-job-orders")).toBe(true);

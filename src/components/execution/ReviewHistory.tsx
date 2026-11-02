@@ -20,6 +20,23 @@ function Decision({ label, d }: { label: string; d: ReviewDecisionInfo | null })
   );
 }
 
+function Closure({ c }: { c: NonNullable<JobReview["rounds"][number]["technicalClosure"]> | null }) {
+  const { t, i18n } = useTranslation("execution");
+  const label = t("history.closure");
+  if (!c) return <p className="text-xs text-muted-foreground">{label}: {t("history.pending")}</p>;
+  return (
+    <div className="text-xs space-y-0.5" data-testid="review-closure">
+      <p>
+        <span className="font-medium">{label}:</span>{" "}
+        <Badge className="text-[10px]">{t("history.CLOSED")}</Badge>{" "}
+        {c.by?.name ? <span>{t("history.by", { name: c.by.name })}</span> : null}{" "}
+        {c.at ? <span className="text-muted-foreground">{formatDate(c.at, i18n.language, { dateStyle: "medium", timeStyle: "short" })}</span> : null}
+      </p>
+      {c.comment ? <p className="rounded bg-muted/50 px-2 py-1">{c.comment}</p> : null}
+    </div>
+  );
+}
+
 /** Every review round, oldest first: who approved or returned the work, when, and why. Rounds are never rewritten. */
 export default function ReviewHistory({ review }: { review: Pick<JobReview, "rounds"> }) {
   const { t, i18n } = useTranslation("execution");
@@ -34,7 +51,14 @@ export default function ReviewHistory({ review }: { review: Pick<JobReview, "rou
               {t("history.round", { n: r.round })}
               {r.submittedAt ? <span className="ms-2 text-xs font-normal text-muted-foreground">{t("history.submitted", { date: formatDate(r.submittedAt, i18n.language, { dateStyle: "medium", timeStyle: "short" }) })}</span> : null}
             </p>
-            {r.twoStep ? (
+            {r.workflowVersion === 2 ? (
+              <>
+                <Decision label={t("history.providerManager")} d={r.providerManager ?? null} />
+                {r.providerManager?.decision === "APPROVED" ? <Decision label={t("history.maintenance")} d={r.maintenanceManager} /> : null}
+                {r.maintenanceManager?.decision === "APPROVED" ? <Decision label={t("history.operations")} d={r.operationsManager} /> : null}
+                {r.operationsManager?.decision === "APPROVED" ? <Closure c={r.technicalClosure ?? null} /> : null}
+              </>
+            ) : r.twoStep ? (
               <>
                 <Decision label={t("history.maintenance")} d={r.maintenanceManager} />
                 <Decision label={t("history.operations")} d={r.operationsManager} />

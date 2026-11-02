@@ -1,10 +1,12 @@
 import axiosInstance from "@/api/config";
 
 export interface MilestoneWorkflow {
-  stage: "DUE_LATER" | "AWAITING_REPORT" | "AWAITING_RECEIPT_CONFIRMATION" | "SETTLED" | "DISPUTED";
+  stage: "DUE_LATER" | "AWAITING_PROVIDER_REQUEST" | "AWAITING_REPORT" | "AWAITING_RECEIPT_CONFIRMATION" | "SETTLED" | "DISPUTED";
   due: boolean;
   report: { actor: string; allowed: boolean; reason: string | null };
   confirmReceipt: { actor: string; allowed: boolean; reason: string | null };
+  /** review-chain jobs only: the Provider Manager must request the final installment after technical closure */
+  request?: { actor: "PROVIDER_MANAGER" | string; allowed: boolean; reason: string | null };
 }
 export interface Milestone {
   id: number;
@@ -70,6 +72,16 @@ export async function reportMilestoneSent(jobOrderId: number | string, milestone
 export async function confirmMilestoneReceived(jobOrderId: number | string, milestoneId: number): Promise<void> {
   try {
     await axiosInstance.post(`provider/job-orders/${jobOrderId}/payment-milestones/${milestoneId}/confirm-received`, { confirm: true });
+  } catch (e) {
+    throw toError(e);
+  }
+}
+
+/** Provider Manager: request the final (ON_JOB_CLOSED) installment after technical closure. Until then the station cannot report the transfer. */
+export async function requestFinalInstallment(jobOrderId: number | string, milestoneId: number): Promise<Milestone> {
+  try {
+    const res = await axiosInstance.post<{ data?: Milestone }>(`provider/job-orders/${jobOrderId}/payment-milestones/${milestoneId}/request`);
+    return res.data?.data as Milestone;
   } catch (e) {
     throw toError(e);
   }

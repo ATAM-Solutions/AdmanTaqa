@@ -64,7 +64,12 @@
       "startWork": "Start the work: check in on site. Operators then record notes and photos.",
       "submitReport": "Evidence is ready. Write the final maintenance report and submit it for review.",
       "waitMaintenance": "Report submitted. Waiting for the Maintenance Manager to review it.",
-      "waitOperations": "The Maintenance Manager approved it. Waiting for the Operations Manager's final approval."
+      "waitOperations": "The Maintenance Manager approved it. Waiting for the Operations Manager's final approval.",
+      "managerApprove": "Review the technician's report: approve it for the station, or return it to the technician with a comment.",
+      "waitProviderManager": "Report submitted. Waiting for the Provider Manager to approve it before it goes to the station.",
+      "waitFinalClosure": "Operations approved it. Waiting for the station's Maintenance Manager to close the work order technically.",
+      "requestFinalInstallment": "The work order is technically closed. Request the final installment (see Payments below).",
+      "waitRequest": "The work order is technically closed. The Provider Manager must request the final installment."
     },
     "station": {
       "reportPayment": "Report the installment payment with a transfer reference or receipt (see Payments below).",
@@ -76,7 +81,11 @@
       "reviewMaintenance": "Review the provider's final report: approve it for the Operations Manager, or return it with a comment.",
       "reviewOperations": "Give the final approval or return the work with a comment. Approval makes the final installment due.",
       "waitMaintenance": "Waiting for the Maintenance Manager to review the final report.",
-      "waitOperations": "Waiting for the Operations Manager's final approval."
+      "waitOperations": "Waiting for the Operations Manager's final approval.",
+      "closeWorkOrder": "Operations approved the work. Close the work order (technical closure) so the provider can request the final installment.",
+      "waitFinalClosure": "Waiting for the Maintenance Manager to close the work order technically.",
+      "waitProviderManager": "Waiting for the service provider to finish its internal review of the report.",
+      "waitProviderRequest": "Waiting for the service provider to request the final installment."
     }
   }
 }

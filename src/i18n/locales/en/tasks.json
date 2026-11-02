@@ -70,7 +70,8 @@
     "completeSubmit": "Send completion",
     "submitReview": "Submit for review",
     "returnMaterials": "Return materials",
-    "returnMaterialsSubmit": "Send return report"
+    "returnMaterialsSubmit": "Send return report",
+    "chainNoSubmit": "After the Maintenance Manager approves your report, the order moves on to Operations automatically."
   },
   "review": {
     "pendingPrompt": "The technician asked to move this task to “{{stage}}”. Approve or reject the update.",
@@ -78,7 +79,11 @@
     "alreadyApproved": "This task was already approved.",
     "note": "Note (optional)",
     "approve": "Approve",
-    "reject": "Reject"
+    "reject": "Reject",
+    "noteRequired": "Note (required to send the report back)",
+    "returnNeedsNote": "Write a note explaining what must be fixed before you can send the report back.",
+    "handedToOps": "Approved. This work order has moved to Operations review.",
+    "handedToFinal": "Approved. This work order is now awaiting final closure."
   },
   "attachments": {
     "title": "Attachments",
@@ -96,7 +101,16 @@
     "TASK_NOT_REVIEWABLE": "This task is no longer waiting for review. The page was refreshed.",
     "TASK_ALREADY_CLOSED": "This task is already closed.",
     "BRANCH_ACCESS_DENIED": "You do not have access to this station.",
-    "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this."
+    "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this.",
+    "COMMENT_REQUIRED": "A comment is required to send the report back.",
+    "PARTS_UNRESOLVED": "Spare parts are still unresolved.",
+    "WORK_ORDER_NOT_AWAITING_OPS_CONFIRMATION": "This order is no longer awaiting operations confirmation. The page was refreshed.",
+    "WORK_ORDER_NOT_AWAITING_FINAL_CLOSURE": "This order is no longer awaiting final closure. The page was refreshed.",
+    "WORK_ORDER_LEGACY_WORKFLOW": "This action is not available for this older work order.",
+    "WORK_ORDER_REVIEW_CHAIN": "This order follows the new review chain.",
+    "NOT_ASSIGNED_TECHNICIAN": "Only the assigned technician can do this.",
+    "ORDER_NOT_RECEIVED": "Confirm receipt of the parts first.",
+    "INVALID_USED_QUANTITY": "The used quantity is higher than what you still hold."
   },
   "open": "Open task",
   "partsPicker": {

@@ -24,7 +24,15 @@
     "by": "by {{name}}",
     "maintenance": "Maintenance Manager",
     "operations": "Operations Manager",
-    "legacy": "Reviewed in a single step (submitted before the two-step review)."
+    "legacy": "Reviewed in a single step (submitted before the two-step review).",
+    "providerManager": "Provider Manager",
+    "closure": "Technical closure",
+    "CLOSED": "Closed",
+    "roles": {
+      "providerManager": "your Provider Manager",
+      "maintenance": "the station's Maintenance Manager",
+      "operations": "the station's Operations Manager"
+    }
   },
   "noPermission": "Your role can view this job but not run the work.",
   "steps": {
@@ -41,8 +49,11 @@
     "underReview": {
       "AWAITING_MAINTENANCE_MANAGER": "Submitted. The Maintenance Manager is reviewing the final report.",
       "AWAITING_OPERATIONS_MANAGER": "The Maintenance Manager approved it. The Operations Manager gives the final approval.",
-      "LEGACY_SINGLE_STEP": "Submitted. The station is reviewing the work."
-    }
+      "LEGACY_SINGLE_STEP": "Submitted. The station is reviewing the work.",
+      "AWAITING_PROVIDER_MANAGER": "Submitted. Waiting for your Provider Manager to approve the report before it goes to the station.",
+      "AWAITING_FINAL_CLOSURE": "The Operations Manager approved it. Waiting for the station's Maintenance Manager to close the work order technically."
+    },
+    "returnedBy": "Returned by {{role}} ({{name}})."
   },
   "operator": {
     "title": "Operator",
@@ -110,7 +121,18 @@
     "MAINTENANCE_APPROVAL_REQUIRED": "The Maintenance Manager must approve before the Operations Manager.",
     "REVIEW_STAGE_CLOSED": "This step was already decided.",
     "REPORT_NOT_AWAITING_REVIEW": "This report is not waiting for review any more.",
-    "TWO_STEP_REVIEW_NOT_APPLICABLE": "This report was submitted before the two-step review."
+    "TWO_STEP_REVIEW_NOT_APPLICABLE": "This report was submitted before the two-step review.",
+    "SELF_REVIEW_FORBIDDEN": "You cannot review a report you wrote.",
+    "PROVIDER_MANAGER_APPROVAL_REQUIRED": "The Provider Manager must approve the report first.",
+    "NOT_AWAITING_TECHNICAL_CLOSURE": "This work order is not waiting for technical closure any more.",
+    "MILESTONE_NOT_REQUESTED": "The provider has not requested this installment yet.",
+    "MILESTONE_ALREADY_REQUESTED": "This installment was already requested.",
+    "REQUEST_NOT_APPLICABLE": "This installment cannot be requested.",
+    "MILESTONE_NOT_DUE": "This installment is not due yet.",
+    "MILESTONE_SEQUENCE_BLOCKED": "An earlier installment must be settled first.",
+    "MILESTONE_ALREADY_SENT": "This payment was already reported.",
+    "NOT_ASSIGNED_OPERATOR": "Only the operator assigned to this job can do this.",
+    "INSUFFICIENT_PERMISSIONS": "You do not have permission for this action."
   },
   "station": {
     "title": "Technical review",
@@ -120,7 +142,9 @@
       "AWAITING_OPERATIONS_MANAGER": "Waiting for the Operations Manager's final approval.",
       "RETURNED_TO_PROVIDER": "Returned to the provider for correction.",
       "APPROVED": "Approved. The work is technically complete.",
-      "LEGACY_SINGLE_STEP": "Single-step review (submitted before the two-step review)."
+      "LEGACY_SINGLE_STEP": "Single-step review (submitted before the two-step review).",
+      "AWAITING_PROVIDER_MANAGER": "Waiting for the service provider's manager to approve its own report.",
+      "AWAITING_FINAL_CLOSURE": "Approved by Operations. Waiting for the Maintenance Manager's technical closure."
     },
     "approveMaintenance": "Approve and forward",
     "approveFinal": "Final approval",
@@ -134,7 +158,13 @@
     "maintenanceNote": "Approval forwards the work to the Operations Manager. It does not make any payment due.",
     "approved": "Approved.",
     "returned": "Returned to the provider.",
-    "notYours": "The other manager reviews this step."
+    "notYours": "The other manager reviews this step.",
+    "finalNoteChain": "Operations approval does not close the work order. It goes to the Maintenance Manager for technical closure, and only then is the final installment due.",
+    "approveFinalChain": "Approve (then technical closure)",
+    "closeWorkOrder": "Close work order (technical closure)",
+    "closureNote": "Closing marks the work as technically complete. The provider can then request the final installment.",
+    "closureNotYours": "Only the requesting Maintenance Manager can close the work order.",
+    "closed": "Work order closed."
   },
   "package": {
     "title": "Final report and evidence",
@@ -174,6 +204,28 @@
     "submitted": "Submitted",
     "approvedOn": "Maintenance approved",
     "open": "Review",
-    "loadFailed": "The review queue could not be loaded."
+    "loadFailed": "The review queue could not be loaded.",
+    "closure": {
+      "title": "External work — Awaiting final closure",
+      "subtitle": "Work approved by Operations, waiting for your technical closure."
+    },
+    "provider_manager": {
+      "title": "Technician reports — Provider Manager review",
+      "subtitle": "Reports submitted by technicians, waiting for your approval before they go to the station."
+    },
+    "submittedBy": "Submitted by",
+    "ownReport": "Your own report"
+  },
+  "manager": {
+    "title": "Review the technician's report",
+    "intro": "Approve the report to send it to the requesting station, or return it to the technician with a comment. The station does not see it until you approve.",
+    "approve": "Approve and send to the station",
+    "return": "Return to technician",
+    "commentRequired": "Explain what the technician must correct (required to return).",
+    "commentHint": "A comment is required to return the report. It is optional when approving.",
+    "ownReport": "You wrote this report, so another manager must review it.",
+    "confirmReturn": "Return to technician",
+    "approved": "Approved and sent to the station.",
+    "returned": "Returned to the technician."
   }
 }

@@ -3,17 +3,15 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, CheckCircle, XCircle, Lock, UserPlus, UserCog, FileText } from "lucide-react";
+import { ChevronLeft, UserPlus, UserCog, FileText } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import AssignWorkerDialog from "./AssignWorkerDialog";
 import TaskProgress from "@/components/TaskProgress";
 import SourceReportAttachments from "@/components/SourceReportAttachments";
 import ActivityTimeline from "@/components/ActivityTimeline";
-import { toast } from "sonner";
 import useInternalWorkOrderById from "@/hooks/Station/useInternalWorkOrderById";
-import useReviewInternalWorkOrder from "@/hooks/Station/useReviewInternalWorkOrder";
-import useCloseInternalWorkOrder from "@/hooks/Station/useCloseInternalWorkOrder";
+import InternalReviewChainPanel from "@/components/internal/InternalReviewChainPanel";
 
 export default function InternalWorkOrderDetail() {
   const { t } = useTranslation("station");
@@ -25,34 +23,9 @@ export default function InternalWorkOrderDetail() {
   const navigate = useNavigate();
   const { data: order, isLoading, error } = useInternalWorkOrderById(id ?? null);
   const forbidden = (error as { response?: { status?: number } } | null)?.response?.status === 403;
-  const reviewMutation = useReviewInternalWorkOrder();
-  const closeMutation = useCloseInternalWorkOrder();
   const { hasPermission } = useAuth();
   const [assignTarget, setAssignTarget] = useState<{ taskId: number | null; assignedUserId?: number | null; name?: string | null } | null>(null);
 
-  const handleReview = (decision: "APPROVE" | "REJECT") => {
-    if (!id) return;
-    reviewMutation.mutate(
-      { id, body: { decision } },
-      {
-        onSuccess: () => toast.success(decision === "APPROVE" ? t("internalWorkOrders.detail.toasts.approved") : t("internalWorkOrders.detail.toasts.rejected")),
-        onError: (e) => toast.error(e instanceof Error ? e.message : t("internalWorkOrders.detail.toasts.reviewFailed")),
-      }
-    );
-  };
-
-  const handleClose = () => {
-    if (!id) return;
-    closeMutation.mutate(id, {
-      onSuccess: () => toast.success(t("internalWorkOrders.detail.toasts.closed")),
-      onError: (e) => toast.error(e instanceof Error ? e.message : t("internalWorkOrders.detail.toasts.closeFailed")),
-    });
-  };
-
-  const canReview = order?.status === "UNDER_REVIEW";
-  // Closing an order IS the operations confirmation: only for holders of ops_confirm, only once the order is
-  // awaiting it. It is never a substitute for a technician completing their task (Report 3 finding 2).
-  const canClose = order?.status === "AWAITING_OPS_CONFIRMATION" && hasPermission("internal_work_orders.ops_confirm");
   const orderOpenForWork = order != null && order.status !== "CLOSED" && order.status !== "CANCELLED";
   const canAssign = orderOpenForWork && hasPermission("internal_tasks.assign");
 
@@ -83,45 +56,13 @@ export default function InternalWorkOrderDetail() {
           <div>
             <CardTitle>{order.title}</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              {t("internalWorkOrders.detail.idLabel", { id: order.id })} <Badge variant="secondary">{order.status}</Badge>
+              {t("internalWorkOrders.detail.idLabel", { id: order.id })} <Badge variant="secondary" data-testid="order-status">{t(`internalWorkOrders.statusLabels.${order.status}`, { defaultValue: order.status })}</Badge>
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {canReview && (
-              <>
-                <Button
-                  size="sm"
-                  onClick={() => handleReview("APPROVE")}
-                  disabled={reviewMutation.isPending}
-                  className="gap-1"
-                >
-                  <CheckCircle className="h-4 w-4" /> {t("internalWorkOrders.detail.approve")}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="destructive"
-                  onClick={() => handleReview("REJECT")}
-                  disabled={reviewMutation.isPending}
-                  className="gap-1"
-                >
-                  <XCircle className="h-4 w-4" /> {t("internalWorkOrders.detail.reject")}
-                </Button>
-              </>
-            )}
             {canAssign && (
               <Button size="sm" onClick={() => setAssignTarget({ taskId: null })} className="gap-1">
                 <UserPlus className="h-4 w-4" /> {t("assignWorker.open")}
-              </Button>
-            )}
-            {canClose && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleClose}
-                disabled={closeMutation.isPending}
-                className="gap-1"
-              >
-                <Lock className="h-4 w-4" /> {t("internalWorkOrders.detail.close")}
               </Button>
             )}
           </div>
@@ -130,6 +71,7 @@ export default function InternalWorkOrderDetail() {
           {order.description && <p className="text-sm">{order.description}</p>}
         </CardContent>
       </Card>
+      <InternalReviewChainPanel order={order} />
       {order.sourceReport && (
         <Card>
           <CardHeader>

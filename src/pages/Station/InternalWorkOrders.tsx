@@ -57,6 +57,8 @@ export default function InternalWorkOrders() {
               <SelectItem value="PENDING">{t("internalWorkOrders.statusPending")}</SelectItem>
               <SelectItem value="IN_PROGRESS">{t("internalWorkOrders.statusInProgress")}</SelectItem>
               <SelectItem value="UNDER_REVIEW">{t("internalWorkOrders.statusUnderReview")}</SelectItem>
+              <SelectItem value="AWAITING_OPS_CONFIRMATION">{t("internalWorkOrders.statusAwaitingOps")}</SelectItem>
+              <SelectItem value="AWAITING_FINAL_CLOSURE">{t("internalWorkOrders.statusAwaitingFinal")}</SelectItem>
               <SelectItem value="CLOSED">{t("internalWorkOrders.statusClosed")}</SelectItem>
             </SelectContent>
           </Select>
@@ -68,11 +70,11 @@ export default function InternalWorkOrders() {
         ) : (
           <ul className="space-y-2">
             {items.map((wo) => (
-              <li key={wo.id} className="flex items-center justify-between rounded-lg border p-3">
+              <li key={wo.id} className="flex flex-wrap items-center justify-between gap-2 rounded-lg border p-3">
                 <div>
                   <span className="font-medium">{wo.title}</span>
                   <span className="ms-2 text-xs text-muted-foreground">#{wo.id}</span>
-                  <span className="ms-2 text-xs uppercase">{wo.status}</span>
+                  <span className="ms-2 text-xs" data-testid="order-status">{t(`internalWorkOrders.statusLabels.${wo.status}`, { defaultValue: wo.status })}</span>
                 </div>
                 <Button variant="ghost" size="sm" asChild>
                   <Link to={`/internal-work-orders/${wo.id}`}>{t("internalWorkOrders.view")}</Link>
