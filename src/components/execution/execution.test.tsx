@@ -95,6 +95,66 @@ describe("Provider execution workspace", () => {
     perms = PROVIDER_PERMS;
     expect(await panel("en", { visits: [] })).not.toContain('data-testid="missing-permissions"');
   });
+  it("Bug #5: local Operator copy #252 (its six keys incl. rfqs.read) is warned; after the two approved grants (execute + reports.submit) the warning is gone and the visit controls open", async () => {
+    const tag = (html: string, id: string) => html.match(new RegExp(`<button[^>]*data-testid="${id}"[^>]*>`))?.[0] ?? "";
+    const before = ["provider.job_orders.read", "provider.job_orders.update_status", "provider.job_orders.upload", "provider.rfqs.read", "provider.visits.checkin", "provider.visits.upload"];
+    perms = before;
+    const warned = await panel("en", { visits: [] });
+    expect(warned).toContain('data-testid="missing-permissions"');
+    for (const k of ["notes", "report", "submit"]) expect(warned).toContain(`data-testid="missing-${k}"`);
+    perms = [...before, "provider.jobs.execute", "provider.reports.submit"];
+    for (const lng of ["en", "ar"] as const) {
+      const ok = await panel(lng, { visits: [] });
+      expect(ok).not.toContain('data-testid="missing-permissions"');
+      expect(tag(ok, "start-work")).not.toMatch(/\sdisabled(=|\s|>)/);
+    }
+    const working = await panel("en", { status: "IN_PROGRESS", visits: [visit("CHECKED_IN")] });
+    expect(tag(working, "complete-visit")).not.toMatch(/\sdisabled(=|\s|>)/);
+    // the grants do not open manager controls
+    expect(working).not.toContain('data-testid="operator-picker"');
+  });
+  describe("Bug #7: manager-confirmed manual check-in", () => {
+    const MANAGER = ["provider.job_orders.read", "provider.job_orders.assign_operator", "provider.jobs.execute", "provider.visits.checkin", "provider.jobs.manual_checkin"];
+    const open = [visit("DRAFT")];
+    for (const lng of ["en", "ar"] as const) {
+      const L = (lng === "en" ? enExec : arExec) as unknown as { manual: { button: string; needsVisit: string; sectionHint: string } };
+      it(`(${lng}) a Provider Manager who is not the assigned operator sees a separate Manual Check-in action, not the operator's GPS controls`, async () => {
+        perms = MANAGER;
+        const html = await panel(lng, { visits: open, mine: false });
+        expect(html).toContain('data-testid="manual-checkin-section"');
+        expect(html).toContain('data-testid="manual-checkin-open"');
+        expect(html).toContain(L.manual.button);
+        expect(html).toContain(L.manual.sectionHint);
+        expect(html).not.toContain('data-testid="checkin-gps"'); // GPS stays the operator's own
+        expect(html).not.toContain('data-testid="start-work"');
+        expect(html).not.toMatch(/manual\.[a-z]/i); // no raw translation key
+      });
+      it(`(${lng}) with no open visit the manager is told the operator must start the work first`, async () => {
+        perms = MANAGER;
+        const html = await panel(lng, { visits: [], mine: false });
+        expect(html).toContain('data-testid="manual-needs-visit"');
+        expect(html).toContain(L.manual.needsVisit);
+        expect(html).not.toContain('data-testid="manual-checkin-open"');
+      });
+    }
+    it("is not offered without the explicit permission, to the assigned operator (who keeps their own controls), once checked in, on a non-executable job, or with no operator", async () => {
+      perms = MANAGER.filter((p) => p !== "provider.jobs.manual_checkin");
+      expect(await panel("en", { visits: open, mine: false })).not.toContain('data-testid="manual-checkin-open"');
+      perms = MANAGER.filter((p) => p !== "provider.job_orders.assign_operator");
+      expect(await panel("en", { visits: open, mine: false })).not.toContain('data-testid="manual-checkin-open"');
+      perms = MANAGER;
+      expect(await panel("en", { visits: open, mine: true })).not.toContain('data-testid="manual-checkin-open"');
+      expect(await panel("en", { visits: [visit("CHECKED_IN")], mine: false })).not.toContain('data-testid="manual-checkin-open"');
+      expect(await panel("en", { status: "UNDER_REVIEW", visits: open, mine: false })).not.toContain('data-testid="manual-checkin-open"');
+      expect(await panel("en", { operators: false, visits: open, mine: false })).not.toContain('data-testid="manual-checkin-open"');
+    });
+    it("an Operator (manual_checkin but no assign_operator) never gets the manager action on someone else's job", async () => {
+      perms = ["provider.job_orders.read", "provider.jobs.execute", "provider.visits.checkin", "provider.jobs.manual_checkin"];
+      const html = await panel("en", { visits: open, mine: false });
+      expect(html).not.toContain('data-testid="manual-checkin-open"');
+      expect(html).toContain('data-testid="not-your-job"');
+    });
+  });
   it("a technician (execute, no assign_operator) never gets the operator picker or the operators request", async () => {
     perms = ["provider.jobs.execute", "provider.reports.create", "provider.reports.submit"];
     const html = await panel("en", { operators: false, mine: false });

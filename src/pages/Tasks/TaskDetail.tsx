@@ -3,6 +3,8 @@ import { Link, useParams } from "react-router-dom";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import ActivityTimeline from "@/components/ActivityTimeline";
+import PartsReconciliationPanel from "@/components/warehouse/PartsReconciliationPanel";
+import { fetchTaskPartsOrders } from "@/api/services/warehouseService";
 import { toast } from "sonner";
 import { ChevronLeft, Loader2, Paperclip } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -259,12 +261,47 @@ export default function TaskDetail() {
                   <p dir="auto">{task.notes}</p>
                 </div>
               ) : null}
+              {task.pendingInspectionNotes || task.inspectionNotes || task.status === "INSPECTING" || task.pendingStatus === "INSPECTING" ? (
+                <div className="sm:col-span-2" data-testid="inspection-notes">
+                  <p className="text-xs text-muted-foreground">
+                    {task.pendingInspectionNotes ? t("fields.pendingInspectionNotes") : t("fields.inspectionNotes")}
+                  </p>
+                  {task.pendingInspectionNotes || task.inspectionNotes ? (
+                    <p dir="auto" className="whitespace-pre-wrap">{task.pendingInspectionNotes ?? task.inspectionNotes}</p>
+                  ) : (
+                    <p className="text-muted-foreground">{t("fields.noInspectionNotes")}</p>
+                  )}
+                </div>
+              ) : null}
+              {task.pendingCompletionReport ? (
+                <div className="sm:col-span-2" data-testid="pending-completion-report">
+                  <p className="text-xs text-muted-foreground">{t("fields.pendingCompletionReport")}</p>
+                  <p dir="auto" className="whitespace-pre-wrap">{task.pendingCompletionReport}</p>
+                </div>
+              ) : null}
               {task.completionReport ? (
                 <div className="sm:col-span-2">
                   <p className="text-xs text-muted-foreground">{t("fields.completionReport")}</p>
-                  <p dir="auto">{task.completionReport}</p>
+                  <p dir="auto" className="whitespace-pre-wrap">{task.completionReport}</p>
                 </div>
               ) : null}
+              {task.pendingReturnReport ? (
+                <div className="sm:col-span-2" data-testid="pending-return-report">
+                  <p className="text-xs text-muted-foreground">{t("fields.pendingReturnReport")}</p>
+                  <p dir="auto" className="whitespace-pre-wrap">{task.pendingReturnReport}</p>
+                </div>
+              ) : null}
+              {([
+                ["materialsUsedSummary", task.materialsUsedSummary, "fields.materialsUsedSummary"],
+                ["materialsReturnedSummary", task.materialsReturnedSummary, "fields.materialsReturnedSummary"],
+                ["returnReportProblem", task.returnReportProblem, "fieldLabels.returnReportProblem"],
+                ["returnReportWorkPerformed", task.returnReportWorkPerformed, "fieldLabels.returnReportWorkPerformed"],
+              ] as const).filter(([, v]) => !!v).map(([k, v, label]) => (
+                <div key={k} className="sm:col-span-2" data-testid={`task-${k}`}>
+                  <p className="text-xs text-muted-foreground">{t(label)}</p>
+                  <p dir="auto" className="whitespace-pre-wrap">{v}</p>
+                </div>
+              ))}
               {task.reopenReason && task.status === "IN_PROGRESS" ? (
                 <div className="sm:col-span-2">
                   <p className="text-xs text-muted-foreground">{t("fields.reopenReason")}</p>
@@ -273,6 +310,8 @@ export default function TaskDetail() {
               ) : null}
             </CardContent>
           </Card>
+
+          {isAssignee ? <TaskPartsUsage taskId={task.id} /> : null}
 
           <Card>
             <CardHeader><CardTitle className="text-base">{t("progress.title")}</CardTitle></CardHeader>
@@ -481,5 +520,32 @@ export default function TaskDetail() {
         </>
       ) : null}
     </div>
+  );
+}
+
+/** The assigned technician's spare-parts reconciliation for this task — reachable even after the task / work order moved on. */
+function TaskPartsUsage({ taskId }: { taskId: number }) {
+  const { t } = useTranslation("warehouse");
+  const qc = useQueryClient();
+  const key = ["task-parts-orders", taskId];
+  const q = useQuery({ queryKey: key, queryFn: () => fetchTaskPartsOrders(taskId), retry: false, refetchOnWindowFocus: false });
+  if (!q.data || q.data.length === 0) return null;
+  return (
+    <Card data-testid="task-parts-usage">
+      <CardHeader><CardTitle className="text-base">{t("usage.sectionTitle")}</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        {q.data.map((o) => (
+          <PartsReconciliationPanel
+            key={o.id}
+            order={o}
+            showRequestLink
+            onChanged={async () => {
+              await qc.invalidateQueries({ queryKey: key });
+              await qc.invalidateQueries({ queryKey: ["warehouse-order", String(o.id)] });
+            }}
+          />
+        ))}
+      </CardContent>
+    </Card>
   );
 }

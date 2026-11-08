@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/AuthContext";
 import { getHomePath } from "@/lib/navigation";
@@ -24,7 +24,6 @@ export function useLoginForm() {
   const { t } = useTranslation("auth");
   const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -60,13 +59,11 @@ export function useLoginForm() {
           // Keep login flow alive even if /auth/me fails — response.data already applied above.
         }
         toast.success(t("login.success"));
-        const from = (location.state as { from?: { pathname?: string; search?: string } } | null)?.from;
-        // Land every org type on its own dashboard (SUPER_ADMIN / FUEL_STATION / SERVICE_PROVIDER);
-        // Authority has no dashboard variant and keeps landing on its profile. A remembered page
-        // is only replayed if THIS user may open it (see resolvePostLoginPath).
+        // Every sign-in lands on the user's own dashboard. The page the previous session was on is never
+        // replayed (logging out from a page and signing in as someone else used to reopen that page).
         navigate(
           resolvePostLoginPath(
-            from,
+            undefined,
             response.data.organization?.type,
             sessionPermissions,
             getHomePath(response.data.organization?.type)

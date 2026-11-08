@@ -30,19 +30,24 @@ export function groupByDay(events: readonly ActivityEvent[]): DayGroup[] {
 export function titleKey(e: ActivityEvent): string {
   const stage = typeof e.meta?.stage === "string" ? e.meta.stage : null;
   if (e.kind === "REPORT_REJECTED" && stage) return `REPORT_REJECTED_${stage}`;
-  if (e.kind === "EXTERNAL_REPORT_REVIEWED" && stage) return `EXTERNAL_REPORT_REVIEWED_${stage}`;
+  if (e.kind === "EXTERNAL_REPORT_REVIEWED" && stage) return e.meta?.approval === "RETURNED" ? `EXTERNAL_REPORT_RETURNED_${stage}` : `EXTERNAL_REPORT_REVIEWED_${stage}`;
   if (e.kind === "EXTERNAL_JOB_EVENT" && typeof e.meta?.eventType === "string") return `jobEvents.${e.meta.eventType}`;
   return e.kind;
 }
 
 export type Emphasis = "rejection" | "decision" | "normal";
 
-const REJECTIONS = new Set(["REPORT_REJECTED", "WORK_ORDER_REVIEW_REJECTED", "EXTERNAL_QUOTE_REJECTED", "EXTERNAL_REPORT_REJECTED"]);
+const REJECTIONS = new Set([
+  "REPORT_REJECTED", "WORK_ORDER_REVIEW_REJECTED", "EXTERNAL_QUOTE_REJECTED", "EXTERNAL_REPORT_REJECTED",
+  // a return always carries the reason it was sent back
+  "WORK_ORDER_MAINTENANCE_RETURNED", "WORK_ORDER_OPS_RETURNED",
+]);
 
 /** Decisions and rejections stand out; everything else is a plain entry. */
 export function emphasisOf(e: ActivityEvent): Emphasis {
   if (REJECTIONS.has(e.kind)) return "rejection";
   if (e.kind === "WAREHOUSE_RETURN_RESOLVED" && e.to === "REJECTED") return "rejection";
+  if (e.kind === "EXTERNAL_REPORT_REVIEWED" && e.meta?.approval === "RETURNED") return "rejection";
   return e.important ? "decision" : "normal";
 }
 

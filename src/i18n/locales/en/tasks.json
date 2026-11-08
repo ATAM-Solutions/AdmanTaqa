@@ -25,9 +25,16 @@
     "assignedBy": "Assigned by",
     "order": "Work order",
     "notes": "Notes",
+    "inspectionNotes": "Inspection notes",
+    "pendingInspectionNotes": "Inspection notes awaiting your review",
+    "pendingCompletionReport": "Completion report awaiting review",
+    "noInspectionNotes": "No inspection notes were recorded.",
     "completionReport": "Completion report",
     "reopenReason": "Reason it was sent back",
-    "none": "—"
+    "none": "—",
+    "materialsUsedSummary": "Materials used",
+    "materialsReturnedSummary": "Materials returned",
+    "pendingReturnReport": "Materials return report awaiting review"
   },
   "fieldLabels": {
     "inspectionNotes": "Inspection notes",

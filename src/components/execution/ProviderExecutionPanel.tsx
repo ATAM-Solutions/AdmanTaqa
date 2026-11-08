@@ -3,6 +3,9 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { CheckCircle2, Circle, Loader2, MapPin, Upload, Send, UserPlus, Play } from "lucide-react";
+import GeoIssueAlert from "@/components/execution/GeoIssueAlert";
+import ManualCheckinOnBehalf from "@/components/execution/ManualCheckinOnBehalf";
+import { manualCheckinState } from "@/lib/manualCheckin";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -28,6 +31,7 @@ import {
 } from "@/api/services/providerService";
 import { uploadReportPhoto, type JobReview } from "@/api/services/externalReviewService";
 import { chainErrorMessage } from "@/hooks/Execution/useReviewChain";
+import { geoIssueFromError, readPosition, type GeoIssue } from "@/lib/geoCheckin";
 import type { ProviderReportItem } from "@/types/provider";
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024;
@@ -77,6 +81,11 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
   const checkedIn = visits.find((v) => v.status === "CHECKED_IN");
   const openVisit = checkedIn ?? visits.find((v) => v.status === "DRAFT" || v.status === "SCHEDULED");
   const hasCompletedVisit = visits.some((v) => v.status === "COMPLETED");
+  // a Provider Manager (NOT the assigned operator) may confirm the operator's attendance manually; see lib/manualCheckin.ts
+  const manual = manualCheckinState({
+    hasManualPermission: canManualCheckin, hasAssignPermission: canAssign, viewerIsAssigned, operators: assignedOperators, status,
+    visits: visits.map((v) => ({ id: v.id, status: v.status, visitDate: v.visitDate })),
+  });
   const draft = reports.find((r) => r.status === "DRAFT");
   const lastReturned = [...reports].filter((r) => r.status === "REJECTED").sort((a, b) => b.id - a.id)[0];
 
@@ -92,7 +101,12 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
       void qc.invalidateQueries({ queryKey: key });
     }
   };
+  // a location problem is shown next to the Check in button (with the numbers and a retry), not only as a vanishing toast
+  const [geoIssue, setGeoIssue] = useState<GeoIssue | null>(null);
+  const lastAccuracy = useRef<number | undefined>(undefined);
   const fail = (e: unknown) => {
+    const issue = geoIssueFromError(e, lastAccuracy.current);
+    if (issue) { setGeoIssue(issue); refresh(); return; }
     const code = (e as { response?: { data?: { code?: string } } })?.response?.data?.code;
     toast.error(code && (ERROR_CODES as readonly string[]).includes(code) ? t(`errors.${code}`) : chainErrorMessage(e, t));
     refresh();
@@ -135,23 +149,20 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
     if (f.size > MAX_FILE_BYTES) { toast.error(t("errors.fileTooLarge")); return true; }
     return false;
   };
-  const locate = () => new Promise<GeolocationPosition>((resolve, reject) => {
-    if (!navigator.geolocation) return reject(new Error(t("errors.noGeolocation")));
-    navigator.geolocation.getCurrentPosition(resolve, () => reject(new Error(t("errors.locationDenied"))), { enableHighAccuracy: true, timeout: 15000 });
-  });
-
-  const startWork = () => run.mutate(async () => {
-    const visit = openVisit ?? (await createProviderVisit(jobOrderId, { type: "EXECUTION" }));
-    return visit;
-  });
   const checkIn = (visitId: number, manual: boolean) => run.mutate(async () => {
+    setGeoIssue(null);
     if (manual) await checkinProviderVisit(visitId, { method: "MANUAL", reason: reason.trim() });
     else {
-      const pos = await locate();
-      await checkinProviderVisit(visitId, { method: "GPS", lat: pos.coords.latitude, lng: pos.coords.longitude });
+      const pos = await readPosition();
+      lastAccuracy.current = Math.round(pos.coords.accuracy);
+      await checkinProviderVisit(visitId, { method: "GPS", lat: pos.coords.latitude, lng: pos.coords.longitude, accuracy: pos.coords.accuracy });
     }
     if (status === "ACTIVE" || status === "REWORK_REQUIRED") await updateProviderJobOrderStatus(jobOrderId, { status: "IN_PROGRESS" });
     toast.success(t("toasts.started"));
+  });
+  const startWork = () => run.mutate(async () => {
+    const visit = openVisit ?? (await createProviderVisit(jobOrderId, { type: "EXECUTION" }));
+    return visit;
   });
   const saveDraft = async () => {
     if (draft) return (await updateProviderReport(draft.id, values)) as ProviderReportItem;
@@ -231,6 +242,7 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
                   <div className="flex flex-wrap gap-2">
                     <Button size="sm" disabled={busy || !canStart} onClick={() => checkIn(openVisit.id, false)} data-testid="checkin-gps"><MapPin className="me-1 h-4 w-4" aria-hidden />{t("visit.checkInGps")}</Button>
                   </div>
+                  {geoIssue ? <GeoIssueAlert issue={geoIssue} busy={busy} onRetry={() => checkIn(openVisit.id, false)} /> : null}
                   {canManualCheckin && (
                     <div className="flex flex-wrap items-end gap-2">
                       <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder={t("visit.manualReason")} className="h-9 min-w-[12rem] flex-1" />
@@ -320,7 +332,19 @@ export default function ProviderExecutionPanel({ jobOrderId, status, review, ass
               </section>
             )}
             </>
-            ) : hasOperator ? <p className="text-sm text-muted-foreground" data-testid="not-your-job">{t("operator.notYours")}</p> : null}
+            ) : (
+              <>
+                {hasOperator ? <p className="text-sm text-muted-foreground" data-testid="not-your-job">{t("operator.notYours")}</p> : null}
+                {manual.kind === "available" ? (
+                  <section className="space-y-2" aria-label={t("manual.button")} data-testid="manual-checkin-section">
+                    <p className="text-xs text-muted-foreground">{t("manual.sectionHint")}</p>
+                    <ManualCheckinOnBehalf jobOrderId={jobOrderId} visit={manual.visit} operators={manual.operators} onDone={refresh} />
+                  </section>
+                ) : manual.kind === "needsVisit" ? (
+                  <p className="text-xs text-muted-foreground" data-testid="manual-needs-visit">{t("manual.needsVisit")}</p>
+                ) : null}
+              </>
+            )}
           </>
         )}
       </CardContent>

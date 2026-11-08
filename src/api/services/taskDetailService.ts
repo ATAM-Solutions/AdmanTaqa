@@ -58,7 +58,18 @@ export interface TaskDetailData {
   reviewedAt: string | null;
   reviewedBy: string | null;
   completionReport: string | null;
+  /** Saved with the approved completion / materials-return reports (shown so nothing the technician wrote stays hidden). */
+  materialsUsedSummary: string | null;
+  materialsReturnedSummary: string | null;
+  returnReportProblem: string | null;
+  returnReportWorkPerformed: string | null;
+  /** What the technician sent with a still-undecided "return materials" request. */
+  pendingReturnReport: string | null;
   inspectionNotes: string | null;
+  /** Notes the technician sent with a still-undecided inspection request. */
+  pendingInspectionNotes: string | null;
+  /** The completion report (and free comment) the technician sent with a still-undecided "work completed" request. */
+  pendingCompletionReport: string | null;
   reopenReason: string | null;
   station: { id: number; nameEn: string | null; nameAr: string | null; address: string | null } | null;
   order: { id: number; title: string | null; status: string | null; priority: string | null; description: string | null; workflowVersion: number } | null;
@@ -71,6 +82,44 @@ const obj = (v: unknown): Record<string, unknown> | null => (v && typeof v === "
 const str = (v: unknown): string | null => (typeof v === "string" && v ? v : null);
 const num = (v: unknown): number | null => (typeof v === "number" ? v : null);
 const arr = (v: unknown): unknown[] => (Array.isArray(v) ? v : []);
+
+function pendingInspectionNotes(r: Record<string, unknown>): string | null {
+  if (r.status !== "PENDING_APPROVAL" || r.pendingStatus !== "INSPECTING") return null;
+  const raw = r.pendingPayload;
+  try {
+    const p = typeof raw === "string" ? JSON.parse(raw) : raw;
+    return str(obj(p)?.inspectionNotes)?.trim() || str(r.pendingDescription);
+  } catch {
+    return str(r.pendingDescription);
+  }
+}
+
+function pendingCompletionReport(r: Record<string, unknown>): string | null {
+  if (r.status !== "PENDING_APPROVAL" || r.pendingStatus !== "COMPLETED") return null;
+  let p: Record<string, unknown> | null = null;
+  try {
+    const raw = r.pendingPayload;
+    p = obj(typeof raw === "string" ? JSON.parse(raw) : raw);
+  } catch {
+    p = null;
+  }
+  const parts = [str(p?.completionReport)?.trim(), str(p?.message)?.trim()].filter((x): x is string => !!x);
+  if (parts.length === 2 && parts[0] === parts[1]) parts.pop();
+  return parts.length ? parts.join("\n\n") : str(r.pendingDescription);
+}
+
+function pendingReturnReport(r: Record<string, unknown>): string | null {
+  if (r.status !== "PENDING_APPROVAL" || r.pendingStatus !== "RETURNING_MATERIALS") return null;
+  let p: Record<string, unknown> | null = null;
+  try {
+    const raw = r.pendingPayload;
+    p = obj(typeof raw === "string" ? JSON.parse(raw) : raw);
+  } catch {
+    p = null;
+  }
+  const parts = [str(p?.returnReportProblem)?.trim(), str(p?.returnReportWorkPerformed)?.trim()].filter((x): x is string => !!x);
+  return parts.length ? parts.join("\n\n") : str(r.pendingDescription);
+}
 
 export function normalizeTaskDetail(raw: unknown): TaskDetailData | null {
   const r = obj(raw);
@@ -96,7 +145,14 @@ export function normalizeTaskDetail(raw: unknown): TaskDetailData | null {
     reviewedAt: str(r.reviewedAt),
     reviewedBy: str(obj(r.ReviewedByUser)?.fullName),
     completionReport: str(r.completionReport),
+    materialsUsedSummary: str(r.materialsUsedSummary),
+    materialsReturnedSummary: str(r.materialsReturnedSummary),
+    returnReportProblem: str(r.returnReportProblem),
+    returnReportWorkPerformed: str(r.returnReportWorkPerformed),
+    pendingReturnReport: pendingReturnReport(r),
     inspectionNotes: str(r.inspectionNotes),
+    pendingInspectionNotes: pendingInspectionNotes(r),
+    pendingCompletionReport: pendingCompletionReport(r),
     reopenReason: str(r.reopenReason),
     station: branch && typeof branch.id === "number"
       ? { id: branch.id, nameEn: str(branch.nameEn), nameAr: str(branch.nameAr), address: str(branch.address) }

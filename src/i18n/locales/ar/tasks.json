@@ -25,9 +25,16 @@
     "assignedBy": "أُسندت بواسطة",
     "order": "أمر العمل",
     "notes": "ملاحظات",
+    "inspectionNotes": "ملاحظات المعاينة",
+    "pendingInspectionNotes": "ملاحظات المعاينة بانتظار مراجعتك",
+    "pendingCompletionReport": "تقرير الإنجاز بانتظار المراجعة",
+    "noInspectionNotes": "لم تُسجَّل ملاحظات معاينة.",
     "completionReport": "تقرير الإنجاز",
     "reopenReason": "سبب إعادتها",
-    "none": "—"
+    "none": "—",
+    "materialsUsedSummary": "المواد المستخدمة",
+    "materialsReturnedSummary": "المواد المُعادة",
+    "pendingReturnReport": "تقرير إعادة المواد بانتظار المراجعة"
   },
   "fieldLabels": {
     "inspectionNotes": "ملاحظات المعاينة",

@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import PartsReconciliationPanel from "@/components/warehouse/PartsReconciliationPanel";
 import { DashboardLoadError } from "@/components/DashboardLoadError";
 import ActivityTimeline from "@/components/ActivityTimeline";
 import { useAuth } from "@/context/AuthContext";
@@ -55,7 +56,6 @@ export default function WarehouseRequestDetail() {
   const [receiveQty, setReceiveQty] = useState<Record<number, string>>({});
   const [receiveNote, setReceiveNote] = useState("");
   const [returnReason, setReturnReason] = useState("");
-  const [usageQty, setUsageQty] = useState<Record<number, string>>({});
 
   const q = useQuery<OrderDetail, WarehouseApiError>({
     queryKey: key, queryFn: () => fetchOrder(id as string), enabled: !!id, retry: false, refetchOnWindowFocus: false,
@@ -80,7 +80,7 @@ export default function WarehouseRequestDetail() {
     },
     onSuccess: async () => {
       setLines(null); setReason(""); setReturnQty({}); setCandidates(null); setChosenWarehouse("");
-      setIssueQty({}); setIssueNote(""); setReceiveQty({}); setReceiveNote(""); setReturnReason(""); setUsageQty({});
+      setIssueQty({}); setIssueNote(""); setReceiveQty({}); setReceiveNote(""); setReturnReason("");
       await qc.invalidateQueries({ queryKey: key });
       await qc.invalidateQueries({ queryKey: ["warehouse-requests"] });
     },
@@ -124,21 +124,6 @@ export default function WarehouseRequestDetail() {
   const receiveShort = issuedLines.some((i) => receiveValue(i) < (i.issuedQuantity ?? 0));
   /** What can still be proposed for return: issued − used − already returned − proposed and waiting. */
   const returnableOf = (i: OrderLine) => Math.max(0, (i.issuedQuantity ?? 0) - (i.usedQuantity ?? i.issuedQuantity ?? 0) - (i.returnedQuantity ?? 0) - i.pendingReturnQuantity);
-
-  /** Technician's usage statement: only the assigned technician, only once the parts are received. */
-  const isAssignedTechnician = !!order && order.assignedTechnicianId != null && order.assignedTechnicianId === user?.id;
-  const usageOpen = isAssignedTechnician && (order?.status === "DELIVERED" || order?.status === "PARTIAL_RETURN");
-  const usageLines = usageOpen ? order!.items.filter((i) => (i.issuedQuantity ?? 0) > 0) : [];
-  const usageMax = (i: OrderLine) => Math.max(0, (i.receivedQuantity ?? i.issuedQuantity ?? 0) - (i.returnedQuantity ?? 0) - i.pendingReturnQuantity);
-  // only an EXPLICIT statement is shown back: the receipt stores "used = received" as a default, which is not a statement
-  const usageValue = (i: OrderLine): string => usageQty[i.id] ?? (i.usageConfirmedAt && i.usedQuantity != null ? String(i.usedQuantity) : "");
-  const usageInvalid = (i: OrderLine) => {
-    const v = usageValue(i);
-    if (v === "") return false;
-    const n = Number(v);
-    return !Number.isInteger(n) || n < 0 || n > usageMax(i);
-  };
-  const usageChanged = (i: OrderLine) => usageQty[i.id] !== undefined && usageQty[i.id] !== "" && (!i.usageConfirmedAt || Number(usageQty[i.id]) !== i.usedQuantity);
 
   const reasonText = (r: string | null | undefined, actor: string | undefined) => {
     if (!r) return "";
@@ -351,32 +336,7 @@ export default function WarehouseRequestDetail() {
                   </Button>
                 </div>
               ) : null}
-              {usageOpen && usageLines.length > 0 ? (
-                <div className="space-y-2 rounded-md border p-3" data-testid="usage-panel">
-                  <p className="text-sm font-medium">{t("usage.title")}</p>
-                  <p className="text-xs text-muted-foreground">{t("usage.hint")}</p>
-                  {usageLines.map((i) => (
-                    <div key={i.id} className="space-y-1" data-testid="usage-row">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="min-w-0 flex-1 text-sm" dir="auto">{i.partName} <span className="text-xs text-muted-foreground">({t("usage.received", { count: i.receivedQuantity ?? i.issuedQuantity ?? 0 })})</span></span>
-                        <Input className="w-24" type="number" min={0} max={usageMax(i)} step={1} inputMode="numeric" aria-label={t("usage.used")} placeholder={t("usage.notStated")} value={usageValue(i)} onChange={(e) => setUsageQty((p) => ({ ...p, [i.id]: e.target.value }))} data-testid="usage-qty" />
-                        {usageInvalid(i) ? <span className="text-xs text-destructive" role="alert" data-testid="usage-range">{t("usage.range", { max: usageMax(i) })}</span> : null}
-                      </div>
-                      {i.usageConfirmedAt ? (
-                        <p className="text-xs text-muted-foreground" data-testid="usage-confirmed">
-                          {i.usageConfirmedByUserId != null && i.usageConfirmedByUserId === user?.id && user?.fullName
-                            ? t("usage.confirmedBy", { name: user.fullName, date: fmt(i.usageConfirmedAt) })
-                            : t("usage.confirmedAt", { date: fmt(i.usageConfirmedAt) })}
-                        </p>
-                      ) : null}
-                    </div>
-                  ))}
-                  <Button size="sm" disabled={busy || usageLines.some(usageInvalid) || !usageLines.some(usageChanged)} data-testid="save-usage"
-                    onClick={() => run.mutate({ kind: "confirmUsage", lines: usageLines.filter(usageChanged).map((i) => ({ itemId: i.id, usedQuantity: Number(usageQty[i.id]) })) }, { onSuccess: () => toast.success(t("usage.saved")) })}>
-                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("usage.save")}
-                  </Button>
-                </div>
-              ) : null}
+              <PartsReconciliationPanel order={order} onChanged={async () => { await qc.invalidateQueries({ queryKey: key }); await qc.invalidateQueries({ queryKey: ["warehouse-requests"] }); }} />
               {act("submitReturn")?.allowed && (order.status === "DELIVERED" || order.status === "PARTIAL_RETURN") ? (
                 <div className="space-y-2 rounded-md border p-3" data-testid="return-form">
                   <p className="text-sm font-medium">{t("return.title")}</p>

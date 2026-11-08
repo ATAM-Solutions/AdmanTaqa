@@ -229,3 +229,66 @@ describe("conventions", () => {
     expect(source).not.toMatch(/audit-log|AuditLog/i);
   });
 });
+
+describe("comment audit (Bug #4)", () => {
+  const ext = (over: Partial<ActivityEvent>): ActivityEvent => ({
+    id: "x1", kind: "EXTERNAL_REPORT_REVIEWED", category: "APPROVAL", occurredAt: "2026-10-01T10:00:00.000Z", actor: { id: 2, name: "Mona" }, actorLabel: null, side: "STATION",
+    from: null, to: null, message: null, important: false, attachments: [], related: {}, meta: {}, ...over,
+  });
+  for (const lng of ["en", "ar"] as const) {
+    const L = (lng === "en" ? enActivity : arActivity) as unknown as { kinds: Record<string, string>; report: Record<string, string>; automaticClosure: string; reason: string };
+    it(`(${lng}) a returned report is titled as a return, red, with its reason under "Reason"`, async () => {
+      const html = await render({ lng, pages: [page([ext({ message: "أعد التركيب", meta: { stage: "MAINTENANCE_MANAGER", approval: "RETURNED" } })])] });
+      expect(html).toContain(L.kinds.EXTERNAL_REPORT_RETURNED_MAINTENANCE_MANAGER);
+      expect(html).not.toContain(L.kinds.EXTERNAL_REPORT_REVIEWED_MAINTENANCE_MANAGER);
+      expect(html).toContain('data-emphasis="rejection"');
+      expect(html).toContain("أعد التركيب");
+      expect(html).toContain(`>${L.reason}<`);
+    });
+    it(`(${lng}) an approval keeps the approval title and is not red`, async () => {
+      const html = await render({ lng, pages: [page([ext({ meta: { stage: "PROVIDER_MANAGER", approval: "APPROVED" } })])] });
+      expect(html).toContain(L.kinds.EXTERNAL_REPORT_REVIEWED_PROVIDER_MANAGER);
+      expect(html).toContain('data-emphasis="normal"');
+    });
+    it(`(${lng}) the provider's report is shown as labelled sections, only the parts that exist, with no empty comment card`, async () => {
+      const html = await render({ lng, pages: [page([ext({ id: "r1", kind: "EXTERNAL_REPORT_SUBMITTED", category: "PROVIDER", meta: { report: { findings: "تسرب في الصمام", recommendations: "فحص دوري" } } })])] });
+      expect(has(html, "activity-report-r1")).toBe(true);
+      expect(html).toContain("تسرب في الصمام");
+      expect(html).toContain(L.report.findings);
+      expect(html).toContain(L.report.recommendations);
+      expect(html).not.toContain(L.report.actionsTaken);
+      expect(has(html, "activity-message-r1")).toBe(false);
+    });
+    it(`(${lng}) technical closure and an automatic task closure are explained in the user's language`, async () => {
+      const html = await render({ lng, pages: [page([
+        ext({ id: "c1", kind: "EXTERNAL_TECHNICAL_CLOSED", category: "CLOSURE", important: true, message: "أُغلق", to: "CLOSED" }),
+        ext({ id: "c2", kind: "TASK_CLOSED", category: "CLOSURE", meta: { automatic: true } }),
+      ])] });
+      expect(html).toContain(L.kinds.EXTERNAL_TECHNICAL_CLOSED);
+      expect(has(html, "activity-automatic-c2")).toBe(true);
+      expect(html).toContain(L.automaticClosure);
+      expect(has(html, "activity-message-c2")).toBe(false);
+    });
+  }
+  it("an event with no comment never renders an empty comment card", async () => {
+    const html = await render({ pages: [page([ev({ id: "n1", kind: "TASK_STATUS_CHANGED", category: "STATUS", from: "PENDING_APPROVAL", to: "COMPLETED", message: null })])] });
+    expect(has(html, "activity-message-n1")).toBe(false);
+    expect(has(html, "activity-transition-n1")).toBe(true);
+  });
+  it("internal returns by the Maintenance and Operations managers are rejections with a reason, in both languages", async () => {
+    for (const lng of ["en", "ar"] as const) {
+      const html = await render({ lng, pages: [page([
+        ev({ id: "m1", kind: "WORK_ORDER_MAINTENANCE_RETURNED", category: "APPROVAL", important: true, message: "أعد الفحص", from: "IN_PROGRESS", to: "IN_PROGRESS" }),
+        ev({ id: "o1", kind: "WORK_ORDER_OPS_RETURNED", category: "APPROVAL", important: true, message: "ناقص", from: "AWAITING_OPS_CONFIRMATION", to: "IN_PROGRESS" }),
+      ])] });
+      expect(html.match(/data-emphasis="rejection"/g)?.length).toBe(2);
+      expect(html).toContain("أعد الفحص");
+    }
+  });
+  it("no raw enum label or untranslated English fallback for any new kind", () => {
+    for (const k of ["EXTERNAL_REPORT_RETURNED_PROVIDER_MANAGER", "EXTERNAL_REPORT_RETURNED_MAINTENANCE_MANAGER", "EXTERNAL_TECHNICAL_CLOSED"]) {
+      const en = (enActivity.kinds as unknown as Record<string, string>)[k]; const ar = (arActivity.kinds as unknown as Record<string, string>)[k];
+      expect(en).toBeTruthy(); expect(ar).toBeTruthy(); expect(ar).not.toBe(en); expect(ar).toMatch(/[؀-ۿ]/);
+    }
+  });
+});

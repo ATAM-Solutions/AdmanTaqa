@@ -352,6 +352,31 @@
     "confirmedBy": "Confirmed by {{name}} on {{date}}",
     "confirmedAt": "Confirmed on {{date}}",
     "used": "Used quantity",
-    "notStated": "Not stated yet"
+    "notStated": "Not stated yet",
+    "sectionTitle": "Spare parts usage",
+    "readOnlyHint": "Usage and returns of the parts issued for this work.",
+    "receivedLabel": "Received",
+    "returnLabel": "To return",
+    "allUsed": "All parts used",
+    "confirmTitle": "Confirm actual parts usage",
+    "confirmBody": "You are stating how many pieces were really used. This is recorded under your name and cannot be done on your behalf.",
+    "summaryLine": "used {{used}}, return {{returned}}",
+    "confirmLeftover": "{{count}} unused piece(s) must then be returned to the warehouse, which has to confirm receiving them before the work order can be closed.",
+    "confirm": "Yes, confirm usage",
+    "cancel": "Cancel",
+    "leftoverNotice": "{{count}} unused piece(s) still have to be returned to the warehouse.",
+    "sendReturn": "Send leftovers to the warehouse",
+    "returnRecordedNotice": "The return is recorded but not yet sent to the warehouse.",
+    "submitReturn": "Send return to the warehouse",
+    "returnSent": "Return sent to the warehouse for confirmation.",
+    "awaitingWarehouse": "Waiting for the warehouse manager to confirm the returned parts.",
+    "returnProgress": "Returned and confirmed: {{confirmed}} · waiting for the warehouse: {{pending}}",
+    "openRequest": "Open warehouse request #{{id}}",
+    "state": {
+      "usageNotConfirmed": "Usage not confirmed",
+      "returnNotRecorded": "Return not sent",
+      "returnAwaitingWarehouse": "Awaiting warehouse",
+      "reconciled": "Reconciled"
+    }
   }
 }

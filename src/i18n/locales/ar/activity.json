@@ -90,7 +90,10 @@
       "FINAL_PAYMENT_REQUESTED": "طُلبت الدفعة الأخيرة"
     },
     "WAREHOUSE_RETURN_PROPOSED": "اقتراح إرجاع قطع",
-    "WAREHOUSE_RETURN_RESOLVED": "الرد على إرجاع القطع"
+    "WAREHOUSE_RETURN_RESOLVED": "الرد على إرجاع القطع",
+    "EXTERNAL_REPORT_RETURNED_PROVIDER_MANAGER": "أعاد مدير المزوّد التقرير",
+    "EXTERNAL_REPORT_RETURNED_MAINTENANCE_MANAGER": "أعاد مدير الصيانة التقرير",
+    "EXTERNAL_TECHNICAL_CLOSED": "أغلق مدير الصيانة العمل فنياً"
   },
   "status": {
     "SUBMITTED": "مقدَّم",
@@ -141,5 +144,11 @@
     "issued": "المصروفة",
     "used": "المستخدمة",
     "returned": "المرتجعة"
-  }
+  },
+  "report": {
+    "findings": "النتائج",
+    "actionsTaken": "الإجراءات المتخذة",
+    "recommendations": "التوصيات"
+  },
+  "automaticClosure": "أُغلقت تلقائياً مع إغلاق أمر العمل."
 }

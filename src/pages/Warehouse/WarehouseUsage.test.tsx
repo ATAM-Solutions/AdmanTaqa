@@ -59,9 +59,19 @@ describe.each(["en", "ar"] as const)("technician usage card (%s)", (lng) => {
     expect(html).toMatch(/<button[^>]*\sdisabled=""[^>]*data-testid="save-usage"|<button[^>]*data-testid="save-usage"[^>]*\sdisabled=""/);
     expect(await render(raw("PARTIAL_RETURN"), lng)).toContain('data-testid="usage-panel"');
   });
-  it("is hidden for other users and before receipt", async () => {
-    expect(await render(raw("DELIVERED"), lng, { id: 3, perms: ["warehouse.read"] })).not.toContain('data-testid="usage-panel"');
+  it("is read-only for other users and hidden before receipt", async () => {
+    const other = await render(raw("DELIVERED"), lng, { id: 3, perms: ["warehouse.read"] });
+    expect(other).toContain('data-testid="usage-panel"');
+    expect(other).not.toContain('data-testid="usage-qty"');
+    expect(other).not.toContain('data-testid="save-usage"');
+    expect(other).not.toContain('data-testid="fill-all-used"');
     expect(await render(raw("ISSUED"), lng)).not.toContain('data-testid="usage-panel"');
+  });
+  it("offers 'all parts used' as a fill-only shortcut (nothing is pre-filled or auto-confirmed)", async () => {
+    const html = await render(raw("DELIVERED"), lng);
+    expect(html).toContain('data-testid="fill-all-used"');
+    expect(html).toContain('data-testid="usage-received"');
+    expect(html).toContain('data-testid="usage-return"');
   });
   it("shows who and when once usage was confirmed", async () => {
     const html = await render(raw("DELIVERED", {}, { usedQuantity: 3, usageConfirmedAt: "2026-10-26T10:00:00.000Z", usageConfirmedByUserId: 7 }), lng);

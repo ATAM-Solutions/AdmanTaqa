@@ -238,5 +238,48 @@
       "submit": "Submit the final report"
     },
     "hint": "Ask your company administrator to add the missing permissions to your job title. Nothing was changed automatically."
+  },
+  "geo": {
+    "retry": "Try again",
+    "accuracyLine": "Accuracy of this location reading: about ±{{accuracy}} m",
+    "issue": {
+      "noGeolocation": "This browser cannot share your location. Use your phone or another browser.",
+      "denied": "Location access is blocked. Allow location for this site in the browser settings, then try again.",
+      "unavailable": "Your location could not be determined. Make sure location services are turned on, then try again.",
+      "timeout": "Finding your location took too long. Move to an open area or check your connection, then try again.",
+      "stale": "The location reading is out of date. Try again to get a fresh one.",
+      "OUTSIDE_GEOFENCE": "You are about {{distance}} m from the station. Check-in is only allowed within {{radius}} m. Move closer and try again.",
+      "LOCATION_ACCURACY_TOO_LOW": "Your device could only locate you to within ±{{accuracy}} m, but check-in needs ±{{radius}} m or better. Computers usually give an approximate location: use your phone or move outdoors, then try again."
+    }
+  },
+  "manual": {
+    "button": "Manual Check-in",
+    "sectionHint": "The operator could not check in with GPS? Confirm their attendance manually. It is recorded under your name.",
+    "needsVisit": "Manual check-in becomes available once the operator has opened the visit (Start work).",
+    "title": "Manual check-in",
+    "description": "Confirm that the assigned operator is on site. This does not use GPS and is recorded as a manual check-in by you.",
+    "job": "Job order",
+    "visit": "Visit",
+    "operator": "Operator",
+    "reason": "Reason (required)",
+    "reasonPlaceholder": "Why could the operator not check in with GPS?",
+    "reasonRequired": "Write the reason (at least 3 characters).",
+    "confirm": "I confirm that {{name}} is at the station. This check-in is manual (not GPS-verified) and is recorded under my name.",
+    "notice": "The audit trail shows you as the person who confirmed it and the operator whose attendance was confirmed. No location is recorded.",
+    "cancel": "Cancel",
+    "submit": "Confirm manual check-in",
+    "success": "Manual check-in recorded for {{name}}.",
+    "errors": {
+      "MANUAL_REASON_REQUIRED": "A reason is required for a manual check-in.",
+      "MANUAL_TARGET_REQUIRED": "The job and the operator must be specified. Refresh the page and try again.",
+      "VISIT_JOB_MISMATCH": "This visit belongs to a different job order. Refresh the page and try again.",
+      "OPERATOR_NOT_ASSIGNED_TO_JOB": "That operator is no longer assigned to this job. Refresh the page and try again.",
+      "NO_ASSIGNED_OPERATOR": "This job has no assigned operator yet. Assign an operator first.",
+      "NOT_ASSIGNED_OPERATOR": "Your role cannot confirm a manual check-in for this job.",
+      "VISIT_ALREADY_CHECKED_IN": "This visit was already checked in.",
+      "alreadyCheckedIn": "This visit was already checked in.",
+      "forbidden": "You do not have permission to confirm a manual check-in.",
+      "generic": "The manual check-in could not be recorded. Please try again."
+    }
   }
 }

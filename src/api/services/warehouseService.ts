@@ -346,3 +346,13 @@ export async function runOrderAction(id: number | string, a: OrderAction): Promi
     throw toError(e);
   }
 }
+
+const PARTS_HOLDING = ["DELIVERED", "PARTIAL_RETURN", "RETURN_SUBMITTED", "WAREHOUSE_CONFIRMATION", "RETURNED", "CLOSED"];
+/** The task's warehouse requests that hold issued parts, each with its lines (for the technician's usage reconciliation). */
+export async function fetchTaskPartsOrders(taskId: number | string): Promise<OrderDetail[]> {
+  const res = await axiosInstance.get("warehouse-orders", { params: { taskId, limit: 50 } });
+  const d = obj(obj(res.data)?.data);
+  const rows = Array.isArray(d?.items) ? (d!.items as unknown[]) : [];
+  const ids = rows.map(obj).filter((r): r is Record<string, unknown> => !!r && typeof r.id === "number" && PARTS_HOLDING.includes(String(r.status))).map((r) => r.id as number);
+  return Promise.all(ids.map((id) => fetchOrder(id)));
+}

@@ -113,6 +113,26 @@ function PartLines({ event }: { event: ActivityEvent }) {
   );
 }
 
+const REPORT_FIELDS = ["findings", "actionsTaken", "recommendations"] as const;
+
+/** The provider's technical report as written: findings, actions taken, recommendations (only the parts that exist). */
+function ReportSummary({ event }: { event: ActivityEvent }) {
+  const { t } = useTranslation("activity");
+  const report = event.meta?.report as Record<string, unknown> | undefined;
+  const parts = REPORT_FIELDS.filter((f) => typeof report?.[f] === "string" && (report[f] as string).trim());
+  if (parts.length === 0) return null;
+  return (
+    <div className="mt-2 space-y-2 rounded-md bg-muted/50 px-3 py-2" data-testid={`activity-report-${event.id}`}>
+      {parts.map((f) => (
+        <div key={f}>
+          <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">{t(`report.${f}`)}</p>
+          <p className="whitespace-pre-wrap text-sm" dir="auto">{report![f] as string}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function EventItem({ event }: { event: ActivityEvent }) {
   const { t, i18n } = useTranslation("activity");
   const { organization, permissions } = useAuth();
@@ -160,6 +180,8 @@ function EventItem({ event }: { event: ActivityEvent }) {
             <p className="whitespace-pre-wrap text-sm" dir="auto">{event.message}</p>
           </div>
         ) : null}
+        <ReportSummary event={event} />
+        {event.meta?.automatic ? <p className="mt-2 text-xs text-muted-foreground" data-testid={`activity-automatic-${event.id}`}>{t("automaticClosure")}</p> : null}
         <PartLines event={event} />
         <Attachments event={event} />
         {tasks.length > 0 && event.kind !== "TASK_COMMENT" && event.kind !== "TASK_STATUS_CHANGED" ? (

@@ -316,7 +316,7 @@ export async function completeProviderVisit(
 /** Doc (7.6): POST /api/provider/visits/:visitId/checkin — تسجيل وصول للزيارة (body: method GPS|QR|MANUAL, notes). */
 export async function checkinProviderVisit(
   visitId: number | string,
-  body?: { method?: "GPS" | "QR" | "MANUAL"; lat?: number; lng?: number; qrToken?: string; reason?: string }
+  body?: { method?: "GPS" | "QR" | "MANUAL"; lat?: number; lng?: number; qrToken?: string; reason?: string; /** metres, browser coords.accuracy */ accuracy?: number; /** manager-confirmed MANUAL only: the job and the assigned operator whose attendance is confirmed */ jobOrderId?: number; onBehalfOfOperatorId?: number }
 ): Promise<unknown> {
   const response = await axiosInstance.post(
     `provider/visits/${visitId}/checkin`,
