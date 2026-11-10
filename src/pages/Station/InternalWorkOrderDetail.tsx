@@ -28,6 +28,8 @@ export default function InternalWorkOrderDetail() {
 
   const orderOpenForWork = order != null && order.status !== "CLOSED" && order.status !== "CANCELLED";
   const canAssign = orderOpenForWork && hasPermission("internal_tasks.assign");
+  // Once a worker holds an open task, the header "Assign worker" goes away; "Reassign" on the task row remains.
+  const hasActiveAssignee = (order?.tasks ?? []).some((task) => task.assignedUserId != null && task.status !== "CLOSED");
 
   return (
     <div className="p-4 md:p-8">
@@ -60,7 +62,7 @@ export default function InternalWorkOrderDetail() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            {canAssign && (
+            {canAssign && !hasActiveAssignee && (
               <Button size="sm" onClick={() => setAssignTarget({ taskId: null })} className="gap-1">
                 <UserPlus className="h-4 w-4" /> {t("assignWorker.open")}
               </Button>
@@ -97,42 +99,42 @@ export default function InternalWorkOrderDetail() {
           ) : (
             <ul className="divide-y">
               {order.tasks.map((task) => (
-                <li key={task.id} className="flex flex-wrap items-center justify-between gap-3 py-3" data-testid="order-task">
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium" dir="auto">
-                      {task.assignedUser?.fullName ?? t("assignWorker.unassigned")}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      #{task.id} · <Badge variant="outline">{task.status ?? "—"}</Badge>
-                    </p>
-                    {task.progress ? (
-                      <div className="mt-2 max-w-xl">
-                        <TaskProgress progress={task.progress} compact />
-                      </div>
-                    ) : null}
+                <li key={task.id} className="space-y-4 py-4" data-testid="order-task">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium" dir="auto">
+                        {task.assignedUser?.fullName ?? t("assignWorker.unassigned")}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        #{task.id} · <Badge variant="outline">{task.status ?? "—"}</Badge>
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {canAssign && task.status !== "CLOSED" && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-1"
+                          onClick={() =>
+                            setAssignTarget({
+                              taskId: task.id,
+                              assignedUserId: task.assignedUserId ?? null,
+                              name: task.assignedUser?.fullName ?? null,
+                            })
+                          }
+                        >
+                          <UserCog className="h-4 w-4" />
+                          {task.assignedUserId ? t("assignWorker.reassign") : t("assignWorker.assign")}
+                        </Button>
+                      )}
+                      {hasPermission("internal_tasks.read") && (
+                        <Button asChild size="sm" variant="outline" className="gap-1">
+                          <Link to={`/internal-tasks/${task.id}`} data-testid="open-task">{tTasks("open")}</Link>
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                  {hasPermission("internal_tasks.read") && (
-                    <Button asChild size="sm" variant="outline" className="gap-1">
-                      <Link to={`/internal-tasks/${task.id}`} data-testid="open-task">{tTasks("open")}</Link>
-                    </Button>
-                  )}
-                  {canAssign && task.status !== "CLOSED" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-1"
-                      onClick={() =>
-                        setAssignTarget({
-                          taskId: task.id,
-                          assignedUserId: task.assignedUserId ?? null,
-                          name: task.assignedUser?.fullName ?? null,
-                        })
-                      }
-                    >
-                      <UserCog className="h-4 w-4" />
-                      {task.assignedUserId ? t("assignWorker.reassign") : t("assignWorker.assign")}
-                    </Button>
-                  )}
+                  {task.progress ? <TaskProgress progress={task.progress} compact /> : null}
                 </li>
               ))}
             </ul>

@@ -19,7 +19,7 @@ export default function TaskProgress({ progress, compact = false }: { progress: 
 
   return (
     <div data-testid="task-progress">
-      <ol className={cn("flex gap-2", compact ? "flex-row flex-wrap" : "flex-col sm:flex-row sm:flex-wrap")}>
+      <ol className={cn(compact ? "grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6" : "flex flex-col gap-2 sm:flex-row sm:flex-wrap")}>
         {visible.map((stage) => {
           const done = stage.state === "done";
           const current = stage.state === "current";
