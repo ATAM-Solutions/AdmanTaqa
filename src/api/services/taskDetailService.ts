@@ -200,19 +200,23 @@ export function normalizeTaskDetail(raw: unknown): TaskDetailData | null {
 export class TaskActionError extends Error {
   code: string | null;
   status: number | null;
-  constructor(message: string, code: string | null, status: number | null) {
+  /** The server's `errors` payload (e.g. the warehouse candidates of WAREHOUSE_SELECTION_REQUIRED). */
+  details: Record<string, unknown> | null;
+  constructor(message: string, code: string | null, status: number | null, details: Record<string, unknown> | null = null) {
     super(message);
     this.code = code;
     this.status = status;
+    this.details = details;
   }
 }
 
 const toActionError = (err: unknown): TaskActionError => {
-  const r = err as { response?: { status?: number; data?: { message?: string; code?: string } }; message?: string };
+  const r = err as { response?: { status?: number; data?: { message?: string; code?: string; errors?: Record<string, unknown> } }; message?: string };
   return new TaskActionError(
     r.response?.data?.message ?? r.message ?? "Request failed",
     typeof r.response?.data?.code === "string" ? r.response.data.code : null,
-    r.response?.status ?? null
+    r.response?.status ?? null,
+    r.response?.data?.errors && typeof r.response.data.errors === "object" ? r.response.data.errors : null
   );
 };
 
@@ -256,12 +260,12 @@ export async function submitTaskStatus(id: number | string, body: TaskStatusBody
 export async function submitTaskReview(
   id: number | string,
   action:
-    | { kind: "pending"; decision: "APPROVE_UPDATE" | "REJECT_UPDATE"; message?: string }
+    | { kind: "pending"; decision: "APPROVE_UPDATE" | "REJECT_UPDATE"; message?: string; warehouseId?: number }
     | { kind: "submitted"; decision: "APPROVE" | "REJECT"; message?: string; reopenReason?: string }
 ): Promise<void> {
   try {
     if (action.kind === "pending") {
-      await axiosInstance.patch(`internal-tasks/${id}/review-update`, { decision: action.decision, message: action.message });
+      await axiosInstance.patch(`internal-tasks/${id}/review-update`, { decision: action.decision, message: action.message, warehouseId: action.warehouseId });
     } else {
       await axiosInstance.patch(`internal-tasks/${id}/review`, {
         decision: action.decision,
@@ -313,6 +317,51 @@ export async function fetchTaskSpareParts(id: number | string): Promise<SparePar
           .filter((i): i is Record<string, unknown> => !!i && typeof i.id === "number")
           .map((i) => ({ id: i.id as number, name: str(i.name) ?? "", code: str(i.code), unit: str(i.unit), category: str(i.category) })),
       }));
+  } catch (err) {
+    throw toActionError(err);
+  }
+}
+
+// ── Spare-parts requests linked to a task / work order (Bug #8) ─────────────────────────────────────────────────
+export interface BilingualText { en: string; ar: string }
+export interface SparePartRequestItem {
+  id: number;
+  partName: string | null;
+  partCode?: string | null;
+  unit?: string | null;
+  quantity: number;
+  approvedQuantity?: number | null;
+  issuedQuantity?: number | null;
+  receivedQuantity?: number | null;
+  usedQuantity?: number | null;
+  returnedQuantity?: number | null;
+  status?: string;
+}
+export interface SparePartRequest {
+  requestId: number | null;
+  warehouseOrderId: number | null;
+  taskId: number | null;
+  internalWorkOrderId: number | null;
+  requestedBy: { id: number; fullName: string | null } | null;
+  requestedAt: string | null;
+  items: SparePartRequestItem[];
+  status: string;
+  phase: string;
+  statusLabel: BilingualText;
+  maintenanceApproval: { decision: "PENDING" | "APPROVED" | "REJECTED"; by: { id: number; fullName: string | null } | null; at: string | null; reason?: string | null };
+  warehouse: { id: number; name: string } | null;
+  nextAction: { role: string; label: BilingualText; routing: "ROLE_QUEUE" | "ASSIGNED_MANAGERS" | "ASSIGNED_USER" } | null;
+  responsibleUsers: { id: number; fullName: string | null }[];
+  canOpenWarehouseOrder: boolean;
+  timeline: { id: number; type: string; oldStatus: string | null; newStatus: string | null; message: string | null; by: { id: number; fullName: string | null } | null; at: string }[];
+}
+
+export async function fetchSparePartRequests(root: "task" | "workOrder", id: number | string): Promise<SparePartRequest[]> {
+  try {
+    const path = root === "task" ? `internal-tasks/${id}/spare-part-requests` : `internal/work-orders/${id}/spare-part-requests`;
+    const res = await axiosInstance.get(path);
+    const list = obj(obj(res.data)?.data)?.requests;
+    return Array.isArray(list) ? (list as SparePartRequest[]) : [];
   } catch (err) {
     throw toActionError(err);
   }

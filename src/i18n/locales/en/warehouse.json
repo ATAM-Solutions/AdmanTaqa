@@ -61,7 +61,7 @@
     "confirmReturn": "Confirm returned parts",
     "close": "Close request",
     "cancel": "Cancel request",
-    "rejectReturn": "Send back to technician",
+    "rejectReturn": "Not received — send back to technician",
     "approveAndIssue": "Approve & Issue Parts",
     "receive": "Confirm Receipt"
   },
@@ -100,8 +100,11 @@
     "hint": "Only parts that were not used can be returned. The warehouse confirms the return before stock is restored.",
     "returnable": "can return {{count}}",
     "range": "At most {{max}} can be returned.",
-    "rejectReason": "Reason for sending the return back",
-    "pending": "proposed {{count}}, waiting for the warehouse"
+    "rejectReason": "Reason the returned parts were not received",
+    "pending": "proposed {{count}}, waiting for the warehouse",
+    "rejectHint": "Required. Say why the warehouse did not accept the proposed return (e.g. parts damaged, quantity short). The technician sees this reason; stock is not changed.",
+    "notReceivedTitle": "The warehouse did not receive the returned parts",
+    "notReceivedBy": "Answered by {{name}}"
   },
   "errors": {
     "generic": "The action could not be completed.",
@@ -378,5 +381,48 @@
       "returnAwaitingWarehouse": "Awaiting warehouse",
       "reconciled": "Reconciled"
     }
+  },
+  "sparePartRequests": {
+    "title": "Spare-parts requests",
+    "description": "Parts requested by the technician, the Maintenance decision and the warehouse hand-off.",
+    "empty": "No spare-parts request for this task yet.",
+    "loadFailed": "The spare-parts requests could not be loaded.",
+    "request": "Request",
+    "requestPending": "Request awaiting decision",
+    "task": "Task #{{id}}",
+    "requestedBy": "Requested by",
+    "requestedAt": "Requested",
+    "items": "Items",
+    "quantity": "Qty",
+    "approved": "Approved",
+    "issued": "Issued",
+    "received": "Received",
+    "returned": "Returned",
+    "maintenanceDecision": "Maintenance decision",
+    "decision": {
+      "PENDING": "Pending",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected"
+    },
+    "reviewer": "Reviewed by",
+    "reviewedAt": "Decision date",
+    "warehouse": "Warehouse",
+    "nextAction": "Next action",
+    "responsibleRole": "Responsible role",
+    "responsibleUser": "Responsible person",
+    "roleQueue": "Waiting in the role queue (no specific person is assigned)",
+    "role": {
+      "MAINTENANCE_MANAGER": "Maintenance Manager",
+      "WAREHOUSE_MANAGER": "Warehouse Manager",
+      "TECHNICIAN": "Technician"
+    },
+    "openOrder": "Open warehouse order #{{id}}",
+    "timeline": "History",
+    "noWarehouse": "Not assigned yet",
+    "chooseWarehouseTitle": "Choose the warehouse for this request",
+    "chooseWarehouseHint": "More than one warehouse can serve this station. Pick one to approve."
+  },
+  "history": {
+    "maintenanceHandoff": "Approved by Maintenance from the technician's parts request on task #{{id}}"
   }
 }

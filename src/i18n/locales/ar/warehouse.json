@@ -61,7 +61,7 @@
     "confirmReturn": "تأكيد القطع المُرجعة",
     "close": "إغلاق الطلب",
     "cancel": "إلغاء الطلب",
-    "rejectReturn": "إعادة الإرجاع إلى الفني",
+    "rejectReturn": "لم يتم الاستلام — إعادة الطلب إلى الفني",
     "approveAndIssue": "اعتماد وصرف القطع",
     "receive": "تأكيد الاستلام"
   },
@@ -100,8 +100,11 @@
     "hint": "يمكن إرجاع القطع غير المستخدمة فقط. يؤكد المستودع الإرجاع قبل إعادة المخزون.",
     "returnable": "يمكن إرجاع {{count}}",
     "range": "الحد الأقصى للإرجاع {{max}}.",
-    "rejectReason": "سبب إعادة الإرجاع",
-    "pending": "المقترح {{count}} بانتظار المستودع"
+    "rejectReason": "سبب عدم استلام القطع المرتجعة",
+    "pending": "المقترح {{count}} بانتظار المستودع",
+    "rejectHint": "إلزامي. اذكر سبب عدم قبول المستودع للإرجاع المقترح (مثل: القطع تالفة، الكمية ناقصة). يظهر السبب للفني ولا يتغير المخزون.",
+    "notReceivedTitle": "لم يستلم المستودع القطع المرتجعة",
+    "notReceivedBy": "ردّ به {{name}}"
   },
   "errors": {
     "generic": "تعذّر تنفيذ الإجراء.",
@@ -406,5 +409,48 @@
       "returnAwaitingWarehouse": "بانتظار المستودع",
       "reconciled": "تمت التسوية"
     }
+  },
+  "sparePartRequests": {
+    "title": "طلبات قطع الغيار",
+    "description": "القطع التي طلبها الفني، وقرار الصيانة، والتحويل إلى المستودع.",
+    "empty": "لا يوجد طلب قطع غيار لهذه المهمة بعد.",
+    "loadFailed": "تعذّر تحميل طلبات قطع الغيار.",
+    "request": "الطلب",
+    "requestPending": "طلب بانتظار القرار",
+    "task": "المهمة رقم {{id}}",
+    "requestedBy": "مقدّم الطلب",
+    "requestedAt": "تاريخ الطلب",
+    "items": "الأصناف",
+    "quantity": "الكمية",
+    "approved": "المعتمدة",
+    "issued": "المصروفة",
+    "received": "المستلمة",
+    "returned": "المرتجعة",
+    "maintenanceDecision": "قرار الصيانة",
+    "decision": {
+      "PENDING": "قيد الانتظار",
+      "APPROVED": "تمت الموافقة",
+      "REJECTED": "مرفوض"
+    },
+    "reviewer": "المراجع",
+    "reviewedAt": "تاريخ القرار",
+    "warehouse": "المستودع",
+    "nextAction": "الإجراء التالي",
+    "responsibleRole": "الدور المسؤول",
+    "responsibleUser": "الشخص المسؤول",
+    "roleQueue": "بانتظار الدور المسؤول (لم يُحدَّد شخص بعينه)",
+    "role": {
+      "MAINTENANCE_MANAGER": "مدير الصيانة",
+      "WAREHOUSE_MANAGER": "مدير المستودع",
+      "TECHNICIAN": "الفني"
+    },
+    "openOrder": "فتح طلب المستودع رقم {{id}}",
+    "timeline": "السجل",
+    "noWarehouse": "لم يُحدَّد بعد",
+    "chooseWarehouseTitle": "اختر المستودع لهذا الطلب",
+    "chooseWarehouseHint": "يمكن لأكثر من مستودع خدمة هذه المحطة. اختر واحدًا للموافقة."
+  },
+  "history": {
+    "maintenanceHandoff": "اعتمدته الصيانة من طلب القطع الذي قدّمه الفني في المهمة رقم {{id}}"
   }
 }

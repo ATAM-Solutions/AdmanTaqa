@@ -14,6 +14,7 @@ import PartsReconciliationPanel from "@/components/warehouse/PartsReconciliation
 import { DashboardLoadError } from "@/components/DashboardLoadError";
 import ActivityTimeline from "@/components/ActivityTimeline";
 import { useAuth } from "@/context/AuthContext";
+import { maintenanceHandoffTaskId, personWrittenNote } from "@/lib/warehouseDisplay";
 import { getApiErrorMessage } from "@/lib/utils";
 import {
   WarehouseApiError,
@@ -105,6 +106,10 @@ export default function WarehouseRequestDetail() {
   const act = (k: string) => wf?.actions?.[k];
   const stationName = order?.station ? (i18n.language.startsWith("ar") ? order.station.ar ?? order.station.en : order.station.en ?? order.station.ar) : null;
   const isRequester = !!order && order.requestedByUserId === user?.id;
+  // The assigned technician returns parts from the reconciliation panel (usage -> leftover is computed -> ONE send button).
+  // Showing the old standalone return form next to it was a second control for the same action (customer finding #3).
+  const reconciliationOwnsReturn = !!order && order.assignedTechnicianId != null && order.assignedTechnicianId === user?.id
+    && order.items.some((i) => (i.issuedQuantity ?? 0) > 0 && i.status !== "NOT_AVAILABLE");
   const showStock = !!order && order.items.some((i) => i.availableQuantity != null);
   const fmt = (d: string) => new Date(d).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" });
   const asInt = (v: string | undefined) => (v === undefined || v === "" ? null : Math.floor(Number(v)));
@@ -176,7 +181,7 @@ export default function WarehouseRequestDetail() {
               <div><p className="text-xs text-muted-foreground">{t("fields.requestedBy")}</p><p dir="auto">{order.requestedBy ?? "—"}</p></div>
               {order.issuedAt ? <div data-testid="order-issued"><p className="text-xs text-muted-foreground">{t("fields.issued")}</p><p dir="auto">{fmt(order.issuedAt)}{order.issuedBy ? ` · ${order.issuedBy}` : ""}</p></div> : null}
               {order.receivedAt ? <div data-testid="order-received"><p className="text-xs text-muted-foreground">{t("fields.received")}</p><p dir="auto">{fmt(order.receivedAt)}{order.receivedBy ? ` · ${order.receivedBy}` : ""}</p></div> : null}
-              {order.notes ? <div className="sm:col-span-2"><p className="text-xs text-muted-foreground">{t("fields.notes")}</p><p dir="auto">{order.notes}</p></div> : null}
+              {personWrittenNote(order.notes) ? <div className="sm:col-span-2"><p className="text-xs text-muted-foreground">{t("fields.notes")}</p><p dir="auto">{personWrittenNote(order.notes)}</p></div> : null}
               {order.rejectionReason ? <div className="sm:col-span-2"><p className="text-xs text-muted-foreground">{t("fields.rejectionReason")}</p><p dir="auto">{order.rejectionReason}</p></div> : null}
             </CardContent>
           </Card>
@@ -336,8 +341,15 @@ export default function WarehouseRequestDetail() {
                   </Button>
                 </div>
               ) : null}
+              {order.status === "PARTIAL_RETURN" && order.returnRejection ? (
+                <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm" role="alert" data-testid="return-not-received">
+                  <p className="font-medium">{t("return.notReceivedTitle")}</p>
+                  <p dir="auto" className="whitespace-pre-wrap">{order.returnRejection.reason}</p>
+                  {order.returnRejection.by ? <p className="text-xs text-muted-foreground">{t("return.notReceivedBy", { name: order.returnRejection.by })}</p> : null}
+                </div>
+              ) : null}
               <PartsReconciliationPanel order={order} onChanged={async () => { await qc.invalidateQueries({ queryKey: key }); await qc.invalidateQueries({ queryKey: ["warehouse-requests"] }); }} />
-              {act("submitReturn")?.allowed && (order.status === "DELIVERED" || order.status === "PARTIAL_RETURN") ? (
+              {!reconciliationOwnsReturn && act("submitReturn")?.allowed && (order.status === "DELIVERED" || order.status === "PARTIAL_RETURN") ? (
                 <div className="space-y-2 rounded-md border p-3" data-testid="return-form">
                   <p className="text-sm font-medium">{t("return.title")}</p>
                     <p className="text-xs text-muted-foreground">{t("return.hint")}</p>
@@ -357,7 +369,7 @@ export default function WarehouseRequestDetail() {
                   </Button>
                 </div>
               ) : null}
-              {act("submitReturn")?.allowed && order.status === "PARTIAL_RETURN" ? (
+              {!reconciliationOwnsReturn && act("submitReturn")?.allowed && order.status === "PARTIAL_RETURN" ? (
                 <Button size="sm" disabled={busy} data-testid="action-submitReturn" onClick={() => run.mutate({ kind: "submitReturn" })}>{t("actions.submitReturn")}</Button>
               ) : null}
               {act("confirmReturn")?.allowed && order.status === "RETURN_SUBMITTED" ? (
@@ -369,6 +381,7 @@ export default function WarehouseRequestDetail() {
               {act("confirmReturn")?.allowed && (order.status === "RETURN_SUBMITTED" || order.status === "WAREHOUSE_CONFIRMATION") ? (
                 <div className="space-y-2 rounded-md border p-3" data-testid="reject-return-panel">
                   <Label htmlFor="return-reason">{t("return.rejectReason")}</Label>
+                  <p className="text-xs text-muted-foreground">{t("return.rejectHint")}</p>
                   <Textarea id="return-reason" dir="auto" value={returnReason} onChange={(e) => setReturnReason(e.target.value)} />
                   <Button size="sm" variant="destructive" disabled={busy || !returnReason.trim()} data-testid="action-rejectReturn" onClick={() => run.mutate({ kind: "rejectReturn", reason: returnReason.trim() })}>{t("actions.rejectReturn")}</Button>
                 </div>
@@ -393,7 +406,7 @@ export default function WarehouseRequestDetail() {
                 <ul className="space-y-2" data-testid="order-activity">
                   {order.updates.map((u) => (
                     <li key={u.id} className="border-s-2 ps-3 text-sm">
-                      <p dir="auto">{u.newStatus ? <Badge variant="outline" className="me-2">{t(`status.${u.newStatus}`, { defaultValue: u.newStatus })}</Badge> : null}{u.message}</p>
+                      <p dir="auto">{u.newStatus ? <Badge variant="outline" className="me-2">{t(`status.${u.newStatus}`, { defaultValue: u.newStatus })}</Badge> : null}{maintenanceHandoffTaskId(u.message) != null ? t("history.maintenanceHandoff", { id: maintenanceHandoffTaskId(u.message) }) : personWrittenNote(u.message)}</p>
                       <p className="text-xs text-muted-foreground">{u.by ?? "—"} · {u.createdAt ? new Date(u.createdAt).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" }) : ""}</p>
                     </li>
                   ))}

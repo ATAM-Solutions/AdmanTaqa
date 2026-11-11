@@ -93,7 +93,8 @@
     "WAREHOUSE_RETURN_RESOLVED": "Parts return answered",
     "EXTERNAL_REPORT_RETURNED_PROVIDER_MANAGER": "Report returned by the provider manager",
     "EXTERNAL_REPORT_RETURNED_MAINTENANCE_MANAGER": "Report returned by the maintenance manager",
-    "EXTERNAL_TECHNICAL_CLOSED": "Work closed technically by the maintenance manager"
+    "EXTERNAL_TECHNICAL_CLOSED": "Work closed technically by the maintenance manager",
+    "WAREHOUSE_RETURN_NOT_RECEIVED": "Warehouse did not receive the returned parts"
   },
   "status": {
     "SUBMITTED": "Submitted",

@@ -46,10 +46,16 @@ export function orderActionFlags(
   };
 }
 
-/** The technician's second "submit for review" step does not exist on chain orders (approval hands the order on). */
+/**
+ * On chain orders the technician has neither a second "submit for review" step (the Maintenance approval hands the order on)
+ * nor a "return materials" step (leftover parts are settled from the warehouse request and never move the task back).
+ */
 export function techActionsForOrder<T extends { id: string }>(actions: T[], workflowVersion: number | null | undefined): T[] {
-  return (workflowVersion ?? 1) >= 2 ? actions.filter((a) => a.id !== "submitReview") : actions;
+  return (workflowVersion ?? 1) >= 2 ? actions.filter((a) => a.id !== "submitReview" && a.id !== "returnMaterials") : actions;
 }
+
+/** Statuses of an APPROVED task on a chain order: read-only for the technician until a reviewer formally returns it. */
+export const CHAIN_APPROVED_TASK_STATUSES = ["COMPLETED", "UNDER_REVIEW", "RETURNING_MATERIALS"] as const;
 
 /** A returned technician report needs a comment on chain orders. */
 export function reviewReturnNeedsComment(workflowVersion: number | null | undefined): boolean {

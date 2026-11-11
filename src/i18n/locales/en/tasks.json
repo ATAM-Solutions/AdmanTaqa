@@ -59,7 +59,10 @@
       "parts": "Spare parts",
       "completed": "Work completed",
       "under_review": "Under review",
-      "closed": "Closed"
+      "closed": "Closed",
+      "in_progress": "In progress",
+      "submitted": "Submitted for review",
+      "tech_completed": "Completed"
     }
   },
   "actions": {
@@ -78,7 +81,9 @@
     "submitReview": "Submit for review",
     "returnMaterials": "Return materials",
     "returnMaterialsSubmit": "Send return report",
-    "chainNoSubmit": "After the Maintenance Manager approves your report, the order moves on to Operations automatically."
+    "chainNoSubmit": "After the Maintenance Manager approves your report, the order moves on to Operations automatically.",
+    "completionSubmitted": "Completion report submitted — waiting for the Maintenance Manager's review. It is read-only unless a manager returns it.",
+    "completionApproved": "Your completion report was approved. This task is now read-only while the order goes through Operations review. Leftover spare parts are settled from the warehouse request; if a reviewer returns the work you will see it here."
   },
   "review": {
     "pendingPrompt": "The technician asked to move this task to “{{stage}}”. Approve or reject the update.",
@@ -103,6 +108,7 @@
   },
   "errors": {
     "generic": "The action could not be completed.",
+    "COMPLETION_ALREADY_APPROVED": "Your completion report was already approved. It can only be submitted again if a manager returns it.",
     "TASK_ALREADY_APPROVED": "This task was already approved. The page was refreshed.",
     "TASK_NOT_PENDING_APPROVAL": "Someone already decided on this update. The page was refreshed.",
     "TASK_NOT_REVIEWABLE": "This task is no longer waiting for review. The page was refreshed.",

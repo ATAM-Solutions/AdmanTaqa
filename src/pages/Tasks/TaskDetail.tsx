@@ -4,6 +4,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import ActivityTimeline from "@/components/ActivityTimeline";
 import PartsReconciliationPanel from "@/components/warehouse/PartsReconciliationPanel";
+import SparePartRequestsPanel from "@/components/warehouse/SparePartRequestsPanel";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { fetchTaskPartsOrders } from "@/api/services/warehouseService";
 import { toast } from "sonner";
 import { ChevronLeft, Loader2, Paperclip } from "lucide-react";
@@ -16,6 +18,7 @@ import SparePartsPicker from "@/components/SparePartsPicker";
 import { isSelectionValid, partsFormState, selectionToItems, type PartSelection } from "@/lib/spareParts";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import TaskProgress from "@/components/TaskProgress";
+import { isCompletionApprovedForTechnician, isCompletionAwaitingReview } from "@/lib/technicianProgress";
 import { DashboardLoadError } from "@/components/DashboardLoadError";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -29,7 +32,7 @@ import {
   type TaskStatusBody,
 } from "@/api/services/taskDetailService";
 import { getApiErrorMessage } from "@/lib/utils";
-import { chainHandoffStatus, reviewReturnNeedsComment, techActionsForOrder } from "@/lib/internalReviewChain";
+import { CHAIN_APPROVED_TASK_STATUSES, chainHandoffStatus, reviewReturnNeedsComment, techActionsForOrder } from "@/lib/internalReviewChain";
 import ReportAttachmentTile from "@/components/ReportAttachmentTile";
 
 type TechAction = {
@@ -70,6 +73,7 @@ const TECH_ACTIONS: Record<string, TechAction[]> = {
 
 const STABLE_CODES = [
   "TASK_ALREADY_APPROVED",
+  "COMPLETION_ALREADY_APPROVED",
   "TASK_NOT_PENDING_APPROVAL",
   "TASK_NOT_REVIEWABLE",
   "TASK_ALREADY_CLOSED",
@@ -90,6 +94,7 @@ const httpStatusOf = (e: unknown) => (e instanceof TaskActionError ? e.status : 
 
 export default function TaskDetail() {
   const { t, i18n } = useTranslation("tasks");
+  const { t: tWh } = useTranslation("warehouse");
   const { id } = useParams<{ id: string }>();
   const { user, hasPermission } = useAuth();
   const queryClient = useQueryClient();
@@ -101,6 +106,9 @@ export default function TaskDetail() {
   const [uploadCategory] = useState("DURING");
   const [partsSelection, setPartsSelection] = useState<PartSelection>({});
   const [partsWarehouse, setPartsWarehouse] = useState<number | null>(null);
+  // approving a parts request can ask the reviewer to pick the warehouse when several serve the station
+  const [approveWarehouses, setApproveWarehouses] = useState<{ id: number; name: string }[] | null>(null);
+  const [approveWarehouseId, setApproveWarehouseId] = useState<string>("");
 
   const taskQuery = useQuery<TaskDetailData, TaskActionError>({
     queryKey,
@@ -114,6 +122,7 @@ export default function TaskDetail() {
   // a status change or review also changes the task's activity: reload both so the new entry (with its parts) shows at once
   const refresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ["activity"] });
+    await queryClient.invalidateQueries({ queryKey: ["spare-part-requests"] });
     await queryClient.invalidateQueries({ queryKey });
   };
 
@@ -145,6 +154,13 @@ export default function TaskDetail() {
     },
     onError: (e) => {
       const code = e instanceof TaskActionError ? e.code : null;
+      if (e instanceof TaskActionError && code === "WAREHOUSE_SELECTION_REQUIRED") {
+        const c = (e.details as { candidates?: { id: number; name: string }[] } | null)?.candidates;
+        if (Array.isArray(c) && c.length > 0) {
+          setApproveWarehouses(c);
+          return;
+        }
+      }
       const known = STABLE_CODES.find((c) => c === code);
       toast.error(known ? t(`errors.${known}`) : getApiErrorMessage(e, t("errors.generic")));
       // 409/403/404 mean our view is stale or we may not act: reload the truth rather than leave old buttons.
@@ -156,6 +172,8 @@ export default function TaskDetail() {
       setPartsSelection({});
       setFields({});
       setReviewNote("");
+      setApproveWarehouses(null);
+      setApproveWarehouseId("");
       await refresh();
     },
   });
@@ -173,13 +191,24 @@ export default function TaskDetail() {
   const workflowVersion = task?.order?.workflowVersion ?? 1;
   const isChain = reviewReturnNeedsComment(workflowVersion);
   // chain orders: the manager's approval hands the order on, so the technician has no second "submit for review" step
-  const techActions = canExecute && task ? techActionsForOrder(TECH_ACTIONS[task.status] ?? [], workflowVersion) : [];
+  const completionApproved = isCompletionApprovedForTechnician(task?.progress);
+  const completionSubmitted = isCompletionAwaitingReview(task?.progress);
+  // V1 orders still accept a second "submit for review" at API level, but once the Maintenance Manager approved the report the
+  // technician's part is over (the manager reviews the order directly), so the button is not offered.
+  const techActions = canExecute && task
+    ? techActionsForOrder(TECH_ACTIONS[task.status] ?? [], workflowVersion).filter((a) => !(completionApproved && task.status === "COMPLETED" && a.id === "submitReview"))
+    : [];
+  const technicianView = !!task && isAssignee && !canReview;
   const pendingReview = canReview && task?.status === "PENDING_APPROVAL";
   const submittedReview = canReview && task?.status === "UNDER_REVIEW";
   const alreadyApproved = submittedReview && !!task?.progress?.reviewedAt;
   // chain orders: sending a technician report back needs a written reason (the server answers COMMENT_REQUIRED otherwise)
-  const returnBlocked = isChain && !reviewNote.trim();
+  // a returned parts request also needs a written reason (the server answers COMMENT_REQUIRED otherwise)
+  const returnBlocked = (isChain || (pendingReview && task?.pendingStatus === "WAITING_PARTS")) && !reviewNote.trim();
+  const approveBlocked = pendingReview && approveWarehouses != null && !approveWarehouseId;
   const handoff = isChain ? chainHandoffStatus(task?.order?.status) : null;
+  // an approved completion on a chain order is read-only: no return-materials / resubmit (parts are settled from the warehouse request)
+  const chainApprovedReadOnly = !!task && ((isChain && (CHAIN_APPROVED_TASK_STATUSES as readonly string[]).includes(task.status)) || (completionApproved && techActions.length === 0));
 
   const doStatus = (a: TechAction) => {
     const body: TaskStatusBody = { status: a.target };
@@ -315,7 +344,7 @@ export default function TaskDetail() {
 
           <Card>
             <CardHeader><CardTitle className="text-base">{t("progress.title")}</CardTitle></CardHeader>
-            <CardContent><TaskProgress progress={task.progress} /></CardContent>
+            <CardContent><TaskProgress progress={task.progress} technician={technicianView} /></CardContent>
           </Card>
 
           {handoff ? (
@@ -324,16 +353,16 @@ export default function TaskDetail() {
             </p>
           ) : null}
 
-          {(techActions.length > 0 || pendingReview || submittedReview || (canExecute && (task.status === "PENDING_APPROVAL" || (isChain && task.status === "COMPLETED")))) && (
+          {(techActions.length > 0 || pendingReview || submittedReview || (canExecute && (task.status === "PENDING_APPROVAL" || chainApprovedReadOnly))) && (
             <Card>
               <CardHeader><CardTitle className="text-base">{t("actions.title")}</CardTitle></CardHeader>
               <CardContent className="space-y-4">
-                {canExecute && task.status === "PENDING_APPROVAL" ? (
-                  <p className="text-sm text-amber-700 dark:text-amber-400" data-testid="task-waiting-manager">{t("actions.waitingManager")}</p>
+                {canExecute && task.status === "PENDING_APPROVAL" && !completionApproved ? (
+                  <p className="text-sm text-amber-700 dark:text-amber-400" data-testid="task-waiting-manager">{completionSubmitted ? t("actions.completionSubmitted") : t("actions.waitingManager")}</p>
                 ) : null}
 
-                {canExecute && isChain && task.status === "COMPLETED" ? (
-                  <p className="text-sm text-muted-foreground" data-testid="task-chain-no-submit">{t("actions.chainNoSubmit")}</p>
+                {canExecute && chainApprovedReadOnly ? (
+                  <p className="text-sm text-muted-foreground" data-testid="task-chain-no-submit">{t("actions.completionApproved")}</p>
                 ) : null}
 
                 {techActions.length > 0 ? (
@@ -427,18 +456,30 @@ export default function TaskDetail() {
                       <Textarea id="review-note" dir="auto" value={reviewNote} onChange={(e) => setReviewNote(e.target.value)} maxLength={2000} />
                       {returnBlocked ? <p className="text-xs text-muted-foreground" data-testid="review-return-hint">{t("review.returnNeedsNote")}</p> : null}
                     </div>
+                    {pendingReview && approveWarehouses ? (
+                      <div className="space-y-1" data-testid="approve-warehouse-choice">
+                        <Label>{tWh("sparePartRequests.chooseWarehouseTitle")}</Label>
+                        <p className="text-xs text-muted-foreground">{tWh("sparePartRequests.chooseWarehouseHint")}</p>
+                        <Select value={approveWarehouseId} onValueChange={setApproveWarehouseId}>
+                          <SelectTrigger><SelectValue placeholder={tWh("chooseWarehousePlaceholder")} /></SelectTrigger>
+                          <SelectContent>
+                            {approveWarehouses.map((w) => (<SelectItem key={w.id} value={String(w.id)}>{w.name}</SelectItem>))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    ) : null}
                     <div className="flex flex-wrap gap-2">
                       {!alreadyApproved ? (
                         <Button
                           size="sm"
-                          disabled={busy}
+                          disabled={busy || approveBlocked}
                           data-testid="review-approve"
                           onClick={() =>
                             run.mutate(() =>
                               submitTaskReview(
                                 id,
                                 pendingReview
-                                  ? { kind: "pending", decision: "APPROVE_UPDATE", message: reviewNote.trim() || undefined }
+                                  ? { kind: "pending", decision: "APPROVE_UPDATE", message: reviewNote.trim() || undefined, warehouseId: approveWarehouseId ? Number(approveWarehouseId) : undefined }
                                   : { kind: "submitted", decision: "APPROVE", message: reviewNote.trim() || undefined }
                               )
                             )
@@ -510,6 +551,8 @@ export default function TaskDetail() {
               )}
             </CardContent>
           </Card>
+
+          <SparePartRequestsPanel root="task" id={task.id} />
 
           <Card>
             <CardHeader><CardTitle className="text-base">{t("activity.title")}</CardTitle></CardHeader>

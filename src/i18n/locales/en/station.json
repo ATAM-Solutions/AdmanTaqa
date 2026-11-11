@@ -429,7 +429,8 @@
     "unassigned": "Unassigned",
     "toasts": {
       "assigned": "Worker assigned.",
-      "reassigned": "Task reassigned."
+      "reassigned": "Task reassigned.",
+      "placeholderClosed": "Unassigned task closed. If every other task is already approved, the order moves on to Operations review."
     },
     "errors": {
       "generic": "Could not complete the assignment. Please try again.",
@@ -441,7 +442,8 @@
       "WORK_ORDER_CLOSED": "This work order is closed or cancelled.",
       "TASK_BRANCH_MISMATCH": "The task's station does not match the work order.",
       "BRANCH_ACCESS_DENIED": "You do not have access to this station."
-    }
+    },
+    "closePlaceholder": "Close unassigned task"
   },
   "myTasks": {
     "title": "My tasks",

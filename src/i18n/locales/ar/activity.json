@@ -93,7 +93,8 @@
     "WAREHOUSE_RETURN_RESOLVED": "الرد على إرجاع القطع",
     "EXTERNAL_REPORT_RETURNED_PROVIDER_MANAGER": "أعاد مدير المزوّد التقرير",
     "EXTERNAL_REPORT_RETURNED_MAINTENANCE_MANAGER": "أعاد مدير الصيانة التقرير",
-    "EXTERNAL_TECHNICAL_CLOSED": "أغلق مدير الصيانة العمل فنياً"
+    "EXTERNAL_TECHNICAL_CLOSED": "أغلق مدير الصيانة العمل فنياً",
+    "WAREHOUSE_RETURN_NOT_RECEIVED": "المستودع لم يستلم القطع المرتجعة"
   },
   "status": {
     "SUBMITTED": "مقدَّم",

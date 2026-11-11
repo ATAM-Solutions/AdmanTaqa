@@ -31,6 +31,7 @@ export function titleKey(e: ActivityEvent): string {
   const stage = typeof e.meta?.stage === "string" ? e.meta.stage : null;
   if (e.kind === "REPORT_REJECTED" && stage) return `REPORT_REJECTED_${stage}`;
   if (e.kind === "EXTERNAL_REPORT_REVIEWED" && stage) return e.meta?.approval === "RETURNED" ? `EXTERNAL_REPORT_RETURNED_${stage}` : `EXTERNAL_REPORT_REVIEWED_${stage}`;
+  if (e.kind === "WAREHOUSE_RETURN_RESOLVED" && e.to === "REJECTED") return "WAREHOUSE_RETURN_NOT_RECEIVED";
   if (e.kind === "EXTERNAL_JOB_EVENT" && typeof e.meta?.eventType === "string") return `jobEvents.${e.meta.eventType}`;
   return e.kind;
 }

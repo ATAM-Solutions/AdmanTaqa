@@ -5,11 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, UserPlus, UserCog, FileText } from "lucide-react";
 import { useState } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { closeInternalTask } from "@/api/services/internalTaskService";
 import { useAuth } from "@/context/AuthContext";
 import AssignWorkerDialog from "./AssignWorkerDialog";
 import TaskProgress from "@/components/TaskProgress";
 import SourceReportAttachments from "@/components/SourceReportAttachments";
 import ActivityTimeline from "@/components/ActivityTimeline";
+import SparePartRequestsPanel from "@/components/warehouse/SparePartRequestsPanel";
 import useInternalWorkOrderById from "@/hooks/Station/useInternalWorkOrderById";
 import InternalReviewChainPanel from "@/components/internal/InternalReviewChainPanel";
 
@@ -27,6 +31,16 @@ export default function InternalWorkOrderDetail() {
   const [assignTarget, setAssignTarget] = useState<{ taskId: number | null; assignedUserId?: number | null; name?: string | null } | null>(null);
 
   const orderOpenForWork = order != null && order.status !== "CLOSED" && order.status !== "CANCELLED";
+  const qc = useQueryClient();
+  const closePlaceholder = useMutation({
+    mutationFn: (taskId: number) => closeInternalTask(taskId),
+    onSuccess: async () => {
+      toast.success(t("assignWorker.toasts.placeholderClosed"));
+      await qc.invalidateQueries({ queryKey: ["internal-work-order"] });
+      await qc.invalidateQueries({ queryKey: ["internal-work-orders"] });
+    },
+    onError: () => toast.error(t("assignWorker.errors.generic")),
+  });
   const canAssign = orderOpenForWork && hasPermission("internal_tasks.assign");
   // Once a worker holds an open task, the header "Assign worker" goes away; "Reassign" on the task row remains.
   const hasActiveAssignee = (order?.tasks ?? []).some((task) => task.assignedUserId != null && task.status !== "CLOSED");
@@ -106,7 +120,7 @@ export default function InternalWorkOrderDetail() {
                         {task.assignedUser?.fullName ?? t("assignWorker.unassigned")}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        #{task.id} · <Badge variant="outline">{task.status ?? "—"}</Badge>
+                        #{task.id} · <Badge variant="outline" data-testid="order-task-status">{task.status ? tTasks(`status.${!task.assignedUserId && (task.status === "ASSIGNED" || task.status === "PENDING_ASSIGNMENT") ? "PENDING_ASSIGNMENT" : task.status}`, { defaultValue: task.status }) : "—"}</Badge>
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -127,6 +141,11 @@ export default function InternalWorkOrderDetail() {
                           {task.assignedUserId ? t("assignWorker.reassign") : t("assignWorker.assign")}
                         </Button>
                       )}
+                      {orderOpenForWork && !task.assignedUserId && task.status !== "CLOSED" && hasPermission("internal_tasks.close") && (
+                        <Button size="sm" variant="ghost" className="gap-1 text-destructive" disabled={closePlaceholder.isPending} data-testid="close-unassigned-task" onClick={() => closePlaceholder.mutate(task.id)}>
+                          {t("assignWorker.closePlaceholder")}
+                        </Button>
+                      )}
                       {hasPermission("internal_tasks.read") && (
                         <Button asChild size="sm" variant="outline" className="gap-1">
                           <Link to={`/internal-tasks/${task.id}`} data-testid="open-task">{tTasks("open")}</Link>
@@ -141,6 +160,7 @@ export default function InternalWorkOrderDetail() {
           )}
         </CardContent>
       </Card>
+      <SparePartRequestsPanel root="workOrder" id={order.id} />
       <Button asChild variant="outline" className="w-fit">
         <Link to={`/reports/work-orders/${order.id}`} data-testid="open-final-report"><FileText className="me-2 h-4 w-4" />{tReport("open")}</Link>
       </Button>

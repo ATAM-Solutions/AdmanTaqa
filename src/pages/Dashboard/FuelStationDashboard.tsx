@@ -9,7 +9,7 @@ import {
 import {
   GitBranch, Users, Wrench, ClipboardList, Send, FileOutput, CircleCheck,
   CreditCard, ClipboardCheck, PlusCircle, UserPlus, ListChecks, ArrowRight,
-  Store, Activity, ExternalLink,
+  Store, Activity, ExternalLink, Package,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +31,7 @@ import { ChartCard } from "./components/ChartCard";
 export default function FuelStationDashboard() {
   const { t, i18n } = useTranslation("dashboard");
   const { t: tNav } = useTranslation("nav");
+  const { t: tTasks } = useTranslation("tasks");
   const colors = useChartColors();
   const { organization, roles, hasPermission, permissions } = useAuth();
   const canReadReports = hasPermission("maintenance_issues.read");
@@ -38,7 +39,7 @@ export default function FuelStationDashboard() {
   // A technician (executor-only session) works from My tasks: the company KPI cards and quick actions link to
   // pages they cannot open, so they get a focused landing instead (Report 3 finding 1).
   const executorOnly = isExecutorOnly(permissions);
-  const { data, isLoading, error, refetch } = useGetStationDashboard(!executorOnly);
+  const { data, isLoading, error, refetch } = useGetStationDashboard();
 
   const kpis = data?.kpis;
   const charts = data?.charts;
@@ -113,10 +114,53 @@ export default function FuelStationDashboard() {
   // First load failed (nothing to show): header + banner. A failed REFRESH keeps the data on screen and
   // shows the banner above it (Report 3 finding 21).
   if (executorOnly) {
+    const tech = data?.technician;
+    const tasks = tech?.tasks;
+    const num = (n: number | undefined) => (tasks || tech ? formatNumber(n ?? 0, i18n.language) : "—");
     return (
       <div className="space-y-6 p-6">
         {header}
-        <div className="grid gap-4 sm:grid-cols-2" data-testid="technician-landing">
+        {error && !data ? <DashboardLoadError error={error} fallbackMessage={t("charts.error")} onRetry={() => refetch()} /> : null}
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-5" data-testid="technician-landing">
+          <KpiCard label={t("technician.kpi.assigned")} value={num(tasks?.assigned)} icon={<ListChecks className="h-5 w-5" />} to="/my-tasks" isLoading={isLoading} accent={tasks && tasks.assigned > 0 ? "warning" : "default"} />
+          <KpiCard label={t("technician.kpi.inProgress")} value={num(tasks?.inProgress)} icon={<Wrench className="h-5 w-5" />} to="/my-tasks" isLoading={isLoading} />
+          <KpiCard label={t("technician.kpi.pendingApproval")} value={num(tasks?.pendingApproval)} icon={<ClipboardCheck className="h-5 w-5" />} to="/my-tasks" isLoading={isLoading} />
+          <KpiCard label={t("technician.kpi.completed")} value={num(tasks?.completed)} icon={<CircleCheck className="h-5 w-5" />} to="/my-tasks" isLoading={isLoading} />
+          {hasPermission("warehouse_orders.read") ? (
+            <KpiCard label={t("technician.kpi.partsAction")} value={num(tech?.sparePartsActionRequired)} icon={<Package className="h-5 w-5" />} to="/warehouse-requests" isLoading={isLoading} accent={tech && tech.sparePartsActionRequired > 0 ? "warning" : "default"} />
+          ) : null}
+        </div>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">{t("technician.recent")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <AsyncBoundary
+              isLoading={isLoading}
+              isEmpty={!tech?.recentTasks?.length}
+              emptyFallback={<EmptyState icon={<Activity className="h-6 w-6" />} title={t("technician.recentEmpty")} className="py-8" />}
+            >
+              <ul className="divide-y" data-testid="technician-recent-tasks">
+                {tech?.recentTasks.map((task) => (
+                  <li key={task.id}>
+                    <Link to={`/internal-tasks/${task.id}`} className="flex items-center justify-between gap-3 rounded-lg px-1 py-2.5 transition-colors hover:bg-muted/60">
+                      <span className="min-w-0">
+                        <span className="block truncate text-sm font-medium" dir="auto">{task.title ?? t("technician.task", { id: task.id })}</span>
+                        <span className="block truncate text-xs text-muted-foreground" dir="auto">
+                          #{task.id}
+                          {task.branch ? ` · ${(isArabic ? task.branch.nameAr : task.branch.nameEn) || task.branch.nameEn}` : ""}
+                          {` · ${formatDate(task.updatedAt, i18n.language, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}`}
+                        </span>
+                      </span>
+                      <Badge variant="outline" className="shrink-0 text-[10px] px-1.5 py-0">{tTasks(`status.${task.status}`, { defaultValue: task.status })}</Badge>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </AsyncBoundary>
+          </CardContent>
+        </Card>
+        <div className="grid gap-3 sm:grid-cols-2">
           {hasPermission("internal_tasks.update_status") ? (
             <Button asChild variant="outline" className="h-auto justify-start gap-3 p-4">
               <Link to="/my-tasks"><ListChecks className="h-5 w-5" /> {tNav("myTasks")}</Link>
@@ -124,7 +168,7 @@ export default function FuelStationDashboard() {
           ) : null}
           {hasPermission("warehouse_orders.read") ? (
             <Button asChild variant="outline" className="h-auto justify-start gap-3 p-4">
-              <Link to="/warehouse-requests"><Wrench className="h-5 w-5" /> {tNav("warehouseRequests")}</Link>
+              <Link to="/warehouse-requests"><Package className="h-5 w-5" /> {tNav("mySparePartsRequests")}</Link>
             </Button>
           ) : null}
         </div>

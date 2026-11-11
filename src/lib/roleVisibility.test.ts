@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { canAccessPath } from "./accessControl";
+import { canAccessPath, isExecutorOnly } from "./accessControl";
 
 /**
  * Page visibility per default Job Title. The permission lists are the backend's seeded defaults
  * (enrgy-BE fuel-station / service-provider default roles); a change there must be mirrored here on purpose.
  */
 const FS = {
+  // a Technician role copy as found in the field: the default keys PLUS leftovers (ops_confirm, warehouse_return, station.*)
+  technicianLegacy: ["assets.read", "internal_tasks.read", "internal_tasks.update_status", "internal_tasks.upload", "internal_work_orders.ops_confirm", "internal_work_orders.read", "internal_work_orders.warehouse_return", "quotations.read", "payments.read", "station.job_orders.read", "station.job_orders.review", "station.reports.review", "station.requests.read", "warehouse_orders.create", "warehouse_orders.read", "warehouse_orders.submit", "warehouse_orders.update_status", "warehouse_orders.upload"],
   technician: ["assets.read", "internal_tasks.read", "internal_tasks.update_status", "internal_tasks.upload", "internal_work_orders.read", "warehouse_orders.create", "warehouse_orders.read", "warehouse_orders.submit", "warehouse_orders.update_status", "warehouse_orders.upload"],
   supervisor: ["assets.read", "internal_work_orders.read", "maintenance_issues.read", "maintenance_issues.supervisor_review", "stations.read"],
   operations: ["assets.read", "external_maintenance_v2.ops_closure", "external_maintenance_v2.read", "internal_work_orders.close", "internal_work_orders.ops_confirm", "internal_work_orders.read", "maintenance_issues.ops_approve", "maintenance_issues.read", "station.job_orders.read", "station.reports.review", "stations.read"],
@@ -23,10 +25,33 @@ const fs = (who: keyof typeof FS, path: string) => canAccessPath(path, "FUEL_STA
 const sp = (who: keyof typeof SP, path: string) => canAccessPath(path, "SERVICE_PROVIDER", SP[who]);
 const ORDER_PAGES = ["/internal-work-orders", "/internal-work-orders/5", "/internal-work-orders/review-queue"];
 
+describe("Technician role copies with leftover keys still get the technician experience", () => {
+  const ALLOWED = ["/my-tasks", "/internal-tasks/9", "/warehouse-requests", "/warehouse-requests/3", "/dashboard", "/reports/work-orders/5"];
+  const DENIED = ["/assets", "/assets/3", "/internal-work-orders", "/internal-work-orders/5", "/internal-work-orders/review-queue", "/station-requests", "/station-requests/create", "/station-requests/4",
+    "/station-job-orders", "/station-job-orders/4", "/external-reviews/maintenance", "/external-reviews/operations", "/external-reviews/closure", "/quotations", "/quotations/2", "/linked-providers",
+    "/maintenance-reports", "/work-orders/2", "/work-orders/review-queue", "/users", "/roles", "/branches", "/company", "/warehouses", "/warehouse-inventory", "/branch-requests"];
+  it("opens only the technician pages", () => {
+    for (const p of ALLOWED) expect(fs("technicianLegacy", p), p).toBe(true);
+    for (const p of DENIED) expect(fs("technicianLegacy", p), p).toBe(false);
+  });
+  it("is still executor-only although it holds ops_confirm and warehouse_return", () => {
+    expect(isExecutorOnly(FS.technicianLegacy)).toBe(true);
+    expect(isExecutorOnly(FS.technician)).toBe(true);
+  });
+  it("does not change any other job title's pages", () => {
+    for (const who of ["maintenance", "operations", "supervisor", "warehouse", "manager"] as const) expect(isExecutorOnly(FS[who]), who).toBe(false);
+    expect(fs("maintenance", "/internal-work-orders/review-queue")).toBe(true);
+    expect(fs("operations", "/internal-work-orders/review-queue")).toBe(true);
+    expect(fs("manager", "/assets")).toBe(true);
+    expect(fs("manager", "/station-requests")).toBe(true);
+    expect(fs("warehouse", "/warehouse-inventory")).toBe(true);
+  });
+});
+
 describe("Fuel Station job titles: pages", () => {
   it("Technician works from My tasks: no order, report, request, user or station pages", () => {
-    for (const p of ["/my-tasks", "/internal-tasks/9", "/warehouse-requests", "/assets", "/"]) expect(fs("technician", p)).toBe(true);
-    for (const p of [...ORDER_PAGES, "/maintenance-reports", "/maintenance-reports/create", "/maintenance-reports/3", "/station-requests", "/station-requests/create", "/station-requests/4",
+    for (const p of ["/my-tasks", "/internal-tasks/9", "/warehouse-requests", "/warehouse-requests/3", "/dashboard", "/reports/work-orders/5", "/"]) expect(fs("technician", p), p).toBe(true);
+    for (const p of ["/assets", "/assets/3", "/assets/create", ...ORDER_PAGES, "/maintenance-reports", "/maintenance-reports/create", "/maintenance-reports/3", "/station-requests", "/station-requests/create", "/station-requests/4",
       "/station-job-orders", "/linked-providers", "/work-orders/2", "/work-orders/review-queue", "/users", "/roles", "/branches", "/company", "/warehouse-inventory"])
       expect(fs("technician", p), p).toBe(false);
   });

@@ -20,16 +20,24 @@ export type AccessRule = {
    * (Report 3 finding 1). The server applies the same rule to the order APIs (isExecutorOnly).
    */
   excludeExecutorOnly?: boolean;
+  /**
+   * A technician session (executor-only) may open ONLY the pages that carry this flag (plus pages with no rule, such as
+   * the profile). Every other rule-guarded page is closed to them whatever leftover permissions their role copy holds —
+   * the sidebar, the route guard and every dashboard link all follow this one table. The server refuses the same routes.
+   */
+  executorAllowed?: boolean;
 };
 
-/** Mirrors enrgy-BE `isExecutorOnly` — keep the two lists in sync. */
+/**
+ * Mirrors enrgy-BE `isExecutorOnly` — keep the two lists in sync.
+ * `internal_work_orders.ops_confirm` / `warehouse_return` are intentionally NOT listed: older Technician role copies still
+ * carry them as leftovers, and with them here those technicians were not "executor-only" and got the manager navigation.
+ */
 const MANAGEMENT_PERMISSIONS = [
   "internal_work_orders.create",
   "internal_work_orders.update",
   "internal_work_orders.review",
   "internal_work_orders.close",
-  "internal_work_orders.warehouse_return",
-  "internal_work_orders.ops_confirm",
   "internal_tasks.assign",
   "internal_tasks.review",
   "internal_tasks.close",
@@ -46,6 +54,7 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   // Authority deliberately excluded — no dashboard variant exists for it.
   dashboard: {
     orgTypes: ["SUPER_ADMIN", "FUEL_STATION", "SERVICE_PROVIDER"],
+    executorAllowed: true,
   },
   organizations: {
     orgTypes: ["AUTHORITY", "SUPER_ADMIN"],
@@ -228,14 +237,17 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   "my-tasks": {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["internal_tasks.update_status"],
+    executorAllowed: true,
   },
   "warehouse-requests": {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["warehouse_orders.read"],
+    executorAllowed: true,
   },
   "warehouse-requests/:id": {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["warehouse_orders.read"],
+    executorAllowed: true,
   },
   // Stock per warehouse. Reads need warehouse.read; a person delegated "add inventory items" may open it too.
   "warehouse-inventory": {
@@ -273,6 +285,7 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   "internal-tasks/:id": {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["internal_tasks.read"],
+    executorAllowed: true,
   },
   // Maintenance reports (بلاغات = /api/maintenance-issues). Read gates the list/details; create gates the form.
   "maintenance-reports": {
@@ -303,6 +316,7 @@ export const ROUTE_ACCESS_RULES: Record<string, AccessRule> = {
   "reports/work-orders/:id": {
     orgTypes: ["FUEL_STATION"],
     anyPermissions: ["internal_work_orders.read"],
+    executorAllowed: true,
   },
   "reports/requests/:id": {
     orgTypes: ["FUEL_STATION"],
@@ -391,6 +405,8 @@ export const canAccessByRule = (
     if (!allowed) return false;
   }
   if (granted.size > 0 && rule.excludeExecutorOnly && isExecutorOnly(permissions)) return false;
+  // A technician session opens only the pages flagged `executorAllowed` (organisation-type fixed: FUEL_STATION).
+  if (granted.size > 0 && organizationType === "FUEL_STATION" && !rule.executorAllowed && isExecutorOnly(permissions)) return false;
   if (granted.size > 0 && rule.allPermissions?.length) {
     const allowed = rule.allPermissions.every((code) => granted.has(normalizePermissionCode(code)));
     if (!allowed) return false;

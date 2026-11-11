@@ -2,23 +2,24 @@ import { useTranslation } from "react-i18next";
 import { Check, Circle, Clock, HelpCircle } from "lucide-react";
 import type { TaskProgress as TaskProgressData } from "@/api/services/taskDetailService";
 import { cn } from "@/lib/utils";
+import { technicianStages } from "@/lib/technicianProgress";
 
 /**
  * Shared progress display for an internal task. Renders the server-computed `progress` (the same payload the
  * mobile app uses), so the web, the order page and the app can never disagree. A pending manager decision is
  * shown as its own state; unevidenced legacy stages are neutral, never "done".
  */
-export default function TaskProgress({ progress, compact = false }: { progress: TaskProgressData | null; compact?: boolean }) {
+export default function TaskProgress({ progress, compact = false, technician = false }: { progress: TaskProgressData | null; compact?: boolean; technician?: boolean }) {
   const { t, i18n } = useTranslation("tasks");
   if (!progress) {
     return <p className="text-xs text-muted-foreground" data-testid="task-progress-unavailable">{t("progress.unavailable")}</p>;
   }
-  const visible = progress.stages.filter((s) => !(s.optional && (s.state === "upcoming" || s.state === "unknown")));
+  const visible = (technician ? technicianStages(progress) : progress.stages).filter((s) => !(s.optional && (s.state === "upcoming" || s.state === "unknown")));
   const fmt = (iso: string | null) =>
     iso ? new Date(iso).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" }) : null;
 
   return (
-    <div data-testid="task-progress">
+    <div data-testid="task-progress" data-variant={technician ? "technician" : "management"}>
       <ol className={cn(compact ? "grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6" : "flex flex-col gap-2 sm:flex-row sm:flex-wrap")}>
         {visible.map((stage) => {
           const done = stage.state === "done";
@@ -62,14 +63,14 @@ export default function TaskProgress({ progress, compact = false }: { progress: 
           );
         })}
       </ol>
-      {progress.awaitingApproval ? (
+      {progress.awaitingApproval && !technician ? (
         <p className="mt-2 text-xs text-amber-700 dark:text-amber-400" data-testid="task-progress-pending">
           {progress.pendingStage
             ? t("progress.pendingBanner", { stage: t(`progress.stages.${progress.pendingStage}`) })
             : t("progress.pendingBannerGeneric")}
         </p>
       ) : null}
-      {progress.status === "PAUSED" || progress.status === "INSPECTING" || progress.status === "WAITING_PARTS" || progress.status === "RETURNING_MATERIALS" ? (
+      {!technician && (progress.status === "PAUSED" || progress.status === "INSPECTING" || progress.status === "WAITING_PARTS" || progress.status === "RETURNING_MATERIALS") ? (
         <p className="mt-2 text-xs text-muted-foreground">{t("progress.substate", { status: t(`status.${progress.status}`) })}</p>
       ) : null}
     </div>

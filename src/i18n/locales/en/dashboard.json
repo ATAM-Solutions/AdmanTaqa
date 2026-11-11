@@ -208,5 +208,21 @@
     "description": "Users belong to a company. Pick the company you want to add the user to.",
     "searchPlaceholder": "Search companies...",
     "empty": "No companies found."
+  },
+  "technician": {
+    "title": "My work",
+    "description": "Your assigned maintenance tasks and spare-parts requests.",
+    "kpi": {
+      "assigned": "Newly assigned",
+      "inProgress": "In progress",
+      "pendingApproval": "Awaiting manager approval",
+      "completed": "Completed",
+      "partsAction": "Spare parts needing your action"
+    },
+    "recent": "My recent tasks",
+    "recentEmpty": "No tasks assigned to you yet.",
+    "openTasks": "Open my tasks",
+    "openParts": "My spare-parts requests",
+    "task": "Task #{{id}}"
   }
 }

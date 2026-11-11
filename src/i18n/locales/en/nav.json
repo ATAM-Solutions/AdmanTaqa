@@ -66,5 +66,6 @@
   "operationsReview": "External work approval",
   "closureReview": "External work closure",
   "providerReviewQueue": "Technician report review",
-  "internalReviewQueue": "Internal work order review"
+  "internalReviewQueue": "Internal work order review",
+  "mySparePartsRequests": "My spare-parts requests"
 }

@@ -212,6 +212,8 @@ export interface OrderDetail {
   receivedBy: string | null;
   items: OrderLine[];
   updates: { id: number; message: string | null; newStatus: string | null; by: string | null; createdAt: string }[];
+  /** The warehouse's current "did not receive the returned parts" answer (reason is for the technician), else null. */
+  returnRejection: { reason: string | null; at: string | null; by: string | null } | null;
   workflow: {
     status: string;
     /** AWAITING_TECHNICIAN_RECEIPT (issued, not yet confirmed) | RECEIVED | null. */
@@ -274,6 +276,7 @@ export function normalizeOrder(raw: unknown): OrderDetail | null {
       .map(obj)
       .filter((u): u is Record<string, unknown> => !!u && typeof u.id === "number")
       .map((u) => ({ id: u.id as number, message: str(u.message), newStatus: str(u.newStatus), by: str(obj(u.CreatedByUser)?.fullName), createdAt: str(u.createdAt) ?? "" })),
+    returnRejection: obj(r.returnRejection) ? { reason: str(obj(r.returnRejection)?.reason), at: str(obj(r.returnRejection)?.at), by: str(obj(obj(r.returnRejection)?.by)?.fullName) } : null,
     workflow: wf && Array.isArray(Object.keys(obj(wf.actions) ?? {})) ? (wf as unknown as OrderDetail["workflow"]) : null,
   };
 }

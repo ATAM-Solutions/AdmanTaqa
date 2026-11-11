@@ -66,5 +66,6 @@
   "operationsReview": "اعتماد الأعمال الخارجية",
   "closureReview": "إغلاق الأعمال الخارجية",
   "providerReviewQueue": "مراجعة تقارير الفنيين",
-  "internalReviewQueue": "مراجعة أوامر العمل الداخلية"
+  "internalReviewQueue": "مراجعة أوامر العمل الداخلية",
+  "mySparePartsRequests": "طلبات قطع الغيار الخاصة بي"
 }

@@ -37,6 +37,7 @@ import { useAuth } from "@/context/AuthContext";
 import {
   ROUTE_ACCESS_RULES,
   canAccessByRule,
+  isExecutorOnly,
   normalizePathKey,
 } from "@/lib/accessControl";
 import { CompanyAvatar } from "@/components/company/CompanyAvatar";
@@ -211,6 +212,7 @@ export default function AppSidebar() {
 
   const { logout, organization, permissions } = useAuth();
   const isCompany = isCompanyOrganization(organization?.type);
+  const technician = organization?.type === "FUEL_STATION" && isExecutorOnly(permissions);
   const companyDisplayName = getOrganizationDisplayName(organization, i18n.language);
   const handleLogout = () => {
     logout();
@@ -308,7 +310,7 @@ export default function AppSidebar() {
           >
             <Link to={item.path} className="flex items-center gap-3">
               <item.icon className={`h-4 w-4 transition-colors ${isItemActive(item) ? 'text-primary' : 'text-muted-foreground group-hover/btn:text-primary'}`} />
-              <span className="font-semibold text-sm">{t(item.labelKey)}</span>
+              <span className="font-semibold text-sm">{t(technician && item.id === "warehouseRequests" ? "mySparePartsRequests" : item.labelKey)}</span>
             </Link>
           </SidebarMenuButton>
         </SidebarMenuItem>

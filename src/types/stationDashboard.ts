@@ -61,9 +61,27 @@ export interface StationDashboardVisibility {
   maintenanceIssues: boolean;
   internalWorkOrders: boolean;
   externalRequests: boolean;
+  /** true only for a technician session: the server returned `technician` instead of company-wide blocks */
+  technician?: boolean;
+}
+
+/** A technician's own work (server-scoped to the caller's assignments and requests). */
+export interface TechnicianDashboardData {
+  tasks: { assigned: number; inProgress: number; pendingApproval: number; completed: number };
+  sparePartsActionRequired: number;
+  sparePartsTotal: number;
+  recentTasks: {
+    id: number;
+    status: string;
+    updatedAt: string;
+    title: string | null;
+    internalWorkOrderId: number | null;
+    branch: { id: number; nameEn: string; nameAr: string } | null;
+  }[];
 }
 
 export interface StationDashboardData {
+  technician?: TechnicianDashboardData;
   visibility?: StationDashboardVisibility;
   kpis: StationDashboardKpis;
   charts: StationDashboardCharts;

@@ -172,7 +172,7 @@ describe("review chain pure helpers", () => {
   });
   it("only chain orders drop the technician's submit-for-review step and need a return comment", () => {
     const acts = [{ id: "returnMaterials" }, { id: "submitReview" }];
-    expect(techActionsForOrder(acts, 2).map((a) => a.id)).toEqual(["returnMaterials"]);
+    expect(techActionsForOrder(acts, 2).map((a) => a.id)).toEqual([]); // no return-materials step either (finding 5-8)
     expect(techActionsForOrder(acts, 1).map((a) => a.id)).toEqual(["returnMaterials", "submitReview"]);
     expect(techActionsForOrder(acts, undefined)).toHaveLength(2);
     expect(reviewReturnNeedsComment(2)).toBe(true);
