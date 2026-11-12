@@ -343,7 +343,8 @@
     "hint": "Check the parts you collected. Confirm the quantity you actually received for each part.",
     "issued": "issued {{count}}",
     "range": "Enter 0 to {{max}}.",
-    "noteRequired": "You received less than was issued — explain why."
+    "noteRequired": "You received less than was issued — explain why.",
+    "success": "Receipt confirmed."
   },
   "usage": {
     "title": "Confirm parts usage",

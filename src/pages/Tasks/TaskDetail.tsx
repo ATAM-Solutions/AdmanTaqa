@@ -552,7 +552,7 @@ export default function TaskDetail() {
             </CardContent>
           </Card>
 
-          <SparePartRequestsPanel root="task" id={task.id} />
+          <SparePartRequestsPanel root="task" id={task.id} onChanged={refresh} />
 
           <Card>
             <CardHeader><CardTitle className="text-base">{t("activity.title")}</CardTitle></CardHeader>

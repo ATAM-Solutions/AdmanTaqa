@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import PartsReconciliationPanel from "@/components/warehouse/PartsReconciliationPanel";
+import OrderReceiptForm from "@/components/warehouse/OrderReceiptForm";
 import { DashboardLoadError } from "@/components/DashboardLoadError";
 import ActivityTimeline from "@/components/ActivityTimeline";
 import { useAuth } from "@/context/AuthContext";
@@ -54,8 +55,6 @@ export default function WarehouseRequestDetail() {
   // Approve & Issue quantities and the technician's receipt, keyed by line id; empty = the default (all of it)
   const [issueQty, setIssueQty] = useState<Record<number, string>>({});
   const [issueNote, setIssueNote] = useState("");
-  const [receiveQty, setReceiveQty] = useState<Record<number, string>>({});
-  const [receiveNote, setReceiveNote] = useState("");
   const [returnReason, setReturnReason] = useState("");
 
   const q = useQuery<OrderDetail, WarehouseApiError>({
@@ -81,7 +80,7 @@ export default function WarehouseRequestDetail() {
     },
     onSuccess: async () => {
       setLines(null); setReason(""); setReturnQty({}); setCandidates(null); setChosenWarehouse("");
-      setIssueQty({}); setIssueNote(""); setReceiveQty({}); setReceiveNote(""); setReturnReason("");
+      setIssueQty({}); setIssueNote(""); setReturnReason("");
       await qc.invalidateQueries({ queryKey: key });
       await qc.invalidateQueries({ queryKey: ["warehouse-requests"] });
     },
@@ -124,9 +123,6 @@ export default function WarehouseRequestDetail() {
     return null;
   };
   const issuedLines = order?.items.filter((i) => i.status === "ISSUED") ?? [];
-  const receiveValue = (i: OrderLine) => asInt(receiveQty[i.id]) ?? (i.issuedQuantity ?? 0);
-  const receiveInvalid = (i: OrderLine) => { const q = receiveValue(i); return !(q >= 0) || q > (i.issuedQuantity ?? 0); };
-  const receiveShort = issuedLines.some((i) => receiveValue(i) < (i.issuedQuantity ?? 0));
   /** What can still be proposed for return: issued − used − already returned − proposed and waiting. */
   const returnableOf = (i: OrderLine) => Math.max(0, (i.issuedQuantity ?? 0) - (i.usedQuantity ?? i.issuedQuantity ?? 0) - (i.returnedQuantity ?? 0) - i.pendingReturnQuantity);
 
@@ -316,30 +312,14 @@ export default function WarehouseRequestDetail() {
                 <p className="text-sm text-amber-600" role="status" data-testid="why-approveAndIssue">{reasonText(act("approveAndIssue")!.reason, act("approveAndIssue")!.actor)}</p>
               ) : null}
               {act("receive")?.allowed && issuedLines.length > 0 ? (
-                <div className="space-y-2 rounded-md border p-3" data-testid="receive-panel">
-                  <p className="text-sm font-medium">{t("receive.title")}</p>
-                  <p className="text-xs text-muted-foreground">{t("receive.hint")}</p>
-                  {issuedLines.map((i) => (
-                    <div key={i.id} className="flex flex-wrap items-center gap-2" data-testid="receive-row">
-                      <span className="min-w-0 flex-1 text-sm" dir="auto">{i.partName} <span className="text-xs text-muted-foreground">({t("receive.issued", { count: i.issuedQuantity ?? 0 })})</span></span>
-                      <Input className="w-24" type="number" min={0} max={i.issuedQuantity ?? 0} aria-label={t("items.received")} value={receiveQty[i.id] ?? String(i.issuedQuantity ?? 0)} onChange={(e) => setReceiveQty((p) => ({ ...p, [i.id]: e.target.value }))} data-testid="receive-qty" />
-                      {receiveInvalid(i) ? <span className="text-xs text-destructive" role="alert">{t("receive.range", { max: i.issuedQuantity ?? 0 })}</span> : null}
-                    </div>
-                  ))}
-                  {receiveShort ? (
-                    <div className="space-y-1" data-testid="receive-note-box">
-                      <Label htmlFor="receive-note" className="text-xs">{t("receive.noteRequired")}</Label>
-                      <Textarea id="receive-note" dir="auto" rows={2} value={receiveNote} onChange={(e) => setReceiveNote(e.target.value)} />
-                    </div>
-                  ) : null}
-                  <Button size="sm" disabled={busy || issuedLines.some(receiveInvalid) || (receiveShort && !receiveNote.trim())} data-testid="action-receive"
-                    onClick={() => {
-                      const received = issuedLines.map((i) => ({ itemId: i.id, quantity: receiveValue(i) }));
-                      run.mutate({ kind: "receive", received: receiveShort ? received : undefined, note: receiveNote.trim() || undefined });
-                    }}>
-                    {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : t("actions.receive")}
-                  </Button>
-                </div>
+                <OrderReceiptForm
+                  order={order}
+                  onDone={async () => {
+                    await qc.invalidateQueries({ queryKey: key });
+                    await qc.invalidateQueries({ queryKey: ["warehouse-requests"] });
+                    await qc.invalidateQueries({ queryKey: ["spare-part-requests"] });
+                  }}
+                />
               ) : null}
               {order.status === "PARTIAL_RETURN" && order.returnRejection ? (
                 <div className="rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm" role="alert" data-testid="return-not-received">

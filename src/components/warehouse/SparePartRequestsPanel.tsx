@@ -1,16 +1,41 @@
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { fetchSparePartRequests, type SparePartRequest } from "@/api/services/taskDetailService";
+import { fetchOrder } from "@/api/services/warehouseService";
+import OrderReceiptForm from "@/components/warehouse/OrderReceiptForm";
 import { formatDate } from "@/lib/i18n/formatters";
 
 /**
- * The spare-parts requests of a task or work order: items, the Maintenance decision, the warehouse, who acts next and the
- * history. Read-only — every action still happens on the task / warehouse order itself, behind its own permission.
+ * Receipt step inside the panel: loads the linked order and renders the SAME receipt form as the warehouse request page, but only
+ * when the server says this caller may confirm receipt (`workflow.actions.receive.allowed` folds permission and identity in).
  */
-export default function SparePartRequestsPanel({ root, id }: { root: "task" | "workOrder"; id: number | string }) {
+function AwaitingReceipt({ orderId, onChanged }: { orderId: number; onChanged?: () => void | Promise<void> }) {
+  const qc = useQueryClient();
+  const q = useQuery({ queryKey: ["warehouse-order", String(orderId)], queryFn: () => fetchOrder(orderId), retry: false, refetchOnWindowFocus: false });
+  const order = q.data;
+  if (!order || !order.workflow?.actions?.receive?.allowed) return null;
+  return (
+    <OrderReceiptForm
+      order={order}
+      onDone={async () => {
+        for (const k of [["warehouse-order", String(orderId)], ["spare-part-requests"], ["warehouse-requests"], ["task-parts-orders"], ["activity"]]) {
+          await qc.invalidateQueries({ queryKey: k });
+        }
+        await onChanged?.();
+      }}
+    />
+  );
+}
+
+/**
+ * The spare-parts requests of a task or work order: items, the Maintenance decision, the warehouse, who acts next and the
+ * history. Read-only, except that the assigned technician can confirm receipt of issued parts right here (the same form and
+ * endpoint as the warehouse request page); every other action stays on the warehouse order, behind its own permission.
+ */
+export default function SparePartRequestsPanel({ root, id, onChanged }: { root: "task" | "workOrder"; id: number | string; onChanged?: () => void | Promise<void> }) {
   const { t, i18n } = useTranslation("warehouse", { keyPrefix: "sparePartRequests" });
   const ar = i18n.language.startsWith("ar");
   const query = useQuery({
@@ -118,6 +143,10 @@ export default function SparePartRequestsPanel({ root, id }: { root: "task" | "w
                     </tbody>
                   </table>
                 </div>
+
+                {r.phase === "AWAITING_RECEIPT" && r.warehouseOrderId != null && r.canOpenWarehouseOrder ? (
+                  <AwaitingReceipt orderId={r.warehouseOrderId} onChanged={onChanged} />
+                ) : null}
 
                 {r.timeline.length > 0 ? (
                   <details>
