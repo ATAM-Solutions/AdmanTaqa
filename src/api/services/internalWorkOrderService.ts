@@ -307,6 +307,13 @@ export const opsConfirmInternalWorkOrder = (id: number | string, comment?: strin
 export const opsReturnInternalWorkOrder = (id: number | string, comment: string) =>
   patchOrderAction(id, "ops-return", { comment: comment.trim() });
 
+/**
+ * Legacy (V1) workflow step: MAINTENANCE_CLOSED -> AWAITING_OPS_CONFIRMATION. A workflow transition only: the server records who/when
+ * and the optional note; it does not touch stock or any warehouse order (returns are confirmed on the warehouse order itself).
+ */
+export const warehouseReturnInternalWorkOrder = (id: number | string, returnNote?: string) =>
+  patchOrderAction(id, "warehouse-return", returnNote && returnNote.trim() ? { returnNote: returnNote.trim() } : {});
+
 /** Maintenance Manager final closure; 409 PARTS_UNRESOLVED carries the blocking lines. */
 export const finalCloseInternalWorkOrder = (id: number | string, comment?: string) =>
   patchOrderAction(id, "final-close", withComment(comment));

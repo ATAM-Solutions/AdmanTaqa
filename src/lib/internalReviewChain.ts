@@ -22,6 +22,8 @@ export interface OrderActionFlags {
   /** Legacy Approve / Reject (UNDER_REVIEW, or the stuck IN_PROGRESS case). */
   legacyReview: boolean;
   stuckLegacy: boolean;
+  /** Legacy (V1) "warehouse return" workflow step: MAINTENANCE_CLOSED -> AWAITING_OPS_CONFIRMATION. */
+  warehouseReturn: boolean;
   /** Legacy single-step Operations closure (AWAITING_OPS_CONFIRMATION). */
   legacyClose: boolean;
   opsConfirm: boolean;
@@ -31,7 +33,7 @@ export interface OrderActionFlags {
 
 export function orderActionFlags(
   order: Pick<InternalWorkOrderItem, "status" | "tasks" | "workflow" | "workflowVersion">,
-  can: { review: boolean; opsConfirm: boolean }
+  can: { review: boolean; opsConfirm: boolean; warehouseReturn?: boolean }
 ): OrderActionFlags {
   const chain = isChainOrder(order);
   const stuckLegacy = isStuckLegacyInProgress(order);
@@ -39,6 +41,7 @@ export function orderActionFlags(
     chain,
     stuckLegacy,
     legacyReview: !chain && can.review && (order.status === "UNDER_REVIEW" || stuckLegacy),
+    warehouseReturn: !chain && !!can.warehouseReturn && order.status === "MAINTENANCE_CLOSED",
     legacyClose: !chain && can.opsConfirm && order.status === "AWAITING_OPS_CONFIRMATION",
     opsConfirm: chain && can.opsConfirm && order.status === "AWAITING_OPS_CONFIRMATION",
     opsReturn: chain && can.opsConfirm && order.status === "AWAITING_OPS_CONFIRMATION",

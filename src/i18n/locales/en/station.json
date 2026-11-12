@@ -149,8 +149,25 @@
           "CLOSED": "Closed"
         }
       },
+      "warehouseReturn": {
+        "title": "Spare parts settled — send to Operations",
+        "hint": "Maintenance review is done. Confirm that the spare parts of this order are settled, then send it to the Operations Manager for the final confirmation.",
+        "noStock": "This step only moves the work order forward. It does not return any stock again — physical returns are confirmed on the warehouse request itself.",
+        "blockedTitle": "Spare parts are not settled yet",
+        "blockedHint": "Issued parts still need the technician's usage and a warehouse-confirmed return. Finish them on the warehouse request first.",
+        "noteLabel": "Note (optional)",
+        "button": "Confirm spare-parts settlement and send to Operations",
+        "confirmTitle": "Send this order to Operations?",
+        "confirmBody": "The order will move to \"awaiting Operations confirmation\". No stock is changed. This cannot be repeated.",
+        "confirm": "Confirm and send",
+        "done": "Sent to the Operations Manager for confirmation."
+      },
       "errors": {
         "generic": "The action could not be completed.",
+        "WORK_ORDER_NOT_MAINTENANCE_CLOSED": "This order is no longer waiting for this step. The page was refreshed.",
+        "forbidden": "You are not allowed to do this.",
+        "notFound": "This work order was not found.",
+        "conflict": "The order changed in the meantime. The page was refreshed.",
         "COMMENT_REQUIRED": "A comment is required.",
         "PARTS_UNRESOLVED": "Spare parts are still unresolved, so the order cannot be closed yet.",
         "WORK_ORDER_NOT_AWAITING_OPS_CONFIRMATION": "This order is no longer awaiting operations confirmation. The page was refreshed.",

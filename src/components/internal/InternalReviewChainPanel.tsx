@@ -1,12 +1,13 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-import { AlertTriangle, CheckCircle, Loader2, Lock, RotateCcw, XCircle } from "lucide-react";
+import { AlertTriangle, CheckCircle, Loader2, Lock, PackageCheck, RotateCcw, XCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { ConfirmDialog } from "@/components/patterns/ConfirmDialog";
 import { useAuth } from "@/context/AuthContext";
 import { InternalOrderActionError } from "@/api/services/internalWorkOrderService";
 import useOpsConfirmInternalWorkOrder from "@/hooks/Station/useOpsConfirmInternalWorkOrder";
@@ -14,6 +15,8 @@ import useOpsReturnInternalWorkOrder from "@/hooks/Station/useOpsReturnInternalW
 import useFinalCloseInternalWorkOrder from "@/hooks/Station/useFinalCloseInternalWorkOrder";
 import useReviewInternalWorkOrder from "@/hooks/Station/useReviewInternalWorkOrder";
 import useCloseInternalWorkOrder from "@/hooks/Station/useCloseInternalWorkOrder";
+import useWarehouseReturnInternalWorkOrder from "@/hooks/Station/useWarehouseReturnInternalWorkOrder";
+import { isExecutorOnly } from "@/lib/accessControl";
 import { orderActionFlags } from "@/lib/internalReviewChain";
 import type {
   InternalWorkOrderItem,
@@ -28,6 +31,7 @@ const ERROR_CODES = [
   "WORK_ORDER_NOT_AWAITING_OPS_CONFIRMATION",
   "WORK_ORDER_NOT_AWAITING_FINAL_CLOSURE",
   "WORK_ORDER_LEGACY_WORKFLOW",
+  "WORK_ORDER_NOT_MAINTENANCE_CLOSED",
   "WORK_ORDER_REVIEW_CHAIN",
   "INSUFFICIENT_PERMISSIONS",
 ] as const;
@@ -164,27 +168,35 @@ export function ReviewHistoryList({ history }: { history: ReviewHistoryEntry[] }
 
 export default function InternalReviewChainPanel({ order }: { order: InternalWorkOrderItem }) {
   const { t } = useTranslation("station");
-  const { hasPermission } = useAuth();
+  const { hasPermission, permissions } = useAuth();
   const [comment, setComment] = useState("");
+  const [returnNote, setReturnNote] = useState("");
+  const [confirmReturn, setConfirmReturn] = useState(false);
+  // synchronous guard: React state is not updated yet between two rapid clicks, so a double click would otherwise send twice
+  const returnInFlight = useRef(false);
   const [serverLines, setServerLines] = useState<PartsReconciliationLine[]>([]);
   const opsConfirm = useOpsConfirmInternalWorkOrder();
   const opsReturn = useOpsReturnInternalWorkOrder();
   const finalClose = useFinalCloseInternalWorkOrder();
   const legacyReview = useReviewInternalWorkOrder();
   const legacyClose = useCloseInternalWorkOrder();
+  const warehouseReturn = useWarehouseReturnInternalWorkOrder();
 
   const canReview = hasPermission("internal_work_orders.review") || hasPermission("internal_tasks.review");
   const canOps = hasPermission("internal_work_orders.ops_confirm");
   // The server gates final-close and legacy review by internal_work_orders.review specifically.
-  const flags = orderActionFlags(order, { review: hasPermission("internal_work_orders.review"), opsConfirm: canOps });
+  // A technician session never gets management steps, even when an old role copy still carries `warehouse_return`.
+  const canWarehouseReturn = hasPermission("internal_work_orders.warehouse_return") && !isExecutorOnly(permissions ?? []);
+  const flags = orderActionFlags(order, { review: hasPermission("internal_work_orders.review"), opsConfirm: canOps, warehouseReturn: canWarehouseReturn });
   const wf = order.workflow;
-  const busy = opsConfirm.isPending || opsReturn.isPending || finalClose.isPending || legacyReview.isPending || legacyClose.isPending;
+  const busy = opsConfirm.isPending || opsReturn.isPending || finalClose.isPending || legacyReview.isPending || legacyClose.isPending || warehouseReturn.isPending;
 
   const failure = (e: unknown) => {
     const code = e instanceof InternalOrderActionError ? e.code : null;
     const known = ERROR_CODES.find((c) => c === code);
     if (e instanceof InternalOrderActionError && e.code === "PARTS_UNRESOLVED") setServerLines(e.lines);
-    toast.error(known ? t(`internalWorkOrders.chain.errors.${known}`) : e instanceof Error && e.message ? e.message : t("internalWorkOrders.chain.errors.generic"));
+    const byStatus = e instanceof InternalOrderActionError ? ({ 403: "forbidden", 404: "notFound", 409: "conflict" } as Record<number, string>)[e.status ?? 0] : undefined;
+    toast.error(known ? t(`internalWorkOrders.chain.errors.${known}`) : byStatus ? t(`internalWorkOrders.chain.errors.${byStatus}`) : e instanceof Error && e.message ? e.message : t("internalWorkOrders.chain.errors.generic"));
   };
   const done = (msg: string) => () => {
     setComment("");
@@ -197,13 +209,24 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
   const blockingLines = (order.partsReconciliation?.lines ?? []).filter((l) => l.blockers.length > 0);
   const shownBlocking = blockingLines.length > 0 ? blockingLines : serverLines;
   const closeDisabled = busy || blockingLocal;
+  // V1 warehouse-return is only a workflow step, but it must not be taken while issued parts are unreconciled (same rule as final closure).
+  const returnBlocked = flags.warehouseReturn && (blockingLocal || serverLines.length > 0);
+  const submitWarehouseReturn = () => {
+    if (returnInFlight.current || warehouseReturn.isPending) return;
+    returnInFlight.current = true;
+    warehouseReturn.mutate({ id: order.id, returnNote: returnNote.trim() || undefined }, {
+      onSettled: () => { returnInFlight.current = false; },
+      onSuccess: () => { setConfirmReturn(false); setReturnNote(""); setServerLines([]); toast.success(t("internalWorkOrders.chain.warehouseReturn.done")); },
+      onError: (e) => { setConfirmReturn(false); failure(e); },
+    });
+  };
 
   // ---- next-action banner (chain orders only)
   const actorIsMe = (a: ReviewChainActor | null) =>
     a === "MAINTENANCE_MANAGER" ? canReview : a === "OPERATIONS_MANAGER" ? canOps : a === "TECHNICIAN" ? !canReview && !canOps : false;
   const stageKey = wf && STAGE_KEYS.includes(wf.stage) ? wf.stage : null;
 
-  const hasActions = flags.opsConfirm || flags.finalClose || flags.legacyReview || flags.legacyClose;
+  const hasActions = flags.opsConfirm || flags.finalClose || flags.legacyReview || flags.legacyClose || flags.warehouseReturn;
   const showHistory = flags.chain || (order.reviewHistory ?? []).length > 0;
   if (!flags.chain && !hasActions && !showHistory) return null;
 
@@ -250,6 +273,39 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
                 <p className="text-xs text-muted-foreground">
                   {flags.opsConfirm ? t("internalWorkOrders.chain.comment.hintOps") : t("internalWorkOrders.chain.comment.hintClose")}
                 </p>
+              </div>
+            ) : null}
+
+            {flags.warehouseReturn ? (
+              <div className="space-y-3" data-testid="warehouse-return-section">
+                <p className="text-sm font-medium">{t("internalWorkOrders.chain.warehouseReturn.title")}</p>
+                <p className="text-sm text-muted-foreground">{t("internalWorkOrders.chain.warehouseReturn.hint")}</p>
+                <p className="text-xs text-muted-foreground" data-testid="warehouse-return-no-stock">{t("internalWorkOrders.chain.warehouseReturn.noStock")}</p>
+                {returnBlocked ? (
+                  <div className="space-y-2 rounded-md border border-amber-500/60 p-3" role="alert" data-testid="warehouse-return-blocked">
+                    <p className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
+                      <AlertTriangle className="h-4 w-4 shrink-0" /> {t("internalWorkOrders.chain.warehouseReturn.blockedTitle")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{t("internalWorkOrders.chain.warehouseReturn.blockedHint")}</p>
+                    <BlockingLines lines={shownBlocking} />
+                  </div>
+                ) : null}
+                <div className="space-y-1">
+                  <Label htmlFor="warehouse-return-note">{t("internalWorkOrders.chain.warehouseReturn.noteLabel")}</Label>
+                  <Textarea id="warehouse-return-note" dir="auto" rows={2} maxLength={2000} value={returnNote} onChange={(e) => setReturnNote(e.target.value)} data-testid="warehouse-return-note" />
+                </div>
+                <Button size="sm" className="gap-1" disabled={busy || returnBlocked} data-testid="warehouse-return" onClick={() => setConfirmReturn(true)}>
+                  {warehouseReturn.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <PackageCheck className="h-4 w-4" />} {t("internalWorkOrders.chain.warehouseReturn.button")}
+                </Button>
+                <ConfirmDialog
+                  open={confirmReturn}
+                  onOpenChange={setConfirmReturn}
+                  title={t("internalWorkOrders.chain.warehouseReturn.confirmTitle")}
+                  description={t("internalWorkOrders.chain.warehouseReturn.confirmBody")}
+                  confirmLabel={t("internalWorkOrders.chain.warehouseReturn.confirm")}
+                  isPending={warehouseReturn.isPending}
+                  onConfirm={submitWarehouseReturn}
+                />
               </div>
             ) : null}
 
@@ -342,7 +398,7 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
         </Card>
       ) : null}
 
-      {flags.chain ? <PartsTable order={order} /> : null}
+      {flags.chain || flags.warehouseReturn ? <PartsTable order={order} /> : null}
       {showHistory ? <ReviewHistoryList history={order.reviewHistory ?? []} /> : null}
     </div>
   );
