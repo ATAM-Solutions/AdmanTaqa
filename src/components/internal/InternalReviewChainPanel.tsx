@@ -17,7 +17,7 @@ import useReviewInternalWorkOrder from "@/hooks/Station/useReviewInternalWorkOrd
 import useCloseInternalWorkOrder from "@/hooks/Station/useCloseInternalWorkOrder";
 import useWarehouseReturnInternalWorkOrder from "@/hooks/Station/useWarehouseReturnInternalWorkOrder";
 import { isExecutorOnly } from "@/lib/accessControl";
-import { orderActionFlags } from "@/lib/internalReviewChain";
+import { viewerOperations, orderActionFlags } from "@/lib/internalReviewChain";
 import type {
   InternalWorkOrderItem,
   PartsReconciliationLine,
@@ -26,6 +26,8 @@ import type {
 } from "@/types/internalWorkOrder";
 
 const ERROR_CODES = [
+  "OPERATIONS_ROLE_REQUIRED",
+  "SEPARATION_OF_DUTIES",
   "COMMENT_REQUIRED",
   "PARTS_UNRESOLVED",
   "WORK_ORDER_NOT_AWAITING_OPS_CONFIRMATION",
@@ -188,6 +190,9 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
   // A technician session never gets management steps, even when an old role copy still carries `warehouse_return`.
   const canWarehouseReturn = hasPermission("internal_work_orders.warehouse_return") && !isExecutorOnly(permissions ?? []);
   const flags = orderActionFlags(order, { review: hasPermission("internal_work_orders.review"), opsConfirm: canOps, warehouseReturn: canWarehouseReturn });
+  // Operations visibility is decided by the SERVER (permission key + role guard + reviewer rule); the key alone is only the fallback for older servers.
+  const opsView = viewerOperations(order, canOps);
+  const opsBlockedBySeparation = opsView.authoritative && opsView.reason === "SEPARATION_OF_DUTIES" && order.status === "AWAITING_OPS_CONFIRMATION";
   const wf = order.workflow;
   const busy = opsConfirm.isPending || opsReturn.isPending || finalClose.isPending || legacyReview.isPending || legacyClose.isPending || warehouseReturn.isPending;
 
@@ -223,10 +228,10 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
 
   // ---- next-action banner (chain orders only)
   const actorIsMe = (a: ReviewChainActor | null) =>
-    a === "MAINTENANCE_MANAGER" ? canReview : a === "OPERATIONS_MANAGER" ? canOps : a === "TECHNICIAN" ? !canReview && !canOps : false;
+    a === "MAINTENANCE_MANAGER" ? canReview : a === "OPERATIONS_MANAGER" ? (opsView.confirm || opsView.return) : a === "TECHNICIAN" ? !canReview && !(opsView.confirm || opsView.return) : false;
   const stageKey = wf && STAGE_KEYS.includes(wf.stage) ? wf.stage : null;
 
-  const hasActions = flags.opsConfirm || flags.finalClose || flags.legacyReview || flags.legacyClose || flags.warehouseReturn;
+  const hasActions = opsBlockedBySeparation || flags.opsConfirm || flags.opsReturn || flags.finalClose || flags.legacyReview || flags.legacyClose || flags.warehouseReturn;
   const showHistory = flags.chain || (order.reviewHistory ?? []).length > 0;
   if (!flags.chain && !hasActions && !showHistory) return null;
 
@@ -257,7 +262,13 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
       {hasActions ? (
         <Card data-testid="order-actions">
           <CardContent className="space-y-4 py-4">
-            {flags.opsConfirm || flags.finalClose ? (
+            {opsBlockedBySeparation ? (
+              <p className="rounded-md border border-amber-500/60 p-3 text-sm text-amber-700 dark:text-amber-400" role="status" data-testid="ops-separation-note">
+                {t("internalWorkOrders.chain.ops.separationNote")}
+              </p>
+            ) : null}
+
+            {flags.opsConfirm || flags.opsReturn || flags.finalClose ? (
               <div className="space-y-1">
                 <Label htmlFor="chain-comment">{t("internalWorkOrders.chain.comment.label")}</Label>
                 <Textarea
@@ -271,7 +282,7 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
                   data-testid="chain-comment"
                 />
                 <p className="text-xs text-muted-foreground">
-                  {flags.opsConfirm ? t("internalWorkOrders.chain.comment.hintOps") : t("internalWorkOrders.chain.comment.hintClose")}
+                  {flags.opsConfirm || flags.opsReturn ? t("internalWorkOrders.chain.comment.hintOps") : t("internalWorkOrders.chain.comment.hintClose")}
                 </p>
               </div>
             ) : null}
@@ -311,7 +322,6 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
 
             <div className="flex flex-wrap gap-2">
               {flags.opsConfirm ? (
-                <>
                   <Button
                     size="sm"
                     disabled={busy}
@@ -321,6 +331,8 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
                   >
                     {opsConfirm.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle className="h-4 w-4" />} {t("internalWorkOrders.chain.ops.confirm")}
                   </Button>
+              ) : null}
+              {flags.opsReturn ? (
                   <Button
                     size="sm"
                     variant="destructive"
@@ -331,7 +343,6 @@ export default function InternalReviewChainPanel({ order }: { order: InternalWor
                   >
                     {opsReturn.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4 rtl:-scale-x-100" />} {t("internalWorkOrders.chain.ops.return")}
                   </Button>
-                </>
               ) : null}
               {flags.finalClose ? (
                 <Button

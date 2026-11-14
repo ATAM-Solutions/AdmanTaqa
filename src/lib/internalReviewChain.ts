@@ -17,6 +17,20 @@ export function isStuckLegacyInProgress(order: Pick<InternalWorkOrderItem, "stat
   return (order.tasks ?? []).length > 0 && open.every((t) => t.status === "COMPLETED");
 }
 
+/**
+ * What the SERVER says this viewer may do on the Operations step of this order (`viewerActions.operations` of the order detail).
+ * It folds in the permission key, the technician restriction, the role guard and the reviewer rule, exactly like the routes.
+ */
+export function viewerOperations(
+  order: Pick<InternalWorkOrderItem, "viewerActions">,
+  hasOpsKey: boolean
+): { confirm: boolean; return: boolean; reason: string | null; authoritative: boolean } {
+  const ops = order.viewerActions?.operations;
+  // An older server does not send the block: keep the permission-key behaviour (the routes still refuse what is not allowed).
+  if (!ops) return { confirm: hasOpsKey, return: hasOpsKey, reason: null, authoritative: false };
+  return { confirm: !!ops.confirm?.allowed, return: !!ops.return?.allowed, reason: ops.confirm?.reason ?? ops.return?.reason ?? null, authoritative: true };
+}
+
 export interface OrderActionFlags {
   chain: boolean;
   /** Legacy Approve / Reject (UNDER_REVIEW, or the stuck IN_PROGRESS case). */
@@ -32,19 +46,20 @@ export interface OrderActionFlags {
 }
 
 export function orderActionFlags(
-  order: Pick<InternalWorkOrderItem, "status" | "tasks" | "workflow" | "workflowVersion">,
+  order: Pick<InternalWorkOrderItem, "status" | "tasks" | "workflow" | "workflowVersion"> & Partial<Pick<InternalWorkOrderItem, "viewerActions">>,
   can: { review: boolean; opsConfirm: boolean; warehouseReturn?: boolean }
 ): OrderActionFlags {
   const chain = isChainOrder(order);
   const stuckLegacy = isStuckLegacyInProgress(order);
+  const ops = viewerOperations(order as Pick<InternalWorkOrderItem, "viewerActions">, can.opsConfirm);
   return {
     chain,
     stuckLegacy,
     legacyReview: !chain && can.review && (order.status === "UNDER_REVIEW" || stuckLegacy),
     warehouseReturn: !chain && !!can.warehouseReturn && order.status === "MAINTENANCE_CLOSED",
-    legacyClose: !chain && can.opsConfirm && order.status === "AWAITING_OPS_CONFIRMATION",
-    opsConfirm: chain && can.opsConfirm && order.status === "AWAITING_OPS_CONFIRMATION",
-    opsReturn: chain && can.opsConfirm && order.status === "AWAITING_OPS_CONFIRMATION",
+    legacyClose: !chain && ops.confirm && order.status === "AWAITING_OPS_CONFIRMATION",
+    opsConfirm: chain && ops.confirm && order.status === "AWAITING_OPS_CONFIRMATION",
+    opsReturn: chain && ops.return && order.status === "AWAITING_OPS_CONFIRMATION",
     finalClose: chain && can.review && order.status === "AWAITING_FINAL_CLOSURE",
   };
 }

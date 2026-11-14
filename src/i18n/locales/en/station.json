@@ -96,7 +96,8 @@
         "return": "Return to technician",
         "returnNeedsComment": "Write a comment to return the work to the technician.",
         "confirmed": "Work confirmed. The order now awaits final closure.",
-        "returned": "Work returned to the technician."
+        "returned": "Work returned to the technician.",
+        "separationNote": "You approved the maintenance stage of this order, so another operations user must confirm it. You can still return it with a comment."
       },
       "finalClose": {
         "button": "Close work order",
@@ -174,7 +175,9 @@
         "WORK_ORDER_NOT_AWAITING_FINAL_CLOSURE": "This order is no longer awaiting final closure. The page was refreshed.",
         "WORK_ORDER_LEGACY_WORKFLOW": "This action is not available for this older work order.",
         "WORK_ORDER_REVIEW_CHAIN": "This order follows the new review chain. Review the technician's task report instead.",
-        "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this."
+        "INSUFFICIENT_PERMISSIONS": "You do not have permission to do this.",
+        "OPERATIONS_ROLE_REQUIRED": "Only the Operations Manager or the Station Owner can confirm or return the work at the operations step.",
+        "SEPARATION_OF_DUTIES": "You approved the maintenance stage of this order, so a different operations user must confirm it. You can still return it with a comment."
       }
     }
   },

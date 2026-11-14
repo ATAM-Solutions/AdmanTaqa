@@ -35,6 +35,15 @@ export interface InternalWorkOrderItem {
   workflow?: InternalWorkflowState | null;
   partsReconciliation?: PartsReconciliation | null;
   reviewHistory?: ReviewHistoryEntry[];
+  /** Per-viewer authorization computed by the server (same rules as the routes). Absent on older servers. */
+  viewerActions?: { operations?: ViewerOperations } | null;
+}
+
+export type ViewerOperationsReason = "MISSING_PERMISSION" | "TECHNICIAN_ROLE_RESTRICTED" | "OPERATIONS_ROLE_REQUIRED" | "SEPARATION_OF_DUTIES" | (string & {});
+
+export interface ViewerOperations {
+  confirm: { allowed: boolean; reason: ViewerOperationsReason | null; ownerOverride?: boolean };
+  return: { allowed: boolean; reason: ViewerOperationsReason | null };
 }
 
 export type InternalWorkflowStage =
