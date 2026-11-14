@@ -43,3 +43,18 @@ export function technicianStages(progress: TaskProgress): TaskProgressStage[] {
     { key: "tech_completed", state: approved ? "done" : "upcoming", optional: false, at: approved ? progress.reviewedAt : null, by: approved ? progress.reviewedBy : null },
   ];
 }
+
+/**
+ * Management view only. A V1 task is approved once, at completion, and is then closed together with its order: it never gets a
+ * separate "under review" update. The server reports that stage as `unknown` (no evidence), which read as an unfinished step.
+ * When the task is CLOSED and its approval stamp (`reviewedAt`) exists, show the stage as folded into that approval instead.
+ * Nothing is invented: no timestamp or actor is attached, and the server data is not changed.
+ */
+export type DisplayStageState = TaskProgressStage["state"] | "folded";
+export function managementStageStates(progress: TaskProgress): { stage: TaskProgressStage; state: DisplayStageState }[] {
+  const closedAndApproved = progress.status === "CLOSED" && !!progress.reviewedAt;
+  return progress.stages.map((stage) => ({
+    stage,
+    state: closedAndApproved && stage.key === "under_review" && stage.state === "unknown" ? "folded" : stage.state,
+  }));
+}

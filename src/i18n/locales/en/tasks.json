@@ -47,6 +47,7 @@
     "title": "Progress",
     "unavailable": "Progress is not available for this task.",
     "awaitingApproval": "Awaiting manager approval",
+    "foldedIntoApproval": "Covered by the completion approval",
     "noRecord": "No record",
     "inProgress": "Now",
     "pendingBanner": "Waiting for the manager to approve “{{stage}}”. The task stays at its current stage until then.",

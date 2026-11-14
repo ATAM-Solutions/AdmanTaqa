@@ -2,7 +2,8 @@ import { useTranslation } from "react-i18next";
 import { Check, Circle, Clock, HelpCircle } from "lucide-react";
 import type { TaskProgress as TaskProgressData } from "@/api/services/taskDetailService";
 import { cn } from "@/lib/utils";
-import { technicianStages } from "@/lib/technicianProgress";
+import { managementStageStates, technicianStages, type DisplayStageState } from "@/lib/technicianProgress";
+import { Minus } from "lucide-react";
 
 /**
  * Shared progress display for an internal task. Renders the server-computed `progress` (the same payload the
@@ -14,40 +15,46 @@ export default function TaskProgress({ progress, compact = false, technician = f
   if (!progress) {
     return <p className="text-xs text-muted-foreground" data-testid="task-progress-unavailable">{t("progress.unavailable")}</p>;
   }
-  const visible = (technician ? technicianStages(progress) : progress.stages).filter((s) => !(s.optional && (s.state === "upcoming" || s.state === "unknown")));
+  const staged: { stage: (typeof progress.stages)[number]; state: DisplayStageState }[] = technician
+    ? technicianStages(progress).map((s) => ({ stage: s, state: s.state }))
+    : managementStageStates(progress);
+  const visible = staged.filter(({ stage: s, state }) => !(s.optional && (state === "upcoming" || state === "unknown")));
   const fmt = (iso: string | null) =>
     iso ? new Date(iso).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" }) : null;
 
   return (
     <div data-testid="task-progress" data-variant={technician ? "technician" : "management"}>
       <ol className={cn(compact ? "grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-6" : "flex flex-col gap-2 sm:flex-row sm:flex-wrap")}>
-        {visible.map((stage) => {
-          const done = stage.state === "done";
-          const current = stage.state === "current";
-          const waiting = stage.state === "awaiting_approval";
-          const unknown = stage.state === "unknown";
+        {visible.map(({ stage, state }) => {
+          const done = state === "done";
+          const current = state === "current";
+          const waiting = state === "awaiting_approval";
+          const unknown = state === "unknown";
+          const folded = state === "folded";
           return (
             <li
               key={stage.key}
               data-stage={stage.key}
-              data-state={stage.state}
+              data-state={state}
               className={cn(
                 "flex min-w-0 flex-1 items-start gap-2 rounded-md border p-2 text-xs",
                 done && "border-emerald-500/40 bg-emerald-500/5",
                 current && "border-primary bg-primary/5",
                 waiting && "border-amber-500/60 bg-amber-500/10",
-                (stage.state === "upcoming" || unknown) && "text-muted-foreground"
+                (state === "upcoming" || unknown || folded) && "text-muted-foreground"
               )}
             >
               <span className="mt-0.5 shrink-0">
-                {done ? <Check className="h-4 w-4 text-emerald-600" /> : waiting ? <Clock className="h-4 w-4 text-amber-600" /> : unknown ? <HelpCircle className="h-4 w-4" /> : <Circle className={cn("h-4 w-4", current && "fill-primary text-primary")} />}
+                {done ? <Check className="h-4 w-4 text-emerald-600" /> : waiting ? <Clock className="h-4 w-4 text-amber-600" /> : folded ? <Minus className="h-4 w-4" /> : unknown ? <HelpCircle className="h-4 w-4" /> : <Circle className={cn("h-4 w-4", current && "fill-primary text-primary")} />}
               </span>
               <span className="min-w-0">
                 <span className="block font-medium">{t(`progress.stages.${stage.key}`)}</span>
                 <span className="block text-[11px] opacity-80">
                   {waiting
                     ? t("progress.awaitingApproval")
-                    : unknown
+                    : folded
+                      ? t("progress.foldedIntoApproval")
+                      : unknown
                       ? t("progress.noRecord")
                       : stage.at
                         ? fmt(stage.at)
